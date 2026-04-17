@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#F0F0F0">
+
+    <!-- ====================== 1. 装备区（9个槽位，严格按RPG标准布局） ====================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:elevation="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="装备栏"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#222222"/>
+
+        <!-- 装备槽位布局：左右对称，9个槽位 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="bottom">
+
+            <!-- 左侧：护甲槽（头盔、胸甲、护腿、鞋子） -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:id="@+id/slot_helmet"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="头盔"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_chest"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="胸甲"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_leggings"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="护腿"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_boots"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:gravity="center">
+                    <TextView
+                        android:text="鞋子"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 中间：武器槽 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/slot_weapon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:gravity="center">
+
+                    <TextView
+                        android:text="武器"
+                        android:textSize="12sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 右侧：饰品槽（项链、手镯、左戒指、右戒指） -->
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:id="@+id/slot_necklace"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="项链"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_bracelet"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="手镯"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_ring_left"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center">
+                    <TextView
+                        android:text="左戒"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/slot_ring_right"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="#E5E5E5"
+                    android:gravity="center">
+                    <TextView
+                        android:text="右戒"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ====================== 2. 分页控制区（纯页码翻页，无任何分类） ====================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="2dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/btn_prev_page"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="上一页"
+            android:textSize="14sp"
+            android:clickable="true"
+            android:focusable="true"/>
+
+        <TextView
+            android:id="@+id/tv_page_info"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="第1页 / 共5页"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/btn_next_page"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="下一页"
+            android:textSize="14sp"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </LinearLayout>
+
+    <!-- ====================== 3. 背包格子区（每页6x6=36格，无滚动） ====================== -->
+    <LinearLayout
+        android:id="@+id/grid_bag_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:background="#FFFFFF"
+        android:padding="8dp"
+        android:elevation="2dp"
+        android:orientation="vertical"/>
+
+</LinearLayout>
