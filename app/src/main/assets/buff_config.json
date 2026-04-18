@@ -1,0 +1,64 @@
+{
+  "buff_templates": [
+    {
+      "templateId": 1001,
+      "buffId": "buff_strength_up_percentage",
+      "buffName": "力量提升（百分比）",
+      "descriptionFormat": "力量提升%d%%",
+      "buffType": "BUFF",
+      "triggerType": "PERMANENT",
+      "isDispellable": true,
+      "defaultDuration": 3,
+      "maxStackCount": 100,
+      "refreshOnApply": true,
+      "minValue": 0.01,
+      "maxValue": 0.01,
+      "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff"
+    },
+    {
+        "templateId": 1002,
+        "buffId": "buff_strength_up_fixed",
+        "buffName": "力量提升（固定）",
+        "descriptionFormat": "力量提升%d",
+        "buffType": "BUFF",
+        "triggerType": "PERMANENT",
+        "isDispellable": true,
+        "defaultDuration": 3,
+        "maxStackCount": 10000,
+        "refreshOnApply": true,
+        "minValue": 1,
+        "maxValue": 1,
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff"
+    },
+    {   
+        "templateId": 2001,
+        "buffName": "物理攻击力提升（百分比）",
+        "buffId": "buff_physical_attack_up_percentage",
+        "descriptionFormat": "物理攻击力提升%d%%",
+        "buffType": "BUFF",
+        "triggerType": "PERMANENT",
+        "isDispellable": true,
+        "defaultDuration": 3,
+        "maxStackCount": 100,
+        "refreshOnApply": true,
+        "minValue": 0.01,
+        "maxValue": 0.01,
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff"
+    },
+    {
+        "templateId": 2002,
+        "buffName": "物理攻击力提升（固定）",
+        "buffId": "buff_physical_attack_up_fixed",
+        "descriptionFormat": "物理攻击力提升%d",
+        "buffType": "BUFF",
+        "triggerType": "PERMANENT",
+        "isDispellable": true,
+        "defaultDuration": 3,
+        "maxStackCount": 10000,
+        "refreshOnApply": true,
+        "minValue": 1,
+        "maxValue": 1,
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff"
+    }
+  ]
+}

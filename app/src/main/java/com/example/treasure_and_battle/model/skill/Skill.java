@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.skill;
 
 /**
  * 技能基类 (Skill)

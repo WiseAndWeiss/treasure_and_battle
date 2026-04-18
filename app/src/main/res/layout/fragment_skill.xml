@@ -1,13 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:padding="8dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="角色/技能/属性界面"
-        android:textSize="18sp"/>
+    <!-- 左上部分：综合详细属性 (受装备影响的最终结果) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_stats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintWidth_percent="0.45"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cv_talents">
 
-</LinearLayout>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp">
+            <!-- TODO: 后期通过玩家数据实际运算生成长段文本或动态列表 -->
+            <TextView
+                android:id="@+id/tv_stats_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:text="职业：未定\n等级：1\n名称：玩家\n\n血量：100/100\n魔力：50/50\n\n物攻：15\n魔攻：10\n物防：5\n魔防：5\n速度：10\n暴击：0%\n闪避：0%\n\n(最终计算属性将在此滚动显示)"/>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 右上部分：六维天赋加系统 (不包含装备与被动加成) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_talents"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toEndOf="@id/cv_stats"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/cv_stats">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="基础资质提升 (六维)"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="4dp"/>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:columnCount="3"
+                android:rowCount="2"
+                android:gravity="center">
+                
+                <!-- 力量 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
+                    <TextView android:id="@+id/tv_talent_str" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="力量 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_str"/>
+                </LinearLayout>
+
+                <!-- 敏捷 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
+                    <TextView android:id="@+id/tv_talent_agi" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="敏捷 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_agi"/>
+                </LinearLayout>
+
+                <!-- 智力 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
+                    <TextView android:id="@+id/tv_talent_int" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="智力 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_int"/>
+                </LinearLayout>
+
+                <!-- 精神 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
+                    <TextView android:id="@+id/tv_talent_spr" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="精神 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_spr"/>
+                </LinearLayout>
+
+                <!-- 体魄 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
+                    <TextView android:id="@+id/tv_talent_phy" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="体魄 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_phy"/>
+                </LinearLayout>
+
+                <!-- 幸运 -->
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
+                    <TextView android:id="@+id/tv_talent_luc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="幸运 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_luc"/>
+                </LinearLayout>
+
+            </GridLayout>
+
+            <TextView
+                android:id="@+id/tv_remaining_points"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="剩余天赋点: 0"
+                android:textColor="#FF5722"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="4dp"/>
+                
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 下半部分：技能列表与侧边栏 Tab -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/cv_stats"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <!-- 左侧分页导航列 -->
+            <LinearLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="#EEEEEE"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:id="@+id/tab_passive"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="被动"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="#FF9800"/>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+
+                <TextView
+                    android:id="@+id/tab_event"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="事件"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#666666"/>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+
+                <TextView
+                    android:id="@+id/tab_active"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="主动"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#666666"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#CCCCCC"/>
+
+            <!-- 右侧区域 (剩余技能点提示与列表) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#FAFAFA">
+
+                <TextView
+                    android:id="@+id/tv_remaining_skill_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="剩余技能点: 0"
+                    android:textColor="#FF5722"
+                    android:textStyle="bold"
+                    android:gravity="end|center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_skills"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:clipToPadding="false"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

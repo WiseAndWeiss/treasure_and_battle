@@ -1,4 +1,7 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.item;
+
+import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +35,11 @@ public class Equipment extends Item {
     private int[] attrBonus;        // 属性加成数组： [力量,敏捷,智力,精神,体魄,幸运] 或 其他直接战斗属性
 
     // ====================== 附属养成属性（词条与宝石体系） ======================
-    private List<Affix> affixes;    // 【新增】词条列表（固定词条数量受Rarity品质影响）
+    private List<BaseAffix> affixes;    // 【新增】词条列表（固定词条数量受Rarity品质影响）
     private Gem[] socketedGems;     // 【新增】宝石槽数组（槽位数量受Rarity品质影响：白1/绿2/蓝3/紫4/橙5）
 
     // 构造函数
-    public Equipment(int itemId, String itemName, Rarity rarity, int iconResId, String description, 
+    public Equipment(int itemId, String itemName, Rarity rarity, int iconResId, String description,
                      int baseValue, int slotType, int subType, int equipmentLevel, int requireLevel, int[] attrBonus) {
         // 装备类型固定为TYPE_EQUIPMENT，堆叠上限固定为1（不可堆叠）
         super(itemId, itemName, TYPE_EQUIPMENT, rarity, iconResId, description, 1, baseValue);
@@ -62,9 +65,8 @@ public class Equipment extends Item {
     public void setRequireLevel(int requireLevel) { this.requireLevel = requireLevel; }
     public int[] getAttrBonus() { return attrBonus; }
     public void setAttrBonus(int[] attrBonus) { this.attrBonus = attrBonus; }
-    
-    public List<Affix> getAffixes() { return affixes; }
-    public void setAffixes(List<Affix> affixes) { this.affixes = affixes; }
+    public List<BaseAffix> getAffixes() { return affixes; }
+    public void setAffixes(List<BaseAffix> affixes) { this.affixes = affixes; }
     public Gem[] getSocketedGems() { return socketedGems; }
     public void setSocketedGems(Gem[] socketedGems) { this.socketedGems = socketedGems; }
 }

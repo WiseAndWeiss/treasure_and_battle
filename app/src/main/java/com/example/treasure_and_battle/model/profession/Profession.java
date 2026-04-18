@@ -1,4 +1,7 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.profession;
+
+import com.example.treasure_and_battle.model.skill.Skill;
+import com.example.treasure_and_battle.model.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;

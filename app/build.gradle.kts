@@ -29,6 +29,13 @@ android {
             )
         }
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -44,4 +51,9 @@ dependencies {
 
     // 高德3D地图 SDK
     implementation("com.amap.api:3dmap:latest.release")
+    implementation("com.google.code.gson:gson:2.10.1")
+    // Mock Android 环境
+    testImplementation("org.robolectric:robolectric:4.10.3")
+    // Mockito 用于模拟对象
+    testImplementation("org.mockito:mockito-core:5.3.1")
 }

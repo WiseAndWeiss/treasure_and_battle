@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.common;
 
 /**
  * 通用稀有度体系（全模块复用）
@@ -61,6 +61,13 @@ public enum Rarity {
         this.gemSlotCount = gemSlotCount;
         this.sellPriceMultiplier = sellPriceMultiplier;
         this.affixRarityBonus = affixRarityBonus;
+    }
+
+    public static Rarity fromId(int id) {
+        for (Rarity r : values()) {
+            if (r.id == id) return r;
+        }
+        return null; // 或抛异常，根据需求调整
     }
 
     // ====================== Getters ======================

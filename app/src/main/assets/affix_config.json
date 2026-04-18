@@ -1,0 +1,28 @@
+{
+  "affix_templates": [
+    {
+      "templateId": 1001,
+      "affixName": "攻击力提升（百分比）",
+      "descriptionFormat": "攻击力提高 %.0f%%",
+      "rarityId": 1,
+      "triggerType": "PERMANENT",
+      "allowSlots": [],
+      "minValue": 0.01,
+      "maxValue": 0.01,
+      "affixClass": "com.example.treasure_and_battle.affix.monster.MonsterAttackPercentAffix",
+      "affixType": "MONSTER"
+    },
+    {
+      "templateId": 2001,
+      "affixName": "生命值提升",
+      "descriptionFormat": "生命值上限提高 %.0f%%",
+      "rarityId": 1,
+      "triggerType": "PERMANENT",
+      "allowSlots": [],
+      "minValue": 0.01,
+      "maxValue": 0.01,
+      "affixClass": "com.example.treasure_and_battle.affix.monster.MonsterHpPercentAffix",
+      "affixType": "MONSTER"
+    }
+  ]
+}

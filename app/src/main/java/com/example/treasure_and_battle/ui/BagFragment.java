@@ -23,9 +23,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.model.Equipment;
-import com.example.treasure_and_battle.model.Item;
-import com.example.treasure_and_battle.model.Rarity;
+import com.example.treasure_and_battle.model.item.Equipment;
+import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;
 import java.util.List;

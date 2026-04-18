@@ -1,4 +1,6 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.item;
+
+import com.example.treasure_and_battle.model.common.Rarity;
 
 // 物品基类：所有物品通用，无类型限制，后续加新物品仅需加TYPE常量
 public class Item {

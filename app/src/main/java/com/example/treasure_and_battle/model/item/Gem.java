@@ -1,4 +1,6 @@
-package com.example.treasure_and_battle.model;
+package com.example.treasure_and_battle.model.item;
+
+import com.example.treasure_and_battle.model.common.Rarity;
 
 // 宝石子类：继承自物品基类（用于实现对应的孔位和属性）
 public class Gem extends Item {
