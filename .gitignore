@@ -1,15 +1,47 @@
+# ------------------
+# Standard Android
+# ------------------
+# Android Studio / IntelliJ
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.idea/
+workspace.xml
+tasks.xml
+gradle.xml
+
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Local configuration (SDK path, etc)
 local.properties
+/local.properties
+
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Java / Dalvik / ART
+*.class
+*.dex
+
+# Mac
+.DS_Store
+
+# C++ / NDK
+.externalNativeBuild/
+.cxx/
+
+# Other generated / temp folders
+captures/
+bin/
+gen/
+out/
+.navigation/
+
+# Keystores (SECURITY: Do not commit your keystores!)
+*.jks
+*.keystore
+*.properties
+
