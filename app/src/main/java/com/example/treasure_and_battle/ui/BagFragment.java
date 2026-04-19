@@ -23,7 +23,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.model.item.Equipment;
+import com.example.treasure_and_battle.model.item.EquipItem;
+import com.example.treasure_and_battle.manager.EquipmentManager;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.common.Rarity;
 
@@ -89,13 +90,9 @@ public class BagFragment extends Fragment {
         allItems = new ArrayList<>(totalPages * itemsPerPage);
         for (int i = 0; i < totalPages * itemsPerPage; i++) {
             if (i == 0) {
-                allItems.add(new Equipment(1, "新兵铁剑", Rarity.COMMON, android.R.drawable.ic_menu_gallery, "一把普通的铁剑", 10, Equipment.SLOT_WEAPON, Equipment.SUBTYPE_WEAPON_SWORD, 1, 1, new int[]{2,0,0,0,0,0}));
+                allItems.add(EquipmentManager.getInstance(requireContext()).generateEquip(3001, 1, Rarity.COMMON));
             } else if (i == 1) {
-                allItems.add(new Equipment(2, "古白金戒指", Rarity.LEGENDARY, android.R.drawable.ic_menu_gallery, "古老的传奇戒指", 50, Equipment.SLOT_RING, Equipment.SUBTYPE_ACCESSORY, 15, 15, new int[]{0,0,0,0,0,0}));
-            } else if (i == 2) {
-                allItems.add(new Item(3, "红药水", Item.TYPE_CONSUMABLE, Rarity.UNCOMMON, android.R.drawable.ic_menu_gallery, "恢复HP", 99, 5));
-            } else if (i == 31) {
-                allItems.add(new Item(4, "第二页的物品", Item.TYPE_MATERIAL, Rarity.RARE, android.R.drawable.ic_menu_gallery, "测试", 99, 1));
+                allItems.add(EquipmentManager.getInstance(requireContext()).generateEquip(3003, 10, Rarity.LEGENDARY));
             } else {
                 allItems.add(null);
             }
@@ -294,14 +291,14 @@ public class BagFragment extends Fragment {
                                 holeHolder.ivItemIcon.setVisibility(View.INVISIBLE);
                                 holeHolder.bgItemColor.setBackgroundColor(Color.parseColor("#EAEAEA"));
                             } else {
-                                holeHolder.tvItemName.setText(holeItem.getItemName());
+                                holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
                                 holeHolder.ivItemIcon.setImageResource(holeItem.getIconResId());
                                 holeHolder.bgItemColor.setBackgroundColor(holeItem.getRarity().getColor());
 
-                                if (holeItem instanceof Equipment) {
+                                if (holeItem instanceof EquipItem) {
                                     holeHolder.tvItemLevel.setVisibility(View.VISIBLE);
-                                    holeHolder.tvItemLevel.setText("Lv." + ((Equipment) holeItem).getEquipmentLevel());
+                                    holeHolder.tvItemLevel.setText("Lv." + ((EquipItem) holeItem).getLevel());
                                 } else {
                                     holeHolder.tvItemLevel.setVisibility(View.GONE);
                                 }
@@ -420,17 +417,17 @@ public class BagFragment extends Fragment {
                 holder.ivItemIcon.setVisibility(View.INVISIBLE);
                 holder.bgItemColor.setBackgroundColor(Color.parseColor("#EAEAEA"));
             } else {
-                holder.tvItemName.setText(item.getItemName());
+                holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
                 holder.ivItemIcon.setImageResource(item.getIconResId());
 
                 int colorColor = item.getRarity().getColor();
                 holder.bgItemColor.setBackgroundColor(colorColor);
 
-                if (item instanceof Equipment) {
-                    Equipment eq = (Equipment) item;
+                if (item instanceof EquipItem) {
+                    EquipItem eq = (EquipItem) item;
                     holder.tvItemLevel.setVisibility(View.VISIBLE);
-                    holder.tvItemLevel.setText("Lv." + eq.getEquipmentLevel());
+                    holder.tvItemLevel.setText("Lv." + eq.getLevel());
                 } else {
                     holder.tvItemLevel.setVisibility(View.GONE);
                 }
@@ -455,7 +452,7 @@ public class BagFragment extends Fragment {
         private void showItemMenu(View view, int realPosition, Item item) {
             PopupMenu popupMenu = new PopupMenu(requireContext(), view);
             popupMenu.getMenu().add(0, 1, 0, "查看描述");
-            if (item instanceof Equipment) {
+            if (item instanceof EquipItem) {
                 popupMenu.getMenu().add(0, 2, 0, "装备");
             } else {
                 popupMenu.getMenu().add(0, 2, 0, "使用");
@@ -465,15 +462,15 @@ public class BagFragment extends Fragment {
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 switch (menuItem.getItemId()) {
                     case 1:
-                        Toast.makeText(getContext(), item.getItemName() + ":" + item.getDescription(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), item.getName() + ":" + item.getDescription(), Toast.LENGTH_SHORT).show();
                         break;
                     case 2:
-                        Toast.makeText(getContext(), "正在操作: " + item.getItemName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "正在操作: " + item.getName(), Toast.LENGTH_SHORT).show();
                         break;
                     case 3:
                         allItems.set(realPosition, null);
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(getContext(), "已丢弃" + item.getItemName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "已丢弃" + item.getName(), Toast.LENGTH_SHORT).show();
                         break;
                 }
                 return true;

@@ -1,0 +1,22 @@
+﻿{
+  "intents": [
+    {
+      "intentId": "intent_attack_basic",
+      "name": "撞击",
+      "description": "普通的撞击，消耗1行动点",
+      "type": "ATTACK",
+      "apCost": 1,
+      "mpCost": 0,
+      "powerMultiplier": 1.0
+    },
+    {
+      "intentId": "intent_attack_heavy",
+      "name": "重击",
+      "description": "蓄力重击，造成1.5倍物理伤害，消耗更长行动和5点魔法",
+      "type": "ATTACK",
+      "apCost": 2,
+      "mpCost": 5,
+      "powerMultiplier": 1.5
+    }
+  ]
+}

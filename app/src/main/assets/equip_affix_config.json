@@ -1,0 +1,26 @@
+{
+  "affix_templates": [
+    {
+      "templateId": 3001,
+      "affixName": "力量之源",
+      "descriptionFormat": "物理攻击力增加 %.0f",
+      "rarityId": 0,
+      "triggerType": "PERMANENT",
+      "allowCategories": ["WEAPON", "ACCESSORY"],
+      "minValue": 5.0,
+      "maxValue": 15.0,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.EquipFlatAtkAffix"
+    },
+    {
+      "templateId": 3002,
+      "affixName": "破甲意志",
+      "descriptionFormat": "物理攻击力提高 %.0f%%",
+      "rarityId": 2,
+      "triggerType": "PERMANENT",
+      "allowCategories": ["WEAPON"],
+      "minValue": 0.05,
+      "maxValue": 0.15,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.EquipPercentAtkAffix"
+    }
+  ]
+}

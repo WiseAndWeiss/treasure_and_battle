@@ -2,10 +2,7 @@ package com.example.treasure_and_battle;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.affix.monster.MonsterHpPercentAffix;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
@@ -34,28 +31,8 @@ public class MonsterAffixTest {
         context = RuntimeEnvironment.application;
 
         // 初始化测试怪物
-        testMonster = new Monster(
-                "monster_1",
-                "Slime",
-                1,
-                Rarity.COMMON,
-                100, // 初始最大生命值 100
-                50,
-                10,
-                10,
-                5,
-                5,
-                5,
-                5,
-                5,
-                5,
-                5,
-                5,
-                5,
-                10,
-                10,
-                context
-        );
+        testMonster = com.example.treasure_and_battle.manager.MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+        testMonster.getBaseAttributes().maxHp = 100; // 强制设为100以适配下方断言
     }
 
     @Test
@@ -65,12 +42,12 @@ public class MonsterAffixTest {
         AttributeSet initialFinalAttr = testMonster.getFinalAttributes();
         assertEquals("没有词缀时的最大生命值应为100", 100, initialFinalAttr.maxHp);
 
-        // 利用配置表和 AffixManager 自动化生成的随机模板词条（类似 BuffManager的逻辑）
-        com.example.treasure_and_battle.affix.BaseAffix hpAffix = com.example.treasure_and_battle.manager.AffixManager.getInstance(context).createAffixByTemplateId(2001);
+        // 利用配置表和 MonsterAffixManager 自动化生成的随机模板词条（类似 BuffManager的逻辑）
+        com.example.treasure_and_battle.affix.BaseAffix hpAffix = com.example.treasure_and_battle.manager.MonsterAffixManager.getInstance(context).createAffixByTemplateId(2001);
         assertNotNull("hpAffix不应为null，请检查配置文件中的templateId是否对应。", hpAffix);
         
-        // 挂载词缀到怪物身上 (使用完善后的 AffixManager 全局方法进行挂载和移除)
-        com.example.treasure_and_battle.manager.AffixManager.getInstance(context).addAffix(testMonster, hpAffix);
+        // 挂载词缀到怪物身上 
+        testMonster.addAffix(hpAffix);
 
         // 重新计算并获取最终属性
         AttributeUtils.calculateFinalAttributes(testMonster, context);

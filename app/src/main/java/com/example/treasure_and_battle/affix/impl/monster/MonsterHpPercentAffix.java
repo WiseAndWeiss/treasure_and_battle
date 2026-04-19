@@ -1,6 +1,6 @@
-package com.example.treasure_and_battle.affix.monster;
+package com.example.treasure_and_battle.affix.impl.monster;
 
-import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
@@ -9,17 +9,16 @@ import com.example.treasure_and_battle.model.common.Rarity;
 /**
  * 怪物词缀：生命值百分比提高
  */
-public class MonsterHpPercentAffix extends BaseAffix {
+public class MonsterHpPercentAffix extends BaseMonsterAffix {
 
     public MonsterHpPercentAffix(int affixId, String affixName, String description, Rarity rarity,
-                                 AffixTriggerType triggerType, int[] allowSlots, float value) {
+                                 AffixTriggerType triggerType, float value) {
         super(
             affixId, 
             affixName, 
             description, 
             rarity, 
             triggerType, 
-            allowSlots, 
             value
         );
     }

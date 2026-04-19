@@ -1,10 +1,13 @@
 package com.example.treasure_and_battle.battle;
 
+import com.example.treasure_and_battle.battle.log.BattleLogEntry;
+import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.MonsterIntent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +42,24 @@ public class BattleContext {
     // ====================== 怪物意图相关 ======================
     public List<MonsterIntent> currentMonsterIntents; // 怪物本轮意图列表
     public List<Boolean> intentVisibility;            // 意图可见性列表（true=看破，false=问号）
+
+    // ====================== 战斗日志相关 ======================
+    public List<BattleLogEntry> battleLogs = new ArrayList<>();
+    
+    /**
+     * 快捷添加一条日志记录（无元数据）
+     * TODO: 如果需要为具体某一Buff、词缀添加更详细数值输出，也可以在各自的 onTrigger 方法回调此接口
+     */
+    public void addLog(LogType type, String template, Object... args) {
+        battleLogs.add(new BattleLogEntry(currentRound, type, null, template, args));
+    }
+
+    /**
+     * 添加包含元数据的日志（通常metaData用于前端展示的高亮关联对象，如怪物引用）
+     */
+    public void addLogWithMeta(LogType type, Object metaData, String template, Object... args) {
+        battleLogs.add(new BattleLogEntry(currentRound, type, metaData, template, args));
+    }
 
     // ====================== 构造函数 ======================
     public BattleContext(Player player, Monster monster, boolean isSurpriseAttack) {

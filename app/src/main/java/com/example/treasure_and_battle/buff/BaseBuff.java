@@ -59,11 +59,16 @@ public abstract class BaseBuff {
 
     // ====================== 生命周期通用方法 ======================
     /**
-     * 回合Tick，返回true表示Buff已过期
+     * 回合Tick衰减机制。
+     * 默认逻辑：每回合持续时间-1。
+     * 如果子类有特殊衰减逻辑（如层数衰减、层数减半等），可以重写此方法。
+     * @return 返回 true 表示 Buff 已失效，应当被移除
      */
     public boolean tick() {
-        this.remainingDuration--;
-        return this.remainingDuration <= 0;
+        if (this.remainingDuration > 0) {
+            this.remainingDuration--;
+        }
+        return this.isExpired();
     }
 
     /**
@@ -79,8 +84,13 @@ public abstract class BaseBuff {
         this.buffValue = newBuff.buffValue;
     }
 
+    /**
+     * 判断Buff是否应该被移除。
+     * 只要持续回合耗尽（等于0），或者层数归零（<=0），即视为过期。
+     * （如果 remainingDuration < 0 可以作为永久Buff的标记）
+     */
     public boolean isExpired() {
-        return this.remainingDuration <= 0;
+        return this.remainingDuration <= 0 || this.stackCount <= 0;
     }
 
     // ====================== Getters（只读，和BaseAffix对齐） ======================

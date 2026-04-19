@@ -3,6 +3,11 @@ package com.example.treasure_and_battle.model.entity;
 import android.content.Context;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.EquipItem;
+import com.example.treasure_and_battle.model.item.EquipSlot;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collection;
 // 暂时注释掉职业相关 import，后续实现后再打开
 // import com.example.treasure_and_battle.model.profession.Profession;
 
@@ -26,6 +31,8 @@ public class Player extends BattleEntity {
     // 成长专属点数
     private int talentPoints;         // 天赋点
     private int skillPoints;          // 技能点
+
+    private Map<EquipSlot, EquipItem> equippedItems = new HashMap<>();
 
     // ====================== 构造函数（完全适配新架构） ======================
     public Player(String name, Context context) {
@@ -204,4 +211,16 @@ public class Player extends BattleEntity {
 
     public int getSkillPoints() { return skillPoints; }
     public void setSkillPoints(int skillPoints) { this.skillPoints = skillPoints; }
+
+    // ====================== 装备 ======================
+    public void equip(EquipItem item) {
+        if (item != null) {
+            equippedItems.put(item.getSlot(), item);
+            markAttributeCacheDirty();
+        }
+    }
+
+    public Collection<EquipItem> getEquippedItems() {
+        return equippedItems.values();
+    }
 }

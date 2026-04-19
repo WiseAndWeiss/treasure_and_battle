@@ -46,6 +46,60 @@ public class AttributeCalculationTest {
         
         testPlayer.markAttributeCacheDirty();
     }
+    
+    @Test
+    public void testEquipmentDamageCalculation() {
+        // 创建一件武器
+        com.example.treasure_and_battle.model.item.EquipItem weapon = new com.example.treasure_and_battle.model.item.EquipItem(
+                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, com.example.treasure_and_battle.model.item.EquipSlot.WEAPON);
+        
+        // 武器自带的基础属性
+        weapon.getBaseAttributes().physicalAtk = 20;
+        
+        java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
+        
+        // 添加固定的力量词条 (+10)
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatStrAffix(
+                1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f));
+                
+        // 添加力量百分比词条 (+20%)
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentStrAffix(
+                2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f));
+                
+        // 添加固定物理攻击力词条 (+30)
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatAtkAffix(
+                3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f));
+                
+        // 添加物理攻击力百分比词条 (+15%)
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentAtkAffix(
+                4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f));
+                
+        weapon.setAffixes(affixes);
+        
+        // 装备它！
+        testPlayer.equip(weapon);
+        
+        AttributeUtils.calculateFinalAttributes(testPlayer, context);
+        AttributeSet finalAttr = testPlayer.getFinalAttributes();
+        
+        // 验证阶段一：计算六维
+        // 基础力量: 50
+        // 词缀加成: 力量百分比 +20%, 固定力量 +10
+        // 最终力量 = 50 * 1.2 + 10 = 60 + 10 = 70
+        assertEquals("装备带来的力量百分比和固定加成计算错误", 70, finalAttr.strength);
+        
+        // 验证阶段三：计算最终面板
+        // 衍生物攻 = 100(基础设定) + 20(力量差70-50=20) = 120
+        // 这里 modifiers.physicalAtk 固定总加成 = 20(武器Base自带) + 30(词条EquipFlatAtkAffix) = 50
+        // modifiers.percentPhysicalAtk 总百分比加成 = 0.15
+        
+        // 所以: 最终物攻 = 120 * 1.15 + 50 = 138 + 50 = 188
+        assertEquals("装备带来的物理攻击力百分比和固定加成计算错误", 188, finalAttr.physicalAtk);
+    }
 
     @Test
     public void testBuffDamageCalculation() {
@@ -93,5 +147,69 @@ public class AttributeCalculationTest {
         
         // 验证2：验证力量带动基础物攻，且进入二次攻击力独立乘区运算结果 [ (100 + 60 增量) * 1.7 + 100 = 372 ]
         assertEquals("六维力量转基础面板后，百分比和固定值复合计算机制不符合预期", 372, finalAttr.physicalAtk);
+    }
+
+    @Test
+    public void testEquipmentAndBuffCombinedCalculation() {
+        // 测试词缀（装备）和buff同时存在时的计算结果
+        // ------------------ 装备配置 ------------------
+        com.example.treasure_and_battle.model.item.EquipItem weapon = new com.example.treasure_and_battle.model.item.EquipItem(
+                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, com.example.treasure_and_battle.model.item.EquipSlot.WEAPON);
+        weapon.getBaseAttributes().physicalAtk = 20; // 武器基础属性，相当于固定物攻+20
+        
+        java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatStrAffix(
+                1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f)); // 固定力量+10
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentStrAffix(
+                2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f)); // 百分比力量+20%
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatAtkAffix(
+                3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f)); // 固定物攻+30
+        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentAtkAffix(
+                4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
+                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f)); // 百分比物攻+15%
+        weapon.setAffixes(affixes);
+        testPlayer.equip(weapon);
+
+        // ------------------ Buff配置 ------------------
+        StrengthBuff strengthPercentBuff = new StrengthBuff("str_percent", "力量百分比", "", 
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE); // 百分比力量+20%
+        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
+        
+        StrengthBuff strengthFixedBuff = new StrengthBuff("str_fixed", "力量固定", "", 
+            BuffType.BUFF, true, 99, 1, false, 50f, AttributeModifierType.FLAT); // 固定力量+50
+        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
+
+        PhysicalAttackBuff atkFixedBuff = new PhysicalAttackBuff("atk_fixed", "物攻固定", "", 
+            BuffType.BUFF, true, 99, 1, false, 100f, AttributeModifierType.FLAT); // 固定物攻+100
+        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
+
+        PhysicalAttackBuff atkPercentBuff1 = new PhysicalAttackBuff("atk_percent_1", "物攻百分比20", "", 
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE); // 百分比物攻+20%
+        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
+
+        PhysicalAttackBuff atkPercentBuff2 = new PhysicalAttackBuff("atk_percent_2", "物攻百分比50", "", 
+            BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeModifierType.PERCENTAGE); // 百分比物攻+50%
+        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
+
+        // ------------------ 最终结算与断言 ------------------
+        AttributeUtils.calculateFinalAttributes(testPlayer, context);
+        AttributeSet finalAttr = testPlayer.getFinalAttributes();
+
+        // 力量计算逻辑预期:
+        // 基础=50
+        // 百分比同乘区加成 = 20%(装备) + 20%(Buff) = 40%
+        // 固定值同乘区加成 = 10(装备) + 50(Buff) = 60
+        // 最终力量 = 50 * (1 + 0.40) + 60 = 50 * 1.4 + 60 = 70 + 60 = 130
+        assertEquals("装备与Buff叠加时的力量计算错误", 130, finalAttr.strength);
+
+        // 物攻计算逻辑预期:
+        // 新基础物攻（受力量增损影响） = 100(原生) + (最终力量130 - 基础力量50) = 180
+        // 百分比同乘区加成 = 15%(装备) + 20%(Buff) + 50%(Buff) = 85%
+        // 固定值同乘区加成 = 20(武器Base) + 30(装备词缀) + 100(Buff) = 150
+        // 最终物攻 = 180 * (1 + 0.85) + 150 = 180 * 1.85 + 150 = 333 + 150 = 483
+        assertEquals("装备与Buff叠加时的物攻计算错误", 483, finalAttr.physicalAtk);
     }
 }

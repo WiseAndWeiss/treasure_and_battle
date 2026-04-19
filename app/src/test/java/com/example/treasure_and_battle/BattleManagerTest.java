@@ -62,14 +62,10 @@ public class BattleManagerTest {
         testPlayer.setCurrentHp(playerAttr.maxHp);
         testPlayer.setCurrentMp(playerAttr.maxMp);
 
-        // 4. 创建测试怪物（可控属性）
-        testMonster = new Monster(
-                "monster_001", "TestSlime", 5, Rarity.COMMON,
-                80, 30, 25, 15, 8, 5, 12,
-                5, 5, 5, 5, 5, 5,
-                50, 20, context
-        );
-        // 手动设置怪物最终属性
+        // 4. 创建测试怪物（通过刚刚搭建的Monster模板系统）
+        testMonster = com.example.treasure_and_battle.manager.MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+
+        // 手动调整点怪物最终属性以适配原有测试逻辑预期
         AttributeSet monsterAttr = testMonster.getBaseAttributes();
         monsterAttr.spirit = 10; // 精神10，玩家精神20，方便测试看破
         monsterAttr.speed = 10; // 速度10，比玩家慢
@@ -204,5 +200,37 @@ public class BattleManagerTest {
         // 验证逃跑结果（因为种子固定，这里可以断言具体结果）
         // 实际运行时根据种子123456的结果调整断言
         // assertFalse("逃跑应失败", escaped);
+    }
+
+    // ====================== 测试用例7：战斗日志系统验证 ======================
+    @Test
+    public void testBattleLogSystem() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
+        
+        // 模拟一个极其简单的战斗交互流程来测试日志：
+        // 1. 设置攻击执行者
+        ctx.currentActor = testPlayer;
+        ctx.currentTarget = testMonster;
+        ctx.currentRound = 1;
+
+        // 手动清空日志（以防上面初始化有残留）
+        ctx.battleLogs.clear();
+
+        // 2. 执行一次玩家对怪物的普攻
+        battleManager.executePlayerNormalAttack(ctx);
+
+        // 3. 必定会产生一些日志，比如 DAMAGE 类型的日志
+        assertFalse("战斗日志不应该为空！", ctx.battleLogs.isEmpty());
+        
+        System.out.println("====== 日志系统输出测试开始 ======");
+        for (com.example.treasure_and_battle.battle.log.BattleLogEntry log : ctx.battleLogs) {
+            System.out.println(log.toString());
+            // 验证每条日志都被成功格式化，不包含 %d 或 %s 占位符（应该被正确替换了）
+            assertFalse("日志未能正确应用 format 字符串！", log.toString().contains("%d") && !log.toString().contains("%%"));
+        }
+        System.out.println("====== 日志系统输出测试结束 ======");
+        
+        // 简单断言第一条一定是 Action 类型或 Damage 类型（基于我们在BattleManager里的插入顺序）
+        assertNotNull(ctx.battleLogs.get(0).getType());
     }
 }

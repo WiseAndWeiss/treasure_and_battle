@@ -172,6 +172,13 @@ public class BuffManager {
         for (BaseBuff buff : buffList) {
             if (buff.getTriggerType() == triggerType) {
                 buff.onTrigger(context, triggerType);
+                context.addLogWithMeta(
+                        com.example.treasure_and_battle.battle.log.LogType.BUFF,
+                        buff,
+                        "【Buff触发】实体 [%s] 身上的 [%s] 状态被触发。",
+                        entity.getClass().getSimpleName(),
+                        buff.getBuffName()
+                );
             }
         }
     }

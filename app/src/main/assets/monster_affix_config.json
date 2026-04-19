@@ -6,11 +6,9 @@
       "descriptionFormat": "攻击力提高 %.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
-      "allowSlots": [],
       "minValue": 0.01,
       "maxValue": 0.01,
-      "affixClass": "com.example.treasure_and_battle.affix.monster.MonsterAttackPercentAffix",
-      "affixType": "MONSTER"
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.MonsterAttackPercentAffix"
     },
     {
       "templateId": 2001,
@@ -18,11 +16,9 @@
       "descriptionFormat": "生命值上限提高 %.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
-      "allowSlots": [],
       "minValue": 0.01,
       "maxValue": 0.01,
-      "affixClass": "com.example.treasure_and_battle.affix.monster.MonsterHpPercentAffix",
-      "affixType": "MONSTER"
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.MonsterHpPercentAffix"
     }
   ]
 }
