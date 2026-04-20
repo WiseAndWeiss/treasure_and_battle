@@ -1,14 +1,12 @@
-package com.example.treasure_and_battle;
+package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff;
 import com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.AttributeModifierType;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 

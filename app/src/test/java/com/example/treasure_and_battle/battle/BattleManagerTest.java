@@ -1,12 +1,11 @@
-package com.example.treasure_and_battle;
+package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
-import com.example.treasure_and_battle.battle.BattleContext;
+
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
