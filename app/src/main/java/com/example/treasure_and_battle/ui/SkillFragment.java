@@ -1,6 +1,5 @@
 package com.example.treasure_and_battle.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -93,15 +93,15 @@ public class SkillFragment extends Fragment {
 
     private void resetTabStyle(TextView tv) {
         if (tv == null) return;
-        tv.setBackgroundColor(Color.TRANSPARENT);
-        tv.setTextColor(Color.parseColor("#666666"));
+        tv.setBackgroundResource(R.drawable.bg_tab_idle);
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_sub));
         tv.setTypeface(null, android.graphics.Typeface.NORMAL);
     }
 
     private void highlightTab(TextView tv) {
         if (tv == null) return;
-        tv.setBackgroundColor(Color.parseColor("#FF9800"));
-        tv.setTextColor(Color.WHITE);
+        tv.setBackgroundResource(R.drawable.bg_tab_active);
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_bg_dark));
         tv.setTypeface(null, android.graphics.Typeface.BOLD);
     }
 

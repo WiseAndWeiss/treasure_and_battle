@@ -2,20 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="80dp"
+    android:minHeight="92dp"
     android:orientation="horizontal"
-    android:padding="12dp"
+    android:padding="10dp"
     android:gravity="center_vertical"
     android:layout_marginBottom="8dp"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="@drawable/bg_panel_treasure">
 
     <!-- 技能图标 -->
     <ImageView
         android:id="@+id/iv_skill_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:src="@android:drawable/ic_menu_gallery"
-        android:background="#E0E0E0"
+        android:background="@drawable/bg_slot_treasure"
         android:layout_marginEnd="12dp"/>
 
     <!-- 技能文字标题与描述 -->
@@ -31,19 +31,19 @@
             android:layout_height="wrap_content"
             android:text="技能名"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#333333"/>
+            android:textSize="17sp"
+            android:textColor="@color/tb_text_main"/>
             
         <TextView
             android:id="@+id/tv_skill_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="技能效果描述"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:layout_marginTop="4dp"
             android:maxLines="2"
             android:ellipsize="end"
-            android:textColor="#666666"/>
+            android:textColor="@color/tb_text_sub"/>
             
     </LinearLayout>
 
@@ -53,18 +53,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="1/5"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
-        android:textColor="#FF9800"
+        android:textColor="@color/tb_gold"
         android:layout_marginEnd="12dp" />
 
     <!-- 加号 / 行动交互按钮 -->
     <ImageView
         android:id="@+id/btn_skill_action"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:src="@android:drawable/ic_input_add"
         android:padding="6dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"/>
+        android:background="@drawable/bg_slot_treasure"/>
 
 </LinearLayout>

@@ -1,113 +1,262 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    android:padding="10dp"
+    android:background="@drawable/bg_screen_treasure">
 
-    <!-- 左上部分：综合详细属性 (受装备影响的最终结果) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_stats"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintWidth_percent="0.45"
-        app:layout_constraintHeight_percent="0.4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/cv_talents">
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp">
-            <!-- TODO: 后期通过玩家数据实际运算生成长段文本或动态列表 -->
-            <TextView
-                android:id="@+id/tv_stats_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="#333333"
-                android:lineSpacingExtra="4dp"
-                android:text="职业：未定\n等级：1\n名称：玩家\n\n血量：100/100\n魔力：50/50\n\n物攻：15\n魔攻：10\n物防：5\n魔防：5\n速度：10\n暴击：0%\n闪避：0%\n\n(最终计算属性将在此滚动显示)"/>
-        </ScrollView>
-    </androidx.cardview.widget.CardView>
-
-    <!-- 右上部分：六维天赋加系统 (不包含装备与被动加成) -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_talents"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintStart_toEndOf="@id/cv_stats"
+        app:cardBackgroundColor="@color/tb_panel"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/cv_stats">
+        app:layout_constraintHeight_percent="0.28"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="10dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="基础资质提升 (六维)"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="6dp"
+                android:text="角色属性"
+                android:textColor="@color/tb_gold"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-            <GridLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/tb_divider" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:columnCount="3"
-                android:rowCount="2"
-                android:gravity="center">
-                
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_stats_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:lineSpacingExtra="2dp"
+                    android:text="职业：未定\n等级：1\n名称：玩家\n血量：100/100\n魔力：50/50"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_stats_content_right"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:lineSpacingExtra="2dp"
+                    android:text="物攻：15\n魔攻：10\n物防：5\n魔防：5\n速度：10\n暴击：0%\n闪避：0%"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_talents"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/tb_panel"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.16"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_stats">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="6dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:gravity="center"
+                android:text="天赋加点"
+                android:textColor="@color/tb_gold"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="4dp"
+                android:background="@color/tb_divider" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="6"
+                android:gravity="center"
+                android:rowCount="1">
+
                 <!-- 力量 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
-                    <TextView android:id="@+id/tv_talent_str" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="力量 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_str"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_str"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="力量 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_str"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
                 <!-- 敏捷 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
-                    <TextView android:id="@+id/tv_talent_agi" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="敏捷 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_agi"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_agi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="敏捷 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_agi"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
                 <!-- 智力 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center">
-                    <TextView android:id="@+id/tv_talent_int" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="智力 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_int"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_int"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="智力 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_int"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
                 <!-- 精神 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
-                    <TextView android:id="@+id/tv_talent_spr" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="精神 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_spr"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_spr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="精神 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_spr"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
                 <!-- 体魄 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
-                    <TextView android:id="@+id/tv_talent_phy" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="体魄 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_phy"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_phy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="体魄 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_phy"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
                 <!-- 幸运 -->
-                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:layout_marginTop="8dp">
-                    <TextView android:id="@+id/tv_talent_luc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="幸运 0" android:textSize="12sp" android:layout_marginBottom="4dp"/>
-                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@android:drawable/ic_menu_add" android:background="?selectableItemBackgroundBorderless" android:id="@+id/btn_add_luc"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_talent_luc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="幸运 0"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_luc"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_add" />
                 </LinearLayout>
 
             </GridLayout>
@@ -116,107 +265,121 @@
                 android:id="@+id/tv_remaining_points"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="剩余天赋点: 0"
-                android:textColor="#FF5722"
-                android:textStyle="bold"
+                android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:layout_marginTop="4dp"/>
-                
+                android:text="剩余天赋点: 0"
+                android:textColor="@color/tb_battle"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 下半部分：技能列表与侧边栏 Tab -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_skills"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/cv_stats"
+        app:cardBackgroundColor="@color/tb_panel"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/cv_talents">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <!-- 左侧分页导航列 -->
             <LinearLayout
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="#EEEEEE"
-                android:paddingTop="8dp">
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@color/tb_bg_surface"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="6dp">
 
                 <TextView
                     android:id="@+id/tab_passive"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="被动"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_tab_active"
                     android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:background="#FF9800"/>
+                    android:text="被动"
+                    android:textColor="@color/tb_bg_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent" />
 
                 <TextView
                     android:id="@+id/tab_event"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="事件"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="#666666"/>
+                    android:text="事件"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="15sp" />
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" />
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent" />
 
                 <TextView
                     android:id="@+id/tab_active"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="主动"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="#666666"/>
+                    android:text="主动"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tv_remaining_skill_points"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_vertical|end"
+                    android:text="剩余技能点: 0"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
             <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#CCCCCC"/>
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/tb_divider" />
 
-            <!-- 右侧区域 (剩余技能点提示与列表) -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="#FAFAFA">
-
-                <TextView
-                    android:id="@+id/tv_remaining_skill_points"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="剩余技能点: 0"
-                    android:textColor="#FF5722"
-                    android:textStyle="bold"
-                    android:gravity="end|center_vertical"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="4dp" />
+                android:background="@color/tb_panel"
+                android:orientation="vertical">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_skills"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:padding="8dp"
-                    android:clipToPadding="false"/>
+                    android:clipToPadding="false"
+                    android:paddingStart="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="8dp" />
             </LinearLayout>
 
         </LinearLayout>

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="2dp">
+    android:layout_height="match_parent"
+    android:padding="0dp">
     
     <RelativeLayout
         android:id="@+id/bg_item_color"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EAEAEA">
+        android:background="@drawable/bg_slot_treasure">
 
         <ImageView
             android:id="@+id/iv_item_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:scaleType="centerInside"
             android:src="@android:drawable/ic_menu_gallery" />
 
@@ -27,7 +27,7 @@
             android:layout_alignRight="@id/iv_item_icon"
             android:background="#A6000000"
             android:textColor="#FFFFFF"
-            android:textSize="9sp"
+            android:textSize="10sp"
             android:padding="1dp"
             android:text="Lv.1"
             android:visibility="gone" />
@@ -37,11 +37,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/iv_item_icon"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:gravity="center"
-            android:textColor="#333333"
-            android:textSize="10sp"
+            android:textColor="@color/tb_text_main"
+            android:textSize="11sp"
             android:maxLines="2"
             android:ellipsize="end"
             android:text="Item" />
