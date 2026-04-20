@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 词缀统一管理类 (AffixManager)
+ * 词缀统一管理类 (AffixManager)，只负责战斗中的词缀管理
  * 单例模式，负责封装并管理游戏内玩家（通过装备）和怪物的所有临时/战斗内词缀的检查与触发调度逻辑。
  * 和 BuffManager 的设计完全对齐，负责在战斗核心生命周期中进行拦截与计算。
  */

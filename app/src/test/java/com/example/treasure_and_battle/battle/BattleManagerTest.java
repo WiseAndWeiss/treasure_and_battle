@@ -124,7 +124,7 @@ public class BattleManagerTest {
         ctx.currentTarget = testMonster;
 
         // 玩家攻击30，怪物防御8 → 最终伤害=30-8=22
-        battleManager.executePlayerNormalAttack(ctx);
+        battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
         assertEquals("伤害计算错误", 22, ctx.finalDamage);
         assertEquals("怪物HP未正确扣除", 80-22, testMonster.getCurrentHp());
@@ -132,7 +132,7 @@ public class BattleManagerTest {
         // 怪物攻击25，玩家防御10 -> 最终伤害 25-10=15
         ctx.currentActor = testMonster;
         ctx.currentTarget = testPlayer;
-        battleManager.executeMonsterNormalAttack(ctx);
+        battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
         assertEquals("伤害计算错误", 15, ctx.finalDamage);
         assertEquals("玩家HP未正确扣除", 100-15, testPlayer.getCurrentHp());
     }
@@ -147,7 +147,7 @@ public class BattleManagerTest {
         // 让玩家一击即杀怪物
         ctx.currentActor = testPlayer;
         ctx.currentTarget = testMonster;
-        battleManager.executePlayerNormalAttack(ctx);
+        battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
         // 利用反射调用战斗结算
         java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);
@@ -170,7 +170,7 @@ public class BattleManagerTest {
         ctx.currentActor = testMonster;
         ctx.currentTarget = testPlayer;
         // 怪物攻击25，玩家防御10 → 伤害15，玩家HP=1-15=0 → 死亡
-        battleManager.executeMonsterNormalAttack(ctx);
+        battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
 
         // 利用反射调用战斗结算
         java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);
@@ -216,7 +216,7 @@ public class BattleManagerTest {
         ctx.battleLogs.clear();
 
         // 2. 执行一次玩家对怪物的普攻
-        battleManager.executePlayerNormalAttack(ctx);
+        battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
         // 3. 必定会产生一些日志，比如 DAMAGE 类型的日志
         assertFalse("战斗日志不应该为空！", ctx.battleLogs.isEmpty());
