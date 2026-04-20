@@ -4,6 +4,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 /**
  * Buff抽象基类，和BaseAffix设计完全对齐
@@ -53,9 +54,12 @@ public abstract class BaseBuff {
     public abstract void applyAttributeBonus(AttributeSet attributeSet);
 
     /**
-     * 触发效果：在对应时机调用，对应Affix的onTrigger
+     * 触发效果：在对应时机调用
+     * @param owner 拥有该Buff的实体
+     * @param context 战斗上下文
+     * @param triggerType 触发类型
      */
-    public abstract void onTrigger(BattleContext context, BuffTriggerType triggerType);
+    public abstract void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType);
 
     // ====================== 生命周期通用方法 ======================
     /**
@@ -75,13 +79,31 @@ public abstract class BaseBuff {
      * 尝试堆叠Buff，和词缀生成逻辑对齐
      */
     public void tryStack(BaseBuff newBuff) {
+        // 默认堆叠逻辑：如果当前层数未满，直接加1层；如果已满，则不增加层数但可能刷新持续时间
         if (this.stackCount < this.maxStackCount) {
             this.stackCount++;
+        }
+        // 如果刷新持续时间，直接重置为最大持续时间
+        if (this.refreshOnApply) {
+            this.remainingDuration = this.maxDuration;
+        }
+        // 选择更高的数值进行覆盖
+        this.buffValue = Math.max(this.buffValue, newBuff.buffValue);
+    }
+
+    public void tryStack(BaseBuff newBuff, int additionalStacks) {
+        if (this.stackCount < this.maxStackCount) {
+            this.stackCount = Math.min(this.stackCount + additionalStacks, this.maxStackCount);
         }
         if (this.refreshOnApply) {
             this.remainingDuration = this.maxDuration;
         }
-        this.buffValue = newBuff.buffValue;
+        this.buffValue = Math.max(this.buffValue, newBuff.buffValue);
+    }
+
+    // 直接设置层数，通常用于特殊Buff的衰减逻辑
+    public void setStack(int stackCount) {
+        this.stackCount = Math.max(0, Math.min(stackCount, this.maxStackCount));
     }
 
     /**
@@ -90,7 +112,7 @@ public abstract class BaseBuff {
      * （如果 remainingDuration < 0 可以作为永久Buff的标记）
      */
     public boolean isExpired() {
-        return this.remainingDuration <= 0 || this.stackCount <= 0;
+        return this.remainingDuration == 0 || this.stackCount <= 0;
     }
 
     // ====================== Getters（只读，和BaseAffix对齐） ======================

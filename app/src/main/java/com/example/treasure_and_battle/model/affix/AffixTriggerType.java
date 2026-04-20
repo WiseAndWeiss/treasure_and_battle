@@ -5,8 +5,10 @@ public enum AffixTriggerType {
     PERMANENT,
     // 攻击时触发：普攻/技能命中目标时
     ON_ATTACK_HIT,
-    // 受到伤害时触发
-    ON_DAMAGE_TAKEN,
+    // 受到伤害前触发
+    ON_BEFORE_DAMAGE,
+    // 受到伤害后触发
+    ON_AFTER_DAMAGE,
     // 击杀怪物时触发
     ON_KILL,
     // 战斗开始时触发

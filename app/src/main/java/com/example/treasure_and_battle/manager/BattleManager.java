@@ -2,11 +2,11 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.battle.log.BattleLogEntry;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.BuffManager;
-import com.example.treasure_and_battle.manager.AffixManager;
-import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
+import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
@@ -16,7 +16,6 @@ import com.example.treasure_and_battle.model.entity.MonsterIntent;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 战斗管理器 (BattleManager)
@@ -274,91 +273,78 @@ public class BattleManager {
         } else {
             // 逃跑失败：怪物立即执行一次攻击
             ctx.addLog(LogType.ACTION, "逃跑失败，遭到怪物追击。");
-            executeMonsterNormalAttack(ctx);
+            executeNormalAttack(ctx, ctx.monster, ctx.player);
             return false;
         }
     }
 
-    // 3. 玩家普攻逻辑
-    public void executePlayerNormalAttack(BattleContext ctx) {
+    // 3. 普攻逻辑（玩家、怪物共用）
+    public void executeNormalAttack(BattleContext ctx, BattleEntity attacker, BattleEntity target) {
         ctx.resetDamageData();
-        ctx.currentActor = ctx.player;
-        ctx.currentTarget = ctx.monster;
+        ctx.currentActor = attacker;
+        ctx.currentTarget = target;
 
-        ctx.addLog(LogType.ACTION, "玩家发动普通攻击。");
+        // 动态获取攻击者名称（用于日志）
+        String actorName = attacker.getName();
+        String targetName = target.getName();
+        ctx.addLog(LogType.ACTION, "[%s] 发动普通攻击。", actorName);
 
-        // 3.1 计算原始伤害（100%物理攻击，功能清单第3点）
-        AttributeSet playerAttr = ctx.player.getFinalAttributes();
-        ctx.rawDamage = playerAttr.physicalAtk;
+        // 计算原始伤害（100%物理攻击，统一逻辑）
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        ctx.rawDamage = attackerAttr.physicalAtk;
         ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", ctx.rawDamage);
 
-        // 3.2 计算命中/闪避/暴击（这里简化，后续可扩展）//TODO
-        ctx.isHit = true;
-        ctx.isCriticalHit = RandomUtils.checkProbability((float) playerAttr.physicalCritRate);
+        // 统一计算命中/闪避/暴击（不再区分玩家/怪物，后续可以直接在这里完善）
+        ctx.isHit = true; // 先设为必中占位
+        ctx.isCriticalHit = RandomUtils.checkProbability((float) attackerAttr.physicalCritRate);
         if (ctx.isCriticalHit) {
-            ctx.rawDamage *= playerAttr.physicalCritDmg;
+            ctx.rawDamage *= attackerAttr.physicalCritDmg;
             ctx.addLog(LogType.DODGE_CRIT, "  触发暴击！伤害提升至 %d", ctx.rawDamage);
         }
+        if (!ctx.isHit) {
+            ctx.rawDamage = 0;
+            ctx.addLog(LogType.DODGE_CRIT, "  攻击未命中");
+        }
 
-        // 3.3 计算最终伤害（减去防御）
-        AttributeSet monsterAttr = ctx.monster.getFinalAttributes();
-        ctx.finalDamage = Math.max(1, ctx.rawDamage - monsterAttr.physicalDef);
-        ctx.addLog(LogType.DAMAGE, "  扣除物理防御(%d)，结算伤害：%d", monsterAttr.physicalDef, ctx.finalDamage);
+        // 计算最终伤害（减去目标防御，统一逻辑）
+        AttributeSet targetAttr = target.getFinalAttributes();
+        ctx.finalDamage = Math.max(1, ctx.rawDamage - targetAttr.physicalDef);
+        ctx.addLog(LogType.DAMAGE, "  扣除物理防御(%d)，结算伤害：%d", targetAttr.physicalDef, ctx.finalDamage);
 
-        // 3.4 触发攻击时的Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_ATTACK_HIT);
-        AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_ATTACK_HIT);
+        // 触发【攻击者】的攻击时Buff和词缀（ON_ATTACK_HIT）
+        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK_HIT);
+        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK_HIT);
 
-        // 3.5 造成伤害
-        ctx.monster.takeDamage(ctx.finalDamage);
-        ctx.addLog(LogType.DAMAGE, "  怪物受到 %d 点伤害。剩余HP：(%d/%d)", ctx.finalDamage, ctx.monster.getCurrentHp(), monsterAttr.maxHp);
+        // 触发【目标】的受击前Buff和词缀（ON_BEFORE_DAMAGE）
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEFORE_DAMAGE);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEFORE_DAMAGE);
 
-        // 3.6 触发受击时的Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.monster, ctx, BuffTriggerType.ON_DAMAGE_TAKEN);
-        AffixManager.getInstance(context).triggerAffixes(ctx.monster, ctx, AffixTriggerType.ON_DAMAGE_TAKEN);
+        // 防御结算顺序：先结算计次减伤，再结算护盾吸收。
+        // 这样设计是为了让“减伤”负责直接削减本次命中的伤害，而“护盾”只吸收减伤后的剩余值，
+        // 从而明确区分两类防御资源的定位，避免护盾替代减伤的战术价值，并保持玩家叠加防御Buff时的策略预期一致。
+        ctx.finalDamage = applyCountBasedDamageReduction(ctx, target, ctx.finalDamage);
+        ctx.finalDamage = applyShieldAbsorption(ctx, target, ctx.finalDamage);
 
-        // 3.7 检查死亡
+        // 造成伤害
+        target.takeDamage(ctx.finalDamage);
+        ctx.addLog(LogType.DAMAGE, "  %s受到 %d 点伤害。剩余HP：(%d/%d)",
+                targetName, ctx.finalDamage, target.getCurrentHp(), targetAttr.maxHp);
+
+        // 触发【目标】的受击后Buff和词缀（ON_AFTER_DAMAGE）
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE);
+
+        // 检查死亡
         checkDeath(ctx);
     }
 
-    // 怪物普攻逻辑
-    public void executeMonsterNormalAttack(BattleContext ctx) {
-        ctx.resetDamageData();
-        ctx.currentActor = ctx.monster;
-        ctx.currentTarget = ctx.player;
-
-        ctx.addLog(LogType.ACTION, "怪物发动普通攻击。");
-
-        AttributeSet monsterAttr = ctx.monster.getFinalAttributes();
-        ctx.rawDamage = monsterAttr.physicalAtk;
-        ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", ctx.rawDamage);
-
-        // 简化的伤害计算 (后续应当加上命中、暴击的计算)
-        AttributeSet playerAttr = ctx.player.getFinalAttributes();
-        ctx.isHit = true;  // 设为必中做占位
-        ctx.finalDamage = Math.max(1, ctx.rawDamage - playerAttr.physicalDef);
-        ctx.addLog(LogType.DAMAGE, "  扣除物理防御(%d)，结算伤害：%d", playerAttr.physicalDef, ctx.finalDamage);
-
-        // 触发怪物攻击时的Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.monster, ctx, BuffTriggerType.ON_ATTACK_HIT);
-        AffixManager.getInstance(context).triggerAffixes(ctx.monster, ctx, AffixTriggerType.ON_ATTACK_HIT);
-
-        ctx.player.takeDamage(ctx.finalDamage);
-        ctx.addLog(LogType.DAMAGE, "  玩家受到 %d 点伤害。剩余HP：(%d/%d)", ctx.finalDamage, ctx.player.getCurrentHp(), playerAttr.maxHp);
-
-        // 触发玩家受击时的Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_DAMAGE_TAKEN);
-        AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_DAMAGE_TAKEN);
-
-        checkDeath(ctx);
-    }
 
     // 执行怪物意图
     private void executeMonsterIntent(BattleContext ctx, MonsterIntent intent) {
         ctx.addLog(LogType.ACTION, "怪物执行动作：[%s]", intent.getType().name());
         switch (intent.getType()) {
             case ATTACK:
-                executeMonsterNormalAttack(ctx);
+                executeNormalAttack(ctx, ctx.monster, ctx.player);
                 break;
             case DEFEND:
                 ctx.monster.setDefending(true);
@@ -378,6 +364,43 @@ public class BattleManager {
                 ctx.addLog(LogType.ACTION, "  怪物回复了 %d 点HP。", healAmount);
                 break;
         }
+    }
+
+    private int applyCountBasedDamageReduction(BattleContext ctx, BattleEntity target, int incomingDamage) {
+        if (incomingDamage <= 0) {
+            return 0;
+        }
+
+        int remainingDamage = incomingDamage;
+        for (BaseBuff buff : target.getActiveBuffList()) {
+            if (!(buff instanceof DamageReductionBuff)) {
+                continue;
+            }
+
+            // 单次受击默认只消费一条计次减伤，避免多条同时叠乘导致过强。
+            remainingDamage = ((DamageReductionBuff) buff).reduceDamageForOneHit(remainingDamage, target, ctx);
+            break;
+        }
+
+        return remainingDamage;
+    }
+
+    private int applyShieldAbsorption(BattleContext ctx, BattleEntity target, int incomingDamage) {
+        if (incomingDamage <= 0) {
+            return 0;
+        }
+
+        int remainingDamage = incomingDamage;
+        for (BaseBuff buff : target.getActiveBuffList()) {
+            if (!(buff instanceof ShieldBuff)) {
+                continue;
+            }
+            if (remainingDamage <= 0) {
+                break;
+            }
+            remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
+        }
+        return remainingDamage;
     }
 
     // 检查死亡

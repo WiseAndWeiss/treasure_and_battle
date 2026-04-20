@@ -29,6 +29,7 @@ public class AttributeSet {
     public float dodgeRate;         // 闪避率
     public float debuffResist;      // 异常抵抗率
     public float mpCostReduction;   // 蓝耗减免
+    public float damageReductionRate; // 伤害减免率（0.2 = 20%）
 
     // 额外收益属性
     public float lootRarityBonus;    // 战利品稀有度加成
@@ -97,6 +98,7 @@ public class AttributeSet {
         this.hitRate = 0.9f;
         this.dodgeRate = 0.0f;
         this.debuffResist = 0.0f;
+        this.damageReductionRate = 0.0f;
     }
 
     // 加法叠加另一个AttributeSet（用于天赋、装备、技能被动）
@@ -123,6 +125,7 @@ public class AttributeSet {
         dodgeRate += other.dodgeRate;
         debuffResist += other.debuffResist;
         mpCostReduction += other.mpCostReduction;
+        damageReductionRate += other.damageReductionRate;
         lootRarityBonus += other.lootRarityBonus;
         goldBonus += other.goldBonus;
         expBonus += other.expBonus;
@@ -178,6 +181,7 @@ public class AttributeSet {
         this.dodgeRate = other.dodgeRate;
         this.debuffResist = other.debuffResist;
         this.mpCostReduction = other.mpCostReduction;
+        this.damageReductionRate = other.damageReductionRate;
 
         this.lootRarityBonus = other.lootRarityBonus;
         this.goldBonus = other.goldBonus;

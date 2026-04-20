@@ -151,23 +151,6 @@ public abstract class BattleEntity {
         this.currentActionPoints = getFinalAttributes().maxActionPoints;
     }
 
-    // ====================== Buff 管理（应当放到Manager内） ======================
-    /*
-    public void addBuff(Buff buff) {
-        activeBuffList.add(buff);
-        markAttributeCacheDirty(); // Buff 变化，属性需要重算
-    }
-
-    public void removeBuff(Buff buff) {
-        activeBuffList.remove(buff);
-        markAttributeCacheDirty(); // Buff 变化，属性需要重算
-    }
-
-    public void clearExpiredBuffs() {
-        activeBuffList.removeIf(Buff::isExpired);
-        markAttributeCacheDirty();
-    }*/
-
     // ====================== 简单 Getters & Setters（仅保留必要的） ======================
     public String getEntityId() { return entityId; }
     public String getName() { return name; }

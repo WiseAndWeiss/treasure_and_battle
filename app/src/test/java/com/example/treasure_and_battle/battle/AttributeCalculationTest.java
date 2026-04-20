@@ -2,10 +2,10 @@ package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff;
-import com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff;
+import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.AttributeModifierType;
+import com.example.treasure_and_battle.model.attribute.AttributeType;
+import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.utils.AttributeUtils;
@@ -110,29 +110,29 @@ public class AttributeCalculationTest {
         
         // ------------------ 挂载：基础力量的百分比与固定值增益 ------------------
         // 为角色加 20% 的力量百分比Buff
-        StrengthBuff strengthPercentBuff = new StrengthBuff("str_percent", "力量百分比", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE);
+        AttributeBuff strengthPercentBuff = new AttributeBuff("str_percent", "力量百分比", "",
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.STRENGTH, ValueType.PERCENTAGE);
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
 
         // 为角色加 50 点固定力量
-        StrengthBuff strengthFixedBuff = new StrengthBuff("str_fixed", "力量固定", "", 
-            BuffType.BUFF, true, 99, 1, false, 50f, AttributeModifierType.FLAT);
+        AttributeBuff strengthFixedBuff = new AttributeBuff("str_fixed", "力量固定", "",
+            BuffType.BUFF, true, 99, 1, false, 50f, AttributeType.STRENGTH, ValueType.FLAT);
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
 
         // ------------------ 挂载：基础物攻的百分比与固定值增益 ------------------
         // 一个buff让我的物理攻击力增加100
-        PhysicalAttackBuff atkFixedBuff = new PhysicalAttackBuff("atk_fixed", "物攻固定", "", 
-            BuffType.BUFF, true, 99, 1, false, 100f, AttributeModifierType.FLAT);
+        AttributeBuff atkFixedBuff = new AttributeBuff("atk_fixed", "物攻固定", "",
+            BuffType.BUFF, true, 99, 1, false, 100f, AttributeType.PHYSICAL_ATK, ValueType.FLAT);
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
 
         // 另一个buff让我的物理攻击力提高了20%
-        PhysicalAttackBuff atkPercentBuff1 = new PhysicalAttackBuff("atk_percent_1", "物攻百分比20", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE);
+        AttributeBuff atkPercentBuff1 = new AttributeBuff("atk_percent_1", "物攻百分比20", "",
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE);
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
 
         // 被动技能也可以看作一个不会过期的百分比Buff，提高了50%
-        PhysicalAttackBuff atkPercentBuff2 = new PhysicalAttackBuff("atk_percent_2", "物攻百分比50", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeModifierType.PERCENTAGE);
+        AttributeBuff atkPercentBuff2 = new AttributeBuff("atk_percent_2", "物攻百分比50", "",
+            BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE);
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
 
         // 触发核心基石与复合运算计算方法
@@ -172,24 +172,24 @@ public class AttributeCalculationTest {
         testPlayer.equip(weapon);
 
         // ------------------ Buff配置 ------------------
-        StrengthBuff strengthPercentBuff = new StrengthBuff("str_percent", "力量百分比", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE); // 百分比力量+20%
+        AttributeBuff strengthPercentBuff = new AttributeBuff("str_percent", "力量百分比", "",
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.STRENGTH, ValueType.PERCENTAGE); // 百分比力量+20%
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
         
-        StrengthBuff strengthFixedBuff = new StrengthBuff("str_fixed", "力量固定", "", 
-            BuffType.BUFF, true, 99, 1, false, 50f, AttributeModifierType.FLAT); // 固定力量+50
+        AttributeBuff strengthFixedBuff = new AttributeBuff("str_fixed", "力量固定", "",
+            BuffType.BUFF, true, 99, 1, false, 50f, AttributeType.STRENGTH, ValueType.FLAT); // 固定力量+50
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
 
-        PhysicalAttackBuff atkFixedBuff = new PhysicalAttackBuff("atk_fixed", "物攻固定", "", 
-            BuffType.BUFF, true, 99, 1, false, 100f, AttributeModifierType.FLAT); // 固定物攻+100
+        AttributeBuff atkFixedBuff = new AttributeBuff("atk_fixed", "物攻固定", "",
+            BuffType.BUFF, true, 99, 1, false, 100f, AttributeType.PHYSICAL_ATK, ValueType.FLAT); // 固定物攻+100
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
 
-        PhysicalAttackBuff atkPercentBuff1 = new PhysicalAttackBuff("atk_percent_1", "物攻百分比20", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeModifierType.PERCENTAGE); // 百分比物攻+20%
+        AttributeBuff atkPercentBuff1 = new AttributeBuff("atk_percent_1", "物攻百分比20", "",
+            BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE); // 百分比物攻+20%
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
 
-        PhysicalAttackBuff atkPercentBuff2 = new PhysicalAttackBuff("atk_percent_2", "物攻百分比50", "", 
-            BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeModifierType.PERCENTAGE); // 百分比物攻+50%
+        AttributeBuff atkPercentBuff2 = new AttributeBuff("atk_percent_2", "物攻百分比50", "",
+            BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE); // 百分比物攻+50%
         com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
 
         // ------------------ 最终结算与断言 ------------------

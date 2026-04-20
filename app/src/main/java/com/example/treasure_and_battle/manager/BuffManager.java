@@ -3,11 +3,14 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
+import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTemplate;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
+import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -78,6 +81,35 @@ public class BuffManager {
         // 反射生成Buff实例，和AffixManager完全一致
         try {
             Class<?> buffClass = Class.forName(template.getBuffClass());
+
+            if (AttributeBuff.class.isAssignableFrom(buffClass)) {
+                if (template.getAttributeType() == null || template.getValueType() == null) {
+                    throw new IllegalArgumentException("AttributeBuff template missing attributeType/valueType: " + template.getBuffId());
+                }
+
+                AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
+                ValueType valueType = ValueType.valueOf(template.getValueType());
+
+                return (BaseBuff) buffClass.getConstructor(
+                        String.class, String.class, String.class,
+                        BuffType.class, boolean.class, int.class,
+                        int.class, boolean.class, float.class,
+                        AttributeType.class, ValueType.class
+                ).newInstance(
+                        template.getBuffId(),
+                        template.getBuffName(),
+                        template.getDescriptionFormat(),
+                        buffType,
+                        template.isDispellable(),
+                        template.getDefaultDuration(),
+                        template.getMaxStackCount(),
+                        template.isRefreshOnApply(),
+                        randomValue,
+                        attributeType,
+                        valueType
+                );
+            }
+
             BaseBuff buff = (BaseBuff) buffClass.getConstructor(
                     String.class, String.class, String.class,
                     BuffType.class, boolean.class, int.class,
@@ -171,14 +203,10 @@ public class BuffManager {
         List<BaseBuff> buffList = entity.getActiveBuffList();
         for (BaseBuff buff : buffList) {
             if (buff.getTriggerType() == triggerType) {
-                buff.onTrigger(context, triggerType);
-                context.addLogWithMeta(
-                        com.example.treasure_and_battle.battle.log.LogType.BUFF,
-                        buff,
-                        "【Buff触发】实体 [%s] 身上的 [%s] 状态被触发。",
-                        entity.getClass().getSimpleName(),
-                        buff.getBuffName()
-                );
+                buff.onTrigger(entity, context, triggerType);
+                context.addLogWithMeta(com.example.treasure_and_battle.battle.log.LogType.BUFF, buff, 
+                    "【状态生效】[%s] 身上的 [%s] 状态被触发。", entity.getClass().getSimpleName(), buff.getBuffName());
+                
             }
         }
     }

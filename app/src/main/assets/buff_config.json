@@ -13,7 +13,9 @@
       "refreshOnApply": true,
       "minValue": 0.01,
       "maxValue": 0.01,
-      "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff"
+      "attributeType": "STRENGTH",
+      "valueType": "PERCENTAGE",
+      "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },
     {
         "templateId": 1002,
@@ -28,7 +30,9 @@
         "refreshOnApply": true,
         "minValue": 1,
         "maxValue": 1,
-        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.StrengthBuff"
+        "attributeType": "STRENGTH",
+        "valueType": "FLAT",
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },
     {   
         "templateId": 2001,
@@ -43,7 +47,9 @@
         "refreshOnApply": true,
         "minValue": 0.01,
         "maxValue": 0.01,
-        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff"
+        "attributeType": "PHYSICAL_ATK",
+        "valueType": "PERCENTAGE",
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },
     {
         "templateId": 2002,
@@ -58,7 +64,24 @@
         "refreshOnApply": true,
         "minValue": 1,
         "maxValue": 1,
-        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.PhysicalAttackBuff"
+        "attributeType": "PHYSICAL_ATK",
+        "valueType": "FLAT",
+        "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
+    },
+    {
+        "templateId": 3001,
+        "buffName": "中毒",
+        "buffId": "debuff_poison",
+        "descriptionFormat": "回合结束时损失相当于层数的生命值（当前层数：%2$d），每回合衰减一半。",
+        "buffType": "DEBUFF",
+        "triggerType": "ON_ROUND_END",
+        "isDispellable": true,
+        "defaultDuration": -1,
+        "maxStackCount": 10000,
+        "refreshOnApply": true,
+        "minValue": 1,
+        "maxValue": 1,
+        "buffClass": "com.example.treasure_and_battle.buff.impl.periodic.PoisoningDebuff"
     }
   ]
 }

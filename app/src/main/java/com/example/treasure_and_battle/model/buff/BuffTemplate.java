@@ -15,6 +15,8 @@ public class BuffTemplate {
     private float minValue;          // 效果数值最小值
     private float maxValue;          // 效果数值最大值
     private String buffClass;        // 对应的Buff实现类全类名（反射用）
+    private String attributeType;    // 通用属性Buff的目标属性类型（对应AttributeType）
+    private String valueType;        // 通用属性Buff的数值类型（对应ValueType）
 
     // Getter & Setter
     public int getTemplateId() { return templateId; }
@@ -43,4 +45,8 @@ public class BuffTemplate {
     public void setMaxValue(float maxValue) { this.maxValue = maxValue; }
     public String getBuffClass() { return buffClass; }
     public void setBuffClass(String buffClass) { this.buffClass = buffClass; }
+    public String getAttributeType() { return attributeType; }
+    public void setAttributeType(String attributeType) { this.attributeType = attributeType; }
+    public String getValueType() { return valueType; }
+    public void setValueType(String valueType) { this.valueType = valueType; }
 }
