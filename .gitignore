@@ -45,3 +45,5 @@ out/
 *.keystore
 *.properties
 
+# vscode
+.vscode/
