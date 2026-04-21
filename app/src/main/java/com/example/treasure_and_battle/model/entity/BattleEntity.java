@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.model.entity;
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.utils.AttributeUtils;
@@ -108,13 +109,29 @@ public abstract class BattleEntity {
 
     // ====================== 战斗资源管理（通用方法） ======================
     /**
-     * 承受伤害（仅负责扣血，具体伤害数值由 BattleManager 计算）
+     * 承受伤害（直接扣血的逻辑）
      */
     public void takeDamage(int damage) {
         this.currentHp = Math.max(0, this.currentHp - damage);
         if (this.currentHp <= 0) {
             this.isDead = true;
         }
+    }
+
+    /**
+     * 承受伤害（考虑防御状态和伤害类型的逻辑）
+     */
+    public void takeDamage(int damage, DamageType damageType) {
+        int finalDamage = damage;
+        if (damageType == DamageType.PHYSICAL) {
+            int physicalDef = getFinalAttributes().physicalDef;
+            finalDamage = Math.max(1, damage - physicalDef);
+        } else if (damageType == DamageType.MAGICAL) {
+            int magicalDef = getFinalAttributes().magicalDef;
+            finalDamage = Math.max(1, damage - magicalDef);
+        }
+        // 真实伤害不受防御影响
+        takeDamage(finalDamage);
     }
 
     /**
@@ -154,6 +171,7 @@ public abstract class BattleEntity {
     // ====================== 简单 Getters & Setters（仅保留必要的） ======================
     public String getEntityId() { return entityId; }
     public String getName() { return name; }
+    public Context getContext() { return context; }
     public void setName(String name) { this.name = name; }
     public int getLevel() { return level; }
     public void setLevel(int level) { this.level = level; markAttributeCacheDirty(); }

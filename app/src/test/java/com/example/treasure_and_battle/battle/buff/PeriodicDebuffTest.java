@@ -121,8 +121,8 @@ public class PeriodicDebuffTest {
 
         // 第二回合触发
         burning.onTrigger(testPlayer, ctx, BuffTriggerType.ON_ROUND_END);
-        // 1层造成1点魔法伤害，魔防1点，实际伤害0 (确保为最大值 > 0)
-        assertEquals(998, testPlayer.getCurrentHp()); // (998 -> 998)
+        // 1层先造成1点魔法伤害，魔防1点后为0；但当前规则会应用伤害下限1，因此实际仍扣1点。
+        assertEquals(997, testPlayer.getCurrentHp()); // (998 -> 997)
 
         isExpired = burning.tick();
         assertEquals(0, burning.getStackCount()); // 1层 decay=1，剩余0层

@@ -54,7 +54,10 @@ public class BattleManagerTest {
         playerAttr.magicalAtk = 20;
         playerAttr.magicalDef = 10;
         playerAttr.speed = 15; // 速度15
-        playerAttr.physicalCritRate = 0.2f; // 20%暴击率
+        // 将命中与暴击固定为可预测状态，避免测试受随机波动影响。
+        playerAttr.hitRate = 1.0f;
+        playerAttr.dodgeRate = 0f;
+        playerAttr.physicalCritRate = 0f;
         playerAttr.expBonus = 1.0f;
         playerAttr.goldBonus = 1.0f;
         testPlayer.markAttributeCacheDirty();
@@ -68,6 +71,9 @@ public class BattleManagerTest {
         AttributeSet monsterAttr = testMonster.getBaseAttributes();
         monsterAttr.spirit = 10; // 精神10，玩家精神20，方便测试看破
         monsterAttr.speed = 10; // 速度10，比玩家慢
+        monsterAttr.hitRate = 1.0f;
+        monsterAttr.dodgeRate = 0f;
+        monsterAttr.physicalCritRate = 0f;
         testMonster.markAttributeCacheDirty();
         testMonster.setCurrentHp(monsterAttr.maxHp);
         testMonster.setCurrentMp(monsterAttr.maxMp);
@@ -123,18 +129,29 @@ public class BattleManagerTest {
         ctx.currentActor = testPlayer;
         ctx.currentTarget = testMonster;
 
-        // 玩家攻击30，怪物防御8 → 最终伤害=30-8=22
+        int monsterHpBefore = testMonster.getCurrentHp();
+        int expectedDamageToMonster = Math.max(1,
+            testPlayer.getFinalAttributes().physicalAtk - testMonster.getFinalAttributes().physicalDef);
+
+        // 玩家普攻命中后，伤害应符合 BattleManager 当前物理伤害公式。
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
-        assertEquals("伤害计算错误", 22, ctx.finalDamage);
-        assertEquals("怪物HP未正确扣除", 80-22, testMonster.getCurrentHp());
+        assertTrue("该场景应命中", ctx.isHit);
+        assertFalse("该场景不应暴击", ctx.isCriticalHit);
+        assertEquals("玩家攻击伤害计算错误", expectedDamageToMonster, ctx.finalDamage);
+        assertEquals("怪物HP未正确扣除", monsterHpBefore - expectedDamageToMonster, testMonster.getCurrentHp());
 
-        // 怪物攻击25，玩家防御10 -> 最终伤害 25-10=15
+        // 怪物普攻命中后，伤害应符合同一公式。
         ctx.currentActor = testMonster;
         ctx.currentTarget = testPlayer;
+        int playerHpBefore = testPlayer.getCurrentHp();
+        int expectedDamageToPlayer = Math.max(1,
+            testMonster.getFinalAttributes().physicalAtk - testPlayer.getFinalAttributes().physicalDef);
         battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
-        assertEquals("伤害计算错误", 15, ctx.finalDamage);
-        assertEquals("玩家HP未正确扣除", 100-15, testPlayer.getCurrentHp());
+        assertTrue("该场景应命中", ctx.isHit);
+        assertFalse("该场景不应暴击", ctx.isCriticalHit);
+        assertEquals("怪物攻击伤害计算错误", expectedDamageToPlayer, ctx.finalDamage);
+        assertEquals("玩家HP未正确扣除", playerHpBefore - expectedDamageToPlayer, testPlayer.getCurrentHp());
     }
 
     // ====================== 测试用例4：战斗胜利结算 ======================
@@ -148,6 +165,7 @@ public class BattleManagerTest {
         ctx.currentActor = testPlayer;
         ctx.currentTarget = testMonster;
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
+        assertTrue("该场景应命中", ctx.isHit);
 
         // 利用反射调用战斗结算
         java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);
@@ -162,15 +180,18 @@ public class BattleManagerTest {
     // ====================== 测试用例5：战斗失败结算 ======================
     @Test
     public void testDefeatSettlement() throws Exception {
-        // 直接把玩家HP设为1
-        testPlayer.setCurrentHp(1);
+        int expectedDamageToPlayer = Math.max(1,
+            testMonster.getFinalAttributes().physicalAtk - testPlayer.getFinalAttributes().physicalDef);
+        // 将玩家HP设置为预计受伤值，保证被击杀路径可稳定触发。
+        testPlayer.setCurrentHp(expectedDamageToPlayer);
 
         // 让怪物攻击玩家
         BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
         ctx.currentActor = testMonster;
         ctx.currentTarget = testPlayer;
-        // 怪物攻击25，玩家防御10 → 伤害15，玩家HP=1-15=0 → 死亡
         battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
+        assertTrue("该场景应命中", ctx.isHit);
+        assertEquals("伤害计算应与公式一致", expectedDamageToPlayer, ctx.finalDamage);
 
         // 利用反射调用战斗结算
         java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);

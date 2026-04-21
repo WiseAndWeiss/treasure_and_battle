@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 // 常驻力量加成词缀
 public class PermanentStrengthAffix extends BaseAffix {
@@ -22,7 +23,7 @@ public class PermanentStrengthAffix extends BaseAffix {
 
     // 常驻词缀不需要触发逻辑，空实现即可
     @Override
-    public void onTrigger(BattleContext context) {
+    public void onTrigger(BattleEntity owner, BattleContext context) {
         // 无逻辑
     }
 }

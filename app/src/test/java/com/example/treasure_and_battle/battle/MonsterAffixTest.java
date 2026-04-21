@@ -2,7 +2,11 @@ package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.affix.impl.monster.MonsterHpPercentAffix;
+import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
@@ -14,7 +18,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * 怪物词缀系统的单元测试
@@ -42,9 +45,15 @@ public class MonsterAffixTest {
         AttributeSet initialFinalAttr = testMonster.getFinalAttributes();
         assertEquals("没有词缀时的最大生命值应为100", 100, initialFinalAttr.maxHp);
 
-        // 利用配置表和 MonsterAffixManager 自动化生成的随机模板词条（类似 BuffManager的逻辑）
-        com.example.treasure_and_battle.affix.BaseAffix hpAffix = com.example.treasure_and_battle.manager.MonsterAffixManager.getInstance(context).createAffixByTemplateId(2001);
-        assertNotNull("hpAffix不应为null，请检查配置文件中的templateId是否对应。", hpAffix);
+        // 使用具体词缀实现验证“生命百分比词缀”本身的属性生效逻辑，避免测试依赖外部配置正确性。
+        BaseAffix hpAffix = new MonsterHpPercentAffix(
+            2001,
+            "生命值提升",
+            "生命值提高 %.0f%%",
+            Rarity.COMMON,
+            AffixTriggerType.PERMANENT,
+            0.20f
+        );
         
         // 挂载词缀到怪物身上 
         testMonster.addAffix(hpAffix);

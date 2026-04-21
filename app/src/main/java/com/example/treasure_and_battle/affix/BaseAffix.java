@@ -4,6 +4,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 // 词缀抽象基类：所有具体词缀都必须继承这个类
 public abstract class BaseAffix {
@@ -36,7 +37,7 @@ public abstract class BaseAffix {
      * @param context 战斗上下文（包含当前攻击者、目标、伤害数值、战斗状态等所有信息）
      */
     // TODO: 完成BattleContext类的设计，包含必要的战斗信息以供词缀逻辑使用
-    public abstract void onTrigger(BattleContext context);
+    public abstract void onTrigger(BattleEntity owner, BattleContext context);
 
     /**
      * 常驻属性词缀专用：给属性集添加加成

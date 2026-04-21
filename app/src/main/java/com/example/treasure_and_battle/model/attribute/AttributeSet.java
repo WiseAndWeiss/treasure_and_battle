@@ -86,19 +86,25 @@ public class AttributeSet {
         this.speed = 0;
 
         // 资源上限默认值
-        this.maxHp = 100;
-        this.maxMp = 50;
-        this.maxActionPoints = 2;
+        this.maxHp = 0;
+        this.maxMp = 0;
+        this.maxActionPoints = 0;
 
         // 附加属性默认值
         this.physicalCritRate = 0.0f;
         this.magicalCritRate = 0.0f;
-        this.physicalCritDmg = 2.0f;
-        this.magicalCritDmg = 2.0f;
-        this.hitRate = 0.9f;
+        this.physicalCritDmg = 0.0f;
+        this.magicalCritDmg = 0.0f;
+        this.hitRate = 0.0f;
         this.dodgeRate = 0.0f;
         this.debuffResist = 0.0f;
+        this.mpCostReduction = 0.0f;
         this.damageReductionRate = 0.0f;
+
+        // 额外收益默认值
+        this.lootRarityBonus = 0.0f;
+        this.goldBonus = 0.0f;
+        this.expBonus = 0.0f;
     }
 
     // 加法叠加另一个AttributeSet（用于天赋、装备、技能被动）

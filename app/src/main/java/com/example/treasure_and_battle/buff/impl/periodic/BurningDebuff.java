@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
+import static com.example.treasure_and_battle.battle.DamageType.MAGICAL;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -35,10 +37,9 @@ public class BurningDebuff extends BaseBuff {
     public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
         if (triggerType == BuffTriggerType.ON_ROUND_END) {
             // 每层灼烧造成1点魔法伤害，会受到魔法防御的减免
-            int baseDamage = this.stackCount; // 每层1点伤害
-            // 计算魔法防御后的实际伤害，确保不为负数
-            int damage = Math.max(0, baseDamage - owner.getFinalAttributes().magicalDef);
-            owner.takeDamage(damage);
+            int damage = this.stackCount; // 每层1点伤害
+            // 计算实际伤害，考虑魔法防御
+            owner.takeDamage(damage, MAGICAL);
             // 加入战斗日志
             context.addLogWithMeta(LogType.DAMAGE, owner,
                     "【灼烧】[%s] 当前层数 %d，魔法防御为：%d, 损失了 %d 点生命值！剩余生命：(%d/%d)",

@@ -10,6 +10,13 @@ public class EquipAffixTemplate {
     private float minValue;
     private float maxValue;
     private String affixClass;
+    private String attributeType;
+    private String valueType;
+    private String affixScope;
+    private Integer buffTemplateId;
+    private String applyTarget;
+    private Integer applyStacks;
+    private Float damageToStackRatio;
 
     public int getTemplateId() { return templateId; }
     public void setTemplateId(int templateId) { this.templateId = templateId; }
@@ -29,4 +36,18 @@ public class EquipAffixTemplate {
     public void setMaxValue(float maxValue) { this.maxValue = maxValue; }
     public String getAffixClass() { return affixClass; }
     public void setAffixClass(String affixClass) { this.affixClass = affixClass; }
+    public String getAttributeType() { return attributeType; }
+    public void setAttributeType(String attributeType) { this.attributeType = attributeType; }
+    public String getValueType() { return valueType; }
+    public void setValueType(String valueType) { this.valueType = valueType; }
+    public String getAffixScope() { return affixScope; }
+    public void setAffixScope(String affixScope) { this.affixScope = affixScope; }
+    public Integer getBuffTemplateId() { return buffTemplateId; }
+    public void setBuffTemplateId(Integer buffTemplateId) { this.buffTemplateId = buffTemplateId; }
+    public String getApplyTarget() { return applyTarget; }
+    public void setApplyTarget(String applyTarget) { this.applyTarget = applyTarget; }
+    public Integer getApplyStacks() { return applyStacks; }
+    public void setApplyStacks(Integer applyStacks) { this.applyStacks = applyStacks; }
+    public Float getDamageToStackRatio() { return damageToStackRatio; }
+    public void setDamageToStackRatio(Float damageToStackRatio) { this.damageToStackRatio = damageToStackRatio; }
 }

@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
@@ -137,18 +138,11 @@ public class BattleManager {
         // 这里仅展示核心逻辑框架：
         // TODO: 连接UI输入，处理玩家选择的操作（普攻/技能/道具/逃跑等），并调用相应的执行方法
 
-        while (ctx.currentActionPoints > 0 && !ctx.isBattleEnded) {
-            // 假设玩家选择了某个操作（普攻/技能/道具/逃跑）
-            // 这里仅以「普攻」和「逃跑」为例展示逻辑
-
-            // 示例：玩家选择普攻
-            // executePlayerNormalAttack(ctx);
-            // ctx.currentActionPoints--;
-
-            // 示例：玩家选择逃跑
-            // if (executePlayerEscape(ctx)) {
-            //     return;
-            // }
+        // 兜底：未接入UI时，自动结束玩家行动阶段，避免空循环卡死。
+        if (ctx.currentActionPoints > 0 && !ctx.isBattleEnded) {
+            ctx.addLog(LogType.SYSTEM, "玩家操作尚未接入，自动结束本回合行动阶段。");
+            ctx.currentActionPoints = 0;
+            ctx.player.setCurrentActionPoints(0);
         }
     }
 
@@ -283,41 +277,68 @@ public class BattleManager {
         ctx.resetDamageData();
         ctx.currentActor = attacker;
         ctx.currentTarget = target;
+        ctx.damageType = DamageType.PHYSICAL.name();
 
         // 动态获取攻击者名称（用于日志）
         String actorName = attacker.getName();
         String targetName = target.getName();
         ctx.addLog(LogType.ACTION, "[%s] 发动普通攻击。", actorName);
 
+        // 攻击发起阶段：触发攻击前Buff和词缀（ON_ATTACK），用于修改攻击属性、增加特殊效果等。
+        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK);
+        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK);
+
         // 计算原始伤害（100%物理攻击，统一逻辑）
         AttributeSet attackerAttr = attacker.getFinalAttributes();
+        AttributeSet targetAttr = target.getFinalAttributes();
         ctx.rawDamage = attackerAttr.physicalAtk;
         ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", ctx.rawDamage);
 
-        // 统一计算命中/闪避/暴击（不再区分玩家/怪物，后续可以直接在这里完善）
-        ctx.isHit = true; // 先设为必中占位
-        ctx.isCriticalHit = RandomUtils.checkProbability((float) attackerAttr.physicalCritRate);
+        // 统一计算命中/闪避：命中率 = 攻击者命中 - 防守者闪避，并截断到[0,1]。
+        float hitChance = calculateHitChance(attackerAttr, targetAttr);
+        ctx.isHit = RandomUtils.checkProbability(hitChance);
+        ctx.isDodged = !ctx.isHit;
+        ctx.addLog(LogType.DODGE_CRIT, "  命中判定：命中率=%.1f%% (命中%.1f%% - 闪避%.1f%%)",
+                hitChance * 100f, attackerAttr.hitRate * 100f, targetAttr.dodgeRate * 100f);
+
+        if (!ctx.isHit) {
+            ctx.rawDamage = 0;
+            ctx.finalDamage = 0;
+            ctx.isCriticalHit = false;
+            ctx.addLog(LogType.DODGE_CRIT, "  攻击未命中");
+            // 触发攻击未命中Buff和词缀
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK_MISS);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK_MISS);
+            // 触发目标的攻击未命中Buff和词缀
+            BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_DODGE);
+            AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_DODGE);
+            return;
+        }
+
+        // 只在命中后判定暴击。
+        float critChance = clampProbability(attackerAttr.physicalCritRate);
+        ctx.isCriticalHit = RandomUtils.checkProbability(critChance);
+        ctx.addLog(LogType.DODGE_CRIT, "  暴击判定：暴击率=%.1f%%", critChance * 100f);
+
         if (ctx.isCriticalHit) {
             ctx.rawDamage *= attackerAttr.physicalCritDmg;
             ctx.addLog(LogType.DODGE_CRIT, "  触发暴击！伤害提升至 %d", ctx.rawDamage);
-        }
-        if (!ctx.isHit) {
-            ctx.rawDamage = 0;
-            ctx.addLog(LogType.DODGE_CRIT, "  攻击未命中");
+            // 触发暴击Buff和词缀
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_CRIT);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_CRIT);
+            // 触发目标的被暴击Buff和词缀
+            BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEING_CRIT);
+            AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEING_CRIT);
         }
 
         // 计算最终伤害（减去目标防御，统一逻辑）
-        AttributeSet targetAttr = target.getFinalAttributes();
         ctx.finalDamage = Math.max(1, ctx.rawDamage - targetAttr.physicalDef);
         ctx.addLog(LogType.DAMAGE, "  扣除物理防御(%d)，结算伤害：%d", targetAttr.physicalDef, ctx.finalDamage);
 
-        // 触发【攻击者】的攻击时Buff和词缀（ON_ATTACK_HIT）
-        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK_HIT);
-        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK_HIT);
 
         // 触发【目标】的受击前Buff和词缀（ON_BEFORE_DAMAGE）
-        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEFORE_DAMAGE);
-        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEFORE_DAMAGE);
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEFORE_DAMAGE_TAKEN);
 
         // 防御结算顺序：先结算计次减伤，再结算护盾吸收。
         // 这样设计是为了让“减伤”负责直接削减本次命中的伤害，而“护盾”只吸收减伤后的剩余值，
@@ -330,9 +351,20 @@ public class BattleManager {
         ctx.addLog(LogType.DAMAGE, "  %s受到 %d 点伤害。剩余HP：(%d/%d)",
                 targetName, ctx.finalDamage, target.getCurrentHp(), targetAttr.maxHp);
 
+        // 命中后阶段：用于“命中后触发”词缀、Buff，可读取最终落地伤害。
+        if (ctx.isHit) {
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_HIT);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_HIT);
+        }
+
         // 触发【目标】的受击后Buff和词缀（ON_AFTER_DAMAGE）
-        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE);
-        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE);
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE_TAKEN);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE_TAKEN);
+
+        if (target.isDead()) {
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_KILL);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_KILL);
+        }
 
         // 检查死亡
         checkDeath(ctx);
@@ -405,11 +437,11 @@ public class BattleManager {
 
     // 检查死亡
     private void checkDeath(BattleContext ctx) {
-        if (ctx.player.isDead()) {
+        if (ctx.player != null && ctx.player.isDead()) {
             ctx.isBattleEnded = true;
             ctx.battleResult = BattleContext.BattleResult.DEFEAT;
             ctx.addLog(LogType.DEATH, "玩家阵亡。");
-        } else if (ctx.monster.isDead()) {
+        } else if (ctx.monster != null && ctx.monster.isDead()) {
             ctx.isBattleEnded = true;
             ctx.battleResult = BattleContext.BattleResult.VICTORY;
             ctx.addLog(LogType.DEATH, "怪物阵亡，战斗胜利。");
@@ -419,6 +451,16 @@ public class BattleManager {
     // 7. 战斗结果结算（功能清单第6、7点）
     private void settleBattleResult(BattleContext ctx) {
         ctx.addLog(LogType.ROUND_INFO, "======== 战斗结算 ========");
+
+        // 战斗结束统一触发。用于处理“战斗结束时”词缀/Buff。
+        if (ctx.player != null) {
+            BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_BATTLE_END);
+            AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_BATTLE_END);
+        }
+        if (ctx.monster != null) {
+            BuffManager.getInstance(context).triggerBuffs(ctx.monster, ctx, BuffTriggerType.ON_BATTLE_END);
+            AffixManager.getInstance(context).triggerAffixes(ctx.monster, ctx, AffixTriggerType.ON_BATTLE_END);
+        }
 
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
             // 7.1 计算经验加成（功能清单第7点）
@@ -448,6 +490,20 @@ public class BattleManager {
             ctx.player.setCurrentHp(1);
             ctx.player.setDead(false);
             ctx.addLog(LogType.RESULT, "战斗失败，已扣除部分金币，保留1点生命值。");
+        } else if (ctx.battleResult == BattleContext.BattleResult.ESCAPED) {
+            ctx.addLog(LogType.RESULT, "战斗结束：玩家成功逃跑。\n");
+        } else if (ctx.battleResult == BattleContext.BattleResult.MONSTER_ESCAPED) {
+            ctx.addLog(LogType.RESULT, "战斗结束：怪物逃跑。\n");
+        } else {
+            ctx.addLog(LogType.SYSTEM, "战斗结算时未识别战斗结果，跳过奖励与惩罚。\n");
         }
+    }
+
+    private float calculateHitChance(AttributeSet attackerAttr, AttributeSet targetAttr) {
+        return clampProbability(attackerAttr.hitRate - targetAttr.dodgeRate);
+    }
+
+    private float clampProbability(float value) {
+        return Math.max(0f, Math.min(1f, value));
     }
 }

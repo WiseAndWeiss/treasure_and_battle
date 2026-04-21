@@ -209,12 +209,9 @@ public class AttributeUtils {
     }
 
     private static void applyHardCaps(AttributeSet attr) {
-        attr.dodgeRate = Math.min(attr.dodgeRate, 0.8f);  
-        attr.hitRate = Math.min(attr.hitRate, 1.0f);      
-        attr.physicalCritRate = Math.min(attr.physicalCritRate, 0.95f); 
-        attr.magicalCritRate = Math.min(attr.magicalCritRate, 0.95f);
-        attr.mpCostReduction = Math.min(attr.mpCostReduction, 0.5f); 
-        attr.debuffResist = Math.min(attr.debuffResist, 1.0f); 
+        attr.mpCostReduction = Math.min(attr.mpCostReduction, 1.0f);
+        attr.debuffResist = Math.min(attr.debuffResist, 1.0f);
+        attr.damageReductionRate = Math.min(attr.damageReductionRate, 1.0f);
     }
 
     public static void invalidateCache() {

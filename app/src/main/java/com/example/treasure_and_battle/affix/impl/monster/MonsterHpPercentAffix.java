@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 /**
  * 怪物词缀：生命值百分比提高
@@ -24,7 +25,7 @@ public class MonsterHpPercentAffix extends BaseMonsterAffix {
     }
 
     @Override
-    public void onTrigger(BattleContext context) {
+    public void onTrigger(BattleEntity owner, BattleContext context) {
         // 常驻属性词缀不会在战斗中按特定时机触发行为，仅在属性计算时生效
     }
 
