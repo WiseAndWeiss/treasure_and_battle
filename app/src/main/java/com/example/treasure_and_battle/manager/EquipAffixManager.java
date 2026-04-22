@@ -4,6 +4,8 @@ import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix;
+import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 import com.example.treasure_and_battle.core.RngEngine;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
@@ -153,6 +155,30 @@ public class EquipAffixManager {
                         applyStacks,
                         damageToStackRatio
                     );
+                } else if (affixClass == EquipTriggerRecoverAffix.class) {
+                    AffixRecoverResourceType recoverResourceType = parseRecoverResourceType(template.getRecoverResourceType());
+                    ValueType recoverValueType = parseRecoverValueType(template.getRecoverValueType());
+                    int recoverValue = template.getRecoverValue() == null ? 0 : Math.max(0, template.getRecoverValue());
+                    float damageToRecoverRatio = template.getDamageToRecoverRatio() == null
+                        ? 0f
+                        : Math.max(0f, template.getDamageToRecoverRatio());
+
+                    affix = (BaseEquipAffix) affixClass.getConstructor(
+                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class,
+                        AffixRecoverResourceType.class, ValueType.class, int.class, float.class
+                    ).newInstance(
+                        template.getTemplateId(),
+                        template.getAffixName(),
+                        template.getDescriptionFormat(),
+                        targetRarity,
+                        triggerType,
+                        categories,
+                        randomValue,
+                        recoverResourceType,
+                        recoverValueType,
+                        recoverValue,
+                        damageToRecoverRatio
+                    );
                 } else {
                     affix = (BaseEquipAffix) affixClass.getConstructor(
                         int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class
@@ -234,6 +260,20 @@ public class EquipAffixManager {
             return AffixBuffApplyTarget.TARGET;
         }
         return AffixBuffApplyTarget.valueOf(rawTarget.trim().toUpperCase());
+    }
+
+    private AffixRecoverResourceType parseRecoverResourceType(String rawType) {
+        if (rawType == null || rawType.trim().isEmpty()) {
+            return AffixRecoverResourceType.HP;
+        }
+        return AffixRecoverResourceType.valueOf(rawType.trim().toUpperCase());
+    }
+
+    private ValueType parseRecoverValueType(String rawType) {
+        if (rawType == null || rawType.trim().isEmpty()) {
+            return ValueType.FLAT;
+        }
+        return ValueType.valueOf(rawType.trim().toUpperCase());
     }
 
     private static class ConfigWrapper {

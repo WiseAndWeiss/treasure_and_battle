@@ -1,12 +1,14 @@
-package com.example.treasure_and_battle.battle;
+package com.example.treasure_and_battle.battle.affix.monster_affix;
 
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.affix.impl.monster.MonsterHpPercentAffix;
+import com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
@@ -39,20 +41,22 @@ public class MonsterAffixTest {
     }
 
     @Test
-    public void testMonsterHpPercentAffix() {
+    public void testMonsterMaxHpPercentageByAttributeAffix() {
         // 验证初始状态：没有词缀时的最大生命值为 100
         AttributeUtils.calculateFinalAttributes(testMonster, context);
         AttributeSet initialFinalAttr = testMonster.getFinalAttributes();
         assertEquals("没有词缀时的最大生命值应为100", 100, initialFinalAttr.maxHp);
 
         // 使用具体词缀实现验证“生命百分比词缀”本身的属性生效逻辑，避免测试依赖外部配置正确性。
-        BaseAffix hpAffix = new MonsterHpPercentAffix(
+        BaseAffix hpAffix = new MonsterAttributeAffix(
             2001,
             "生命值提升",
             "生命值提高 %.0f%%",
             Rarity.COMMON,
             AffixTriggerType.PERMANENT,
-            0.20f
+            0.20f,
+            AttributeType.MAX_HP,
+            ValueType.PERCENTAGE
         );
         
         // 挂载词缀到怪物身上 

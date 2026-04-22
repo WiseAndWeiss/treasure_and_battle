@@ -2,9 +2,16 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
+import com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRecoverAffix;
+import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
+import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.affix.MonsterAffixTemplate;
+import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import com.google.gson.Gson;
@@ -63,24 +70,7 @@ public class MonsterAffixManager {
 
         float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
         Rarity rarity = Rarity.fromId(template.getRarityId());
-        AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
-
-        try {
-            Class<?> affixClass = Class.forName(template.getAffixClass());
-            return (BaseMonsterAffix) affixClass.getConstructor(
-                    int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class
-            ).newInstance(
-                    template.getTemplateId(),
-                    template.getAffixName(),
-                    template.getDescriptionFormat(),
-                    rarity,
-                    triggerType,
-                    randomValue
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return createAffixFromTemplate(template, rarity, randomValue);
     }
 
     // 随机给怪物生成词缀：可以结合引擎，这里直接随机
@@ -95,23 +85,9 @@ public class MonsterAffixManager {
 
             float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
             Rarity rarity = Rarity.fromId(template.getRarityId());
-            AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
-
-            try {
-                Class<?> affixClass = Class.forName(template.getAffixClass());
-                BaseMonsterAffix affix = (BaseMonsterAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class
-                ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        rarity,
-                        triggerType,
-                        randomValue
-                );
+            BaseMonsterAffix affix = createAffixFromTemplate(template, rarity, randomValue);
+            if (affix != null) {
                 affixList.add(affix);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
@@ -122,6 +98,119 @@ public class MonsterAffixManager {
         List<MonsterAffixTemplate> validTemplates = new ArrayList<>(templateMap.values());
         if (validTemplates.isEmpty()) return null;
         return validTemplates.get(RandomUtils.getRandomInt(0, validTemplates.size() - 1));
+    }
+
+    private BaseMonsterAffix createAffixFromTemplate(MonsterAffixTemplate template, Rarity rarity, float randomValue) {
+        AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
+        try {
+            Class<?> affixClass = Class.forName(template.getAffixClass());
+            if (affixClass == MonsterAttributeAffix.class) {
+                AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
+                ValueType valueType = parseValueType(template.getValueType());
+                return (BaseMonsterAffix) affixClass.getConstructor(
+                    int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class,
+                    AttributeType.class, ValueType.class
+                ).newInstance(
+                    template.getTemplateId(),
+                    template.getAffixName(),
+                    template.getDescriptionFormat(),
+                    rarity,
+                    triggerType,
+                    randomValue,
+                    attributeType,
+                    valueType
+                );
+            }
+
+            if (affixClass == MonsterTriggerBuffAffix.class) {
+                Integer buffTemplateId = template.getBuffTemplateId();
+                if (buffTemplateId == null) {
+                    throw new IllegalArgumentException("MonsterTriggerBuffAffix template missing buffTemplateId: " + template.getTemplateId());
+                }
+
+                AffixBuffApplyTarget applyTarget = parseApplyTarget(template.getApplyTarget());
+                int applyStacks = template.getApplyStacks() == null ? 1 : Math.max(1, template.getApplyStacks());
+                float damageToStackRatio = template.getDamageToStackRatio() == null
+                    ? 0f
+                    : Math.max(0f, template.getDamageToStackRatio());
+
+                return (BaseMonsterAffix) affixClass.getConstructor(
+                    int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class,
+                    int.class, AffixBuffApplyTarget.class, int.class, float.class
+                ).newInstance(
+                    template.getTemplateId(),
+                    template.getAffixName(),
+                    template.getDescriptionFormat(),
+                    rarity,
+                    triggerType,
+                    randomValue,
+                    buffTemplateId,
+                    applyTarget,
+                    applyStacks,
+                    damageToStackRatio
+                );
+            }
+
+            if (affixClass == MonsterTriggerRecoverAffix.class) {
+                AffixRecoverResourceType recoverResourceType = parseRecoverResourceType(template.getRecoverResourceType());
+                ValueType recoverValueType = parseValueType(template.getRecoverValueType());
+                int recoverValue = template.getRecoverValue() == null ? 0 : Math.max(0, template.getRecoverValue());
+                float damageToRecoverRatio = template.getDamageToRecoverRatio() == null
+                    ? 0f
+                    : Math.max(0f, template.getDamageToRecoverRatio());
+
+                return (BaseMonsterAffix) affixClass.getConstructor(
+                    int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class,
+                    AffixRecoverResourceType.class, ValueType.class, int.class, float.class
+                ).newInstance(
+                    template.getTemplateId(),
+                    template.getAffixName(),
+                    template.getDescriptionFormat(),
+                    rarity,
+                    triggerType,
+                    randomValue,
+                    recoverResourceType,
+                    recoverValueType,
+                    recoverValue,
+                    damageToRecoverRatio
+                );
+            }
+
+            return (BaseMonsterAffix) affixClass.getConstructor(
+                int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class
+            ).newInstance(
+                template.getTemplateId(),
+                template.getAffixName(),
+                template.getDescriptionFormat(),
+                rarity,
+                triggerType,
+                randomValue
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private AffixBuffApplyTarget parseApplyTarget(String rawTarget) {
+        if (rawTarget == null || rawTarget.trim().isEmpty()) {
+            return AffixBuffApplyTarget.TARGET;
+        }
+        return AffixBuffApplyTarget.valueOf(rawTarget.trim().toUpperCase());
+    }
+
+    private AffixRecoverResourceType parseRecoverResourceType(String rawType) {
+        if (rawType == null || rawType.trim().isEmpty()) {
+            return AffixRecoverResourceType.HP;
+        }
+        return AffixRecoverResourceType.valueOf(rawType.trim().toUpperCase());
+    }
+
+    private ValueType parseValueType(String rawType) {
+        if (rawType == null || rawType.trim().isEmpty()) {
+            return ValueType.FLAT;
+        }
+        return ValueType.valueOf(rawType.trim().toUpperCase());
     }
 
     private static class ConfigWrapper {

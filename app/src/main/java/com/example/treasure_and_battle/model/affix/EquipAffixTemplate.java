@@ -17,6 +17,10 @@ public class EquipAffixTemplate {
     private String applyTarget;
     private Integer applyStacks;
     private Float damageToStackRatio;
+    private String recoverResourceType;
+    private String recoverValueType;
+    private Integer recoverValue;
+    private Float damageToRecoverRatio;
 
     public int getTemplateId() { return templateId; }
     public void setTemplateId(int templateId) { this.templateId = templateId; }
@@ -50,4 +54,12 @@ public class EquipAffixTemplate {
     public void setApplyStacks(Integer applyStacks) { this.applyStacks = applyStacks; }
     public Float getDamageToStackRatio() { return damageToStackRatio; }
     public void setDamageToStackRatio(Float damageToStackRatio) { this.damageToStackRatio = damageToStackRatio; }
+    public String getRecoverResourceType() { return recoverResourceType; }
+    public void setRecoverResourceType(String recoverResourceType) { this.recoverResourceType = recoverResourceType; }
+    public String getRecoverValueType() { return recoverValueType; }
+    public void setRecoverValueType(String recoverValueType) { this.recoverValueType = recoverValueType; }
+    public Integer getRecoverValue() { return recoverValue; }
+    public void setRecoverValue(Integer recoverValue) { this.recoverValue = recoverValue; }
+    public Float getDamageToRecoverRatio() { return damageToRecoverRatio; }
+    public void setDamageToRecoverRatio(Float damageToRecoverRatio) { this.damageToRecoverRatio = damageToRecoverRatio; }
 }
