@@ -1,10 +1,9 @@
-package com.example.treasure_and_battle.battle.affix.equip_affix;
+package com.example.treasure_and_battle.affix.impl.equip.trigger;
 
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
-import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.BattleManager;

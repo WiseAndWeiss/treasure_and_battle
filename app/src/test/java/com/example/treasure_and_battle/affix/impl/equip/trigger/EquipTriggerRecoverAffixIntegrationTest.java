@@ -1,9 +1,8 @@
-package com.example.treasure_and_battle.battle.affix.equip_affix;
+package com.example.treasure_and_battle.affix.impl.equip.trigger;
 
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;

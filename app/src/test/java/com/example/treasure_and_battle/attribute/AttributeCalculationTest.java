@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.battle.attribute;
+package com.example.treasure_and_battle.attribute;
 
 import android.content.Context;
 

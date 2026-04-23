@@ -1,10 +1,7 @@
-package com.example.treasure_and_battle.battle.buff;
+package com.example.treasure_and_battle.buff.impl.periodic;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
-import com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff;
-import com.example.treasure_and_battle.buff.impl.periodic.PoisoningDebuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;

@@ -183,7 +183,7 @@
     {
       "templateId": 1021,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给目标施加 %.0f% 层出血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
       "rarityId": 0,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -200,7 +200,7 @@
     {
       "templateId": 1022,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给目标施加 %.0f% 层出血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
       "rarityId": 1,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -217,7 +217,7 @@
     {
       "templateId": 1023,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给目标施加 %.0f% 层出血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
       "rarityId": 2,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -234,7 +234,7 @@
     {
       "templateId": 1024,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给目标施加 %.0f% 层出血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
       "rarityId": 3,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -251,7 +251,7 @@
     {
       "templateId": 1025,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给目标施加 %.0f% 层出血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
       "rarityId": 4,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -266,21 +266,164 @@
       "affixScope": "GLOBAL"
     },
     {
-      "templateId": 1031,
-      "affixName": "回春",
-      "descriptionFormat": "攻击时后有 %.0f%% 概率给自身施加 %.0f% 层回春",
+      "templateId": 2001,
+      "affixName": "汲血之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
       "rarityId": 0,
-      "triggerType": "ON_ATTACK",
+      "triggerType": "ON_HIT",
       "allowCategories": [
         "WEAPON"
       ],
-      "minValue": 0.10,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
-      "applyTarget": "SELF",
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 1
+    },
+    {
+      "templateId": 2002,
+      "affixName": "汲血之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "rarityId": 1,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 2
+    },
+    {
+      "templateId": 2003,
+      "affixName": "汲血之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "rarityId": 2,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 3
+    },
+    {
+      "templateId": 2004,
+      "affixName": "汲血之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "rarityId": 3,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 4
+    },
+    {
+      "templateId": 2005,
+      "affixName": "汲血之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "rarityId": 4,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 5
+    },
+    {
+      "templateId": 2011,
+      "affixName": "汲魔之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "rarityId": 0,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 1
+    },
+    {
+      "templateId": 2012,
+      "affixName": "汲魔之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "rarityId": 1,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 2
+    },
+    {
+      "templateId": 2013,
+      "affixName": "汲魔之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "rarityId": 2,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 3
+    },
+    {
+      "templateId":2014,
+      "affixName": "汲魔之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "rarityId": 3,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 4
+    },
+    {
+      "templateId": 2015,
+      "affixName": "汲魔之刃",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "rarityId": 4,
+      "triggerType": "ON_HIT",
+      "allowCategories": [
+        "WEAPON"
+      ],
+      "minValue": 1.00,
+      "maxValue": 1.00,
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "recoverValueType": "FLAT",
+      "recoverValue": 5
     },
     {
       "templateId": 3001,
