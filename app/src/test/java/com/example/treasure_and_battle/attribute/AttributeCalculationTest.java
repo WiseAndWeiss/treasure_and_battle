@@ -1,8 +1,10 @@
-package com.example.treasure_and_battle.battle;
+package com.example.treasure_and_battle.attribute;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
+import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.ValueType;
@@ -57,24 +59,28 @@ public class AttributeCalculationTest {
         java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
         
         // 添加固定的力量词条 (+10)
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatStrAffix(
+        affixes.add(new EquipAttributeAffix(
                 1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f));
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f,
+            AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加力量百分比词条 (+20%)
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentStrAffix(
+        affixes.add(new EquipAttributeAffix(
                 2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f));
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f,
+            AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         // 添加固定物理攻击力词条 (+30)
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatAtkAffix(
+        affixes.add(new EquipAttributeAffix(
                 3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f));
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f,
+            AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加物理攻击力百分比词条 (+15%)
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentAtkAffix(
+        affixes.add(new EquipAttributeAffix(
                 4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f));
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f,
+            AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         weapon.setAffixes(affixes);
         
@@ -92,7 +98,7 @@ public class AttributeCalculationTest {
         
         // 验证阶段三：计算最终面板
         // 衍生物攻 = 100(基础设定) + 20(力量差70-50=20) = 120
-        // 这里 modifiers.physicalAtk 固定总加成 = 20(武器Base自带) + 30(词条EquipFlatAtkAffix) = 50
+        // 这里 modifiers.physicalAtk 固定总加成 = 20(武器Base自带) + 30(词条 EquipAttributeAffix: PHYSICAL_ATK + FLAT) = 50
         // modifiers.percentPhysicalAtk 总百分比加成 = 0.15
         
         // 所以: 最终物攻 = 120 * 1.15 + 50 = 138 + 50 = 188
@@ -156,18 +162,22 @@ public class AttributeCalculationTest {
         weapon.getBaseAttributes().physicalAtk = 20; // 武器基础属性，相当于固定物攻+20
         
         java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatStrAffix(
+        affixes.add(new EquipAttributeAffix(
                 1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f)); // 固定力量+10
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentStrAffix(
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f,
+            AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定力量+10
+        affixes.add(new EquipAttributeAffix(
                 2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f)); // 百分比力量+20%
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipFlatAtkAffix(
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f,
+            AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比力量+20%
+        affixes.add(new EquipAttributeAffix(
                 3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f)); // 固定物攻+30
-        affixes.add(new com.example.treasure_and_battle.affix.impl.equip.EquipPercentAtkAffix(
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f,
+            AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定物攻+30
+        affixes.add(new EquipAttributeAffix(
                 4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-                com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f)); // 百分比物攻+15%
+            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f,
+            AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比物攻+15%
         weapon.setAffixes(affixes);
         testPlayer.equip(weapon);
 

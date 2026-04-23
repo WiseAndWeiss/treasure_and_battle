@@ -9,7 +9,8 @@ import java.util.List;
 public class EquipItem extends Item {
     private int level;
     private EquipSlot slot;
-    private AttributeSet baseAttributes;
+    private AttributeSet baseAttributes; // 装备基础属性
+    private AttributeSet finalAttributes; // 最终属性（计算词缀后的属性）
     private List<BaseAffix> affixes;
     private int maxSockets;
 
@@ -18,6 +19,7 @@ public class EquipItem extends Item {
         this.level = level;
         this.slot = slot;
         this.baseAttributes = new AttributeSet();
+        this.finalAttributes = new AttributeSet();
         this.maxSockets = rarity.getId(); // 根据规则，宝石槽位默认由品质决定
         this.affixes = new ArrayList<>();
     }

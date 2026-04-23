@@ -18,7 +18,7 @@ public class ShieldBuff extends BaseBuff {
     public ShieldBuff(String buffId, String buffName, String descriptionFormat,
                       BuffType buffType, boolean isDispellable, int maxDuration,
                       int maxStackCount, boolean refreshOnApply, float buffValue) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_BEFORE_DAMAGE,
+        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
     }
 

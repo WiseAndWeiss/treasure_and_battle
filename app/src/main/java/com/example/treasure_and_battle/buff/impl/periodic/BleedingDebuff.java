@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
+import static com.example.treasure_and_battle.battle.DamageType.TRUE;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -43,7 +45,7 @@ public class BleedingDebuff extends BaseBuff {
         if (triggerType == BuffTriggerType.ON_ROUND_END) {
             // 每层流失1%生命值
             int damage = (int) (owner.getFinalAttributes().maxHp * 0.01 * this.stackCount);
-            owner.takeDamage(damage);
+            owner.takeDamage(damage, TRUE);
 
             // 加入战斗日志
             context.addLogWithMeta(LogType.DAMAGE, owner,

@@ -3,12 +3,22 @@ package com.example.treasure_and_battle.model.affix;
 public enum AffixTriggerType {
     // 常驻生效：加属性、增伤倍率等永久生效的词缀（最常用）
     PERMANENT,
-    // 攻击时触发：普攻/技能命中目标时
-    ON_ATTACK_HIT,
+    // 攻击发起时触发：宣告攻击动作后立即触发，不要求命中
+    ON_ATTACK,
+    // 攻击未命中时触发：当攻击动作未命中目标时触发
+    ON_ATTACK_MISS,
+    // 命中后触发：造成本次命中伤害后触发，可读取最终伤害
+    ON_HIT,
+    // 造成暴击时触发：伤害计算完成后，如果是暴击则触发
+    ON_CRIT,
+    // 受到暴击时触发：当角色受到暴击伤害时触发
+    ON_BEING_CRIT,
+    // 闪避时触发：当角色成功闪避攻击时触发
+    ON_DODGE,
     // 受到伤害前触发
-    ON_BEFORE_DAMAGE,
+    ON_BEFORE_DAMAGE_TAKEN,
     // 受到伤害后触发
-    ON_AFTER_DAMAGE,
+    ON_AFTER_DAMAGE_TAKEN,
     // 击杀怪物时触发
     ON_KILL,
     // 战斗开始时触发

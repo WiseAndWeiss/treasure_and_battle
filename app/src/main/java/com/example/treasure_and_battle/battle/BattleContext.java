@@ -35,6 +35,7 @@ public class BattleContext {
     // ====================== 伤害计算临时数据 ======================
     public int rawDamage;                  // 原始伤害（未计算防御、暴击）
     public int finalDamage;                // 最终伤害
+    public String damageType;              // 伤害类型
     public boolean isCriticalHit;          // 是否暴击
     public boolean isHit;                  // 是否命中
     public boolean isDodged;               // 是否闪避
@@ -75,6 +76,7 @@ public class BattleContext {
     public void resetDamageData() {
         this.rawDamage = 0;
         this.finalDamage = 0;
+        this.damageType = null;
         this.isCriticalHit = false;
         this.isHit = true;
         this.isDodged = false;
@@ -85,6 +87,6 @@ public class BattleContext {
         VICTORY,  // 胜利
         DEFEAT,   // 失败
         ESCAPED,   // 逃跑成功
-        MONSTER_ESCAPER // 怪物逃跑成功
+        MONSTER_ESCAPED // 怪物逃跑成功
     }
 }

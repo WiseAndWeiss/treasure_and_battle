@@ -48,7 +48,7 @@ public class AffixManager {
 
         for (BaseAffix affix : activeAffixes) {
             if (affix.getTriggerType() == triggerType) {
-                affix.onTrigger(ctx);
+                affix.onTrigger(entity, ctx);
                 ctx.addLogWithMeta(
                         com.example.treasure_and_battle.battle.log.LogType.AFFIX,
                         affix,
