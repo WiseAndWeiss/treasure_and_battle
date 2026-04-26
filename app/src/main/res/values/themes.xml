@@ -2,14 +2,14 @@
     <!-- Base application theme. -->
     <style name="Theme.Treasure_and_battle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/tb_gold_deep</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/tb_text_main</item>
+        <item name="colorPrimaryVariant">@color/tb_bg_dark</item>
+        <item name="colorOnPrimary">@color/tb_panel</item>
         <item name="colorSecondary">@color/tb_battle</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/tb_text_main</item>
+        <item name="colorOnSecondary">@color/tb_panel</item>
         <item name="colorSurface">@color/tb_panel</item>
         <item name="colorOnSurface">@color/tb_text_main</item>
-        <item name="android:windowBackground">@color/tb_bg_dark</item>
+        <item name="android:windowBackground">@drawable/bg_screen_treasure</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:navigationBarColor">@color/tb_bg_dark</item>
     </style>

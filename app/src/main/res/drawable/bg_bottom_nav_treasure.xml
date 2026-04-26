@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="8dp" />
     <gradient
         android:angle="270"
-        android:startColor="#FFD9BE91"
-        android:endColor="@color/tb_slot_empty" />
+        android:startColor="#FFBA9161"
+        android:endColor="#FF996B3F" />
     <stroke
         android:width="1dp"
         android:color="@color/tb_gold_deep" />

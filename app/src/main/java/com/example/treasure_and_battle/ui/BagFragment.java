@@ -44,8 +44,11 @@ import java.util.Map;
 public class BagFragment extends Fragment {
 
     private TextView tvPageInfo;
+    private TextView tvFilterInfo;
     private TextView btnPrevPage;
     private TextView btnNextPage;
+    private TextView btnCompactBag;
+    private TextView btnFilterSlot;
     private LinearLayout gridBagContainer;
 
     private RecyclerView recyclerView;
@@ -55,6 +58,13 @@ public class BagFragment extends Fragment {
     private int currentPage = 1;
     private final int totalPages = 5;
     private final int itemsPerPage = 25;
+    @Nullable
+    private EquipSlot currentFilterSlot = null;
+    private static final int BAG_GRID_COLUMNS = 5;
+    private static final int BAG_GRID_ROWS = 5;
+    private static final int BAG_CELL_MAX_DP = 68;
+    private static final int BAG_CELL_MIN_DP = 42;
+    private static final int BAG_CELL_SPACING_DP = 2;
 
     private List<Item> allItems;
 
@@ -96,8 +106,11 @@ public class BagFragment extends Fragment {
         }
 
         tvPageInfo = view.findViewById(R.id.tv_page_info);
+        tvFilterInfo = view.findViewById(R.id.tv_filter_info);
         btnPrevPage = view.findViewById(R.id.btn_prev_page);
         btnNextPage = view.findViewById(R.id.btn_next_page);
+        btnCompactBag = view.findViewById(R.id.btn_compact_bag);
+        btnFilterSlot = view.findViewById(R.id.btn_filter_slot);
         gridBagContainer = view.findViewById(R.id.grid_bag_container);
         gridBagContainer.setClipChildren(false);
         gridBagContainer.setClipToPadding(false);
@@ -135,7 +148,7 @@ public class BagFragment extends Fragment {
         recyclerView.setClipToPadding(false);
         recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         recyclerView.setNestedScrollingEnabled(false);
-        gridLayoutManager = new GridLayoutManager(requireContext(), 5) {
+        gridLayoutManager = new GridLayoutManager(requireContext(), BAG_GRID_COLUMNS) {
             @Override
             public boolean canScrollVertically() {
                 return false;
@@ -152,7 +165,12 @@ public class BagFragment extends Fragment {
         adapter.setCellSizePx(bagCellSizePx);
         recyclerView.setAdapter(adapter);
         setupEquipToBagDropListener();
-        adjustBagGridToEquipSize();
+        applyAdaptiveBagCellSize();
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                applyAdaptiveBagCellSize();
+            }
+        });
         gridBagContainer.addView(recyclerView);
     }
 
@@ -191,13 +209,33 @@ public class BagFragment extends Fragment {
         });
     }
 
-    private void adjustBagGridToEquipSize() {
+    private void applyAdaptiveBagCellSize() {
         recyclerView.post(() -> {
             int width = recyclerView.getWidth();
-            if (width <= 0) return;
-            int totalCellWidth = bagCellSizePx * 5;
+            int height = recyclerView.getHeight();
+            if (width <= 0 || height <= 0) return;
+
+            int spacing = dpToPx(BAG_CELL_SPACING_DP);
+            int horizontalSpace = spacing * 2 * BAG_GRID_COLUMNS;
+            int verticalSpace = spacing * 2 * BAG_GRID_ROWS;
+
+            int cellByWidth = (width - horizontalSpace) / BAG_GRID_COLUMNS;
+            int cellByHeight = (height - verticalSpace) / BAG_GRID_ROWS;
+            int maxCell = dpToPx(BAG_CELL_MAX_DP);
+            int minCell = dpToPx(BAG_CELL_MIN_DP);
+            int resolvedCell = Math.min(cellByWidth, cellByHeight);
+            resolvedCell = Math.min(maxCell, Math.max(minCell, resolvedCell));
+            if (resolvedCell <= 0) return;
+
+            if (resolvedCell != bagCellSizePx) {
+                bagCellSizePx = resolvedCell;
+                adapter.setCellSizePx(bagCellSizePx);
+                adapter.notifyDataSetChanged();
+            }
+
+            int totalCellWidth = (bagCellSizePx + spacing * 2) * BAG_GRID_COLUMNS;
             int horizontalPadding = Math.max((width - totalCellWidth) / 2, 0);
-            int topBottomPadding = dpToPx(8);
+            int topBottomPadding = dpToPx(4);
             recyclerView.setPadding(horizontalPadding, topBottomPadding, horizontalPadding, topBottomPadding);
             recyclerView.setClipToPadding(false);
         });
@@ -244,7 +282,16 @@ public class BagFragment extends Fragment {
     private void onEquipSlotClicked(View anchor, int slotViewId) {
         EquipItem equipped = equippedItems.get(slotViewId);
         if (equipped == null) {
-            Toast.makeText(getContext(), "该槽位暂无装备", Toast.LENGTH_SHORT).show();
+            EquipSlot slotFilter = resolveFilterSlotByViewId(slotViewId);
+            if (slotFilter == null) {
+                Toast.makeText(getContext(), "该槽位暂不支持筛选", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (currentFilterSlot == slotFilter) {
+                applyFilter(null);
+                return;
+            }
+            applyFilter(slotFilter);
             return;
         }
         showEquippedItemMenu(anchor, slotViewId, equipped);
@@ -254,6 +301,12 @@ public class BagFragment extends Fragment {
         updatePageUI();
         btnPrevPage.setOnClickListener(v -> goPrevPage());
         btnNextPage.setOnClickListener(v -> goNextPage());
+        btnCompactBag.setOnClickListener(v -> {
+            compactAllItemsForward();
+            adapter.notifyDataSetChanged();
+            Toast.makeText(getContext(), "已向前整理背包", Toast.LENGTH_SHORT).show();
+        });
+        btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
 
     private void goPrevPage() {
@@ -301,7 +354,166 @@ public class BagFragment extends Fragment {
 
     private void updatePageUI() {
         tvPageInfo.setText("第" + currentPage + "页 / 共" + totalPages + "页");
+        updateFilterButtonText();
         adapter.notifyDataSetChanged();
+    }
+
+    private void showFilterMenu(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
+        popupMenu.getMenu().add(0, 100, 0, "显示全部");
+        popupMenu.getMenu().add(0, 101, 1, "武器");
+        popupMenu.getMenu().add(0, 102, 2, "头盔");
+        popupMenu.getMenu().add(0, 103, 3, "胸甲");
+        popupMenu.getMenu().add(0, 104, 4, "护腿");
+        popupMenu.getMenu().add(0, 105, 5, "鞋子");
+        popupMenu.getMenu().add(0, 106, 6, "项链");
+        popupMenu.getMenu().add(0, 107, 7, "手镯");
+        popupMenu.getMenu().add(0, 108, 8, "戒指");
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case 100:
+                    applyFilter(null);
+                    return true;
+                case 101:
+                    applyFilter(EquipSlot.WEAPON);
+                    return true;
+                case 102:
+                    applyFilter(EquipSlot.HELMET);
+                    return true;
+                case 103:
+                    applyFilter(EquipSlot.CHEST);
+                    return true;
+                case 104:
+                    applyFilter(EquipSlot.LEGGINGS);
+                    return true;
+                case 105:
+                    applyFilter(EquipSlot.BOOTS);
+                    return true;
+                case 106:
+                    applyFilter(EquipSlot.NECKLACE);
+                    return true;
+                case 107:
+                    applyFilter(EquipSlot.BRACELET);
+                    return true;
+                case 108:
+                    applyFilter(EquipSlot.RING);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popupMenu.show();
+    }
+
+    @Nullable
+    private EquipSlot resolveFilterSlotByViewId(int slotViewId) {
+        if (slotViewId == R.id.slot_weapon) return EquipSlot.WEAPON;
+        if (slotViewId == R.id.slot_helmet) return EquipSlot.HELMET;
+        if (slotViewId == R.id.slot_chest) return EquipSlot.CHEST;
+        if (slotViewId == R.id.slot_leggings) return EquipSlot.LEGGINGS;
+        if (slotViewId == R.id.slot_boots) return EquipSlot.BOOTS;
+        if (slotViewId == R.id.slot_necklace) return EquipSlot.NECKLACE;
+        if (slotViewId == R.id.slot_bracelet) return EquipSlot.BRACELET;
+        if (slotViewId == R.id.slot_ring_left || slotViewId == R.id.slot_ring_right) return EquipSlot.RING;
+        return null;
+    }
+
+    private void applyFilter(@Nullable EquipSlot slot) {
+        currentFilterSlot = slot;
+        if (slot != null) {
+            compactItemsByFilter(slot);
+            currentPage = 1;
+        }
+        updateFilterButtonText();
+        adapter.notifyDataSetChanged();
+        if (slot == null) {
+            Toast.makeText(getContext(), "已取消筛选", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "已筛选: " + getSlotLabel(slot), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void compactItemsByFilter(@NonNull EquipSlot slot) {
+        int unlockedCapacity = (totalPages - 1) * itemsPerPage;
+        List<Item> matches = new ArrayList<>();
+        List<Item> others = new ArrayList<>();
+
+        for (int i = 0; i < unlockedCapacity; i++) {
+            Item item = allItems.get(i);
+            if (item instanceof EquipItem && ((EquipItem) item).getSlot() == slot) {
+                matches.add(item);
+            } else {
+                others.add(item);
+            }
+        }
+
+        int writeIndex = 0;
+        for (Item item : matches) {
+            allItems.set(writeIndex++, item);
+        }
+        for (Item item : others) {
+            allItems.set(writeIndex++, item);
+        }
+    }
+
+    private void compactAllItemsForward() {
+        int unlockedCapacity = (totalPages - 1) * itemsPerPage;
+        List<Item> nonEmptyItems = new ArrayList<>();
+        int emptyCount = 0;
+
+        for (int i = 0; i < unlockedCapacity; i++) {
+            Item item = allItems.get(i);
+            if (item == null) {
+                emptyCount++;
+            } else {
+                nonEmptyItems.add(item);
+            }
+        }
+
+        int writeIndex = 0;
+        for (Item item : nonEmptyItems) {
+            allItems.set(writeIndex++, item);
+        }
+        for (int i = 0; i < emptyCount; i++) {
+            allItems.set(writeIndex++, null);
+        }
+    }
+
+    private void updateFilterButtonText() {
+        if (btnFilterSlot == null) return;
+        if (currentFilterSlot == null) {
+            btnFilterSlot.setText("筛选");
+            btnFilterSlot.setBackgroundResource(R.drawable.bg_tab_idle);
+            if (tvFilterInfo != null) {
+                tvFilterInfo.setVisibility(View.GONE);
+            }
+        } else {
+            btnFilterSlot.setText(getSlotLabel(currentFilterSlot));
+            btnFilterSlot.setBackgroundResource(R.drawable.bg_tab_active);
+            if (tvFilterInfo != null) {
+                tvFilterInfo.setText("当前筛选：" + getSlotLabel(currentFilterSlot));
+                tvFilterInfo.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private String getSlotLabel(@NonNull EquipSlot slot) {
+        if (slot == EquipSlot.WEAPON) return "武器";
+        if (slot == EquipSlot.HELMET) return "头盔";
+        if (slot == EquipSlot.CHEST) return "胸甲";
+        if (slot == EquipSlot.LEGGINGS) return "护腿";
+        if (slot == EquipSlot.BOOTS) return "鞋子";
+        if (slot == EquipSlot.NECKLACE) return "项链";
+        if (slot == EquipSlot.BRACELET) return "手镯";
+        if (slot == EquipSlot.RING) return "戒指";
+        return "筛选";
+    }
+
+    private boolean canDisplayByCurrentFilter(@Nullable Item item) {
+        if (currentFilterSlot == null) return true;
+        if (!(item instanceof EquipItem)) return false;
+        EquipSlot itemSlot = ((EquipItem) item).getSlot();
+        return itemSlot == currentFilterSlot;
     }
 
     private void setupDragAndDrop() {
@@ -312,7 +524,9 @@ public class BagFragment extends Fragment {
                 int uiPos = viewHolder.getAdapterPosition();
                 if (uiPos == RecyclerView.NO_POSITION) return makeMovementFlags(0, 0);
                 int realPos = (currentPage - 1) * itemsPerPage + uiPos;
-                if (realPos < 0 || realPos >= allItems.size() || allItems.get(realPos) == null) {
+                if (realPos < 0 || realPos >= allItems.size()
+                        || allItems.get(realPos) == null
+                        || !canDisplayByCurrentFilter(allItems.get(realPos))) {
                     return makeMovementFlags(0, 0); // 空格子禁止拖拽
                 }
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
@@ -416,9 +630,9 @@ public class BagFragment extends Fragment {
                     // 边缘触发翻页检测
                     float centerYInRecycler = viewY + viewHolder.itemView.getHeight() / 2f;
                     boolean withinBagHeight = centerYInRecycler >= 0 && centerYInRecycler <= screenHeight;
-                    if (withinBagHeight && viewX < screenWidth * 0.15f && dX < 0) {
+                    if (withinBagHeight && viewX < screenWidth * 0.1f && dX < 0) {
                         checkEdgeScroll(-1);
-                    } else if (withinBagHeight && viewX + viewHolder.itemView.getWidth() > screenWidth * 0.85f && dX > 0) {
+                    } else if (withinBagHeight && viewX + viewHolder.itemView.getWidth() > screenWidth * 0.9f && dX > 0) {
                         checkEdgeScroll(1);
                     } else {
                         stopEdgeScroll();
@@ -774,7 +988,7 @@ public class BagFragment extends Fragment {
             RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     cellSizePx > 0 ? cellSizePx : ViewGroup.LayoutParams.WRAP_CONTENT);
-            int spacing = dpToPx(2);
+            int spacing = dpToPx(BAG_CELL_SPACING_DP);
             params.setMargins(spacing, spacing, spacing, spacing);
             view.setLayoutParams(params);
             return new ViewHolder(view);
@@ -814,7 +1028,8 @@ public class BagFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             int realPosition = (currentPage - 1) * itemsPerPage + position;
-            Item item = allItems.get(realPosition);
+            Item sourceItem = allItems.get(realPosition);
+            Item item = canDisplayByCurrentFilter(sourceItem) ? sourceItem : null;
 
             holder.itemView.setScaleX(1.0f);
             holder.itemView.setScaleY(1.0f);
