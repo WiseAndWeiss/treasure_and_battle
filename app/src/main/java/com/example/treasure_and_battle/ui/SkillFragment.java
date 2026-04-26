@@ -1,16 +1,18 @@
 package com.example.treasure_and_battle.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +32,7 @@ public class SkillFragment extends Fragment {
     // 技能列表
     private RecyclerView rvSkills;
     private SkillAdapter adapter;
+    private boolean compactMode;
 
     // 临时模拟的数据池
     private List<SkillMockData> currentSkillList = new ArrayList<>();
@@ -44,11 +47,13 @@ public class SkillFragment extends Fragment {
         tabEvent = view.findViewById(R.id.tab_event);
         tabActive = view.findViewById(R.id.tab_active);
         rvSkills = view.findViewById(R.id.rv_skills);
+        compactMode = getResources().getConfiguration().smallestScreenWidthDp < 380;
 
         // 2. 初始化 RecyclerView
         rvSkills.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new SkillAdapter(currentSkillList);
+        adapter = new SkillAdapter(currentSkillList, compactMode);
         rvSkills.setAdapter(adapter);
+        applyResponsiveUi(view);
 
         // 3. 绑定左侧 Tab 切换监听器
         tabPassive.setOnClickListener(v -> selectTab(0));
@@ -72,6 +77,32 @@ public class SkillFragment extends Fragment {
         return view;
     }
 
+    private void applyResponsiveUi(View root) {
+        if (!compactMode) return;
+        setTextSizeSp(tabPassive, 13f);
+        setTextSizeSp(tabEvent, 13f);
+        setTextSizeSp(tabActive, 13f);
+
+        TextView tvRemainingSkillPoints = root.findViewById(R.id.tv_remaining_skill_points);
+        if (tvRemainingSkillPoints != null) {
+            setTextSizeSp(tvRemainingSkillPoints, 11f);
+        }
+        rvSkills.setPadding(dpToPx(6), dpToPx(6), dpToPx(6), dpToPx(6));
+    }
+
+    private void setTextSizeSp(TextView textView, float sp) {
+        if (textView == null) return;
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+    }
+
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                getResources().getDisplayMetrics()
+        );
+    }
+
     private void selectTab(int index) {
         // 重置所有 Tab 样式
         resetTabStyle(tabPassive);
@@ -93,15 +124,15 @@ public class SkillFragment extends Fragment {
 
     private void resetTabStyle(TextView tv) {
         if (tv == null) return;
-        tv.setBackgroundColor(Color.TRANSPARENT);
-        tv.setTextColor(Color.parseColor("#666666"));
+        tv.setBackgroundResource(R.drawable.bg_tab_idle);
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_sub));
         tv.setTypeface(null, android.graphics.Typeface.NORMAL);
     }
 
     private void highlightTab(TextView tv) {
         if (tv == null) return;
-        tv.setBackgroundColor(Color.parseColor("#FF9800"));
-        tv.setTextColor(Color.WHITE);
+        tv.setBackgroundResource(R.drawable.bg_tab_active);
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_bg_dark));
         tv.setTypeface(null, android.graphics.Typeface.BOLD);
     }
 
@@ -129,10 +160,12 @@ public class SkillFragment extends Fragment {
     }
 
     private static class SkillAdapter extends RecyclerView.Adapter<SkillAdapter.SkillViewHolder> {
-        private List<SkillMockData> data;
+        private final List<SkillMockData> data;
+        private final boolean compactMode;
 
-        SkillAdapter(List<SkillMockData> data) {
+        SkillAdapter(List<SkillMockData> data, boolean compactMode) {
             this.data = data;
+            this.compactMode = compactMode;
         }
 
         @NonNull
@@ -148,6 +181,7 @@ public class SkillFragment extends Fragment {
             holder.tvName.setText(item.name);
             holder.tvDesc.setText(item.desc);
             holder.tvLevel.setText(item.levelDisplay);
+            holder.applyCompactStyle(compactMode);
 
             // 点击整个条目或加点按钮的事件 (TODO)
             View.OnClickListener clickDetail = v -> {
@@ -167,12 +201,44 @@ public class SkillFragment extends Fragment {
         static class SkillViewHolder extends RecyclerView.ViewHolder {
             TextView tvName, tvDesc, tvLevel;
             ImageView btnAdd;
+            private boolean compactApplied = false;
             SkillViewHolder(View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tv_skill_name);
                 tvDesc = itemView.findViewById(R.id.tv_skill_desc);
                 tvLevel = itemView.findViewById(R.id.tv_skill_level);
                 btnAdd = itemView.findViewById(R.id.btn_skill_action);
+            }
+
+            void applyCompactStyle(boolean compactMode) {
+                if (!compactMode || compactApplied) return;
+                tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                tvDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+                tvLevel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+
+                ViewGroup.LayoutParams btnLayout = btnAdd.getLayoutParams();
+                if (btnLayout != null) {
+                    int compactButtonSize = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            36,
+                            itemView.getResources().getDisplayMetrics()
+                    );
+                    btnLayout.width = compactButtonSize;
+                    btnLayout.height = compactButtonSize;
+                    btnAdd.setLayoutParams(btnLayout);
+                }
+
+                ViewGroup.LayoutParams itemLayout = itemView.getLayoutParams();
+                if (itemLayout instanceof RecyclerView.LayoutParams) {
+                    int marginBottom = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            6,
+                            itemView.getResources().getDisplayMetrics()
+                    );
+                    ((RecyclerView.LayoutParams) itemLayout).bottomMargin = marginBottom;
+                    itemView.setLayoutParams(itemLayout);
+                }
+                compactApplied = true;
             }
         }
     }
