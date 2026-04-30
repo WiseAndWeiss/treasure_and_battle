@@ -154,28 +154,17 @@ public class EquipTriggerRecoverAffixIntegrationTest {
 
     private Monster createMonster(String id, int maxHp, int physicalDef, int magicalDef, float dodgeRate) {
         Monster monster = new Monster(
-            id,
-            id,
-            1,
-            Rarity.COMMON,
-            maxHp,
-            0,
-            1,
-            1,
-            physicalDef,
-            magicalDef,
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
+            id, id, 1, Rarity.COMMON,
+            1, 1, 1, 1, 1, 1,
+            10, 10,
+            1.0f, 1.0f, 1.0f, 1.0f,
             context
         );
+        monster.getBaseAttributes().maxHp = maxHp;
+        monster.getBaseAttributes().physicalDef = physicalDef;
+        monster.getBaseAttributes().magicalDef = magicalDef;
         monster.getBaseAttributes().dodgeRate = dodgeRate;
+        monster.getBaseAttributes().speed = 1;
         monster.markAttributeCacheDirty();
         monster.setCurrentHp(maxHp);
         return monster;

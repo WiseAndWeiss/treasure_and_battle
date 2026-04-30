@@ -2,77 +2,164 @@ package com.example.treasure_and_battle.battle;
 
 import com.example.treasure_and_battle.battle.log.BattleLogEntry;
 import com.example.treasure_and_battle.battle.log.LogType;
+import com.example.treasure_and_battle.model.entity.ActionIntent;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
-import com.example.treasure_and_battle.model.entity.MonsterIntent;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 战斗上下文类 (BattleContext)
  * 职责：纯数据容器，存储战斗过程中的所有临时状态，不包含业务逻辑
- * 类似于一个「全局变量袋」，在 Buff、词缀、伤害计算等系统间传递数据
  */
 public class BattleContext {
+
+    // ====================== 偷袭方向枚举 ======================
+    public enum SurpriseDirection {
+        NONE,             // 正常战斗，按速度排序
+        PLAYER_SURPRISE,  // 玩家方偷袭，玩家方全阵营先行动
+        MONSTER_SURPRISE  // 怪物方偷袭，怪物方全阵营先行动
+    }
+
+    // ====================== 包装意图+看破+执行状态 ======================
+    public static class RevealedIntent {
+        public final ActionIntent intent;
+        public final boolean seenThrough;
+        public boolean executed;
+
+        public RevealedIntent(ActionIntent intent, boolean seenThrough) {
+            this.intent = intent;
+            this.seenThrough = seenThrough;
+            this.executed = false;
+        }
+    }
+
     // ====================== 战斗核心实体 ======================
+    /** 玩家方阵营（含玩家+未来可能的NPC盟友），player 始终指向第一个元素 */
+    public List<BattleEntity> playerParty;
+    /** 便利引用：始终等于 playerParty.get(0) */
     public Player player;
+    /** 怪物方阵营 */
+    public List<Monster> monsters;
+    /** 兼容字段：代表当前主要目标怪物 */
+    @Deprecated
     public Monster monster;
 
     // ====================== 当前行动状态 ======================
-    public BattleEntity currentActor;      // 当前行动者
-    public BattleEntity currentTarget;     // 当前目标
-    public int currentActionPoints;        // 当前行动者剩余行动点
-    public int currentRound;               // 当前回合数
+    public BattleEntity currentActor;
+    public BattleEntity currentTarget;
+    public int currentActionPoints;
+    public int currentRound;
+
+    // ====================== 全局速度队列 ======================
+    /** 本轮按速度降序排列的全体行动者（含玩家方+怪物方） */
+    public List<BattleEntity> roundActionOrder;
+    /** 当前行动者在 roundActionOrder 中的索引 */
+    public int actionOrderIndex;
 
     // ====================== 战斗规则标记 ======================
-    public boolean isSurpriseAttack;       // 是否是偷袭/突袭战斗
-    public boolean isPlayerTurn;           // 是否是玩家的回合
-    public boolean isBattleEnded;          // 战斗是否结束
-    public BattleResult battleResult;      // 战斗结果（胜利/失败/逃跑）
+    public SurpriseDirection surpriseAttacker;
+    /** @deprecated 请使用 surpriseAttacker */
+    @Deprecated
+    public boolean isSurpriseAttack;
+    /** @deprecated 请使用 roundActionOrder 判断当前行动方 */
+    @Deprecated
+    public boolean isPlayerTurn;
+    public boolean isBattleEnded;
+    public BattleResult battleResult;
 
     // ====================== 伤害计算临时数据 ======================
-    public int rawDamage;                  // 原始伤害（未计算防御、暴击）
-    public int finalDamage;                // 最终伤害
-    public String damageType;              // 伤害类型
-    public boolean isCriticalHit;          // 是否暴击
-    public boolean isHit;                  // 是否命中
-    public boolean isDodged;               // 是否闪避
+    public int rawDamage;
+    public int finalDamage;
+    public String damageType;
+    public boolean isCriticalHit;
+    public boolean isHit;
+    public boolean isDodged;
 
-    // ====================== 怪物意图相关 ======================
-    public List<MonsterIntent> currentMonsterIntents; // 怪物本轮意图列表
-    public List<Boolean> intentVisibility;            // 意图可见性列表（true=看破，false=问号）
+    // ====================== 怪物意图（回合开始统一下达，含看破+执行标记） ======================
+    /** entityId → 本轮揭示的意图列表 */
+    public Map<String, List<RevealedIntent>> monsterRevealedIntents;
 
-    // ====================== 战斗日志相关 ======================
+    // ====================== 战斗日志 ======================
     public List<BattleLogEntry> battleLogs = new ArrayList<>();
-    
-    /**
-     * 快捷添加一条日志记录（无元数据）
-     * TODO: 如果需要为具体某一Buff、词缀添加更详细数值输出，也可以在各自的 onTrigger 方法回调此接口
-     */
+
     public void addLog(LogType type, String template, Object... args) {
         battleLogs.add(new BattleLogEntry(currentRound, type, null, template, args));
     }
 
-    /**
-     * 添加包含元数据的日志（通常metaData用于前端展示的高亮关联对象，如怪物引用）
-     */
     public void addLogWithMeta(LogType type, Object metaData, String template, Object... args) {
         battleLogs.add(new BattleLogEntry(currentRound, type, metaData, template, args));
     }
 
     // ====================== 构造函数 ======================
     public BattleContext(Player player, Monster monster, boolean isSurpriseAttack) {
+        this(player, monster == null ? new ArrayList<>() : new ArrayList<>(Collections.singletonList(monster)),
+                isSurpriseAttack ? SurpriseDirection.PLAYER_SURPRISE : SurpriseDirection.NONE);
+    }
+
+    public BattleContext(Player player, Monster monster, SurpriseDirection surpriseAttacker) {
+        this(player, monster == null ? new ArrayList<>() : new ArrayList<>(Collections.singletonList(monster)),
+                surpriseAttacker);
+    }
+
+    public BattleContext(Player player, List<Monster> monsters, boolean isSurpriseAttack) {
+        this(player, monsters,
+                isSurpriseAttack ? SurpriseDirection.PLAYER_SURPRISE : SurpriseDirection.NONE);
+    }
+
+    public BattleContext(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
         this.player = player;
-        this.monster = monster;
-        this.isSurpriseAttack = isSurpriseAttack;
+        this.playerParty = new ArrayList<>();
+        this.playerParty.add(player);
+        this.monsters = monsters == null ? new ArrayList<>() : monsters;
+        this.monster = this.monsters.isEmpty() ? null : this.monsters.get(0);
+        this.surpriseAttacker = surpriseAttacker;
+        this.isSurpriseAttack = (surpriseAttacker != SurpriseDirection.NONE);
         this.currentRound = 0;
         this.isBattleEnded = false;
         this.isPlayerTurn = true;
+        this.roundActionOrder = new ArrayList<>();
+        this.actionOrderIndex = 0;
+        this.monsterRevealedIntents = new LinkedHashMap<>();
     }
 
-    // ====================== 辅助方法（仅用于数据重置，无业务逻辑） ======================
+    // ====================== 查询方法 ======================
+    public List<Monster> getAliveMonsters() {
+        List<Monster> alive = new ArrayList<>();
+        if (monsters == null) return alive;
+        for (Monster m : monsters) {
+            if (m != null && !m.isDead()) {
+                alive.add(m);
+            }
+        }
+        return alive;
+    }
+
+    public List<BattleEntity> getAlivePlayerParty() {
+        List<BattleEntity> alive = new ArrayList<>();
+        if (playerParty == null) return alive;
+        for (BattleEntity e : playerParty) {
+            if (e != null && !e.isDead()) {
+                alive.add(e);
+            }
+        }
+        return alive;
+    }
+
+    public Monster getPrimaryMonsterTarget() {
+        if (currentTarget instanceof Monster && !currentTarget.isDead()) {
+            return (Monster) currentTarget;
+        }
+        List<Monster> alive = getAliveMonsters();
+        return alive.isEmpty() ? null : alive.get(0);
+    }
+
     public void resetDamageData() {
         this.rawDamage = 0;
         this.finalDamage = 0;
@@ -84,9 +171,9 @@ public class BattleContext {
 
     // ====================== 战斗结果枚举 ======================
     public enum BattleResult {
-        VICTORY,  // 胜利
-        DEFEAT,   // 失败
-        ESCAPED,   // 逃跑成功
-        MONSTER_ESCAPED // 怪物逃跑成功
+        VICTORY,
+        DEFEAT,
+        ESCAPED,
+        MONSTER_ESCAPED
     }
 }

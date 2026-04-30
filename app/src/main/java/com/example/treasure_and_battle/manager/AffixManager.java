@@ -32,6 +32,10 @@ public class AffixManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }
+
     // ====================== 1. 词缀触发与调度 ======================
     /**
      * 触发指定实体的全部合法词缀
@@ -60,6 +64,15 @@ public class AffixManager {
         }
     }
 
+    // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
+    public void triggerAffixesForAllMonsters(BattleContext ctx, AffixTriggerType triggerType) {
+        if (ctx == null || ctx.monsters == null) return;
+        for (Monster m : ctx.monsters) {
+            if (m == null) continue;
+            triggerAffixes(m, ctx, triggerType);
+        }
+    }
+
     // ====================== 2. 词缀数据源获取 ======================
     /**
      * 获取实体当前生效的所有词缀（玩家从装备获取，怪物从自身词缀库获取）
@@ -80,8 +93,8 @@ public class AffixManager {
             }
         } else if (entity instanceof Monster) {
             Monster monster = (Monster) entity;
-            if (monster.getMonsterAffixList() != null) {
-                affixes.addAll(monster.getMonsterAffixList());
+            if (monster.getEntityAffixList() != null) {
+                affixes.addAll(monster.getEntityAffixList());
             }
         }
 

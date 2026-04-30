@@ -19,7 +19,7 @@
         <!-- 高德地图API KEY-->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="14f89c7ad3fbae08d5247150cffe2561" />
+            android:value="${amapApiKey}" />
 
         <!-- 定位服务 -->
         <service

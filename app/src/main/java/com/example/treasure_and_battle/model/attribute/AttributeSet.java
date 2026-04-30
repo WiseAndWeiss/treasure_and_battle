@@ -1,7 +1,38 @@
 package com.example.treasure_and_battle.model.attribute;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // 完整属性容器，承载六维属性+战斗属性
 public class AttributeSet {
+    // ====================== 属性修改来源追踪 ======================
+    public enum Source {
+        BASE,
+        TALENT,
+        EQUIPMENT,
+        AFFIX,
+        BUFF,
+        GEM,
+        PROFESSION,
+        OTHER
+    }
+
+    private final Map<String, Map<Source, Float>> modificationLog = new HashMap<>();
+
+    public void recordModification(String attributeName, Source source, float value) {
+        modificationLog
+            .computeIfAbsent(attributeName, k -> new HashMap<>())
+            .merge(source, value, Float::sum);
+    }
+
+    public Map<Source, Float> getModificationSources(String attributeName) {
+        return modificationLog.getOrDefault(attributeName, new HashMap<>());
+    }
+
+    public void resetModificationLog() {
+        modificationLog.clear();
+    }
+
     // 六维属性
     public int strength;     // 力量
     public int agility;      // 敏捷

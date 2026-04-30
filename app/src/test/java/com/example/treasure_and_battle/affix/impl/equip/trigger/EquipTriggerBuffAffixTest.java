@@ -33,9 +33,10 @@ public class EquipTriggerBuffAffixTest {
         context = RuntimeEnvironment.application;
         player = new Player("equip_affix_owner", context);
         monster = new Monster("m1", "m1", 1, Rarity.COMMON,
-                100, 50, 1, 1, 0, 0, 1,
-                0, 0, 0, 0, 0, 0,
-                1, 1, context);
+                1, 1, 1, 1, 1, 1,
+                10, 10,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                context);
     }
 
     @Test
