@@ -2,7 +2,7 @@ package com.example.treasure_and_battle.model.skill;
 
 // 技能效果的参数，具体含义由技能描述定义，由重写的触发方法实现
 public class SkillEffectParams {
-    int x, y, z, w;
+    public int x, y, z, w;
 
     public SkillEffectParams(int x, int y, int z, int w) {
         this.x = x;

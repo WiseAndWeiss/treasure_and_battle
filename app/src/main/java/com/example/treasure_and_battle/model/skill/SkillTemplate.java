@@ -7,6 +7,7 @@ import java.util.List;
 public class SkillTemplate {
     // ================ 基础属性 ================
     private int templateId;          // 模板唯一ID
+    private String skillId;          // 技能唯一ID
     private String skillName;        // 技能名称
     private String simpleDesc;       // 技能简要描述
     private String detailedDesc;     // 技能详细描述
@@ -26,6 +27,8 @@ public class SkillTemplate {
     // Getter & Setter
     public int getTemplateId() { return templateId; }
     public void setTemplateId(int templateId) { this.templateId = templateId; }
+    public String getSkillId() { return skillId; }
+    public void setSkillId(String skillId) { this.skillId = skillId; }
     public String getSkillName() { return skillName; }
     public void setSkillName(String skillName) { this.skillName = skillName; }
     public String getSimpleDesc() { return simpleDesc; }
@@ -40,13 +43,13 @@ public class SkillTemplate {
     public void setSkillTriggerType(SkillTriggerType skillTriggerType) { this.skillTriggerType = skillTriggerType; }
     public int getMaxLevel() { return maxLevel; }
     public void setMaxLevel(int maxLevel) { this.maxLevel = maxLevel; }
-
     public int getCooldown() { return cooldown; }
     public void setCooldown(int cooldown) { this.cooldown = cooldown; }
     public List<SkillCostParams> getCostParamsList() { return Collections.unmodifiableList(costParamsList); }
     public void setCostParamsList(List<SkillCostParams> costParamsList) { this.costParamsList = costParamsList; }
     public List<SkillEffectParams> getEffectParamsList() { return Collections.unmodifiableList(effectParamsList); }
     public void setEffectParamsList(List<SkillEffectParams> effectParamsList) { this.effectParamsList = effectParamsList; }
+    public String getSkillClassName() { return skillClassName; }
 
     // 获取技能消耗参数
     public SkillCostParams getCostParamsWithLevel(int level) {
@@ -54,6 +57,8 @@ public class SkillTemplate {
             throw new IllegalArgumentException("Invalid skill level: " + level);
         }
         if(level == 0)  return new SkillCostParams();
+        if(level > costParamsList.size())
+            return getCostParamsWithLevel(costParamsList.size());
         return new SkillCostParams(costParamsList.get(level - 1));
     }
 

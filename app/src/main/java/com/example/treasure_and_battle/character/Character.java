@@ -1,6 +1,9 @@
+package com.example.treasure_and_battle.character;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 
 public class Character {
+    /*
     // ================ 基础信息 ================
     private final int characterId;         // 角色唯一标识
     private String name;                   // 角色名称
@@ -146,4 +149,5 @@ public class Character {
         this.finalAttributesDirtyFlag = false;
         return this.finalAttributes;
     }
+    */
 }

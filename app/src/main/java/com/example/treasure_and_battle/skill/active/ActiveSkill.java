@@ -1,9 +1,11 @@
-package com.example.treasure_and_battle.skill;
+package com.example.treasure_and_battle.skill.active;
 
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.model.skill.SkillType;
+import com.example.treasure_and_battle.skill.Skill;
 
 import java.util.List;
 

@@ -31,6 +31,7 @@ public abstract class Skill {
     // ================ Setter & Getter ================
     public int getTemplateId() { return templateId; }
     public SkillTemplate getTemplate() { return template; }
+    public String getSkillId() { return template.getSkillId(); }
     public String getSkillName() { return template.getSkillName(); }
     public String getSimpleDesc() { return template.getSimpleDesc(); }
     public String getDetailedDesc() { return template.getDetailedDesc(); }
@@ -47,12 +48,15 @@ public abstract class Skill {
     public int getCooldown() { return template.getCooldown(); }
 
     // =============== 升级方法 ===============
+    public boolean isLearned(){
+        return level > 0;
+    }
     public void levelUp() {
         if (level < getMaxLevel()) {
             setLevel(level + 1);
         }
     };
-    protected void setLevel(int level) {
+    public void setLevel(int level) {
         if (level < 0 || level > getMaxLevel()) {
             throw new IllegalArgumentException("Invalid skill level");
         }
