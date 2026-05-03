@@ -852,6 +852,9 @@ public class BattleManager {
             return 0;
         }
 
+        // 检测护盾破碎：记录吸收前的护盾状态
+        boolean hadShieldBefore = hasShield(target);
+
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
             if (!(buff instanceof ShieldBuff)) {
@@ -862,7 +865,67 @@ public class BattleManager {
             }
             remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
         }
+
+        // 检测护盾是否刚刚破碎
+        boolean hasShieldAfter = hasShield(target);
+        if (hadShieldBefore && !hasShieldAfter && remainingDamage < incomingDamage) {
+            // 护盾刚刚破碎！触发被动技能
+            triggerShieldBreakPassiveSkills(target, ctx.currentActor, ctx);
+        }
+
         return remainingDamage;
+    }
+
+    /**
+     * 检查实体是否有护盾
+     */
+    private boolean hasShield(BattleEntity entity) {
+        for (BaseBuff buff : entity.getActiveBuffList()) {
+            if (buff instanceof ShieldBuff) {
+                ShieldBuff shieldBuff = (ShieldBuff) buff;
+                return shieldBuff.getStackCount() > 0;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 触发护盾破碎被动技能
+     */
+    private void triggerShieldBreakPassiveSkills(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : owner.getPassiveSkillList()) {
+            try {
+                passiveSkill.onShieldBreak(owner, attacker, context, this);
+            } catch (Exception e) {
+                context.addLog(LogType.SYSTEM,
+                    "被动技能 [%s] onShieldBreak 触发失败: %s",
+                    passiveSkill.getSkillName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 获取所有敌人（根据当前行动者判断）
+     * @param owner 护盾所有者
+     * @param context 战斗上下文
+     * @return 敌人列表
+     */
+    public java.util.List<BattleEntity> getAllEnemies(BattleEntity owner, BattleContext context) {
+        java.util.List<BattleEntity> enemies = new java.util.ArrayList<>();
+
+        if (owner instanceof com.example.treasure_and_battle.model.entity.Player) {
+            // 玩家敌人是怪物
+            if (context.monster != null && !context.monster.isDead()) {
+                enemies.add(context.monster);
+            }
+        } else if (owner instanceof com.example.treasure_and_battle.model.entity.Monster) {
+            // 怪物敌人是玩家
+            if (context.player != null && !context.player.isDead()) {
+                enemies.add(context.player);
+            }
+        }
+
+        return enemies;
     }
 
     // 检查死亡

@@ -97,6 +97,18 @@ public abstract class PassiveSkill extends Skill {
         // 子类重写
     }
 
+    /**
+     * 护盾破碎时触发
+     * 当实体身上的护盾被击碎（从有值变为0）时触发
+     * @param owner 护盾所有者
+     * @param attacker 击碎护盾的攻击者
+     * @param context 战斗上下文
+     * @param battleManager 战斗管理器（用于触发AOE伤害等效果）
+     */
+    public void onShieldBreak(BattleEntity owner, BattleEntity attacker, BattleContext context, com.example.treasure_and_battle.manager.BattleManager battleManager) {
+        // 子类重写
+    }
+
     // ====================== 击杀/死亡事件 ======================
 
     /**

@@ -354,6 +354,27 @@
     },
     {
       "templateId": 210101,
+      "skillId": "strong_body",
+      "skillName": "强健体魄",
+      "simpleDesc": "经年累月的沙场淬炼铸就钢筋铁骨，武者体魄远超常人，从战斗伊始便占据防御优势",
+      "detailedDesc": "战斗开始时，获得{x}点体魄，整场战斗受到所有伤害降低{y}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_BATTLE_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 1, "y": 3},
+        {"x": 1, "y": 5},
+        {"x": 2, "y": 7},
+        {"x": 2, "y": 9},
+        {"x": 3, "y": 12}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_StrongBody"
+    },
+    {
+      "templateId": 210102,
       "skillId": "bloodthirsty",
       "skillName": "嗜血",
       "simpleDesc": "攻击中汲取敌人的生命力量，造成伤害时为自身恢复生命值，是掠杀者与生俱来的本能",
@@ -372,6 +393,69 @@
         {"x": 25}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_Bloodthirsty"
+    },
+    {
+      "templateId": 210103,
+      "skillId": "iron_will",
+      "skillName": "铁血意志",
+      "simpleDesc": "久经厮杀的战士早已无惧伤痛，残破的身躯之下，是永不溃败的铁血意志，逆境之中愈发强悍",
+      "detailedDesc": "回合开始时若生命值低于最大生命值的{x}%，则物理攻击与物理防御提升{y}%，立即驱散流血/虚弱/中毒效果",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20, "y": 12},
+        {"x": 30, "y": 14},
+        {"x": 40, "y": 16},
+        {"x": 50, "y": 18},
+        {"x": 60, "y": 20}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_IronWill"
+    },
+    {
+      "templateId": 210104,
+      "skillId": "shield_burst",
+      "skillName": "碎盾冲击",
+      "simpleDesc": "战士的护盾凝结着斗气，当被外力击碎之际，积攒的守备之力骤然迸发，席卷全场敌寇，馈以雷霆反击",
+      "detailedDesc": "当护盾被敌人攻击打破时，对全场所有敌人造成一次{x}%自身防御力的伤害",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_AFTER_DAMAGE_RECEIVED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 30},
+        {"x": 40},
+        {"x": 50},
+        {"x": 60}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_ShieldBurst"
+    },
+    {
+      "templateId": 210105,
+      "skillId": "brave_growth",
+      "skillName": "越战越勇",
+      "simpleDesc": "沙场鏖战不息，武者的战意借每一轮交锋沉淀累积，鏖战愈久，胜势愈固",
+      "detailedDesc": "每经过一个回合，物理攻击与物理防御额外提升{x}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_END"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 1},
+        {"x": 2},
+        {"x": 3},
+        {"x": 4},
+        {"x": 5}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_BraveGrowth"
     },
     {
       "templateId": 210201,
