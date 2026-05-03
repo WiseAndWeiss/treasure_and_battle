@@ -1,9 +1,14 @@
 package com.example.treasure_and_battle.character;
 
+// TODO: Character模块尚未完成，暂时注释以便其他模块能够编译测试
+// 取消注释下面的代码以启用Character模块
+
+/*
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.profession.Profession;
+import com.example.treasure_and_battle.profession.ProfessionType;
 
 public class Character {
-    /*
     // ================ 基础信息 ================
     private final int characterId;         // 角色唯一标识
     private String name;                   // 角色名称
@@ -25,17 +30,17 @@ public class Character {
     private int currentMp;                         // 当前魔法值
 
     // ================ 装备系统 ================
-    private CharacterEquipment equipments;        // 角色装备系统
+    // private CharacterEquipment equipments;        // 角色装备系统
 
     // ================ 技能系统 ================
     // private CharacterSkills skills;          // 角色技能系统
     // 这是一个伪属性，技能系统实际由Profession类管理，这里只提供接口
 
     // ================ 物品仓库 ================
-    private CharacterInventory inventory;       // 角色物品仓库系统
+    // private CharacterInventory inventory;       // 角色物品仓库系统
 
     // ================ 统计信息 ================
-    private CharacterStats stats;            // 角色统计信息系统
+    // private CharacterStats stats;            // 角色统计信息系统
 
     // ================ 构造函数 ================
     public Character(int characterId, String name, ProfessionType professionType) {
@@ -49,12 +54,12 @@ public class Character {
         this.talentPoints = 0;
         this.skillPoints = 0;
         this.gold = 0;
-        this.equipments = new CharacterEquipment();
-        this.inventory = new CharacterInventory();
+        // this.equipments = new CharacterEquipment();
+        // this.inventory = new CharacterInventory();
         updateFinalAttributes();
         int currentHp = this.finalAttributes.getMaxHp();
         int currentMp = this.finalAttributes.getMaxMp();
-        this.stats = new CharacterStats();
+        // this.stats = new CharacterStats();
     }
 
     // ================ Getter方法 ================
@@ -149,5 +154,5 @@ public class Character {
         this.finalAttributesDirtyFlag = false;
         return this.finalAttributes;
     }
-    */
 }
+*/

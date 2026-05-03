@@ -6,6 +6,9 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.skill.event.EventSkill;
+import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
@@ -27,9 +30,9 @@ public abstract class BattleEntity {
     protected transient Context context; // 加一个 Context 引用
 
     // ====================== 属性系统（核心重构点） ======================
-    // 基础属性：由等级、种族/职业决定的原始值，不会在战斗中改变
+    // 基础属性：由Character传入的基础属性数值，不会在战斗中改变
     protected AttributeSet baseAttributes;
-    // 最终属性：基础属性 + 装备 + 词缀 + Buff 计算后的实时值，战斗中动态变化
+    // 最终属性：基础属性+ Buff + 技能增益等 计算后的实时值，战斗中动态变化
     protected AttributeSet finalAttributes;
     // 属性缓存标记：true 表示 finalAttributes 需要重新计算
     protected boolean attributeCacheDirty = true;
@@ -38,6 +41,10 @@ public abstract class BattleEntity {
     protected int currentHp;
     protected int currentMp;
     protected int currentActionPoints;
+
+    // ====================== 技能系统（独立管理） ======================
+    protected List<ActiveSkill> activeSkillList;
+    protected List<PassiveSkill> passiveSkillList;
 
     // ====================== 状态系统（与现有架构集成） ======================
     // Buff 列表：当前生效的所有 Buff

@@ -1,0 +1,98 @@
+{
+  "skill_templates": [
+    {
+      "templateId": 110101,
+      "skillId": "slash",
+      "skillName": "斩击",
+      "simpleDesc": "挥舞剑刃对敌人造成伤害，是战士入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%物理攻击伤害，附加{y}%无视防御与护盾的破甲伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 0},
+        {"x": 105, "y": 3},
+        {"x": 110, "y": 7},
+        {"x": 115, "y": 11},
+        {"x": 120, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Slash"
+    },
+    {
+      "templateId": 110201,
+      "skillId": "spell",
+      "skillName": "咏唱",
+      "simpleDesc": "催动法咒对敌人造成伤害，是法师入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%法术攻击伤害，附带{y}%减速，持续一回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  14, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 95, "y": 0},
+        {"x": 100, "y": 3},
+        {"x": 105, "y": 7},
+        {"x": 110, "y": 11},
+        {"x": 115, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Spell"
+    },
+    {
+      "templateId": 110301,
+      "skillId": "shot",
+      "skillName": "点射",
+      "simpleDesc": "张开弓箭对敌人造成伤害，是游侠入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%物理攻击伤害，该次攻击以{y}%的概率增加一轮额外的暴击判定",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 0},
+        {"x": 105, "y": 5},
+        {"x": 110, "y": 10},
+        {"x": 115, "y": 15},
+        {"x": 120, "y": 20}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_Shot"
+    },
+    {
+      "templateId": 210001,
+      "skillId": "tough_guard",
+      "skillName": "坚韧护体",
+      "simpleDesc": "历经战场磨砺，身躯与意志愈发坚韧，潜移默化的抵御外界伤害，是所有冒险者最基础的生存天赋",
+      "detailedDesc": "在战斗中，持续提升{x}%物防，{y}%法防，每回合结束时回复{z}%的最大生命值",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerType": "ON_BATTLE_START",
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 3, "y": 3, "z": 0},
+        {"x": 4, "y": 4, "z": 0},
+        {"x": 5, "y": 5, "z": 2},
+        {"x": 6, "y": 6, "z": 3},
+        {"x": 8, "y": 8, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.gernal.PassiveSkill_ToughGuard"
+    }
+  ]
+}

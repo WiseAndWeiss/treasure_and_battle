@@ -26,9 +26,14 @@ import java.util.ArrayList;
 public class BattleManager {
     private static BattleManager instance;
     private Context context;
+    private BattleContext currentBattleContext;
 
     private BattleManager(Context context) {
         this.context = context.getApplicationContext();
+    }
+
+    public BattleContext getContext() {
+        return currentBattleContext;
     }
 
     public static synchronized BattleManager getInstance(Context context) {
@@ -183,6 +188,189 @@ public class BattleManager {
 
         // 6.3 检查是否有实体死亡
         checkDeath(ctx);
+    }
+
+    // ====================== 【核心规则实现】功能清单具体逻辑 ======================
+
+    // ====================== 技能系统支持 ======================
+
+    /**
+     * 技能施放的核心方法
+     * 负责处理技能消耗、目标选择、效果触发等
+     * @param caster 施法者
+     * @param skill 技能
+     * @param targets 目标列表
+     * @param context 战斗上下文
+     */
+    public void executeSkill(BattleEntity caster, com.example.treasure_and_battle.skill.active.ActiveSkill skill,
+                            java.util.List<BattleEntity> targets, BattleContext context) {
+        // 设置当前战斗上下文
+        this.currentBattleContext = context;
+
+        // 1. 消耗资源
+        skill.applyCastCost(caster);
+
+        // 2. 触发技能效果
+        skill.onCast(caster, targets, this);
+
+        // 3. 设置冷却
+        skill.resetCooldown();
+
+        // 4. 记录日志
+        context.addLog(LogType.ACTION, "【%s】[%s] 对目标施放了 [%s]",
+            caster.getClass().getSimpleName(), caster.getName(), skill.getSkillName());
+
+        // 清除当前战斗上下文
+        this.currentBattleContext = null;
+    }
+
+    /**
+     * 造成物理伤害（用于技能）
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param baseDamage 基础伤害
+     * @param context 战斗上下文
+     * @return 实际造成的伤害
+     */
+    public int dealPhysicalDamage(BattleEntity attacker, BattleEntity target,
+                                   int baseDamage, BattleContext context) {
+        context.resetDamageData();
+        context.currentActor = attacker;
+        context.currentTarget = target;
+        context.damageType = DamageType.PHYSICAL.name();
+
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        AttributeSet targetAttr = target.getFinalAttributes();
+
+        // 计算基础伤害
+        context.rawDamage = baseDamage;
+
+        // 计算命中（技能通常100%命中，除非有特殊机制）
+        float hitChance = calculateHitChance(attackerAttr, targetAttr);
+        context.isHit = RandomUtils.checkProbability(hitChance);
+
+        if (!context.isHit) {
+            context.rawDamage = 0;
+            context.finalDamage = 0;
+            context.isCriticalHit = false;
+            return 0;
+        }
+
+        // 计算暴击
+        float critChance = clampProbability(attackerAttr.physicalCritRate);
+        context.isCriticalHit = RandomUtils.checkProbability(critChance);
+
+        if (context.isCriticalHit) {
+            context.rawDamage *= attackerAttr.physicalCritDmg;
+        }
+
+        // 计算最终伤害（扣除防御）
+        context.finalDamage = Math.max(1, context.rawDamage - targetAttr.physicalDef);
+
+        // 应用防御机制
+        BuffManager.getInstance(this.context).triggerBuffs(target, context, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+        context.finalDamage = applyCountBasedDamageReduction(context, target, context.finalDamage);
+        context.finalDamage = applyShieldAbsorption(context, target, context.finalDamage);
+
+        // 造成伤害
+        target.takeDamage(context.finalDamage);
+
+        // 触发命中后事件
+        BuffManager.getInstance(this.context).triggerBuffs(attacker, context, BuffTriggerType.ON_HIT);
+
+        return context.finalDamage;
+    }
+
+    /**
+     * 造成破甲伤害（无视防御与护盾）
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param piercingDamage 破甲伤害值
+     * @param context 战斗上下文
+     * @return 实际造成的伤害
+     */
+    public int dealPiercingDamage(BattleEntity attacker, BattleEntity target,
+                                   int piercingDamage, BattleContext context) {
+        // 破甲伤害无视防御与护盾，直接造成伤害
+        target.takeDamage(piercingDamage);
+
+        context.addLog(LogType.DAMAGE,
+            "  破甲伤害：%d（无视防御与护盾）", piercingDamage);
+
+        return piercingDamage;
+    }
+
+    /**
+     * 造成真实伤害（无视防御、护盾、减伤等一切防御机制）
+     * @param target 目标
+     * @param trueDamage 真实伤害值
+     * @param context 战斗上下文
+     */
+    public void dealTrueDamage(BattleEntity target, int trueDamage, BattleContext context) {
+        target.takeDamage(trueDamage);
+
+        context.addLog(LogType.DAMAGE,
+            "  真实伤害：%d（无视一切防御）", trueDamage);
+    }
+
+    /**
+     * 造成法术伤害（用于技能）
+     */
+    public int dealMagicalDamage(BattleEntity attacker, BattleEntity target,
+                                  int baseDamage, BattleContext context) {
+        context.resetDamageData();
+        context.currentActor = attacker;
+        context.currentTarget = target;
+        context.damageType = DamageType.MAGICAL.name();
+
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        AttributeSet targetAttr = target.getFinalAttributes();
+
+        // 计算基础伤害
+        context.rawDamage = baseDamage;
+
+        // 计算命中
+        float hitChance = calculateHitChance(attackerAttr, targetAttr);
+        context.isHit = RandomUtils.checkProbability(hitChance);
+
+        if (!context.isHit) {
+            context.rawDamage = 0;
+            context.finalDamage = 0;
+            context.isCriticalHit = false;
+            return 0;
+        }
+
+        // 计算暴击
+        float critChance = clampProbability(attackerAttr.magicalCritRate);
+        context.isCriticalHit = RandomUtils.checkProbability(critChance);
+
+        if (context.isCriticalHit) {
+            context.rawDamage *= attackerAttr.magicalCritDmg;
+        }
+
+        // 计算最终伤害
+        context.finalDamage = Math.max(1, context.rawDamage - targetAttr.magicalDef);
+
+        // 应用防御机制
+        BuffManager.getInstance(this.context).triggerBuffs(target, context, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+        context.finalDamage = applyCountBasedDamageReduction(context, target, context.finalDamage);
+        context.finalDamage = applyShieldAbsorption(context, target, context.finalDamage);
+
+        // 造成伤害
+        target.takeDamage(context.finalDamage);
+
+        // 触发命中后事件
+        BuffManager.getInstance(this.context).triggerBuffs(attacker, context, BuffTriggerType.ON_HIT);
+
+        return context.finalDamage;
+    }
+
+    /**
+     * 施加buff到目标
+     */
+    public void applyBuff(BattleEntity target, com.example.treasure_and_battle.buff.BaseBuff buff) {
+        BuffManager.getInstance(this.context).addBuff(target, buff);
+        target.markAttributeCacheDirty();
     }
 
     // ====================== 【核心规则实现】功能清单具体逻辑 ======================
