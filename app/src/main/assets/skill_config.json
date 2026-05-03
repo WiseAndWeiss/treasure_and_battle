@@ -8,7 +8,7 @@
       "detailedDesc": "对目标造成{x}%物理攻击伤害，附加{y}%无视防御与护盾的破甲伤害",
       "skillType": "ACTIVE",
       "skillRangeType": "SINGLE_ENEMY",
-      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 0,
       "costParamsList": [
@@ -24,6 +24,29 @@
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Slash"
     },
     {
+      "templateId": 110102,
+      "skillId": "counter_stance",
+      "skillName": "反击姿态",
+      "simpleDesc": "摆出防御反击架势，以守为攻，受到攻击便会立刻给予敌人致命回击",
+      "detailedDesc": "消耗2点行动点，本回合受到的伤害减少{x}%，且每受到一次攻击，就对对手发动一次普通攻击反击",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPoint": 2}
+      ],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 10},
+        {"x": 15},
+        {"x": 20},
+        {"x": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_CounterStance"
+    },
+    {
       "templateId": 110201,
       "skillId": "spell",
       "skillName": "咏唱",
@@ -31,7 +54,7 @@
       "detailedDesc": "对目标造成{x}%法术攻击伤害，附带{y}%减速，持续一回合",
       "skillType": "ACTIVE",
       "skillRangeType": "SINGLE_ENEMY",
-      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 0,
       "costParamsList": [
@@ -58,7 +81,7 @@
       "detailedDesc": "对目标造成{x}%物理攻击伤害，该次攻击以{y}%的概率增加一轮额外的暴击判定",
       "skillType": "ACTIVE",
       "skillRangeType": "SINGLE_ENEMY",
-      "skillTriggerType": "ACTIVE_SKILL_USED",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 0,
       "costParamsList": [
@@ -81,7 +104,7 @@
       "detailedDesc": "在战斗中，持续提升{x}%物防，{y}%法防，每回合结束时回复{z}%的最大生命值",
       "skillType": "PASSIVE",
       "skillRangeType": "NONE",
-      "skillTriggerType": "ON_BATTLE_START",
+      "skillTriggerTypes": ["ON_BATTLE_START", "ON_ROUND_END"],
       "maxLevel": 5,
       "cooldown": 0,
       "costParamsList": [],
@@ -92,7 +115,49 @@
         {"x": 6, "y": 6, "z": 3},
         {"x": 8, "y": 8, "z": 4}
       ],
-      "skillClassName": "com.example.treasure_and_battle.skill.passive.gernal.PassiveSkill_ToughGuard"
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.general.PassiveSkill_ToughGuard"
+    },
+    {
+      "templateId": 210101,
+      "skillId": "bloodthirsty",
+      "skillName": "嗜血",
+      "simpleDesc": "攻击中汲取敌人的生命力量，造成伤害时为自身恢复生命值，是掠杀者与生俱来的本能",
+      "detailedDesc": "你造成伤害的{x}%会转化为生命值治疗自己",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_AFTER_DAMAGE_DEALT"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 10},
+        {"x": 15},
+        {"x": 20},
+        {"x": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_Bloodthirsty"
+    },
+    {
+      "templateId": 210201,
+      "skillId": "purify",
+      "skillName": "净化",
+      "simpleDesc": "体内流淌着纯净的能量，能在回合开始时自动驱散身上的负面效果",
+      "detailedDesc": "回合开始时，有{x}%几率移除自身某一种debuff的所有层数",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 35},
+        {"x": 50},
+        {"x": 70},
+        {"x": 100}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_Purify"
     }
   ]
 }

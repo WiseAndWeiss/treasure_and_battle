@@ -211,6 +211,57 @@ public class BuffManager {
         }
     }
 
+    // ====================== 事件触发方法 ======================
+
+    /**
+     * 触发"被攻击"事件的buff回调
+     */
+    public void triggerAttackedEvent(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAttacked(owner, attacker, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAttacked 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发"受到伤害前"事件的buff回调（可能修改伤害值）
+     */
+    public int triggerBeforeDamageReceivedEvent(BattleEntity owner, BattleEntity attacker, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        int modifiedDamage = damage;
+
+        for (BaseBuff buff : buffList) {
+            try {
+                modifiedDamage = buff.onBeforeDamageReceived(owner, attacker, modifiedDamage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onBeforeDamageReceived 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+
+        return modifiedDamage;
+    }
+
+    /**
+     * 触发"造成伤害后"事件的buff回调
+     */
+    public void triggerAfterDamageDealtEvent(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAfterDamageDealt(owner, target, damage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
     // ====================== 配置文件包装类 ======================
     private static class BuffConfigWrapper {
         List<BuffTemplate> buff_templates;

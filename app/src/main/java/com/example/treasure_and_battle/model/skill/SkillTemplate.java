@@ -13,7 +13,7 @@ public class SkillTemplate {
     private String detailedDesc;     // 技能详细描述
     private SkillType skillType;        // 技能类型（主动/被动/事件）
     private SkillRangeType skillRangeType; // 技能范围类型
-    private SkillTriggerType skillTriggerType; // 技能触发类型
+    private List<SkillTriggerType> skillTriggerTypes; // 技能触发类型列表（支持多触发时机）
     private int maxLevel;           // 技能最大等级
 
     // ================ 技能效果 ================
@@ -39,8 +39,38 @@ public class SkillTemplate {
     public void setSkillType(SkillType skillType) { this.skillType = skillType; }
     public SkillRangeType getSkillRangeType() { return skillRangeType; }
     public void setSkillRangeType(SkillRangeType skillRangeType) { this.skillRangeType = skillRangeType; }
-    public SkillTriggerType getSkillTriggerType() { return skillTriggerType; }
-    public void setSkillTriggerType(SkillTriggerType skillTriggerType) { this.skillTriggerType = skillTriggerType; }
+
+    /**
+     * 获取技能触发类型列表
+     * @return 不可修改的触发类型列表
+     */
+    public List<SkillTriggerType> getSkillTriggerTypes() {
+        if (skillTriggerTypes == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(skillTriggerTypes);
+    }
+
+    /**
+     * 设置技能触发类型列表
+     * @param skillTriggerTypes 触发类型列表
+     */
+    public void setSkillTriggerTypes(List<SkillTriggerType> skillTriggerTypes) {
+        this.skillTriggerTypes = skillTriggerTypes;
+    }
+
+    /**
+     * 检查技能是否在指定时机触发
+     * @param triggerType 要检查的触发类型
+     * @return 如果该技能在这个时机触发则返回true
+     */
+    public boolean hasTriggerType(SkillTriggerType triggerType) {
+        if (skillTriggerTypes == null) {
+            return false;
+        }
+        return skillTriggerTypes.contains(triggerType);
+    }
+
     public int getMaxLevel() { return maxLevel; }
     public void setMaxLevel(int maxLevel) { this.maxLevel = maxLevel; }
     public int getCooldown() { return cooldown; }

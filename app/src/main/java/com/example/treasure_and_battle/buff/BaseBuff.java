@@ -125,4 +125,61 @@ public abstract class BaseBuff {
     public int getRemainingDuration() { return remainingDuration; }
     public int getStackCount() { return stackCount; }
     public float getBuffValue() { return buffValue; }
+
+    // ====================== 事件回调方法（可选重写） ======================
+
+    /**
+     * 受到伤害前回调（可修改伤害值）
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    public int onBeforeDamageReceived(BattleEntity owner, BattleEntity attacker, int damage, BattleContext context) {
+        return damage; // 默认不修改伤害
+    }
+
+    /**
+     * 被攻击时回调
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param context 战斗上下文
+     */
+    public void onAttacked(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
+     * 造成伤害前回调（可修改伤害值）
+     * @param owner buff持有者
+     * @param target 目标
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    public int onBeforeDamageDealt(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        return damage; // 默认不修改伤害
+    }
+
+    /**
+     * 造成伤害后回调
+     * @param owner buff持有者
+     * @param target 目标
+     * @param damage 实际造成的伤害
+     * @param context 战斗上下文
+     */
+    public void onAfterDamageDealt(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
+     * 攻击时回调
+     * @param owner buff持有者
+     * @param target 目标
+     * @param context 战斗上下文
+     */
+    public void onAttack(BattleEntity owner, BattleEntity target, BattleContext context) {
+        // 默认不执行任何操作
+    }
 }

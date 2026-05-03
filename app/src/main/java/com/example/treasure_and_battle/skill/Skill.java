@@ -37,7 +37,35 @@ public abstract class Skill {
     public String getDetailedDesc() { return template.getDetailedDesc(); }
     public SkillType getSkillType() { return template.getSkillType(); }
     public SkillRangeType getSkillRangeType() { return template.getSkillRangeType(); }
-    public SkillTriggerType getSkillTriggerType() { return template.getSkillTriggerType(); }
+
+    /**
+     * 获取主要触发类型（向后兼容）
+     * @return 返回第一个触发类型，如果列表为空则返回 null
+     * @deprecated 使用 hasTriggerType() 或 getSkillTriggerTypes() 代替
+     */
+    @Deprecated
+    public SkillTriggerType getSkillTriggerType() {
+        List<SkillTriggerType> types = template.getSkillTriggerTypes();
+        return types.isEmpty() ? null : types.get(0);
+    }
+
+    /**
+     * 获取所有触发类型
+     * @return 触发类型列表
+     */
+    public List<SkillTriggerType> getSkillTriggerTypes() {
+        return template.getSkillTriggerTypes();
+    }
+
+    /**
+     * 检查技能是否在指定时机触发
+     * @param triggerType 要检查的触发类型
+     * @return 如果该技能在这个时机触发则返回true
+     */
+    public boolean hasTriggerType(SkillTriggerType triggerType) {
+        return template.hasTriggerType(triggerType);
+    }
+
     public int getLevel() { return level; }
     public int getMaxLevel() { return template.getMaxLevel(); }
     public SkillCostParams getCostParams() { return costParams; }

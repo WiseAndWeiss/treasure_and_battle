@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.MonsterIntent;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,14 +102,9 @@ public class Monster extends BattleEntity {
         // 1. 复制基础属性
         this.finalAttributes.copyFrom(this.baseAttributes);
 
-        // 2. 叠加怪物词缀（利用基类的 monsterAffixList）
-        if (this.monsterAffixList != null && !this.monsterAffixList.isEmpty()) {
-            // 调用 AffixManager 应用怪物常驻词缀加成
-            // AffixManager.getInstance().applyMonsterPermanentAffixBonus(this.finalAttributes, this);
-        }
-
-        // 3. 叠加 Buff（预留位置）
-        // BuffManager.getInstance().applyBuffBonus(this.finalAttributes, this.activeBuffList);
+        // 2. 调用 AttributeUtils 计算最终属性（包括词缀、Buff、被动技能等）
+        AttributeSet calculatedAttrs = AttributeUtils.calculateFinalAttributes(this, this.getContext());
+        this.finalAttributes.copyFrom(calculatedAttrs);
 
         // 4. 同步战斗资源上限（保持 HP/MP 比例）
         int oldMaxHp = this.finalAttributes.maxHp;
