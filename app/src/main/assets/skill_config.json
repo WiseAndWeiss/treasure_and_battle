@@ -174,6 +174,114 @@
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_ShieldStrike"
     },
     {
+      "templateId": 110108,
+      "skillId": "go_all_out",
+      "skillName": "全力以赴",
+      "simpleDesc": "燃尽自身魔力与部分生机，突破行动限制，在战局之中骤然迸发先机之势，乃是置之死地而后生的决绝秘术",
+      "detailedDesc": "消耗魔力与最大生命值，立即获得{y}点行动点，每场战斗仅限使用1次",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 999,
+      "costParamsList": [
+        {"actionPointCost": 0, "mpCost": 25, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 25, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 28, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 28, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 30, "hpCost": 10}
+      ],
+      "effectParamsList": [
+        {"y": 4},
+        {"y": 5},
+        {"y": 6},
+        {"y": 7},
+        {"y": 8}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_GoAllOut"
+    },
+    {
+      "templateId": 110109,
+      "skillId": "blood_fury_slash",
+      "skillName": "血怒斩",
+      "simpleDesc": "以自身血气为引唤醒血脉中潜藏的力量，进行狂暴一斩，重创敌人并使其持续流血",
+      "detailedDesc": "消耗生命，对单体造成{x}%物理攻击伤害，为敌人附加{y}层流血debuff，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 8},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 8},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 10},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 10},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 12}
+      ],
+      "effectParamsList": [
+        {"x": 120, "y": 2, "z": 2},
+        {"x": 125, "y": 2, "z": 2},
+        {"x": 130, "y": 3, "z": 3},
+        {"x": 140, "y": 3, "z": 3},
+        {"x": 150, "y": 4, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_BloodFurySlash"
+    },
+    {
+      "templateId": 110110,
+      "skillId": "mad_slaughter_slash",
+      "skillName": "狂弑千斩",
+      "simpleDesc": "穷尽毕生杀伐之力，掀起无尽狂怒斩击，以血肉为薪，以利刃为器，撕裂眼前一切敌人",
+      "detailedDesc": "消耗生命，对全体敌方造成{x}%物理攻击伤害，附加{y}层流血debuff与{z}%虚弱减益，持续{w}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 10},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 12},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 15},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 18},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 22}
+      ],
+      "effectParamsList": [
+        {"x": 75, "y": 2, "z": 5, "w": 2},
+        {"x": 80, "y": 2, "z": 6, "w": 2},
+        {"x": 95, "y": 3, "z": 7, "w": 3},
+        {"x": 90, "y": 3, "z": 8, "w": 3},
+        {"x": 100, "y": 4, "z": 10, "w": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_MadSlaughterSlash"
+    },
+    {
+      "templateId": 110111,
+      "skillId": "wound_blood_suck",
+      "skillName": "伤痕汲血",
+      "simpleDesc": "洞察敌人流血创口，将敌人外泄的血气尽数掠夺，治愈自身，是血战士在杀伐中存续的专属秘术",
+      "detailedDesc": "对单体敌人造成少量{x}%物理伤害；若敌人带有流血debuff，移除其所有流血层数，每层使自身回复{y}%最大生命值",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20, "y": 3},
+        {"x": 30, "y": 4},
+        {"x": 40, "y": 5},
+        {"x": 50, "y": 6},
+        {"x": 50, "y": 7}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WoundBloodSuck"
+    },
+    {
       "templateId": 110201,
       "skillId": "spell",
       "skillName": "咏唱",

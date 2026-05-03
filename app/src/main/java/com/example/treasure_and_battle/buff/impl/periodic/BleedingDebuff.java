@@ -14,6 +14,9 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
  * 流血状态Debuff
  * 效果：回合结束时触发，每层流失相当于最大生命值1%生命值。
  * 衰减机制：每回合结束时，流失生命后，层数减1。当层数衰减到0时完全解除。
+ *
+ * 特殊机制：流血debuff在实体身上应该是唯一的，不同来源的流血应该叠加层数而非创建新实例。
+ * 因此在BuffManager中有特殊处理，确保只有唯一的BleedingDebuff实例存在。
  */
 public class BleedingDebuff extends BaseBuff {
 
@@ -22,14 +25,15 @@ public class BleedingDebuff extends BaseBuff {
                           int maxStackCount, boolean refreshOnApply, float buffValue) {
         super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_ROUND_END,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
-        // 对于流血，我们可能不需要maxDuration（或者是永久回合，直到层数掉光）。
-        // 如果你需要它完全依赖层数衰减，可以在配置文件中将默认持续回合设为 -1（不基于回合移除）。
+        // defaultDuration: -1 表示永久（直到层数归零）
     }
 
     @Override
     public boolean tick() {
         // 每回合衰减量：1层
-        this.stackCount -= 1;
+        if (this.stackCount > 0) {
+            this.stackCount -= 1;
+        }
 
         // 当层数降为0时，isExpired() 会返回 true，由系统自动脱落
         return this.isExpired();
@@ -42,7 +46,7 @@ public class BleedingDebuff extends BaseBuff {
 
     @Override
     public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
-        if (triggerType == BuffTriggerType.ON_ROUND_END) {
+        if (triggerType == BuffTriggerType.ON_ROUND_END && this.stackCount > 0) {
             // 每层流失1%生命值
             int damage = (int) (owner.getFinalAttributes().maxHp * 0.01 * this.stackCount);
             owner.takeDamage(damage, TRUE);
@@ -52,7 +56,20 @@ public class BleedingDebuff extends BaseBuff {
                     "【流血】[%s] 当前层数 %d，损失了 %d 点生命值！剩余生命：(%d/%d)",
                     owner.getClass().getSimpleName(), this.stackCount, damage,
                     owner.getCurrentHp(), owner.getFinalAttributes().maxHp);
+        }
+    }
 
+    /**
+     * 流血buff的特殊堆叠方法
+     * 由于流血是唯一的，新添加的流血应该叠加层数而不是创建新实例
+     */
+    public void stackBleeding(int additionalStacks) {
+        if (additionalStacks > 0) {
+            this.stackCount += additionalStacks;
+            // 确保不超过最大层数限制
+            if (this.maxStackCount > 0 && this.stackCount > this.maxStackCount) {
+                this.stackCount = this.maxStackCount;
+            }
         }
     }
 }
