@@ -45,7 +45,7 @@ public class ActiveSkill_Slash extends ActiveSkill {
 
         // 记录日志
         context.addLog(LogType.DAMAGE,
-            "【斩击】[%s] 对 [%s] 造成 %d 点伤害（物理%d + 破甲%d）",
+            "【斩击】[%s] 对 [%s] 造成 %d 点伤害（物理%d + 真实伤害%d）",
             caster.getName(), target.getName(), totalDamage, physicalDamageDealt, piercingDamageDealt);
     }
 }

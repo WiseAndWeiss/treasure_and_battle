@@ -5,7 +5,7 @@
       "skillId": "slash",
       "skillName": "斩击",
       "simpleDesc": "挥舞剑刃对敌人造成伤害，是战士入门最简单易学的进攻手段，质朴却永不落伍",
-      "detailedDesc": "对目标造成{x}%物理攻击伤害，附加{y}%无视防御与护盾的破甲伤害",
+      "detailedDesc": "对目标造成{x}%物理攻击伤害，附加{y}%无视防御与护盾的穿甲伤害",
       "skillType": "ACTIVE",
       "skillRangeType": "SINGLE_ENEMY",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
@@ -25,10 +25,33 @@
     },
     {
       "templateId": 110102,
+      "skillId": "battle_stance",
+      "skillName": "战斗姿态",
+      "simpleDesc": "全身心投入战斗状态，激发自身潜能，全方位提升攻防与机动能力",
+      "detailedDesc": "自身物理攻击、物理防御与速度提升{x}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 8},
+        {"x": 11},
+        {"x": 14},
+        {"x": 18}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_BattleStance"
+    },
+    {
+      "templateId": 110103,
       "skillId": "counter_stance",
       "skillName": "反击姿态",
-      "simpleDesc": "摆出防御反击架势，以守为攻，受到攻击便会立刻给予敌人致命回击",
-      "detailedDesc": "消耗2点行动点，本回合受到的伤害减少{x}%，且每受到一次攻击，就对对手发动一次普通攻击反击",
+      "simpleDesc": "收敛攻势巩固自身，摆出防御反击的架势，以守为攻，一旦受到攻击便会立刻给予致命回击",
+      "detailedDesc": "本回合受到的伤害减少{x}%，且每受到一次攻击，就对对手发动一次普通攻击反击",
       "skillType": "ACTIVE",
       "skillRangeType": "SELF",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
@@ -45,6 +68,110 @@
         {"x": 25}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_CounterStance"
+    },
+    {
+      "templateId": 110104,
+      "skillId": "whirlwind_slash",
+      "skillName": "旋风斩",
+      "simpleDesc": "挥舞兵刃卷起狂风般的斩击，席卷全场周遭所有敌人",
+      "detailedDesc": "消耗自身所有行动点，每消耗1点行动点对所有敌方单位造成一次{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 55},
+        {"x": 60},
+        {"x": 75},
+        {"x": 80},
+        {"x": 85}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WhirlwindSlash"
+    },
+    {
+      "templateId": 110105,
+      "skillId": "firm_as_rock",
+      "skillName": "坚如磐石",
+      "simpleDesc": "凝神聚气，灌注出如磐石般厚重壁垒，承挡一切攻伐，从而在刀光剑影中屹立不倒",
+      "detailedDesc": "生成{x}%最大生命值的护盾，并获得持续两回合物防、法防提升{y}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 5, "y": 6},
+        {"x": 8, "y": 8},
+        {"x": 12, "y": 10},
+        {"x": 16, "y": 12},
+        {"x": 20, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_FirmAsRock"
+    },
+    {
+      "templateId": 110106,
+      "skillId": "impenetrable",
+      "skillName": "固若金汤",
+      "simpleDesc": "从容承接敌方攻势，将袭来的杀伐之力尽数吸纳、转化为坚实护盾，以伤铸盾，固身守志",
+      "detailedDesc": "本回合受到的所有生命伤害都会以{x}%比例转化为自身护盾",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 25},
+        {"x": 30},
+        {"x": 45},
+        {"x": 40}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Impenetrable"
+    },
+    {
+      "templateId": 110107,
+      "skillId": "shield_strike",
+      "skillName": "重盾强击",
+      "simpleDesc": "厚重战盾不仅是固守的壁垒，亦是杀伐的兵器。高举坚盾重击敌身，以防御之姿碾碎攻势",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害；若自身拥有护盾，附加{y}%护盾值额外伤害，并施加{z}%的虚弱buff，持续2回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 90, "y": 25, "z": 5},
+        {"x": 95, "y": 30, "z": 10},
+        {"x": 100, "y": 35, "z": 16},
+        {"x": 105, "y": 40, "z": 22},
+        {"x": 110, "y": 50, "z": 28}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_ShieldStrike"
     },
     {
       "templateId": 110201,

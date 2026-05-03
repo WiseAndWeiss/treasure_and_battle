@@ -197,6 +197,10 @@ public class BattleManager {
         BuffManager.getInstance(context).tickBuffs(ctx.player);
         BuffManager.getInstance(context).tickBuffs(ctx.monster);
 
+        // 6.3.1 Buff 回合结束处理（特殊buff的回合结束逻辑）
+        BuffManager.getInstance(context).onRoundEnd(ctx.player, ctx);
+        BuffManager.getInstance(context).onRoundEnd(ctx.monster, ctx);
+
         // 6.4 检查是否有实体死亡
         checkDeath(ctx);
     }
@@ -504,6 +508,9 @@ public class BattleManager {
         // 触发buff事件：被攻击
         BuffManager.getInstance(this.context).triggerAttackedEvent(target, attacker, context);
 
+        // 触发buff事件：受到伤害后（HP扣除之后）
+        BuffManager.getInstance(this.context).triggerAfterDamageReceivedEvent(target, attacker, context.finalDamage, context);
+
         // 触发被动技能：造成伤害后
         triggerAfterDamageDealtPassiveSkills(attacker, target, context.finalDamage, context);
 
@@ -517,7 +524,7 @@ public class BattleManager {
     }
 
     /**
-     * 造成破甲伤害（无视防御与护盾）
+     * 造成穿甲伤害（无视防御与护盾）
      * @param attacker 攻击者
      * @param target 目标
      * @param piercingDamage 破甲伤害值
@@ -526,7 +533,7 @@ public class BattleManager {
      */
     public int dealPiercingDamage(BattleEntity attacker, BattleEntity target,
                                    int piercingDamage, BattleContext context) {
-        // 破甲伤害无视防御与护盾，直接造成伤害
+        // TODO：穿甲伤害无视防御与护盾，直接造成伤害，现在暂且作为真伤处理
         target.takeDamage(piercingDamage);
 
         context.addLog(LogType.DAMAGE,

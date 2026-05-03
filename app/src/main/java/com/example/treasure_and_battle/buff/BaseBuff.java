@@ -151,6 +151,17 @@ public abstract class BaseBuff {
     }
 
     /**
+     * 受到伤害后回调（HP扣除之后）
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param actualHpDamage 实际HP伤害（扣除护盾、减伤等之后）
+     * @param context 战斗上下文
+     */
+    public void onAfterDamageReceived(BattleEntity owner, BattleEntity attacker, int actualHpDamage, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
      * 造成伤害前回调（可修改伤害值）
      * @param owner buff持有者
      * @param target 目标
