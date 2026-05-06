@@ -1,0 +1,482 @@
+{
+  "skill_templates": [
+    {
+      "templateId": 110101,
+      "skillId": "slash",
+      "skillName": "斩击",
+      "simpleDesc": "挥舞剑刃对敌人造成伤害，是战士入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%物理攻击伤害，附加{y}%无视防御与护盾的穿甲伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 0},
+        {"x": 105, "y": 3},
+        {"x": 110, "y": 7},
+        {"x": 115, "y": 11},
+        {"x": 120, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Slash"
+    },
+    {
+      "templateId": 110102,
+      "skillId": "battle_stance",
+      "skillName": "战斗姿态",
+      "simpleDesc": "全身心投入战斗状态，激发自身潜能，全方位提升攻防与机动能力",
+      "detailedDesc": "自身物理攻击、物理防御与速度提升{x}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 8},
+        {"x": 11},
+        {"x": 14},
+        {"x": 18}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_BattleStance"
+    },
+    {
+      "templateId": 110103,
+      "skillId": "counter_stance",
+      "skillName": "反击姿态",
+      "simpleDesc": "收敛攻势巩固自身，摆出防御反击的架势，以守为攻，一旦受到攻击便会立刻给予致命回击",
+      "detailedDesc": "本回合受到的伤害减少{x}%，且每受到一次攻击，就对对手发动一次普通攻击反击",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPoint": 2}
+      ],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 10},
+        {"x": 15},
+        {"x": 20},
+        {"x": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_CounterStance"
+    },
+    {
+      "templateId": 110104,
+      "skillId": "whirlwind_slash",
+      "skillName": "旋风斩",
+      "simpleDesc": "挥舞兵刃卷起狂风般的斩击，席卷全场周遭所有敌人",
+      "detailedDesc": "消耗自身所有行动点，每消耗1点行动点对所有敌方单位造成一次{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 55},
+        {"x": 60},
+        {"x": 75},
+        {"x": 80},
+        {"x": 85}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WhirlwindSlash"
+    },
+    {
+      "templateId": 110105,
+      "skillId": "firm_as_rock",
+      "skillName": "坚如磐石",
+      "simpleDesc": "凝神聚气，灌注出如磐石般厚重壁垒，承挡一切攻伐，从而在刀光剑影中屹立不倒",
+      "detailedDesc": "生成{x}%最大生命值的护盾，并获得持续两回合物防、法防提升{y}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 5, "y": 6},
+        {"x": 8, "y": 8},
+        {"x": 12, "y": 10},
+        {"x": 16, "y": 12},
+        {"x": 20, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_FirmAsRock"
+    },
+    {
+      "templateId": 110106,
+      "skillId": "impenetrable",
+      "skillName": "固若金汤",
+      "simpleDesc": "从容承接敌方攻势，将袭来的杀伐之力尽数吸纳、转化为坚实护盾，以伤铸盾，固身守志",
+      "detailedDesc": "本回合受到的所有生命伤害都会以{x}%比例转化为自身护盾",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 25},
+        {"x": 30},
+        {"x": 45},
+        {"x": 40}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Impenetrable"
+    },
+    {
+      "templateId": 110107,
+      "skillId": "shield_strike",
+      "skillName": "重盾强击",
+      "simpleDesc": "厚重战盾不仅是固守的壁垒，亦是杀伐的兵器。高举坚盾重击敌身，以防御之姿碾碎攻势",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害；若自身拥有护盾，附加{y}%护盾值额外伤害，并施加{z}%的虚弱buff，持续2回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 90, "y": 25, "z": 5},
+        {"x": 95, "y": 30, "z": 10},
+        {"x": 100, "y": 35, "z": 16},
+        {"x": 105, "y": 40, "z": 22},
+        {"x": 110, "y": 50, "z": 28}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_ShieldStrike"
+    },
+    {
+      "templateId": 110108,
+      "skillId": "go_all_out",
+      "skillName": "全力以赴",
+      "simpleDesc": "燃尽自身魔力与部分生机，突破行动限制，在战局之中骤然迸发先机之势，乃是置之死地而后生的决绝秘术",
+      "detailedDesc": "消耗魔力与最大生命值，立即获得{y}点行动点，每场战斗仅限使用1次",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 999,
+      "costParamsList": [
+        {"actionPointCost": 0, "mpCost": 25, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 25, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 28, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 28, "hpCost": 10},
+        {"actionPointCost": 0, "mpCost": 30, "hpCost": 10}
+      ],
+      "effectParamsList": [
+        {"y": 4},
+        {"y": 5},
+        {"y": 6},
+        {"y": 7},
+        {"y": 8}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_GoAllOut"
+    },
+    {
+      "templateId": 110109,
+      "skillId": "blood_fury_slash",
+      "skillName": "血怒斩",
+      "simpleDesc": "以自身血气为引唤醒血脉中潜藏的力量，进行狂暴一斩，重创敌人并使其持续流血",
+      "detailedDesc": "消耗生命，对单体造成{x}%物理攻击伤害，为敌人附加{y}层流血debuff，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 8},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 8},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 10},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 10},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 12}
+      ],
+      "effectParamsList": [
+        {"x": 120, "y": 2, "z": 2},
+        {"x": 125, "y": 2, "z": 2},
+        {"x": 130, "y": 3, "z": 3},
+        {"x": 140, "y": 3, "z": 3},
+        {"x": 150, "y": 4, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_BloodFurySlash"
+    },
+    {
+      "templateId": 110110,
+      "skillId": "mad_slaughter_slash",
+      "skillName": "狂弑千斩",
+      "simpleDesc": "穷尽毕生杀伐之力，掀起无尽狂怒斩击，以血肉为薪，以利刃为器，撕裂眼前一切敌人",
+      "detailedDesc": "消耗生命，对全体敌方造成{x}%物理攻击伤害，附加{y}层流血debuff与{z}%虚弱减益，持续{w}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 10},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 12},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 15},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 18},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 22}
+      ],
+      "effectParamsList": [
+        {"x": 75, "y": 2, "z": 5, "w": 2},
+        {"x": 80, "y": 2, "z": 6, "w": 2},
+        {"x": 95, "y": 3, "z": 7, "w": 3},
+        {"x": 90, "y": 3, "z": 8, "w": 3},
+        {"x": 100, "y": 4, "z": 10, "w": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_MadSlaughterSlash"
+    },
+    {
+      "templateId": 110111,
+      "skillId": "wound_blood_suck",
+      "skillName": "伤痕汲血",
+      "simpleDesc": "洞察敌人流血创口，将敌人外泄的血气尽数掠夺，治愈自身，是血战士在杀伐中存续的专属秘术",
+      "detailedDesc": "对单体敌人造成少量{x}%物理伤害；若敌人带有流血debuff，移除其所有流血层数，每层使自身回复{y}%最大生命值",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20, "y": 3},
+        {"x": 30, "y": 4},
+        {"x": 40, "y": 5},
+        {"x": 50, "y": 6},
+        {"x": 50, "y": 7}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WoundBloodSuck"
+    },
+    {
+      "templateId": 110201,
+      "skillId": "spell",
+      "skillName": "咏唱",
+      "simpleDesc": "催动法咒对敌人造成伤害，是法师入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%法术攻击伤害，附带{y}%减速，持续一回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost":  14, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 95, "y": 0},
+        {"x": 100, "y": 3},
+        {"x": 105, "y": 7},
+        {"x": 110, "y": 11},
+        {"x": 115, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Spell"
+    },
+    {
+      "templateId": 110301,
+      "skillId": "shot",
+      "skillName": "点射",
+      "simpleDesc": "张开弓箭对敌人造成伤害，是游侠入门最简单易学的进攻手段，质朴却永不落伍",
+      "detailedDesc": "对目标造成{x}%物理攻击伤害，该次攻击以{y}%的概率增加一轮额外的暴击判定",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 0},
+        {"x": 105, "y": 5},
+        {"x": 110, "y": 10},
+        {"x": 115, "y": 15},
+        {"x": 120, "y": 20}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_Shot"
+    },
+    {
+      "templateId": 210001,
+      "skillId": "tough_guard",
+      "skillName": "坚韧护体",
+      "simpleDesc": "历经战场磨砺，身躯与意志愈发坚韧，潜移默化的抵御外界伤害，是所有冒险者最基础的生存天赋",
+      "detailedDesc": "在战斗中，持续提升{x}%物防，{y}%法防，每回合结束时回复{z}%的最大生命值",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_BATTLE_START", "ON_ROUND_END"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 3, "y": 3, "z": 0},
+        {"x": 4, "y": 4, "z": 0},
+        {"x": 5, "y": 5, "z": 2},
+        {"x": 6, "y": 6, "z": 3},
+        {"x": 8, "y": 8, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.general.PassiveSkill_ToughGuard"
+    },
+    {
+      "templateId": 210101,
+      "skillId": "strong_body",
+      "skillName": "强健体魄",
+      "simpleDesc": "经年累月的沙场淬炼铸就钢筋铁骨，武者体魄远超常人，从战斗伊始便占据防御优势",
+      "detailedDesc": "战斗开始时，获得{x}点体魄，整场战斗受到所有伤害降低{y}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_BATTLE_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 1, "y": 3},
+        {"x": 1, "y": 5},
+        {"x": 2, "y": 7},
+        {"x": 2, "y": 9},
+        {"x": 3, "y": 12}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_StrongBody"
+    },
+    {
+      "templateId": 210102,
+      "skillId": "bloodthirsty",
+      "skillName": "嗜血",
+      "simpleDesc": "攻击中汲取敌人的生命力量，造成伤害时为自身恢复生命值，是掠杀者与生俱来的本能",
+      "detailedDesc": "你造成伤害的{x}%会转化为生命值治疗自己",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_AFTER_DAMAGE_DEALT"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 5},
+        {"x": 10},
+        {"x": 15},
+        {"x": 20},
+        {"x": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_Bloodthirsty"
+    },
+    {
+      "templateId": 210103,
+      "skillId": "iron_will",
+      "skillName": "铁血意志",
+      "simpleDesc": "久经厮杀的战士早已无惧伤痛，残破的身躯之下，是永不溃败的铁血意志，逆境之中愈发强悍",
+      "detailedDesc": "回合开始时若生命值低于最大生命值的{x}%，则物理攻击与物理防御提升{y}%，立即驱散流血/虚弱/中毒效果",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20, "y": 12},
+        {"x": 30, "y": 14},
+        {"x": 40, "y": 16},
+        {"x": 50, "y": 18},
+        {"x": 60, "y": 20}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_IronWill"
+    },
+    {
+      "templateId": 210104,
+      "skillId": "shield_burst",
+      "skillName": "碎盾冲击",
+      "simpleDesc": "战士的护盾凝结着斗气，当被外力击碎之际，积攒的守备之力骤然迸发，席卷全场敌寇，馈以雷霆反击",
+      "detailedDesc": "当护盾被敌人攻击打破时，对全场所有敌人造成一次{x}%自身防御力的伤害",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_AFTER_DAMAGE_RECEIVED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 30},
+        {"x": 40},
+        {"x": 50},
+        {"x": 60}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_ShieldBurst"
+    },
+    {
+      "templateId": 210105,
+      "skillId": "brave_growth",
+      "skillName": "越战越勇",
+      "simpleDesc": "沙场鏖战不息，武者的战意借每一轮交锋沉淀累积，鏖战愈久，胜势愈固",
+      "detailedDesc": "每经过一个回合，物理攻击与物理防御额外提升{x}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_END"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 1},
+        {"x": 2},
+        {"x": 3},
+        {"x": 4},
+        {"x": 5}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.warrior.PassiveSkill_BraveGrowth"
+    },
+    {
+      "templateId": 210201,
+      "skillId": "purify",
+      "skillName": "净化",
+      "simpleDesc": "体内流淌着纯净的能量，能在回合开始时自动驱散身上的负面效果",
+      "detailedDesc": "回合开始时，有{x}%几率移除自身某一种debuff的所有层数",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 35},
+        {"x": 50},
+        {"x": 70},
+        {"x": 100}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_Purify"
+    }
+  ]
+}

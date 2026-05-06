@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.EquipItem;
 import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
@@ -112,8 +113,8 @@ public class Player extends BattleEntity {
         this.finalAttributes.copyFrom(this.baseAttributes);
 
         // 2. 调用 AttributeUtils 叠加玩家专属加成（装备 + 词缀 + Buff）
-        // 注意：这里可以直接利用 AttributeSet 的 add() 方法进行叠加
-        // AttributeUtils.getInstance().calculatePlayerFinalAttributes(this.finalAttributes, this);
+        AttributeSet calculatedAttrs = AttributeUtils.calculateFinalAttributes(this, this.getContext());
+        this.finalAttributes.copyFrom(calculatedAttrs);
 
         // 3. 同步战斗资源上限（保持当前 HP/MP 比例）
         int oldMaxHp = this.finalAttributes.maxHp;

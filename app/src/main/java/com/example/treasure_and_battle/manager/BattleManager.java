@@ -31,9 +31,14 @@ import java.util.List;
 public class BattleManager {
     private static BattleManager instance;
     private Context context;
+    private BattleContext currentBattleContext;
 
     private BattleManager(Context context) {
         this.context = context.getApplicationContext();
+    }
+
+    public BattleContext getContext() {
+        return currentBattleContext;
     }
 
     public static synchronized BattleManager getInstance(Context context) {
@@ -72,6 +77,12 @@ public class BattleManager {
             m.resetActionPoints();
         }
 
+        // 1.3 触发被动技能（战斗开始）
+        triggerPassiveSkills(player, battleContext);
+        triggerPassiveSkills(monster, battleContext);
+
+        // 1.3 判定先手（功能清单第5点）
+        determineTurnOrder(battleContext);
         BuffManager.getInstance(context).triggerBuffs(player, ctx, BuffTriggerType.ON_BATTLE_START);
         AffixManager.getInstance(context).triggerAffixes(player, ctx, AffixTriggerType.ON_BATTLE_START);
         BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_START);
@@ -146,6 +157,12 @@ public class BattleManager {
             }
         }
 
+        // 3.3 触发回合开始Buff和词缀
+        BuffManager.getInstance(context).triggerBuffs(ctx.currentActor, ctx, BuffTriggerType.ON_ROUND_START);
+        AffixManager.getInstance(context).triggerAffixes(ctx.currentActor, ctx, AffixTriggerType.ON_ROUND_START);
+
+        // 3.4 触发回合开始被动技能
+        triggerPassiveSkills(ctx.currentActor, ctx);
         // 3.3 构建全局速度优先队列
         buildSpeedQueue(ctx);
 
@@ -213,6 +230,21 @@ public class BattleManager {
         for (; ctx.actionOrderIndex < ctx.roundActionOrder.size(); ctx.actionOrderIndex++) {
             if (ctx.isBattleEnded) break;
 
+        // 6.2 触发回合结束被动技能
+        triggerPassiveSkills(ctx.player, ctx);
+        triggerPassiveSkills(ctx.monster, ctx);
+
+        // 6.3 Buff Tick（减少持续时间，清理过期）
+        BuffManager.getInstance(context).tickBuffs(ctx.player);
+        BuffManager.getInstance(context).tickBuffs(ctx.monster);
+
+        // 6.3.1 Buff 回合结束处理（特殊buff的回合结束逻辑）
+        BuffManager.getInstance(context).onRoundEnd(ctx.player, ctx);
+        BuffManager.getInstance(context).onRoundEnd(ctx.monster, ctx);
+
+        // 6.4 检查是否有实体死亡
+        checkDeath(ctx);
+    }
             BattleEntity actor = ctx.roundActionOrder.get(ctx.actionOrderIndex);
             if (actor.isDead()) continue;
 
@@ -222,6 +254,422 @@ public class BattleManager {
 
             ctx.addLog(LogType.ROUND_INFO, "轮到 [%s] 行动", actor.getName());
 
+    // ====================== 被动技能系统支持 ======================
+
+    /**
+     * 触发实体的所有被动技能
+     * @param owner 被动技能的持有者
+     * @param context 战斗上下文
+     */
+    /**
+     * 触发战斗开始时的被动技能
+     */
+    public void triggerBattleStartPassiveSkills(BattleEntity owner, BattleContext context) {
+        if (owner.getPassiveSkillList() == null || owner.getPassiveSkillList().isEmpty()) {
+            return;
+        }
+
+        for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : owner.getPassiveSkillList()) {
+            try {
+                // 检查技能是否在战斗开始时触发
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_BATTLE_START)) {
+                    passiveSkill.onBattleStart(owner, context);
+                }
+            } catch (Exception e) {
+                context.addLog(LogType.SYSTEM, "被动技能 [%s] onBattleStart 触发失败: %s",
+                    passiveSkill.getSkillName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发回合结束时的被动技能
+     */
+    public void triggerRoundEndPassiveSkills(BattleEntity owner, BattleContext context) {
+        if (owner.getPassiveSkillList() == null || owner.getPassiveSkillList().isEmpty()) {
+            return;
+        }
+
+        for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : owner.getPassiveSkillList()) {
+            try {
+                // 检查技能是否在回合结束时触发
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_ROUND_END)) {
+                    passiveSkill.onRoundEnd(owner, context);
+                }
+            } catch (Exception e) {
+                context.addLog(LogType.SYSTEM, "被动技能 [%s] onRoundEnd 触发失败: %s",
+                    passiveSkill.getSkillName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发回合开始时的被动技能
+     */
+    public void triggerRoundStartPassiveSkills(BattleEntity owner, BattleContext context) {
+        if (owner.getPassiveSkillList() == null || owner.getPassiveSkillList().isEmpty()) {
+            return;
+        }
+
+        for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : owner.getPassiveSkillList()) {
+            try {
+                // 检查技能是否在回合开始时触发
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_ROUND_START)) {
+                    passiveSkill.onRoundStart(owner, context);
+                }
+            } catch (Exception e) {
+                context.addLog(LogType.SYSTEM, "被动技能 [%s] onRoundStart 触发失败: %s",
+                    passiveSkill.getSkillName(), e.getMessage());
+            }
+        }
+    }
+
+    public void triggerPassiveSkills(BattleEntity owner, BattleContext context) {
+        // 保留原方法用于兼容，调用战斗开始触发
+        triggerBattleStartPassiveSkills(owner, context);
+    }
+
+    /**
+     * 触发攻击相关的被动技能
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param context 战斗上下文
+     */
+    public void triggerAttackPassiveSkills(BattleEntity attacker, BattleEntity target, BattleContext context) {
+        // 触发攻击者的被动技能
+        if (attacker.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : attacker.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_ATTACK)) {
+                    try {
+                        passiveSkill.onAttack(attacker, target, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+
+        // 触发目标的被动技能（被攻击）
+        if (target.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : target.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_ATTACKED)) {
+                    try {
+                        passiveSkill.onAttacked(target, attacker, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 触发造成伤害相关的被动技能（可能修改伤害值）
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    private int triggerBeforeDamageDealtPassiveSkills(BattleEntity attacker, BattleEntity target, int damage, BattleContext context) {
+        int modifiedDamage = damage;
+
+        if (attacker.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : attacker.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_BEFORE_DAMAGE_DEALT)) {
+                    try {
+                        modifiedDamage = passiveSkill.onBeforeDamageDealt(attacker, target, modifiedDamage, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return modifiedDamage;
+    }
+
+    /**
+     * 触发造成伤害后的被动技能
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param damage 实际造成的伤害
+     * @param context 战斗上下文
+     */
+    public void triggerAfterDamageDealtPassiveSkills(BattleEntity attacker, BattleEntity target, int damage, BattleContext context) {
+        if (attacker.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : attacker.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_AFTER_DAMAGE_DEALT)) {
+                    try {
+                        passiveSkill.onAfterDamageDealt(attacker, target, damage, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 触发受到伤害相关的被动技能（可能修改伤害值）
+     * @param target 目标
+     * @param attacker 攻击者
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    public int triggerBeforeDamageReceivedPassiveSkills(BattleEntity target, BattleEntity attacker, int damage, BattleContext context) {
+        int modifiedDamage = damage;
+
+        if (target.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : target.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_BEFORE_DAMAGE_RECEIVED)) {
+                    try {
+                        modifiedDamage = passiveSkill.onBeforeDamageReceived(target, attacker, modifiedDamage, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return modifiedDamage;
+    }
+
+    /**
+     * 触发受到伤害后的被动技能
+     * @param target 目标
+     * @param attacker 攻击者
+     * @param damage 实际受到的伤害
+     * @param context 战斗上下文
+     */
+    public void triggerAfterDamageReceivedPassiveSkills(BattleEntity target, BattleEntity attacker, int damage, BattleContext context) {
+        if (target.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : target.getPassiveSkillList()) {
+                if (passiveSkill.hasTriggerType(com.example.treasure_and_battle.model.skill.SkillTriggerType.ON_AFTER_DAMAGE_RECEIVED)) {
+                    try {
+                        passiveSkill.onAfterDamageReceived(target, attacker, damage, context);
+                    } catch (Exception e) {
+                        context.addLog(LogType.SYSTEM, "被动技能 [%s] 触发失败: %s",
+                            passiveSkill.getSkillName(), e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    // ====================== 技能系统支持 ======================
+
+    /**
+     * 技能施放的核心方法
+     * 负责处理技能消耗、目标选择、效果触发等
+     * @param caster 施法者
+     * @param skill 技能
+     * @param targets 目标列表
+     * @param context 战斗上下文
+     */
+    public void executeSkill(BattleEntity caster, com.example.treasure_and_battle.skill.active.ActiveSkill skill,
+                            java.util.List<BattleEntity> targets, BattleContext context) {
+        // 设置当前战斗上下文
+        this.currentBattleContext = context;
+
+        // 1. 消耗资源
+        skill.applyCastCost(caster);
+
+        // 2. 触发技能效果
+        skill.onCast(caster, targets, this);
+
+        // 3. 设置冷却
+        skill.resetCooldown();
+
+        // 4. 记录日志
+        context.addLog(LogType.ACTION, "【%s】[%s] 对目标施放了 [%s]",
+            caster.getClass().getSimpleName(), caster.getName(), skill.getSkillName());
+
+        // 清除当前战斗上下文
+        this.currentBattleContext = null;
+    }
+
+    /**
+     * 造成物理伤害（用于技能）
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param baseDamage 基础伤害
+     * @param context 战斗上下文
+     * @return 实际造成的伤害
+     */
+    public int dealPhysicalDamage(BattleEntity attacker, BattleEntity target,
+                                   int baseDamage, BattleContext context) {
+        context.resetDamageData();
+        context.currentActor = attacker;
+        context.currentTarget = target;
+        context.damageType = DamageType.PHYSICAL.name();
+
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        AttributeSet targetAttr = target.getFinalAttributes();
+
+        // 计算基础伤害
+        context.rawDamage = baseDamage;
+
+        // 计算命中（技能通常100%命中，除非有特殊机制）
+        float hitChance = calculateHitChance(attackerAttr, targetAttr);
+        context.isHit = RandomUtils.checkProbability(hitChance);
+
+        if (!context.isHit) {
+            context.rawDamage = 0;
+            context.finalDamage = 0;
+            context.isCriticalHit = false;
+            return 0;
+        }
+
+        // 计算暴击
+        float critChance = clampProbability(attackerAttr.physicalCritRate);
+        context.isCriticalHit = RandomUtils.checkProbability(critChance);
+
+        if (context.isCriticalHit) {
+            context.rawDamage *= attackerAttr.physicalCritDmg;
+        }
+
+        // 计算最终伤害（扣除防御）
+        context.finalDamage = Math.max(1, context.rawDamage - targetAttr.physicalDef);
+
+        // 触发被动技能：造成伤害前
+        context.finalDamage = triggerBeforeDamageDealtPassiveSkills(attacker, target, context.finalDamage, context);
+
+        // 触发buff事件：受到伤害前（可修改伤害）
+        context.finalDamage = BuffManager.getInstance(this.context).triggerBeforeDamageReceivedEvent(target, attacker, context.finalDamage, context);
+
+        // 应用防御机制
+        BuffManager.getInstance(this.context).triggerBuffs(target, context, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+        context.finalDamage = applyCountBasedDamageReduction(context, target, context.finalDamage);
+        context.finalDamage = applyShieldAbsorption(context, target, context.finalDamage);
+
+        // 造成伤害
+        target.takeDamage(context.finalDamage);
+
+        // 触发buff事件：被攻击
+        BuffManager.getInstance(this.context).triggerAttackedEvent(target, attacker, context);
+
+        // 触发buff事件：受到伤害后（HP扣除之后）
+        BuffManager.getInstance(this.context).triggerAfterDamageReceivedEvent(target, attacker, context.finalDamage, context);
+
+        // 触发被动技能：造成伤害后
+        triggerAfterDamageDealtPassiveSkills(attacker, target, context.finalDamage, context);
+
+        // 触发buff事件：造成伤害后
+        BuffManager.getInstance(this.context).triggerAfterDamageDealtEvent(attacker, target, context.finalDamage, context);
+
+        // 触发命中后事件
+        BuffManager.getInstance(this.context).triggerBuffs(attacker, context, BuffTriggerType.ON_HIT);
+
+        return context.finalDamage;
+    }
+
+    /**
+     * 造成穿甲伤害（无视防御与护盾）
+     * @param attacker 攻击者
+     * @param target 目标
+     * @param piercingDamage 破甲伤害值
+     * @param context 战斗上下文
+     * @return 实际造成的伤害
+     */
+    public int dealPiercingDamage(BattleEntity attacker, BattleEntity target,
+                                   int piercingDamage, BattleContext context) {
+        // TODO：穿甲伤害无视防御与护盾，直接造成伤害，现在暂且作为真伤处理
+        target.takeDamage(piercingDamage);
+
+        context.addLog(LogType.DAMAGE,
+            "  破甲伤害：%d（无视防御与护盾）", piercingDamage);
+
+        return piercingDamage;
+    }
+
+    /**
+     * 造成真实伤害（无视防御、护盾、减伤等一切防御机制）
+     * @param target 目标
+     * @param trueDamage 真实伤害值
+     * @param context 战斗上下文
+     */
+    public void dealTrueDamage(BattleEntity target, int trueDamage, BattleContext context) {
+        target.takeDamage(trueDamage);
+
+        context.addLog(LogType.DAMAGE,
+            "  真实伤害：%d（无视一切防御）", trueDamage);
+    }
+
+    /**
+     * 造成法术伤害（用于技能）
+     */
+    public int dealMagicalDamage(BattleEntity attacker, BattleEntity target,
+                                  int baseDamage, BattleContext context) {
+        context.resetDamageData();
+        context.currentActor = attacker;
+        context.currentTarget = target;
+        context.damageType = DamageType.MAGICAL.name();
+
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        AttributeSet targetAttr = target.getFinalAttributes();
+
+        // 计算基础伤害
+        context.rawDamage = baseDamage;
+
+        // 计算命中
+        float hitChance = calculateHitChance(attackerAttr, targetAttr);
+        context.isHit = RandomUtils.checkProbability(hitChance);
+
+        if (!context.isHit) {
+            context.rawDamage = 0;
+            context.finalDamage = 0;
+            context.isCriticalHit = false;
+            return 0;
+        }
+
+        // 计算暴击
+        float critChance = clampProbability(attackerAttr.magicalCritRate);
+        context.isCriticalHit = RandomUtils.checkProbability(critChance);
+
+        if (context.isCriticalHit) {
+            context.rawDamage *= attackerAttr.magicalCritDmg;
+        }
+
+        // 计算最终伤害
+        context.finalDamage = Math.max(1, context.rawDamage - targetAttr.magicalDef);
+
+        // 应用防御机制
+        BuffManager.getInstance(this.context).triggerBuffs(target, context, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+        context.finalDamage = applyCountBasedDamageReduction(context, target, context.finalDamage);
+        context.finalDamage = applyShieldAbsorption(context, target, context.finalDamage);
+
+        // 造成伤害
+        target.takeDamage(context.finalDamage);
+
+        // 触发命中后事件
+        BuffManager.getInstance(this.context).triggerBuffs(attacker, context, BuffTriggerType.ON_HIT);
+
+        return context.finalDamage;
+    }
+
+    /**
+     * 施加buff到目标
+     */
+    public void applyBuff(BattleEntity target, com.example.treasure_and_battle.buff.BaseBuff buff) {
+        BuffManager.getInstance(this.context).addBuff(target, buff);
+        target.markAttributeCacheDirty();
+    }
+
+    // ====================== 【核心规则实现】功能清单具体逻辑 ======================
+
+    // 5. 先手规则判定
+    private void determineTurnOrder(BattleContext ctx) {
+        if (ctx.isSurpriseAttack) {
+            // 偷袭战斗：袭击方先行动（这里假设袭击方是玩家，可根据需求调整）
+            ctx.isPlayerTurn = true;
+            ctx.addLog(LogType.INIT, "【偷袭】[%s] 发起突袭，获得先手行动权。", ctx.player.getName());
             if (actor instanceof Player) {
                 ctx.currentTarget = ctx.getPrimaryMonsterTarget();
                 playerActionPhase(ctx);
@@ -540,16 +988,82 @@ public class BattleManager {
     }
 
     private int applyShieldAbsorption(BattleContext ctx, BattleEntity target, int incomingDamage) {
-        if (incomingDamage <= 0) return 0;
+        if (incomingDamage <= 0) {
+            return 0;
+        }
+
+        // 检测护盾破碎：记录吸收前的护盾状态
+        boolean hadShieldBefore = hasShield(target);
+
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
             if (!(buff instanceof ShieldBuff)) continue;
             if (remainingDamage <= 0) break;
             remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
         }
+
+        // 检测护盾是否刚刚破碎
+        boolean hasShieldAfter = hasShield(target);
+        if (hadShieldBefore && !hasShieldAfter && remainingDamage < incomingDamage) {
+            // 护盾刚刚破碎！触发被动技能
+            triggerShieldBreakPassiveSkills(target, ctx.currentActor, ctx);
+        }
+
         return remainingDamage;
     }
 
+    /**
+     * 检查实体是否有护盾
+     */
+    private boolean hasShield(BattleEntity entity) {
+        for (BaseBuff buff : entity.getActiveBuffList()) {
+            if (buff instanceof ShieldBuff) {
+                ShieldBuff shieldBuff = (ShieldBuff) buff;
+                return shieldBuff.getStackCount() > 0;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 触发护盾破碎被动技能
+     */
+    private void triggerShieldBreakPassiveSkills(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : owner.getPassiveSkillList()) {
+            try {
+                passiveSkill.onShieldBreak(owner, attacker, context, this);
+            } catch (Exception e) {
+                context.addLog(LogType.SYSTEM,
+                    "被动技能 [%s] onShieldBreak 触发失败: %s",
+                    passiveSkill.getSkillName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 获取所有敌人（根据当前行动者判断）
+     * @param owner 护盾所有者
+     * @param context 战斗上下文
+     * @return 敌人列表
+     */
+    public java.util.List<BattleEntity> getAllEnemies(BattleEntity owner, BattleContext context) {
+        java.util.List<BattleEntity> enemies = new java.util.ArrayList<>();
+
+        if (owner instanceof com.example.treasure_and_battle.model.entity.Player) {
+            // 玩家敌人是怪物
+            if (context.monster != null && !context.monster.isDead()) {
+                enemies.add(context.monster);
+            }
+        } else if (owner instanceof com.example.treasure_and_battle.model.entity.Monster) {
+            // 怪物敌人是玩家
+            if (context.player != null && !context.player.isDead()) {
+                enemies.add(context.player);
+            }
+        }
+
+        return enemies;
+    }
+      
     // ====================== 17. 死亡检查 ======================
     public void checkDeath(BattleContext ctx) {
         boolean playerPartyAllDead = ctx.getAlivePlayerParty().isEmpty();

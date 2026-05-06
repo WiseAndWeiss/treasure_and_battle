@@ -17,7 +17,7 @@ public class AttributeUtils {
     private static final long CACHE_DURATION = 100; // 100ms缓存，避免同一帧多次计算
 
     // ====================== 【唯一入口】通用属性计算方法 ======================
-    public static void calculateFinalAttributes(BattleEntity entity, Context context) {
+    public static AttributeSet calculateFinalAttributes(BattleEntity entity, Context context) {
         AttributeSet modifiers = new AttributeSet();
         modifiers.maxHp = 0;
         modifiers.maxMp = 0;
@@ -38,8 +38,16 @@ public class AttributeUtils {
 
         BuffManager.getInstance(context).applyAllBuffAttributeBonus(modifiers, entity);
 
+        // 应用被动技能的属性加成
+        if (entity.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : entity.getPassiveSkillList()) {
+                passiveSkill.applyAttributeBonus(modifiers);
+            }
+        }
+
+        // 开始计算最终属性
         AttributeSet baseAttr = entity.getBaseAttributes();
-        AttributeSet finalAttr = entity.getFinalAttributes();
+        AttributeSet finalAttr = new AttributeSet();  // 使用临时对象避免递归
         finalAttr.copyFrom(baseAttr);
 
         // ------------------ 阶段 1: 计算最终六维属性 ------------------
@@ -82,14 +90,14 @@ public class AttributeUtils {
         finalAttr.expBonus += diffLuck * 0.01f;
 
         // ------------------ 阶段 3: 计算同乘区百分比及固定数值加成 ------------------
-        finalAttr.physicalAtk = (int) (finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
-        finalAttr.magicalAtk = (int) (finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
-        finalAttr.physicalDef = (int) (finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
-        finalAttr.magicalDef = (int) (finalAttr.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
-        finalAttr.speed = (int) (finalAttr.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
+        finalAttr.physicalAtk = Math.round(finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
+        finalAttr.magicalAtk = Math.round(finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
+        finalAttr.physicalDef = Math.round(finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
+        finalAttr.magicalDef = Math.round(finalAttr.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
+        finalAttr.speed = Math.round(finalAttr.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
 
-        finalAttr.maxHp = (int) (finalAttr.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
-        finalAttr.maxMp = (int) (finalAttr.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
+        finalAttr.maxHp = Math.round(finalAttr.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
+        finalAttr.maxMp = Math.round(finalAttr.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
 
         finalAttr.physicalCritRate += modifiers.physicalCritRate;
         finalAttr.physicalCritDmg += modifiers.physicalCritDmg;
@@ -104,6 +112,8 @@ public class AttributeUtils {
         finalAttr.expBonus += modifiers.expBonus;
 
         applyHardCaps(finalAttr);
+
+        return finalAttr;  // 返回计算结果
     }
 
     // ====================== 玩家专属加成逻辑 ======================     

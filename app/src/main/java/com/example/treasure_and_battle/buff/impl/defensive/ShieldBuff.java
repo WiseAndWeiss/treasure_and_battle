@@ -20,6 +20,9 @@ public class ShieldBuff extends BaseBuff {
                       int maxStackCount, boolean refreshOnApply, float buffValue) {
         super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
+
+        // 护盾特殊处理：stackCount即为护盾值，初始化为maxStackCount
+        this.stackCount = maxStackCount;
     }
 
     @Override

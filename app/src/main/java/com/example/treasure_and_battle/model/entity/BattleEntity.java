@@ -6,6 +6,9 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.skill.event.EventSkill;
+import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
@@ -27,10 +30,24 @@ public abstract class BattleEntity {
     protected Context context;
 
     // ====================== 属性系统（核心重构点） ======================
-    // 基础属性：由等级、种族/职业决定的原始值，不会在战斗中改变
+    // 基础属性：由Character传入的基础属性数值，不会在战斗中改变
+    //
+    // ⚠️ 设计约束：baseAttributes 应该是只读的！
+    // - 只在初始化时设置（构造函数、角色创建）
+    // - 战斗中不应修改 baseAttributes
+    // - 如果需要临时属性加成，请使用 buff 系统
+    // - 原因：buff/被动技能通过 modifiers 间接影响 finalAttributes，
+    //         如果直接修改 baseAttributes，buff消失后无法还原
     protected AttributeSet baseAttributes;
-    // 最终属性：基础属性 + 装备 + 词缀 + Buff 计算后的实时值，战斗中动态变化
+
+    // 最终属性：基础属性+ Buff + 技能增益等 计算后的实时值，战斗中动态变化
+    //
+    // ⚠️ 使用约束：不要直接修改 finalAttributes 的字段值！
+    // - finalAttributes 由系统自动计算
+    // - 通过 markAttributeCacheDirty() 触发重算
+    // - 直接修改会在下次重算时被覆盖，导致困惑
     protected AttributeSet finalAttributes;
+
     // 属性缓存标记：true 表示 finalAttributes 需要重新计算
     protected boolean attributeCacheDirty = true;
 
@@ -38,6 +55,10 @@ public abstract class BattleEntity {
     protected int currentHp;
     protected int currentMp;
     protected int currentActionPoints;
+
+    // ====================== 技能系统（独立管理） ======================
+    protected List<ActiveSkill> activeSkillList;
+    protected List<PassiveSkill> passiveSkillList;
 
     // ====================== 状态系统（与现有架构集成） ======================
     // Buff 列表：当前生效的所有 Buff
@@ -190,6 +211,41 @@ public abstract class BattleEntity {
         this.entityAffixList = new ArrayList<>(affixList);
         markAttributeCacheDirty();
     }
+
+    // ====================== 被动技能管理 ======================
+
+    /**
+     * 获取被动技能列表
+     */
+    public List<PassiveSkill> getPassiveSkillList() {
+        if (passiveSkillList == null) {
+            passiveSkillList = new ArrayList<>();
+        }
+        return passiveSkillList;
+    }
+
+    /**
+     * 添加被动技能
+     */
+    public void addPassiveSkill(PassiveSkill passiveSkill) {
+        if (passiveSkillList == null) {
+            passiveSkillList = new ArrayList<>();
+        }
+        passiveSkillList.add(passiveSkill);
+        markAttributeCacheDirty(); // 被动技能可能影响属性
+    }
+
+    /**
+     * 移除被动技能
+     */
+    public void removePassiveSkill(PassiveSkill passiveSkill) {
+        if (passiveSkillList != null) {
+            passiveSkillList.remove(passiveSkill);
+            markAttributeCacheDirty();
+        }
+    }
+
+    // ====================== 战斗状态 ======================
 
     public boolean isDead() { return isDead; }
     public void setDead(boolean dead) { isDead = dead; }

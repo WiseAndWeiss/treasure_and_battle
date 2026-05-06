@@ -85,6 +85,23 @@ public class BuffManager {
     public void addBuff(BattleEntity entity, BaseBuff buff) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
 
+        // 特殊处理：流血debuff应该唯一，不同来源叠加层数
+        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+            for (BaseBuff existingBuff : buffList) {
+                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+                    // 叠加流血层数
+                    ((com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) existingBuff)
+                        .stackBleeding(buff.getStackCount());
+                    entity.markAttributeCacheDirty();
+                    return;
+                }
+            }
+            // 没有现有流血debuff，直接添加
+            buffList.add(buff);
+            entity.markAttributeCacheDirty();
+            return;
+        }
+
         // 相同Buff尝试堆叠
         for (BaseBuff existingBuff : buffList) {
             if (existingBuff.getBuffId().equals(buff.getBuffId())) {
@@ -140,6 +157,27 @@ public class BuffManager {
         }
     }
 
+    /**
+     * 回合结束时的buff处理（在tickBuffs之后调用）
+     * 用于处理特殊buff的回合结束逻辑
+     */
+    public void onRoundEnd(BattleEntity entity, BattleContext context) {
+        // 收集需要转化的ImpenetrableBuff
+        List<com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff> imprenetrableBuffs = new java.util.ArrayList<>();
+        List<BaseBuff> buffList = entity.getActiveBuffList();
+
+        for (BaseBuff buff : buffList) {
+            if (buff instanceof com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) {
+                imprenetrableBuffs.add((com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) buff);
+            }
+        }
+
+        // 在遍历完成后进行护盾转化，避免ConcurrentModificationException
+        for (com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff imprenetrableBuff : imprenetrableBuffs) {
+            imprenetrableBuff.convertToShieldOnRoundEnd(entity, context);
+        }
+    }
+
     // ====================== 5. 属性加成与触发调度 ======================
     public void applyAllBuffAttributeBonus(AttributeSet attributeSet, BattleEntity entity) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
@@ -160,6 +198,70 @@ public class BuffManager {
         }
     }
 
+    // ====================== 事件触发方法 ======================
+
+    /**
+     * 触发"被攻击"事件的buff回调
+     */
+    public void triggerAttackedEvent(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAttacked(owner, attacker, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAttacked 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发"受到伤害前"事件的buff回调（可能修改伤害值）
+     */
+    public int triggerBeforeDamageReceivedEvent(BattleEntity owner, BattleEntity attacker, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        int modifiedDamage = damage;
+
+        for (BaseBuff buff : buffList) {
+            try {
+                modifiedDamage = buff.onBeforeDamageReceived(owner, attacker, modifiedDamage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onBeforeDamageReceived 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+
+        return modifiedDamage;
+    }
+
+    /**
+     * 触发"受到伤害后"事件的buff回调（HP扣除之后）
+     */
+    public void triggerAfterDamageReceivedEvent(BattleEntity owner, BattleEntity attacker, int actualHpDamage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAfterDamageReceived(owner, attacker, actualHpDamage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAfterDamageReceived 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发"造成伤害后"事件的buff回调
+     */
+    public void triggerAfterDamageDealtEvent(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAfterDamageDealt(owner, target, damage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+          
     // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
     public void triggerBuffsForAllMonsters(BattleContext context, BuffTriggerType triggerType) {
         if (context == null || context.monsters == null) return;
