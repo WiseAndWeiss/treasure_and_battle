@@ -1,0 +1,11 @@
+{
+  "profession_templates": [
+    {
+      "professionName": "战士",
+      "professionType": "WARRIOR",
+      "activeSkillTreeTemplates": "warrior_active_tree",
+      "passiveSkillTreeTemplates": "warrior_passive_tree",
+      "eventSkillTreeTemplates": "warrior_event_tree"
+    }
+  ]
+}

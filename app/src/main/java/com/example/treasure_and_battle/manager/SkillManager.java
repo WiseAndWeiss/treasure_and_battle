@@ -2,7 +2,9 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
+import com.example.treasure_and_battle.model.skill.SkillTreeTemplate;
 import com.example.treasure_and_battle.skill.Skill;
+import com.example.treasure_and_battle.skill.SkillTree;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -15,7 +17,7 @@ import java.util.Map;
 
 /**
  * Skill统一管理类
- * 单例模式，负责Skill的加载、生成和管理
+ * 单例模式，负责Skill和SkillTree的加载、生成和管理
  */
 public class SkillManager {
     private static SkillManager instance;
@@ -27,6 +29,11 @@ public class SkillManager {
     // 技能ID到模板ID的映射（用于通过skillId查找）
     private Map<String, Integer> skillIdToTemplateIdMap = new HashMap<>();
 
+    // 技能树模板库
+    private Map<Integer, SkillTreeTemplate> skillTreeTemplateMap = new HashMap<>();
+    // 技能树ID到模板ID的映射
+    private Map<String, Integer> skillTreeIdToTemplateIdMap = new HashMap<>();
+
     private SkillManager(Context context) {
         // 直接使用传入的Context，避免在测试环境中getApplicationContext()的问题
         if (context == null) {
@@ -35,6 +42,7 @@ public class SkillManager {
         this.context = context;
         this.gson = new Gson();
         loadSkillTemplates();
+        loadSkillTreeTemplates();
     }
 
     public static synchronized SkillManager getInstance(Context context) {
@@ -178,8 +186,91 @@ public class SkillManager {
         return skillIdToTemplateIdMap.containsKey(skillId);
     }
 
+    // ====================== 6. 技能树模板加载 ======================
+    /**
+     * 加载技能树模板
+     */
+    private void loadSkillTreeTemplates() {
+        try {
+            InputStream is = context.getAssets().open("skilltree_config.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            String json = new String(buffer, "UTF-8");
+
+            Type type = new TypeToken<SkillTreeConfigWrapper>() {}.getType();
+            SkillTreeConfigWrapper wrapper = gson.fromJson(json, type);
+
+            for (SkillTreeTemplate template : wrapper.skill_tree_templates) {
+                skillTreeTemplateMap.put(template.getTemplateId(), template);
+                skillTreeIdToTemplateIdMap.put(template.getSkillTreeId(), template.getTemplateId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取技能树模板
+     * @param templateId 模板ID
+     * @return 技能树模板，如果不存在则返回null
+     */
+    public SkillTreeTemplate getSkillTreeTemplate(int templateId) {
+        return skillTreeTemplateMap.get(templateId);
+    }
+
+    /**
+     * 通过技能树ID获取技能树模板
+     * @param skillTreeId 技能树ID
+     * @return 技能树模板，如果不存在则返回null
+     */
+    public SkillTreeTemplate getSkillTreeTemplateBySkillTreeId(String skillTreeId) {
+        Integer templateId = skillTreeIdToTemplateIdMap.get(skillTreeId);
+        return templateId != null ? skillTreeTemplateMap.get(templateId) : null;
+    }
+
+    /**
+     * 检查技能树是否存在
+     * @param skillTreeId 技能树ID
+     * @return 如果技能树存在返回true，否则返回false
+     */
+    public boolean hasSkillTree(String skillTreeId) {
+        return skillTreeIdToTemplateIdMap.containsKey(skillTreeId);
+    }
+
+    /**
+     * 通过技能树模板ID创建技能树实例
+     * @param templateId 技能树模板ID
+     * @return 技能树实例，如果模板不存在则返回null
+     */
+    public SkillTree createSkillTreeByTemplateId(int templateId) {
+        SkillTreeTemplate template = skillTreeTemplateMap.get(templateId);
+        if (template == null) {
+            return null;
+        }
+        return new SkillTree(template, this);
+    }
+
+    /**
+     * 通过技能树ID创建技能树实例
+     * @param skillTreeId 技能树ID
+     * @return 技能树实例，如果技能树不存在则返回null
+     */
+    public SkillTree createSkillTreeBySkillTreeId(String skillTreeId) {
+        Integer templateId = skillTreeIdToTemplateIdMap.get(skillTreeId);
+        if (templateId == null) {
+            return null;
+        }
+        return createSkillTreeByTemplateId(templateId);
+    }
+
     // ====================== 配置文件包装类 ======================
     private static class SkillConfigWrapper {
         List<SkillTemplate> skill_templates;
+    }
+
+    private static class SkillTreeConfigWrapper {
+        List<SkillTreeTemplate> skill_tree_templates;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.skill.passive.general;
+package com.example.treasure_and_battle.skill.passive.warrior;
 
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;

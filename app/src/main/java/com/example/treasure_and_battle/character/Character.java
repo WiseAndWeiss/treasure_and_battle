@@ -1,14 +1,16 @@
 package com.example.treasure_and_battle.character;
 
-// TODO: Character模块尚未完成，暂时注释以便其他模块能够编译测试
-// 取消注释下面的代码以启用Character模块
 
-/*
+import android.content.Context;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.profession.Profession;
+import com.example.treasure_and_battle.profession.ProfessionManager;
 import com.example.treasure_and_battle.profession.ProfessionType;
 
 public class Character {
+    private Context mContext;
     // ================ 基础信息 ================
     private final int characterId;         // 角色唯一标识
     private String name;                   // 角色名称
@@ -24,6 +26,7 @@ public class Character {
     private int gold;                 // 金币数量
 
     // ================ 属性信息 ================
+    private AttributeSet baseAttributes;        // 角色基础属性系统
     private AttributeSet finalAttributes;          // 角色属性系统
     private Boolean finalAttributesDirtyFlag;      // 脏标记
     private int currentHp;                         // 当前生命值
@@ -43,11 +46,12 @@ public class Character {
     // private CharacterStats stats;            // 角色统计信息系统
 
     // ================ 构造函数 ================
-    public Character(int characterId, String name, ProfessionType professionType) {
+    public Character(int characterId, String name, ProfessionType professionType, Context context) {
+        this.mContext = context;
         this.characterId = characterId;
         this.name = name;
         this.professionType = professionType;
-        this.profession = Profession.initProfession(professionType);
+        this.profession = ProfessionManager.getInstance(context).createProfession(professionType);
         this.level = 1;
         this.currentExp = 0;
         this.expToNextLevel = expValueForLevel(level);
@@ -57,8 +61,8 @@ public class Character {
         // this.equipments = new CharacterEquipment();
         // this.inventory = new CharacterInventory();
         updateFinalAttributes();
-        int currentHp = this.finalAttributes.getMaxHp();
-        int currentMp = this.finalAttributes.getMaxMp();
+        int currentHp = this.finalAttributes.maxHp;
+        int currentMp = this.finalAttributes.maxMp;
         // this.stats = new CharacterStats();
     }
 
@@ -77,19 +81,20 @@ public class Character {
     public AttributeSet getCharacterAttributes() {
         if (finalAttributesDirtyFlag)
             updateFinalAttributes();
-        return new AttributeSet(this.finalAttributes);
+        AttributeSet attributes = new AttributeSet();
+        attributes.copyFrom(this.finalAttributes);
+        return attributes;
     }
     public int getMaxHp() { 
         if (finalAttributesDirtyFlag)
             updateFinalAttributes();
-        return this.finalAttributes.getMaxHp();
+        return this.finalAttributes.maxHp;
     }
     public int getMaxMp() {
         if (finalAttributesDirtyFlag)
             updateFinalAttributes();
-        return this.finalAttributes.getMaxMp();
+        return this.finalAttributes.maxMp;
     }
-    // TODO: 添加其他Getter方法：装备系统、技能系统、物品仓库、统计信息等
 
     // ================ Setter方法 ================
     public void setName(String name) { this.name = name; }
@@ -108,7 +113,6 @@ public class Character {
             expToNextLevel = expValueForLevel(level);
             talentPoints += 1;
             skillPoints += 2;
-            profession.applyLevelUpGrowth(level);
             finalAttributesDirtyFlag = true;
             currentHp = getMaxHp();
             currentMp = getMaxMp();
@@ -125,10 +129,11 @@ public class Character {
     // ================ 其他方法 ================
     public Player generatePlayer() {
         // TODO: 生成即时的Player对象，以供战斗系统使用
+        return null;
     }
-    public void onBattleFinished(BattleResult result) {
-        // TODO: 处理战斗结束后的逻辑，如更新角色状态、处理战斗奖励等
-    }
+//    public void onBattleFinished(BattleResult result) {
+//        // TODO: 处理战斗结束后的逻辑，如更新角色状态、处理战斗奖励等
+//    }
     public boolean saveCharacter() {
         // TODO: 保存角色信息到数据库
         return true;
@@ -148,11 +153,12 @@ public class Character {
     }
 
     private int updateFinalAttributes() {
-        this.finalAttributes = new AttributeSet()
-            .addAttributes(this.profession.getProfessionAttributes())
-            .addAttributes(this.equipments.getEquipmentsAttributes());
-        this.finalAttributesDirtyFlag = false;
-        return this.finalAttributes;
+        // TODO
+//        this.finalAttributes = new AttributeSet()
+//            .addAttributes(this.baseAttributes)
+//            .addAttributes(this.equipments.getEquipmentsAttributes());
+//        this.finalAttributesDirtyFlag = false;
+//        return this.finalAttributes;
+        return 0;
     }
 }
-*/
