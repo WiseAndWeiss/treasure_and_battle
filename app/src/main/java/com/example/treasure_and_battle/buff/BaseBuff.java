@@ -106,6 +106,10 @@ public abstract class BaseBuff {
         this.stackCount = Math.max(0, Math.min(stackCount, this.maxStackCount));
     }
 
+    public void setRemainingDuration(int duration) {
+        this.remainingDuration = Math.max(0, Math.min(duration, this.maxDuration));
+    }
+
     /**
      * 判断Buff是否应该被移除。
      * 只要持续回合耗尽（等于0），或者层数归零（<=0），即视为过期。

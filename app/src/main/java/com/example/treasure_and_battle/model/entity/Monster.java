@@ -21,6 +21,7 @@ public class Monster extends BattleEntity {
 
     private Rarity rarity;
     private List<ActionIntent> intentPool;
+    private int templateId;
 
     private Random random = new Random();
 
@@ -197,6 +198,9 @@ public class Monster extends BattleEntity {
 
     public Rarity getRarity() { return rarity; }
     public void setRarity(Rarity rarity) { this.rarity = rarity; }
+
+    public int getTemplateId() { return templateId; }
+    public void setTemplateId(int templateId) { this.templateId = templateId; }
 
     public List<ActionIntent> getIntentPool() { return intentPool; }
     public void setIntentPool(List<ActionIntent> intentPool) { this.intentPool = intentPool; }

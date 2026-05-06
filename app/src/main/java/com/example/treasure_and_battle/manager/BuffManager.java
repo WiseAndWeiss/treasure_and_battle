@@ -81,6 +81,20 @@ public class BuffManager {
         return BuffFactory.create(template, randomValue);
     }
 
+    /**
+     * 通过稳定的buffId字符串查找并创建Buff实例
+     * 避免硬编码templateId，解耦代码与JSON配置中的数字ID
+     */
+    public BaseBuff createBuffByBuffId(String buffId) {
+        for (BuffTemplate template : templateMap.values()) {
+            if (template.getBuffId().equals(buffId)) {
+                float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
+                return BuffFactory.create(template, randomValue);
+            }
+        }
+        return null;
+    }
+
     // ====================== 3. Buff添加/移除/堆叠管理 ======================
     public void addBuff(BattleEntity entity, BaseBuff buff) {
         List<BaseBuff> buffList = entity.getActiveBuffList();

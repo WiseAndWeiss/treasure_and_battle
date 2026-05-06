@@ -6,6 +6,7 @@ import com.example.treasure_and_battle.model.entity.ActionIntent;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.model.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,6 +86,10 @@ public class BattleContext {
     // ====================== 怪物意图（回合开始统一下达，含看破+执行标记） ======================
     /** entityId → 本轮揭示的意图列表 */
     public Map<String, List<RevealedIntent>> monsterRevealedIntents;
+
+    // ====================== 待领取的掉落物 ======================
+    /** 战斗胜利后生成的掉落物列表，玩家可选择逐件拿取或全部拿取 */
+    public List<Item> pendingLoot = new ArrayList<>();
 
     // ====================== 战斗日志 ======================
     public List<BattleLogEntry> battleLogs = new ArrayList<>();

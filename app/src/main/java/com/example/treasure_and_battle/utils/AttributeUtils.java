@@ -117,6 +117,7 @@ public class AttributeUtils {
                     }
                 }
             }
+            modifiers.add(item.getTotalGemBonuses());
         }
     }
 

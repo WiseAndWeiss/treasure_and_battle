@@ -40,6 +40,16 @@ public class MonsterTemplate {
 
     private java.util.List<SkillReference> skillPool;
 
+    public static class DropEntry {
+        private String materialId;
+        private float dropRate;
+
+        public String getMaterialId() { return materialId; }
+        public float getDropRate() { return dropRate; }
+    }
+
+    private java.util.List<DropEntry> dropTable;
+
     public int getTemplateId() { return templateId; }
     public String getEntityId() { return entityId; }
     public String getName() { return name; }
@@ -58,4 +68,5 @@ public class MonsterTemplate {
     public int getExpReward() { return expReward; }
     public int getGoldReward() { return goldReward; }
     public java.util.List<SkillReference> getSkillPool() { return skillPool; }
+    public java.util.List<DropEntry> getDropTable() { return dropTable; }
 }
