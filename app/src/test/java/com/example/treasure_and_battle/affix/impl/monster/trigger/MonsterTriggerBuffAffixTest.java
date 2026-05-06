@@ -31,9 +31,10 @@ public class MonsterTriggerBuffAffixTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         monster = new Monster("m3", "m3", 1, Rarity.COMMON,
-                100, 50, 1, 1, 0, 0, 1,
-                0, 0, 0, 0, 0, 0,
-                1, 1, context);
+                1, 1, 1, 1, 1, 1,
+                10, 10,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                context);
         player = new Player("player_target", context);
     }
 

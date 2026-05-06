@@ -2,15 +2,14 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.buff.BuffFactory;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
-import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTemplate;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -48,6 +47,10 @@ public class BuffManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }
+
     // ====================== 1. 加载Buff模板（对应AffixManager的加载逻辑） ======================
     private void loadBuffTemplates() {
         try {
@@ -73,63 +76,9 @@ public class BuffManager {
         BuffTemplate template = templateMap.get(templateId);
         if (template == null) return null;
 
-        // 随机生成Buff数值
         float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-        BuffType buffType = BuffType.valueOf(template.getBuffType());
-        BuffTriggerType triggerType = BuffTriggerType.valueOf(template.getTriggerType());
 
-        // 反射生成Buff实例，和AffixManager完全一致
-        try {
-            Class<?> buffClass = Class.forName(template.getBuffClass());
-
-            if (AttributeBuff.class.isAssignableFrom(buffClass)) {
-                if (template.getAttributeType() == null || template.getValueType() == null) {
-                    throw new IllegalArgumentException("AttributeBuff template missing attributeType/valueType: " + template.getBuffId());
-                }
-
-                AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
-                ValueType valueType = ValueType.valueOf(template.getValueType());
-
-                return (BaseBuff) buffClass.getConstructor(
-                        String.class, String.class, String.class,
-                        BuffType.class, boolean.class, int.class,
-                        int.class, boolean.class, float.class,
-                        AttributeType.class, ValueType.class
-                ).newInstance(
-                        template.getBuffId(),
-                        template.getBuffName(),
-                        template.getDescriptionFormat(),
-                        buffType,
-                        template.isDispellable(),
-                        template.getDefaultDuration(),
-                        template.getMaxStackCount(),
-                        template.isRefreshOnApply(),
-                        randomValue,
-                        attributeType,
-                        valueType
-                );
-            }
-
-            BaseBuff buff = (BaseBuff) buffClass.getConstructor(
-                    String.class, String.class, String.class,
-                    BuffType.class, boolean.class, int.class,
-                    int.class, boolean.class, float.class
-            ).newInstance(
-                    template.getBuffId(),
-                    template.getBuffName(),
-                    template.getDescriptionFormat(),
-                    buffType,
-                    template.isDispellable(),
-                    template.getDefaultDuration(),
-                    template.getMaxStackCount(),
-                    template.isRefreshOnApply(),
-                    randomValue
-            );
-            return buff;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return BuffFactory.create(template, randomValue);
     }
 
     // ====================== 3. Buff添加/移除/堆叠管理 ======================
@@ -312,6 +261,21 @@ public class BuffManager {
                 context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
                     "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
             }
+          
+    // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
+    public void triggerBuffsForAllMonsters(BattleContext context, BuffTriggerType triggerType) {
+        if (context == null || context.monsters == null) return;
+        for (Monster m : context.monsters) {
+            if (m == null) continue;
+            triggerBuffs(m, context, triggerType);
+        }
+    }
+
+    public void tickBuffsForAllMonsters(BattleContext context) {
+        if (context == null || context.monsters == null) return;
+        for (Monster m : context.monsters) {
+            if (m == null) continue;
+            tickBuffs(m);
         }
     }
 

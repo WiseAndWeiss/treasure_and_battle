@@ -38,7 +38,7 @@ public class PeriodicRecoveryBuffTest {
         testPlayer.setCurrentHp(500); 
         testPlayer.setCurrentMp(100);
 
-        ctx = new BattleContext(testPlayer, null, false);
+        ctx = new BattleContext(testPlayer, (com.example.treasure_and_battle.model.entity.Monster) null, false);
     }
 
     @Test

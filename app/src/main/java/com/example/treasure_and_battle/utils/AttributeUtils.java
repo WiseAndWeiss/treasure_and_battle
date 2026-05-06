@@ -132,66 +132,37 @@ public class AttributeUtils {
 
     // ====================== 怪物专属加成逻辑 ======================    
     private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getAffixes()) {
+        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
             if (affix.getTriggerType() == com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT) {
                 affix.applyAttributeBonus(modifiers);
             }
         }
     }
 
-    // ====================== 基础属性计算 ======================
-    public static void calculatePlayerBaseAttributes(Player player) {
-        AttributeSet base = player.getBaseAttributes();
-        int level = player.getLevel();
-
-        base.strength = level * 2;
-        base.agility = level * 2;
-        base.intelligence = level * 2;
-        base.spirit = level * 2;
-        base.physique = level * 2;
-        base.luck = level;
-
-        calculateDerivedAttributes(base);
-
-        player.setCurrentHp(base.maxHp);
-        player.setCurrentMp(base.maxMp);
-        player.setCurrentActionPoints(base.maxActionPoints);
-    }
-
-    private static AttributeSet calculateBaseAttributes(Player player) {        
-        AttributeSet base = new AttributeSet();
-        int level = player.getLevel();
-
-        base.maxHp = base.physique * 2 + level * 10;
-        base.maxMp = base.intelligence * 2 + level * 5;
-        base.physicalAtk = base.strength;
-        base.physicalDef = base.physique / 2;
-        base.magicalAtk = base.intelligence;
-        base.magicalDef = base.spirit / 2;
-        base.speed = base.agility;
-
-        base.physicalCritRate = base.luck * 0.002f;
-        base.physicalCritDmg = base.strength * 0.005f;
-        base.magicalCritRate = base.luck * 0.002f;
-        base.magicalCritDmg = base.intelligence * 0.005f;
-        base.hitRate = base.agility * 0.003f;
-        base.dodgeRate = base.agility * 0.004f;
-        base.debuffResist = (base.spirit + base.physique) * 0.004f;
-        base.mpCostReduction = base.spirit * 0.005f;
-        base.lootRarityBonus = base.luck;
-        base.goldBonus = base.luck * 0.01f;
-        base.expBonus = base.luck * 0.01f;
-
-        return base;
-    }
-
-    public static void calculateMonsterBaseAttributes(Monster monster) {        
+    public static void calculateMonsterBaseAttributes(Monster monster) {
         AttributeSet base = monster.getBaseAttributes();
         calculateDerivedAttributes(base);
 
         monster.setCurrentHp(base.maxHp);
         monster.setCurrentMp(base.maxMp);
         monster.setCurrentActionPoints(base.maxActionPoints);
+    }
+
+    /**
+     * 六维驱动 + 职业系数：怪物基础属性计算入口
+     * 先用六维派生战斗属性，再乘以怪物职业系数（补偿无装备缺陷）
+     */
+    public static void calculateMonsterBaseAttributesWithCoefficients(AttributeSet base,
+            float hpMul, float atkMul, float defMul, float spdMul) {
+        calculateDerivedAttributes(base);
+
+        base.maxHp = (int) (base.maxHp * hpMul);
+        base.maxMp = (int) (base.maxMp * hpMul);
+        base.physicalAtk = (int) (base.physicalAtk * atkMul);
+        base.magicalAtk = (int) (base.magicalAtk * atkMul);
+        base.physicalDef = (int) (base.physicalDef * defMul);
+        base.magicalDef = (int) (base.magicalDef * defMul);
+        base.speed = (int) (base.speed * spdMul);
     }
 
     private static void calculateDerivedAttributes(AttributeSet base) {
@@ -202,7 +173,7 @@ public class AttributeUtils {
         base.magicalAtk = base.intelligence;
         base.magicalDef = base.spirit / 2;
         base.speed = base.agility;
-        base.maxActionPoints = 2; 
+        base.maxActionPoints = 2;
 
         base.physicalCritRate = base.luck * 0.002f;
         base.physicalCritDmg = 2.0f + base.strength * 0.005f;

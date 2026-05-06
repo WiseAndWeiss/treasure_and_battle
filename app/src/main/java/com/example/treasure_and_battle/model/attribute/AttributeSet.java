@@ -1,19 +1,38 @@
 package com.example.treasure_and_battle.model.attribute;
 
-/**
- * 完整属性容器，承载六维属性+战斗属性
- *
- * 设计说明：
- * 1. 本类用作数据容器，所有字段均为public以便直接访问
- * 2. 在战斗系统中，有两个独立的AttributeSet实例：
- *    - baseAttributes: 基础属性（理论上只初始化一次，不应在战斗中修改）
- *    - finalAttributes: 最终属性（base + buff + passive + equipment 计算后的结果）
- * 3. 百分比修饰池（percentXXX）用于统一管理所有百分比加成，避免多重乘区混乱
- * 4. 本类设计为可变对象，但使用方应遵守约束：
- *    - baseAttributes 只在初始化时设置，战斗中不应修改
- *    - finalAttributes 由系统自动计算，不应手动设置
- */
+import java.util.HashMap;
+import java.util.Map;
+
+// 完整属性容器，承载六维属性+战斗属性
 public class AttributeSet {
+    // ====================== 属性修改来源追踪 ======================
+    public enum Source {
+        BASE,
+        TALENT,
+        EQUIPMENT,
+        AFFIX,
+        BUFF,
+        GEM,
+        PROFESSION,
+        OTHER
+    }
+
+    private final Map<String, Map<Source, Float>> modificationLog = new HashMap<>();
+
+    public void recordModification(String attributeName, Source source, float value) {
+        modificationLog
+            .computeIfAbsent(attributeName, k -> new HashMap<>())
+            .merge(source, value, Float::sum);
+    }
+
+    public Map<Source, Float> getModificationSources(String attributeName) {
+        return modificationLog.getOrDefault(attributeName, new HashMap<>());
+    }
+
+    public void resetModificationLog() {
+        modificationLog.clear();
+    }
+
     // 六维属性
     public int strength;     // 力量
     public int agility;      // 敏捷

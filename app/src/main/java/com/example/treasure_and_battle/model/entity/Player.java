@@ -213,6 +213,91 @@ public class Player extends BattleEntity {
     public int getSkillPoints() { return skillPoints; }
     public void setSkillPoints(int skillPoints) { this.skillPoints = skillPoints; }
 
+    // ====================== 六维属性手动分配 ======================
+    private int allocatedStrength;
+    private int allocatedAgility;
+    private int allocatedIntelligence;
+    private int allocatedSpirit;
+    private int allocatedPhysique;
+    private int allocatedLuck;
+
+    public boolean allocateTalentPoint(String attributeName) {
+        if (talentPoints <= 0) return false;
+
+        switch (attributeName.toUpperCase()) {
+            case "STRENGTH":
+                baseAttributes.strength++;
+                allocatedStrength++;
+                talentPoints--;
+                break;
+            case "AGILITY":
+                baseAttributes.agility++;
+                allocatedAgility++;
+                talentPoints--;
+                break;
+            case "INTELLIGENCE":
+                baseAttributes.intelligence++;
+                allocatedIntelligence++;
+                talentPoints--;
+                break;
+            case "SPIRIT":
+                baseAttributes.spirit++;
+                allocatedSpirit++;
+                talentPoints--;
+                break;
+            case "PHYSIQUE":
+                baseAttributes.physique++;
+                allocatedPhysique++;
+                talentPoints--;
+                break;
+            case "LUCK":
+                baseAttributes.luck++;
+                allocatedLuck++;
+                talentPoints--;
+                break;
+            default:
+                return false;
+        }
+        markAttributeCacheDirty();
+        return true;
+    }
+
+    public void resetAllTalentPoints() {
+        baseAttributes.strength -= allocatedStrength;
+        baseAttributes.agility -= allocatedAgility;
+        baseAttributes.intelligence -= allocatedIntelligence;
+        baseAttributes.spirit -= allocatedSpirit;
+        baseAttributes.physique -= allocatedPhysique;
+        baseAttributes.luck -= allocatedLuck;
+
+        talentPoints += allocatedStrength + allocatedAgility + allocatedIntelligence
+                + allocatedSpirit + allocatedPhysique + allocatedLuck;
+
+        allocatedStrength = 0;
+        allocatedAgility = 0;
+        allocatedIntelligence = 0;
+        allocatedSpirit = 0;
+        allocatedPhysique = 0;
+        allocatedLuck = 0;
+
+        markAttributeCacheDirty();
+        getFinalAttributes();
+        this.currentHp = getFinalAttributes().maxHp;
+        this.currentMp = getFinalAttributes().maxMp;
+    }
+
+    public int getAllocatedStrength() { return allocatedStrength; }
+    public int getAllocatedAgility() { return allocatedAgility; }
+    public int getAllocatedIntelligence() { return allocatedIntelligence; }
+    public int getAllocatedSpirit() { return allocatedSpirit; }
+    public int getAllocatedPhysique() { return allocatedPhysique; }
+    public int getAllocatedLuck() { return allocatedLuck; }
+
+    public int getTotalAllocatedPoints() {
+        return allocatedStrength + allocatedAgility + allocatedIntelligence
+                + allocatedSpirit + allocatedPhysique + allocatedLuck;
+    }
+
     // ====================== 装备 ======================
     public void equip(EquipItem item) {
         if (item != null) {

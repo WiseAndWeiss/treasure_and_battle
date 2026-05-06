@@ -27,7 +27,7 @@ public abstract class BattleEntity {
     protected final String entityId;   // 实体唯一ID（玩家UID/怪物模板ID）
     protected String name;              // 实体名称
     protected int level;                // 等级
-    protected transient Context context; // 加一个 Context 引用
+    protected Context context;
 
     // ====================== 属性系统（核心重构点） ======================
     // 基础属性：由Character传入的基础属性数值，不会在战斗中改变
@@ -63,8 +63,8 @@ public abstract class BattleEntity {
     // ====================== 状态系统（与现有架构集成） ======================
     // Buff 列表：当前生效的所有 Buff
     protected List<BaseBuff> activeBuffList = new ArrayList<>();
-    // 词缀列表：怪物专属（玩家词缀由 AffixManager 统一管理）
-    protected List<BaseAffix> monsterAffixList = new ArrayList<>();
+    // 词缀列表：实体自身的词缀（怪物来自词缀生成器，玩家通过装备间接持有）
+    protected List<BaseAffix> entityAffixList = new ArrayList<>();
 
     // ====================== 战斗状态标记 ======================
     protected boolean isDead = false;
@@ -206,9 +206,9 @@ public abstract class BattleEntity {
     public void setCurrentActionPoints(int currentActionPoints) { this.currentActionPoints = currentActionPoints; }
 
     public List<BaseBuff> getActiveBuffList() { return activeBuffList; } // 直接返回引用，由于BuffManager需要操作此列表
-    public List<BaseAffix> getMonsterAffixList() { return new ArrayList<>(monsterAffixList); }
-    public void setMonsterAffixList(List<BaseAffix> affixList) {
-        this.monsterAffixList = new ArrayList<>(affixList);
+    public List<BaseAffix> getEntityAffixList() { return new ArrayList<>(entityAffixList); }
+    public void setEntityAffixList(List<BaseAffix> affixList) {
+        this.entityAffixList = new ArrayList<>(affixList);
         markAttributeCacheDirty();
     }
 

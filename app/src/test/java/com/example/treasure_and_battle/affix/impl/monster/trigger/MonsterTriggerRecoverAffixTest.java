@@ -31,9 +31,10 @@ public class MonsterTriggerRecoverAffixTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         monster = new Monster("m4", "m4", 1, Rarity.COMMON,
-                120, 80, 1, 1, 0, 0, 1,
-                0, 0, 0, 0, 0, 0,
-                1, 1, context);
+                1, 1, 1, 1, 1, 1,
+                10, 10,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                context);
         monster.getBaseAttributes().maxHp = 120;
         monster.getBaseAttributes().maxMp = 80;
         monster.markAttributeCacheDirty();

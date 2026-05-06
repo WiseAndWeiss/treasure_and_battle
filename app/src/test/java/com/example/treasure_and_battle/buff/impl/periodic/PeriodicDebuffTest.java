@@ -34,7 +34,7 @@ public class PeriodicDebuffTest {
         testPlayer.markAttributeCacheDirty();
         testPlayer.setCurrentHp(1000);
 
-        ctx = new BattleContext(testPlayer, null, false);
+        ctx = new BattleContext(testPlayer, (com.example.treasure_and_battle.model.entity.Monster) null, false);
     }
 
     @Test

@@ -2,18 +2,13 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
+import com.example.treasure_and_battle.affix.EquipAffixFactory;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
-import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
-import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix;
-import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 import com.example.treasure_and_battle.core.RngEngine;
-import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.affix.EquipAffixTemplate;
-import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.item.EquipCategory;
 import com.example.treasure_and_battle.model.item.EquipItem;
 import com.example.treasure_and_battle.utils.RandomUtils;
@@ -103,98 +98,9 @@ public class EquipAffixManager {
             AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
             EquipCategory[] categories = getCategoriesFromTemplate(template);
 
-            try {
-                // 使用模板中的实现类反射构建词缀实例，保证配置可扩展。
-                Class<?> affixClass = Class.forName(template.getAffixClass());
-                BaseEquipAffix affix;
-                if (affixClass == EquipAttributeAffix.class) {
-                    AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
-                    ValueType valueType = ValueType.valueOf(template.getValueType());
-                    EquipAffixScope affixScope = parseAffixScope(template.getAffixScope());
-
-                    affix = (BaseEquipAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class,
-                        AttributeType.class, ValueType.class, EquipAffixScope.class
-                    ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        targetRarity,
-                        triggerType,
-                        categories,
-                        randomValue,
-                        attributeType,
-                        valueType,
-                        affixScope
-                    );
-                } else if (affixClass == EquipTriggerBuffAffix.class) {
-                    Integer buffTemplateId = template.getBuffTemplateId();
-                    if (buffTemplateId == null) {
-                        throw new IllegalArgumentException("EquipTriggerBuffAffix template missing buffTemplateId: " + template.getTemplateId());
-                    }
-
-                    AffixBuffApplyTarget applyTarget = parseApplyTarget(template.getApplyTarget());
-                    int applyStacks = template.getApplyStacks() == null ? 1 : Math.max(1, template.getApplyStacks());
-                    float damageToStackRatio = template.getDamageToStackRatio() == null
-                        ? 0f
-                        : Math.max(0f, template.getDamageToStackRatio());
-
-                    affix = (BaseEquipAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class,
-                        int.class, AffixBuffApplyTarget.class, int.class, float.class
-                    ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        targetRarity,
-                        triggerType,
-                        categories,
-                        randomValue,
-                        buffTemplateId,
-                        applyTarget,
-                        applyStacks,
-                        damageToStackRatio
-                    );
-                } else if (affixClass == EquipTriggerRecoverAffix.class) {
-                    AffixRecoverResourceType recoverResourceType = parseRecoverResourceType(template.getRecoverResourceType());
-                    ValueType recoverValueType = parseRecoverValueType(template.getRecoverValueType());
-                    int recoverValue = template.getRecoverValue() == null ? 0 : Math.max(0, template.getRecoverValue());
-                    float damageToRecoverRatio = template.getDamageToRecoverRatio() == null
-                        ? 0f
-                        : Math.max(0f, template.getDamageToRecoverRatio());
-
-                    affix = (BaseEquipAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class,
-                        AffixRecoverResourceType.class, ValueType.class, int.class, float.class
-                    ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        targetRarity,
-                        triggerType,
-                        categories,
-                        randomValue,
-                        recoverResourceType,
-                        recoverValueType,
-                        recoverValue,
-                        damageToRecoverRatio
-                    );
-                } else {
-                    affix = (BaseEquipAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, EquipCategory[].class, float.class
-                    ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        targetRarity,
-                        triggerType,
-                        categories,
-                        randomValue
-                    );
-                }
+            BaseEquipAffix affix = EquipAffixFactory.create(template, targetRarity, triggerType, categories, randomValue);
+            if (affix != null) {
                 affixList.add(affix);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
@@ -241,39 +147,6 @@ public class EquipAffixManager {
             res[i] = EquipCategory.valueOf(cats[i]);
         }
         return res;
-    }
-
-    private EquipAffixScope parseAffixScope(String rawScope) {
-        if (rawScope == null || rawScope.trim().isEmpty()) {
-            return EquipAffixScope.GLOBAL;
-        }
-
-        String normalized = rawScope.trim().toUpperCase();
-        if ("EQUIP_ONLY".equals(normalized)) {
-            return EquipAffixScope.EQUIPMENT_ONLY;
-        }
-        return EquipAffixScope.valueOf(normalized);
-    }
-
-    private AffixBuffApplyTarget parseApplyTarget(String rawTarget) {
-        if (rawTarget == null || rawTarget.trim().isEmpty()) {
-            return AffixBuffApplyTarget.TARGET;
-        }
-        return AffixBuffApplyTarget.valueOf(rawTarget.trim().toUpperCase());
-    }
-
-    private AffixRecoverResourceType parseRecoverResourceType(String rawType) {
-        if (rawType == null || rawType.trim().isEmpty()) {
-            return AffixRecoverResourceType.HP;
-        }
-        return AffixRecoverResourceType.valueOf(rawType.trim().toUpperCase());
-    }
-
-    private ValueType parseRecoverValueType(String rawType) {
-        if (rawType == null || rawType.trim().isEmpty()) {
-            return ValueType.FLAT;
-        }
-        return ValueType.valueOf(rawType.trim().toUpperCase());
     }
 
     private static class ConfigWrapper {
