@@ -1,7 +1,10 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
+import com.example.treasure_and_battle.battle.action.BattleAction;
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
+import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
 import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -10,18 +13,20 @@ import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.model.entity.ActionIntent;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
-import com.example.treasure_and_battle.model.entity.MonsterIntent;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 战斗管理器 (BattleManager)
  * 职责：战斗流程的唯一驱动者，封装所有战斗规则
- * 设计模式：状态机 + 流水线
+ * 设计模式：状态机 + 全局速度优先队列
  */
 public class BattleManager {
     private static BattleManager instance;
@@ -38,32 +43,46 @@ public class BattleManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }
+
     // ====================== 【入口】1. 初始化战斗 ======================
     public BattleContext startBattle(Player player, Monster monster, boolean isSurpriseAttack) {
-        BattleContext battleContext = new BattleContext(player, monster, isSurpriseAttack);
+        List<Monster> monsters = new ArrayList<>();
+        if (monster != null) {
+            monsters.add(monster);
+        }
+        return startBattle(player, monsters, isSurpriseAttack);
+    }
 
-        // 1.1 初始化战斗实体状态
+    public BattleContext startBattle(Player player, List<Monster> monsters, boolean isSurpriseAttack) {
+        return startBattle(player, monsters,
+                isSurpriseAttack ? SurpriseDirection.PLAYER_SURPRISE : SurpriseDirection.NONE);
+    }
+
+    public BattleContext startBattle(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
+        BattleContext ctx = new BattleContext(player, monsters, surpriseAttacker);
+
         player.setDead(false);
-        monster.setDead(false);
         player.resetActionPoints();
-        monster.resetActionPoints();
+        for (Monster m : ctx.monsters) {
+            if (m == null) continue;
+            m.setDead(false);
+            m.resetActionPoints();
+        }
 
-        // 1.2 触发战斗开始Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(player, battleContext, BuffTriggerType.ON_BATTLE_START);
-        BuffManager.getInstance(context).triggerBuffs(monster, battleContext, BuffTriggerType.ON_BATTLE_START);
-        AffixManager.getInstance(context).triggerAffixes(player, battleContext, AffixTriggerType.ON_BATTLE_START);
-        AffixManager.getInstance(context).triggerAffixes(monster, battleContext, AffixTriggerType.ON_BATTLE_START);
+        BuffManager.getInstance(context).triggerBuffs(player, ctx, BuffTriggerType.ON_BATTLE_START);
+        AffixManager.getInstance(context).triggerAffixes(player, ctx, AffixTriggerType.ON_BATTLE_START);
+        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_START);
+        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_BATTLE_START);
 
-        // 1.3 判定先手（功能清单第5点）
-        determineTurnOrder(battleContext);
+        ctx.addLog(LogType.INIT, "战斗开始：[%s] VS [%d个怪物]",
+                player.getName(), ctx.getAliveMonsters().size());
 
-        battleContext.addLog(LogType.INIT, "战斗开始：[%s] VS [%s]", 
-                player.getName(), monster.getName());
+        battleLoop(ctx);
 
-        // 1.4 进入战斗循环
-        battleLoop(battleContext);
-
-        return battleContext;
+        return ctx;
     }
 
     // ====================== 2. 战斗主循环 ======================
@@ -72,7 +91,6 @@ public class BattleManager {
             ctx.currentRound++;
             ctx.resetDamageData();
 
-            // 防卡死安全机制：回合数过大时强行平局结束
             if (ctx.currentRound >= 100) {
                 ctx.isBattleEnded = true;
                 ctx.battleResult = BattleContext.BattleResult.DEFEAT;
@@ -80,221 +98,262 @@ public class BattleManager {
                 break;
             }
 
-            ctx.addLog(LogType.ROUND_INFO, "======== 第 %d 回合开始 (行动方: %s) ========", 
-                    ctx.currentRound, ctx.isPlayerTurn ? "玩家" : "怪物");
+            ctx.addLog(LogType.ROUND_INFO, "======== 第 %d 回合开始 ========", ctx.currentRound);
 
-            // 2.1 回合开始阶段
             onRoundStart(ctx);
             if (ctx.isBattleEnded) break;
 
-            // 2.2 行动阶段（功能清单第1、3、4点）
-            if (ctx.isPlayerTurn) {
-                playerActionPhase(ctx);
-            } else {
-                monsterActionPhase(ctx);
-            }
+            executeRoundActionPhase(ctx);
             if (ctx.isBattleEnded) break;
 
-            // 2.3 回合结束阶段
             onRoundEnd(ctx);
             if (ctx.isBattleEnded) break;
-
-            // 2.4 切换回合
-            ctx.isPlayerTurn = !ctx.isPlayerTurn;
         }
 
-        // 2.5 战斗结束结算
         settleBattleResult(ctx);
     }
 
     // ====================== 3. 回合开始阶段 ======================
     private void onRoundStart(BattleContext ctx) {
-        // 3.1 重置行动点
-        if (ctx.isPlayerTurn) {
-            ctx.player.resetActionPoints();
-            ctx.currentActor = ctx.player;
-            ctx.currentTarget = ctx.monster;
-        } else {
-            ctx.monster.resetActionPoints();
-            ctx.currentActor = ctx.monster;
-            ctx.currentTarget = ctx.player;
+        // 3.1 所有实体重置行动点
+        for (BattleEntity e : ctx.playerParty) {
+            if (e != null && !e.isDead()) e.resetActionPoints();
         }
-        ctx.currentActionPoints = ctx.currentActor.getCurrentActionPoints();
-
-        // 3.2 怪物回合：生成并显示意图（功能清单第4点）
-        if (!ctx.isPlayerTurn) {
-            generateAndRevealMonsterIntents(ctx);
+        for (Monster m : ctx.getAliveMonsters()) {
+            m.resetActionPoints();
         }
 
-        // 3.3 触发回合开始Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.currentActor, ctx, BuffTriggerType.ON_ROUND_START);
-        AffixManager.getInstance(context).triggerAffixes(ctx.currentActor, ctx, AffixTriggerType.ON_ROUND_START);
+        // 3.2 所有怪物统一下达本轮意图 + 看破判定
+        ctx.monsterRevealedIntents.clear();
+        for (Monster m : ctx.getAliveMonsters()) {
+            List<ActionIntent> intents = m.decideNextTurnIntents();
+            if (intents == null) intents = new ArrayList<>();
+
+            double seeThroughChance = calculateSeeThroughChance(ctx.player, m);
+            List<RevealedIntent> revealed = new ArrayList<>();
+            for (ActionIntent intent : intents) {
+                boolean seen = RandomUtils.checkProbability((float) seeThroughChance);
+                revealed.add(new RevealedIntent(intent, seen));
+            }
+            ctx.monsterRevealedIntents.put(m.getEntityId(), revealed);
+
+            ctx.addLog(LogType.DODGE_CRIT,
+                    "【意图看破判定】vs[%s] 看破率:%.1f%% 意图数:%d",
+                    m.getName(), seeThroughChance * 100, intents.size());
+            for (RevealedIntent ri : revealed) {
+                String label = ri.seenThrough ? ri.intent.getType().name() : "?";
+                ctx.addLog(LogType.ACTION, "  [%s] 意图: %s", m.getName(), label);
+            }
+        }
+
+        // 3.3 构建全局速度优先队列
+        buildSpeedQueue(ctx);
+
+        // 3.4 触发回合开始 Buff/词缀（全部实体）
+        for (BattleEntity e : ctx.playerParty) {
+            if (e == null || e.isDead()) continue;
+            BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_START);
+            AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_START);
+        }
+        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_START);
+        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_START);
     }
 
-    // ====================== 4. 玩家行动阶段 ======================
-    private void playerActionPhase(BattleContext ctx) {
-        // 这里是一个循环，直到玩家行动点耗尽或选择结束回合
-        // 实际项目中，这里通过UI回调玩家的选择
-        // 这里仅展示核心逻辑框架：
-        // TODO: 连接UI输入，处理玩家选择的操作（普攻/技能/道具/逃跑等），并调用相应的执行方法
+    // ====================== 4. 构建速度优先队列 ======================
+    public void buildSpeedQueue(BattleContext ctx) {
+        List<BattleEntity> actors = new ArrayList<>();
+        for (BattleEntity e : ctx.playerParty) {
+            if (e != null && !e.isDead()) actors.add(e);
+        }
+        actors.addAll(ctx.getAliveMonsters());
 
-        // 兜底：未接入UI时，自动结束玩家行动阶段，避免空循环卡死。
+        actors.sort(Comparator.comparingInt(e -> -e.getFinalAttributes().speed));
+
+        applySurpriseToQueue(ctx, actors);
+
+        ctx.roundActionOrder = actors;
+        ctx.actionOrderIndex = 0;
+
+        StringBuilder orderDesc = new StringBuilder("行动顺序: ");
+        for (BattleEntity e : actors) {
+            orderDesc.append("[").append(e.getName()).append("(速").append(e.getFinalAttributes().speed).append(")] ");
+        }
+        ctx.addLog(LogType.ROUND_INFO, orderDesc.toString().trim());
+    }
+
+    // ====================== 5. 偷袭阵营偏移 ======================
+    public void applySurpriseToQueue(BattleContext ctx, List<BattleEntity> actors) {
+        if (ctx.surpriseAttacker == SurpriseDirection.NONE) return;
+
+        List<BattleEntity> playerSide = new ArrayList<>();
+        List<BattleEntity> monsterSide = new ArrayList<>();
+
+        for (BattleEntity e : actors) {
+            if (e instanceof Player || ctx.playerParty.contains(e)) {
+                playerSide.add(e);
+            } else {
+                monsterSide.add(e);
+            }
+        }
+
+        actors.clear();
+        if (ctx.surpriseAttacker == SurpriseDirection.PLAYER_SURPRISE) {
+            actors.addAll(playerSide);
+            actors.addAll(monsterSide);
+            ctx.addLog(LogType.INIT, "【偷袭】玩家方发起突袭，全阵营先行动。");
+        } else {
+            actors.addAll(monsterSide);
+            actors.addAll(playerSide);
+            ctx.addLog(LogType.INIT, "【伏击】怪物方发起伏击，全阵营先行动。");
+        }
+    }
+
+    // ====================== 6. 统一轮流行动阶段 ======================
+    private void executeRoundActionPhase(BattleContext ctx) {
+        for (; ctx.actionOrderIndex < ctx.roundActionOrder.size(); ctx.actionOrderIndex++) {
+            if (ctx.isBattleEnded) break;
+
+            BattleEntity actor = ctx.roundActionOrder.get(ctx.actionOrderIndex);
+            if (actor.isDead()) continue;
+
+            ctx.currentActor = actor;
+            ctx.currentTarget = ctx.getPrimaryMonsterTarget();
+            if (ctx.currentTarget == null) ctx.currentTarget = ctx.player;
+
+            ctx.addLog(LogType.ROUND_INFO, "轮到 [%s] 行动", actor.getName());
+
+            if (actor instanceof Player) {
+                ctx.currentTarget = ctx.getPrimaryMonsterTarget();
+                playerActionPhase(ctx);
+            } else if (actor instanceof Monster) {
+                Monster m = (Monster) actor;
+                ctx.currentTarget = ctx.player;
+                ctx.monster = m;
+                monsterActionPhaseFor(ctx, m);
+            }
+
+            checkDeath(ctx);
+        }
+    }
+
+    // ====================== 7. 怪物行动阶段 ======================
+    private void monsterActionPhaseFor(BattleContext ctx, Monster m) {
+        List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
+        if (revealed == null || revealed.isEmpty()) {
+            BattleAction fallback = BattleAction.normalAttack(m, ctx.player);
+            executeBattleAction(ctx, fallback);
+            return;
+        }
+
+        for (RevealedIntent ri : revealed) {
+            if (ctx.isBattleEnded) break;
+            ri.executed = true;
+
+            BattleAction action = toBattleAction(ctx, m, ri.intent);
+            if (action == null) continue;
+
+            executeBattleAction(ctx, action);
+        }
+    }
+
+    // ====================== 8. 玩家行动阶段 ======================
+    private void playerActionPhase(BattleContext ctx) {
+        ctx.currentActionPoints = ctx.player.getCurrentActionPoints();
+        ctx.addLog(LogType.ROUND_INFO, "玩家回合，行动点: %d", ctx.currentActionPoints);
+
         if (ctx.currentActionPoints > 0 && !ctx.isBattleEnded) {
-            ctx.addLog(LogType.SYSTEM, "玩家操作尚未接入，自动结束本回合行动阶段。");
+            Monster target = ctx.getPrimaryMonsterTarget();
+            if (target != null) {
+                executeBattleAction(ctx, BattleAction.normalAttack(ctx.player, target));
+            }
             ctx.currentActionPoints = 0;
             ctx.player.setCurrentActionPoints(0);
         }
     }
 
-    // ====================== 5. 怪物行动阶段 ======================
-    private void monsterActionPhase(BattleContext ctx) {
-        // 按顺序执行怪物意图（功能清单第4点）
-        if (ctx.currentMonsterIntents == null || ctx.currentMonsterIntents.isEmpty()) {
-            return;
-        }
-
-        for (MonsterIntent intent : ctx.currentMonsterIntents) {
-            if (ctx.isBattleEnded) break;
-
-            // 检查行动点和MP是否足够
-            if (ctx.monster.getCurrentActionPoints() < intent.getApCost() ||
-                    ctx.monster.getCurrentMp() < intent.getMpCost()) {
-                continue;
-            }
-
-            // 执行意图
-            executeMonsterIntent(ctx, intent);
-            ctx.monster.consumeActionPoints(intent.getApCost());
-            ctx.monster.setCurrentMp(ctx.monster.getCurrentMp() - intent.getMpCost());
-        }
-    }
-
-    // ====================== 6. 回合结束阶段 ======================
+    // ====================== 9. 回合结束阶段 ======================
     private void onRoundEnd(BattleContext ctx) {
-        // 6.1 触发回合结束Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_ROUND_END);
-        BuffManager.getInstance(context).triggerBuffs(ctx.monster, ctx, BuffTriggerType.ON_ROUND_END);
-        AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_ROUND_END);
-        AffixManager.getInstance(context).triggerAffixes(ctx.monster, ctx, AffixTriggerType.ON_ROUND_END);
+        for (BattleEntity e : ctx.playerParty) {
+            if (e == null || e.isDead()) continue;
+            BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_END);
+            AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_END);
+            BuffManager.getInstance(context).tickBuffs(e);
+        }
+        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_END);
+        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_END);
+        BuffManager.getInstance(context).tickBuffsForAllMonsters(ctx);
 
-        // 6.2 Buff Tick（减少持续时间，清理过期）
-        BuffManager.getInstance(context).tickBuffs(ctx.player);
-        BuffManager.getInstance(context).tickBuffs(ctx.monster);
-
-        // 6.3 检查是否有实体死亡
         checkDeath(ctx);
     }
 
-    // ====================== 【核心规则实现】功能清单具体逻辑 ======================
+    // ====================== 10. 看破概率计算 ======================
+    public double calculateSeeThroughChance(Player player, Monster monster) {
+        AttributeSet playerAttr = player.getFinalAttributes();
+        AttributeSet monsterAttr = monster.getFinalAttributes();
 
-    // 5. 先手规则判定
-    private void determineTurnOrder(BattleContext ctx) {
-        if (ctx.isSurpriseAttack) {
-            // 偷袭战斗：袭击方先行动（这里假设袭击方是玩家，可根据需求调整）
-            ctx.isPlayerTurn = true;
-            ctx.addLog(LogType.INIT, "【偷袭】[%s] 发起突袭，获得先手行动权。", ctx.player.getName());
-            return;
-        }
+        int playerSpirit = Math.max(1, playerAttr.spirit);
+        int monsterSpirit = Math.max(1, monsterAttr.spirit);
 
-        // 常规战斗：速度高的先行动
-        AttributeSet playerAttr = ctx.player.getFinalAttributes();
-        AttributeSet monsterAttr = ctx.monster.getFinalAttributes();
-        ctx.isPlayerTurn = playerAttr.speed >= monsterAttr.speed;
-
-        ctx.addLog(LogType.INIT, "【先手判定】玩家速度(%.0f) vs 怪物速度(%.0f) => [%s] 行动。", 
-            playerAttr.speed, monsterAttr.speed, ctx.isPlayerTurn ? "玩家" : "怪物");
+        double chance = 0.5 * ((double) playerSpirit / monsterSpirit);
+        return Math.max(0.1, Math.min(0.9, chance));
     }
 
-    // 4. 怪物意图生成与看破
-    private void generateAndRevealMonsterIntents(BattleContext ctx) {
-        // 4.1 怪物决策意图
-        ctx.currentMonsterIntents = ctx.monster.decideNextTurnIntents();
-        ctx.intentVisibility = new ArrayList<>();
-
-        // 4.2 计算看破概率（功能清单第4点）
-        AttributeSet playerAttr = ctx.player.getFinalAttributes();
-        AttributeSet monsterAttr = ctx.monster.getFinalAttributes();
-
-        double seeThroughChance = 0.5 * ((double) playerAttr.spirit / monsterAttr.spirit);
-        // 截断在10%-90%之间
-        seeThroughChance = Math.max(0.1, Math.min(0.9, seeThroughChance));
-
-        ctx.addLog(LogType.DODGE_CRIT, "【意图看破判定】玩家精神(%.0f) vs 怪物精神(%.0f) => 看破率: %.1f%%", 
-                playerAttr.spirit, monsterAttr.spirit, seeThroughChance * 100);
-
-        // 4.3 判定每个意图是否可见
-        for (int i = 0; i < ctx.currentMonsterIntents.size(); i++) {
-            boolean isVisible = RandomUtils.checkProbability((float) seeThroughChance);
-            ctx.intentVisibility.add(isVisible);
-            
-            MonsterIntent intent = ctx.currentMonsterIntents.get(i);
-            if (isVisible) {
-                ctx.addLog(LogType.ACTION, "  看破怪物意图：[%s]", intent.getType().name());
-            } else {
-                ctx.addLog(LogType.ACTION, "  怪物意图未知。");
-            }
-        }
-    }
-
-    // 8. 玩家逃跑逻辑
+    // ====================== 11. 玩家逃跑 ======================
     public boolean executePlayerEscape(BattleContext ctx) {
         ctx.addLog(LogType.ACTION, "玩家尝试逃跑...");
 
-        // 8.1 消耗1点行动点
         if (!ctx.player.consumeActionPoints(1)) {
             ctx.addLog(LogType.SYSTEM, "行动点不足，逃跑失败。");
             return false;
         }
-        ctx.currentActionPoints--;
+        ctx.currentActionPoints = Math.max(0, ctx.currentActionPoints - 1);
 
-        // 8.2 计算逃跑成功率（功能清单第8点）
         AttributeSet playerAttr = ctx.player.getFinalAttributes();
-        AttributeSet monsterAttr = ctx.monster.getFinalAttributes();
+        Monster fastestMonster = pickFastestAliveMonster(ctx);
+        if (fastestMonster == null) {
+            ctx.isBattleEnded = true;
+            ctx.battleResult = BattleContext.BattleResult.VICTORY;
+            return true;
+        }
+        AttributeSet monsterAttr = fastestMonster.getFinalAttributes();
 
-        double escapeChance = 0.2 + ((double) playerAttr.speed / monsterAttr.speed - 1) * 0.5;
+        double escapeChance = 0.2 + ((double) playerAttr.speed / Math.max(1, monsterAttr.speed) - 1) * 0.5;
         escapeChance = Math.max(0.1, Math.min(0.9, escapeChance));
-        
-        ctx.addLog(LogType.DODGE_CRIT, "【逃跑判定】玩家速度(%.0f) vs 怪物速度(%.0f) => 成功率: %.1f%%", 
+
+        ctx.addLog(LogType.DODGE_CRIT, "【逃跑判定】玩家速度(%.0f) vs 怪物速度(%.0f) => 成功率: %.1f%%",
                 playerAttr.speed, monsterAttr.speed, escapeChance * 100);
 
-        // 8.3 判定是否成功
         if (RandomUtils.checkProbability((float) escapeChance)) {
-            // 逃跑成功
             ctx.isBattleEnded = true;
             ctx.battleResult = BattleContext.BattleResult.ESCAPED;
             ctx.addLog(LogType.ACTION, "逃跑成功。");
             return true;
         } else {
-            // 逃跑失败：怪物立即执行一次攻击
             ctx.addLog(LogType.ACTION, "逃跑失败，遭到怪物追击。");
-            executeNormalAttack(ctx, ctx.monster, ctx.player);
+            executeNormalAttack(ctx, fastestMonster, ctx.player);
             return false;
         }
     }
 
-    // 3. 普攻逻辑（玩家、怪物共用）
+    // ====================== 12. 普通攻击 ======================
     public void executeNormalAttack(BattleContext ctx, BattleEntity attacker, BattleEntity target) {
         ctx.resetDamageData();
         ctx.currentActor = attacker;
         ctx.currentTarget = target;
         ctx.damageType = DamageType.PHYSICAL.name();
 
-        // 动态获取攻击者名称（用于日志）
         String actorName = attacker.getName();
         String targetName = target.getName();
         ctx.addLog(LogType.ACTION, "[%s] 发动普通攻击。", actorName);
 
-        // 攻击发起阶段：触发攻击前Buff和词缀（ON_ATTACK），用于修改攻击属性、增加特殊效果等。
         AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK);
         BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK);
 
-        // 计算原始伤害（100%物理攻击，统一逻辑）
         AttributeSet attackerAttr = attacker.getFinalAttributes();
         AttributeSet targetAttr = target.getFinalAttributes();
         ctx.rawDamage = attackerAttr.physicalAtk;
         ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", ctx.rawDamage);
 
-        // 统一计算命中/闪避：命中率 = 攻击者命中 - 防守者闪避，并截断到[0,1]。
         float hitChance = calculateHitChance(attackerAttr, targetAttr);
         ctx.isHit = RandomUtils.checkProbability(hitChance);
         ctx.isDodged = !ctx.isHit;
@@ -306,16 +365,13 @@ public class BattleManager {
             ctx.finalDamage = 0;
             ctx.isCriticalHit = false;
             ctx.addLog(LogType.DODGE_CRIT, "  攻击未命中");
-            // 触发攻击未命中Buff和词缀
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK_MISS);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK_MISS);
-            // 触发目标的攻击未命中Buff和词缀
             BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_DODGE);
             AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_DODGE);
             return;
         }
 
-        // 只在命中后判定暴击。
         float critChance = clampProbability(attackerAttr.physicalCritRate);
         ctx.isCriticalHit = RandomUtils.checkProbability(critChance);
         ctx.addLog(LogType.DODGE_CRIT, "  暴击判定：暴击率=%.1f%%", critChance * 100f);
@@ -323,41 +379,30 @@ public class BattleManager {
         if (ctx.isCriticalHit) {
             ctx.rawDamage *= attackerAttr.physicalCritDmg;
             ctx.addLog(LogType.DODGE_CRIT, "  触发暴击！伤害提升至 %d", ctx.rawDamage);
-            // 触发暴击Buff和词缀
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_CRIT);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_CRIT);
-            // 触发目标的被暴击Buff和词缀
             BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEING_CRIT);
             AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEING_CRIT);
         }
 
-        // 计算最终伤害（减去目标防御，统一逻辑）
         ctx.finalDamage = Math.max(1, ctx.rawDamage - targetAttr.physicalDef);
         ctx.addLog(LogType.DAMAGE, "  扣除物理防御(%d)，结算伤害：%d", targetAttr.physicalDef, ctx.finalDamage);
 
-
-        // 触发【目标】的受击前Buff和词缀（ON_BEFORE_DAMAGE）
         BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
         AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEFORE_DAMAGE_TAKEN);
 
-        // 防御结算顺序：先结算计次减伤，再结算护盾吸收。
-        // 这样设计是为了让“减伤”负责直接削减本次命中的伤害，而“护盾”只吸收减伤后的剩余值，
-        // 从而明确区分两类防御资源的定位，避免护盾替代减伤的战术价值，并保持玩家叠加防御Buff时的策略预期一致。
         ctx.finalDamage = applyCountBasedDamageReduction(ctx, target, ctx.finalDamage);
         ctx.finalDamage = applyShieldAbsorption(ctx, target, ctx.finalDamage);
 
-        // 造成伤害
         target.takeDamage(ctx.finalDamage);
         ctx.addLog(LogType.DAMAGE, "  %s受到 %d 点伤害。剩余HP：(%d/%d)",
                 targetName, ctx.finalDamage, target.getCurrentHp(), targetAttr.maxHp);
 
-        // 命中后阶段：用于“命中后触发”词缀、Buff，可读取最终落地伤害。
         if (ctx.isHit) {
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_HIT);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_HIT);
         }
 
-        // 触发【目标】的受击后Buff和词缀（ON_AFTER_DAMAGE）
         BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE_TAKEN);
         AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE_TAKEN);
 
@@ -366,127 +411,189 @@ public class BattleManager {
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_KILL);
         }
 
-        // 检查死亡
         checkDeath(ctx);
     }
 
-
-    // 执行怪物意图
-    private void executeMonsterIntent(BattleContext ctx, MonsterIntent intent) {
-        ctx.addLog(LogType.ACTION, "怪物执行动作：[%s]", intent.getType().name());
+    // ====================== 13. 意图→动作转换 ======================
+    private BattleAction toBattleAction(BattleContext ctx, Monster actor, ActionIntent intent) {
         switch (intent.getType()) {
             case ATTACK:
-                executeNormalAttack(ctx, ctx.monster, ctx.player);
-                break;
-            case DEFEND:
-                ctx.monster.setDefending(true);
-                ctx.addLog(LogType.ACTION, "  怪物进入防御状态。");
-                break;
-            case BUFF:
-                // 给怪物上Buff
-                ctx.addLog(LogType.ACTION, "  怪物施放增益技能。");
-                break;
-            case DEBUFF:
-                // 给玩家上Debuff
-                ctx.addLog(LogType.ACTION, "  怪物施放减益技能。");
-                break;
-            case HEAL:
-                int healAmount = (int) (intent.getPowerMultiplier() * ctx.monster.getFinalAttributes().maxHp);
-                ctx.monster.healHp(healAmount);
-                ctx.addLog(LogType.ACTION, "  怪物回复了 %d 点HP。", healAmount);
-                break;
+                return new BattleAction(BattleAction.ActionType.ATTACK, actor, ctx.player,
+                        intent.getApCost(), intent.getMpCost(), 0,
+                        intent.getPowerMultiplier(), null, intent.getName());
+            case SKILL:
+                return BattleAction.skillTodo(actor, ctx.player,
+                        intent.getActionRefId(), intent.getApCost(), intent.getMpCost(),
+                        intent.getPowerMultiplier(), intent.getName());
+            case ESCAPE:
+                return new BattleAction(BattleAction.ActionType.ESCAPE, actor, ctx.player,
+                        intent.getApCost(), intent.getMpCost(), 0,
+                        1.0, null, intent.getName());
+            default:
+                return null;
         }
     }
 
-    private int applyCountBasedDamageReduction(BattleContext ctx, BattleEntity target, int incomingDamage) {
-        if (incomingDamage <= 0) {
-            return 0;
+    // ====================== 14. 执行战斗动作 ======================
+    private boolean executeBattleAction(BattleContext ctx, BattleAction action) {
+        if (action == null || action.getActor() == null) return false;
+
+        BattleEntity actor = action.getActor();
+        BattleEntity target = action.getTarget();
+
+        ctx.currentActor = actor;
+        ctx.currentTarget = target;
+
+        if (action.getType() == BattleAction.ActionType.ESCAPE && actor == ctx.player) {
+            executePlayerEscape(ctx);
+            return true;
         }
 
+        if (actor.getCurrentActionPoints() < action.getApCost()) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 行动点不足，无法执行 [%s]。", actor.getName(), action.getDisplayName());
+            return false;
+        }
+        if (actor.getCurrentMp() < action.getMpCost()) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 魔力不足，无法执行 [%s]。", actor.getName(), action.getDisplayName());
+            return false;
+        }
+
+        actor.consumeActionPoints(action.getApCost());
+        actor.setCurrentMp(Math.max(0, actor.getCurrentMp() - action.getMpCost()));
+
+        switch (action.getType()) {
+            case ATTACK:
+                executeAttackAction(ctx, action, actor, target);
+                return true;
+            case ESCAPE:
+                if (actor instanceof Monster) executeMonsterEscape(ctx);
+                return true;
+            case SKILL:
+                SkillManager.getInstance(context).executeSkill(action.getActionRefId(), actor, target, ctx);
+                ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（TODO：技能系统接入中）",
+                        actor.getName(), action.getDisplayName());
+                return true;
+            case ITEM:
+                ctx.addLog(LogType.ACTION, "[%s] 尝试使用道具 [%s]（TODO：道具体系未接入）",
+                        actor.getName(), action.getDisplayName());
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void executeAttackAction(BattleContext ctx, BattleAction action, BattleEntity actor, BattleEntity target) {
+        double multiplier = Math.max(0, action.getPowerMultiplier());
+        executeNormalAttack(ctx, actor, target);
+
+        if (!ctx.isHit || ctx.finalDamage <= 0 || Math.abs(multiplier - 1.0) < 0.0001) return;
+
+        int adjustedDamage = Math.max(1, (int) Math.round(ctx.finalDamage * multiplier));
+        int extraDamage = adjustedDamage - ctx.finalDamage;
+        if (extraDamage <= 0) return;
+
+        target.takeDamage(extraDamage);
+        ctx.addLog(LogType.DAMAGE, "  动作倍率生效(%.2fx)，追加伤害：%d。", multiplier, extraDamage);
+        ctx.finalDamage = adjustedDamage;
+        checkDeath(ctx);
+    }
+
+    // ====================== 15. 怪物逃跑 ======================
+    public boolean executeMonsterEscape(BattleContext ctx) {
+        if (!(ctx.currentActor instanceof Monster)) return false;
+        Monster actingMonster = (Monster) ctx.currentActor;
+        ctx.addLog(LogType.ACTION, "怪物[%s]尝试逃跑...", actingMonster.getName());
+
+        AttributeSet monsterAttr = actingMonster.getFinalAttributes();
+        AttributeSet playerAttr = ctx.player.getFinalAttributes();
+
+        double escapeChance = 0.2 + ((double) monsterAttr.speed / Math.max(1, playerAttr.speed) - 1) * 0.5;
+        escapeChance = Math.max(0.1, Math.min(0.9, escapeChance));
+
+        ctx.addLog(LogType.DODGE_CRIT,
+                "【怪物逃跑判定】怪物速度(%.0f) vs 玩家速度(%.0f) => 成功率: %.1f%%",
+                monsterAttr.speed, playerAttr.speed, escapeChance * 100);
+
+        if (RandomUtils.checkProbability((float) escapeChance)) {
+            actingMonster.setDead(true);
+            ctx.addLog(LogType.ACTION, "怪物[%s]逃跑成功。", actingMonster.getName());
+            if (ctx.getAliveMonsters().isEmpty()) {
+                ctx.isBattleEnded = true;
+                ctx.battleResult = BattleContext.BattleResult.MONSTER_ESCAPED;
+            }
+            return true;
+        }
+        ctx.addLog(LogType.ACTION, "怪物[%s]逃跑失败。", actingMonster.getName());
+        return false;
+    }
+
+    // ====================== 16. 防御结算 ======================
+    private int applyCountBasedDamageReduction(BattleContext ctx, BattleEntity target, int incomingDamage) {
+        if (incomingDamage <= 0) return 0;
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
-            if (!(buff instanceof DamageReductionBuff)) {
-                continue;
-            }
-
-            // 单次受击默认只消费一条计次减伤，避免多条同时叠乘导致过强。
+            if (!(buff instanceof DamageReductionBuff)) continue;
             remainingDamage = ((DamageReductionBuff) buff).reduceDamageForOneHit(remainingDamage, target, ctx);
             break;
         }
-
         return remainingDamage;
     }
 
     private int applyShieldAbsorption(BattleContext ctx, BattleEntity target, int incomingDamage) {
-        if (incomingDamage <= 0) {
-            return 0;
-        }
-
+        if (incomingDamage <= 0) return 0;
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
-            if (!(buff instanceof ShieldBuff)) {
-                continue;
-            }
-            if (remainingDamage <= 0) {
-                break;
-            }
+            if (!(buff instanceof ShieldBuff)) continue;
+            if (remainingDamage <= 0) break;
             remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
         }
         return remainingDamage;
     }
 
-    // 检查死亡
-    private void checkDeath(BattleContext ctx) {
-        if (ctx.player != null && ctx.player.isDead()) {
+    // ====================== 17. 死亡检查 ======================
+    public void checkDeath(BattleContext ctx) {
+        boolean playerPartyAllDead = ctx.getAlivePlayerParty().isEmpty();
+        if (playerPartyAllDead) {
             ctx.isBattleEnded = true;
             ctx.battleResult = BattleContext.BattleResult.DEFEAT;
-            ctx.addLog(LogType.DEATH, "玩家阵亡。");
-        } else if (ctx.monster != null && ctx.monster.isDead()) {
+            ctx.addLog(LogType.DEATH, "玩家方全灭。");
+        } else if (ctx.getAliveMonsters().isEmpty()) {
             ctx.isBattleEnded = true;
             ctx.battleResult = BattleContext.BattleResult.VICTORY;
-            ctx.addLog(LogType.DEATH, "怪物阵亡，战斗胜利。");
+            ctx.addLog(LogType.DEATH, "全部怪物已失去战斗能力，战斗胜利。");
         }
     }
 
-    // 7. 战斗结果结算（功能清单第6、7点）
-    private void settleBattleResult(BattleContext ctx) {
+    // ====================== 18. 战斗结算 ======================
+    public void settleBattleResult(BattleContext ctx) {
         ctx.addLog(LogType.ROUND_INFO, "======== 战斗结算 ========");
 
-        // 战斗结束统一触发。用于处理“战斗结束时”词缀/Buff。
         if (ctx.player != null) {
             BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_BATTLE_END);
             AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_BATTLE_END);
         }
-        if (ctx.monster != null) {
-            BuffManager.getInstance(context).triggerBuffs(ctx.monster, ctx, BuffTriggerType.ON_BATTLE_END);
-            AffixManager.getInstance(context).triggerAffixes(ctx.monster, ctx, AffixTriggerType.ON_BATTLE_END);
-        }
+        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_END);
+        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_BATTLE_END);
 
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
-            // 7.1 计算经验加成（功能清单第7点）
-            int baseExp = ctx.monster.getExpReward();
-            int playerLevel = ctx.player.getLevel();
-            int monsterLevel = ctx.monster.getLevel();
-            double expBonus = 1.0;
-            if (playerLevel < monsterLevel) {
-                expBonus += 0.1 * (monsterLevel - playerLevel);
+            int baseExp = 0;
+            int baseGold = 0;
+            int monsterLevel = ctx.player.getLevel();
+            for (Monster m : ctx.monsters) {
+                if (m == null) continue;
+                baseExp += m.getExpReward();
+                baseGold += m.getGoldReward();
+                monsterLevel = Math.max(monsterLevel, m.getLevel());
             }
+            int playerLevel = ctx.player.getLevel();
+            double expBonus = 1.0;
+            if (playerLevel < monsterLevel) expBonus += 0.1 * (monsterLevel - playerLevel);
             int finalExp = (int) (baseExp * expBonus * ctx.player.getFinalAttributes().expBonus);
             ctx.player.gainExp(finalExp);
 
-            // 7.2 计算金币加成
-            int baseGold = ctx.monster.getGoldReward();
             int finalGold = (int) (baseGold * ctx.player.getFinalAttributes().goldBonus);
-            // TODO: 给玩家加金币
-
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
-
-            // 7.3 生成掉落物（功能清单第7点）
-            // DropManager.getInstance().generateDrops(ctx.monster);
-
         } else if (ctx.battleResult == BattleContext.BattleResult.DEFEAT) {
-            // 6.1 失败惩罚：损失25%金币，保留1点HP（功能清单第6点）
-            // TODO: 扣除玩家金币
             ctx.player.setCurrentHp(1);
             ctx.player.setDead(false);
             ctx.addLog(LogType.RESULT, "战斗失败，已扣除部分金币，保留1点生命值。");
@@ -499,8 +606,23 @@ public class BattleManager {
         }
     }
 
+    // ====================== 19. 工具方法 ======================
     private float calculateHitChance(AttributeSet attackerAttr, AttributeSet targetAttr) {
         return clampProbability(attackerAttr.hitRate - targetAttr.dodgeRate);
+    }
+
+    private Monster pickFastestAliveMonster(BattleContext ctx) {
+        Monster fastest = null;
+        for (Monster m : ctx.getAliveMonsters()) {
+            if (fastest == null || m.getFinalAttributes().speed > fastest.getFinalAttributes().speed) {
+                fastest = m;
+            }
+        }
+        return fastest;
+    }
+
+    public Monster pickActingMonster(BattleContext ctx) {
+        return pickFastestAliveMonster(ctx);
     }
 
     private float clampProbability(float value) {

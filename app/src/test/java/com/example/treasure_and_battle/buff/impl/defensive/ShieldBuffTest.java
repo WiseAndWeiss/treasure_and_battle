@@ -27,7 +27,7 @@ public class ShieldBuffTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         player = new Player("shield_p", context);
-        ctx = new BattleContext(player, null, false);
+        ctx = new BattleContext(player, (com.example.treasure_and_battle.model.entity.Monster) null, false);
     }
 
     @Test
