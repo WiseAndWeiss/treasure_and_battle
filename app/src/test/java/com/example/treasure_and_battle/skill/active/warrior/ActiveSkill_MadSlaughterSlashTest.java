@@ -37,8 +37,8 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
 
         // 创建3个怪物
         Monster monster1 = testMonster;
-        Monster monster2 = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
-        Monster monster3 = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+        Monster monster2 = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
+        Monster monster3 = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
 
         // 统一设置所有怪物的HP和防御
         int maxHp = 300;
@@ -51,11 +51,13 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
 
         monster2.getBaseAttributes().maxHp = maxHp;
         monster2.getBaseAttributes().physicalDef = physicalDef;
+        monster2.getBaseAttributes().dodgeRate = 0f;
         monster2.setCurrentHp(maxHp);
         monster2.markAttributeCacheDirty();
 
         monster3.getBaseAttributes().maxHp = maxHp;
         monster3.getBaseAttributes().physicalDef = physicalDef;
+        monster3.getBaseAttributes().dodgeRate = 0f;
         monster3.setCurrentHp(maxHp);
         monster3.markAttributeCacheDirty();
 
@@ -210,8 +212,8 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
         ActiveSkill madSlaughterSlash = createSkill("mad_slaughter_slash", 3);
 
         Monster monster1 = testMonster;
-        Monster monster2 = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
-        Monster monster3 = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+        Monster monster2 = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
+        Monster monster3 = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
 
         int maxHp = 300;
         int physicalDef = 20;
@@ -219,6 +221,7 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
         for (Monster monster : Arrays.asList(monster1, monster2, monster3)) {
             monster.getBaseAttributes().maxHp = maxHp;
             monster.getBaseAttributes().physicalDef = physicalDef;
+            monster.getBaseAttributes().dodgeRate = 0f;
             monster.setCurrentHp(maxHp);
             monster.markAttributeCacheDirty();
         }
@@ -317,7 +320,7 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
         // Given
         ActiveSkill madSlaughterSlash = createSkill("mad_slaughter_slash", 3);
 
-        Monster monster2 = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+        Monster monster2 = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
         List<BattleEntity> targets = Arrays.asList(testMonster, monster2);
 
         // When

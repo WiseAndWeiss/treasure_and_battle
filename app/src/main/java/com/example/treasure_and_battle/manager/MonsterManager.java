@@ -69,6 +69,10 @@ public class MonsterManager {
         return createMonsterInternal(templateId, -1, injectAffixes);
     }
 
+    public Monster createMonsterWithoutAffixes(int templateId) {
+        return createMonsterInternal(templateId, -1, false);
+    }
+
     public Monster createMonsterWithLevelScaling(int templateId, int playerLevel) {
         return createMonsterInternal(templateId, playerLevel, true);
     }

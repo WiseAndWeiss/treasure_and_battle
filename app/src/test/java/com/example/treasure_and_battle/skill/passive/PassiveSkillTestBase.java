@@ -84,7 +84,7 @@ public abstract class PassiveSkillTestBase {
         testPlayer.setCurrentMp(playerAttr.maxMp);
 
         // 4. 创建测试怪物
-        testMonster = MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
+        testMonster = MonsterManager.getInstance(context).createMonsterWithoutAffixes(1001);
         AttributeSet monsterAttr = testMonster.getBaseAttributes();
         monsterAttr.maxHp = 300;
         monsterAttr.maxMp = 50;
