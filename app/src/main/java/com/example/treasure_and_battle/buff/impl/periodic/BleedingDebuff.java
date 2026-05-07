@@ -1,10 +1,10 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
-import static com.example.treasure_and_battle.battle.DamageType.TRUE;
-
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
@@ -47,11 +47,10 @@ public class BleedingDebuff extends BaseBuff {
     @Override
     public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
         if (triggerType == BuffTriggerType.ON_ROUND_END && this.stackCount > 0) {
-            // 每层流失1%生命值
             int damage = (int) (owner.getFinalAttributes().maxHp * 0.01 * this.stackCount);
-            owner.takeDamage(damage, TRUE);
+            DamageManager.getInstance(owner.getContext())
+                    .dealDamage(DamageConfig.buffTrue(), null, owner, damage, context);
 
-            // 加入战斗日志
             context.addLogWithMeta(LogType.DAMAGE, owner,
                     "【流血】[%s] 当前层数 %d，损失了 %d 点生命值！剩余生命：(%d/%d)",
                     owner.getClass().getSimpleName(), this.stackCount, damage,

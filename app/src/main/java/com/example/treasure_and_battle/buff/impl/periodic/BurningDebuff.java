@@ -1,10 +1,10 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
-import static com.example.treasure_and_battle.battle.DamageType.MAGICAL;
-
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
@@ -36,11 +36,9 @@ public class BurningDebuff extends BaseBuff {
     @Override
     public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
         if (triggerType == BuffTriggerType.ON_ROUND_END) {
-            // 每层灼烧造成1点魔法伤害，会受到魔法防御的减免
-            int damage = this.stackCount; // 每层1点伤害
-            // 计算实际伤害，考虑魔法防御
-            owner.takeDamage(damage, MAGICAL);
-            // 加入战斗日志
+            int damage = this.stackCount;
+            DamageManager.getInstance(owner.getContext())
+                    .dealDamage(DamageConfig.buffMagical(), null, owner, damage, context);
             context.addLogWithMeta(LogType.DAMAGE, owner,
                     "【灼烧】[%s] 当前层数 %d，魔法防御为：%d, 损失了 %d 点生命值！剩余生命：(%d/%d)",
                     owner.getClass().getSimpleName(), this.stackCount,

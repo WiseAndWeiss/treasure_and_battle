@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
  * 提供通用的战斗模拟环境和测试辅助方法
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public abstract class PassiveSkillTestBase {
     protected Context context;
     protected BattleManager battleManager;

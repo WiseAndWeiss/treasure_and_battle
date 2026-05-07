@@ -1,8 +1,11 @@
 package com.example.treasure_and_battle.skill.passive.warrior;
 
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
+import com.example.treasure_and_battle.battle.DamageType;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
@@ -51,8 +54,8 @@ public class PassiveSkill_ShieldBurst extends PassiveSkill {
                 continue;
             }
 
-            // 造成防御反击伤害（无视防御，真实伤害）
-            enemy.takeDamage(aoeDamage, com.example.treasure_and_battle.battle.DamageType.TRUE);
+            DamageManager.getInstance(owner.getContext())
+                    .dealDamage(DamageConfig.passiveSkill(DamageType.TRUE), owner, enemy, aoeDamage, context);
             totalDamage += aoeDamage;
             totalHits++;
         }

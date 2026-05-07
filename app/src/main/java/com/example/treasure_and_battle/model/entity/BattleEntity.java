@@ -143,16 +143,7 @@ public abstract class BattleEntity {
      * 承受伤害（考虑防御状态和伤害类型的逻辑）
      */
     public void takeDamage(int damage, DamageType damageType) {
-        int finalDamage = damage;
-        if (damageType == DamageType.PHYSICAL) {
-            int physicalDef = getFinalAttributes().physicalDef;
-            finalDamage = Math.max(1, damage - physicalDef);
-        } else if (damageType == DamageType.MAGICAL) {
-            int magicalDef = getFinalAttributes().magicalDef;
-            finalDamage = Math.max(1, damage - magicalDef);
-        }
-        // 真实伤害不受防御影响
-        takeDamage(finalDamage);
+        takeDamage(damage);
     }
 
     /**

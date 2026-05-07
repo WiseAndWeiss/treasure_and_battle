@@ -50,4 +50,13 @@ public class ShieldBuff extends BaseBuff {
                 
         return incomingDamage - absorbed;
     }
+
+    public static boolean hasShield(BattleEntity entity) {
+        for (com.example.treasure_and_battle.buff.BaseBuff buff : entity.getActiveBuffList()) {
+            if (buff instanceof ShieldBuff) {
+                return ((ShieldBuff) buff).getStackCount() > 0;
+            }
+        }
+        return false;
+    }
 }

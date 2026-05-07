@@ -1,10 +1,10 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
-import static com.example.treasure_and_battle.battle.DamageType.TRUE;
-
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
@@ -44,17 +44,14 @@ public class PoisoningDebuff extends BaseBuff {
     @Override
     public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
         if (triggerType == BuffTriggerType.ON_ROUND_END) {
-            // 每层流失1点生命值
-            int damage = this.stackCount; 
-            owner.takeDamage(damage, TRUE);
-            
-            // 加入战斗日志
-            context.addLogWithMeta(LogType.DAMAGE, owner, 
-                    "【中毒】[%s] 当前层数 %d，损失了 %d 点生命值！剩余生命：(%d/%d)", 
-                    owner.getClass().getSimpleName(), this.stackCount, damage, 
+            int damage = this.stackCount;
+            DamageManager.getInstance(owner.getContext())
+                    .dealDamage(DamageConfig.buffTrue(), null, owner, damage, context);
+
+            context.addLogWithMeta(LogType.DAMAGE, owner,
+                    "【中毒】[%s] 当前层数 %d，损失了 %d 点生命值！剩余生命：(%d/%d)",
+                    owner.getClass().getSimpleName(), this.stackCount, damage,
                     owner.getCurrentHp(), owner.getFinalAttributes().maxHp);
-                    
-            // 说明：我们把 tick 减半机制放到了这里之后，由框架统一在 onRoundEnd 中调用 tickBuffs 来衰减层数。
         }
     }
 }

@@ -33,13 +33,12 @@ public class ActiveSkill_CounterStance extends ActiveSkill {
             "反击姿态",
             "受到的伤害减少%d%%，每次受击反击",
             BuffType.BUFF,
-            true,  // 可驱散
-            1,    // 持续1回合
-            1,    // 最多1层
+            true,
+            1,
+            1,
             false,
             1.0f,
-            damageReductionPercent,
-            battleManager
+            damageReductionPercent
         );
 
         // 添加buff到施法者
