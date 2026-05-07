@@ -12,5 +12,12 @@
         <item name="android:windowBackground">@drawable/bg_screen_treasure</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:navigationBarColor">@color/tb_bg_dark</item>
+        <!-- PopupMenu / 长按选项：与背包、面板同一宝藏风 -->
+        <item name="android:popupMenuStyle">@style/Tb.Widget.PopupMenu</item>
+        <item name="popupMenuStyle">@style/Tb.Widget.PopupMenu</item>
+        <item name="listPopupWindowStyle">@style/Tb.Widget.ListPopupWindow</item>
+        <item name="android:dropDownListViewStyle">@style/Tb.Widget.DropDownListView</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/Tb.TextAppearance.PopupMenu</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/Tb.TextAppearance.PopupMenu</item>
     </style>
 </resources>

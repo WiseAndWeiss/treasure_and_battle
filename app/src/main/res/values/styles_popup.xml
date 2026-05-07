@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ThemeOverlay.Tb.ItemDetailDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/tb_gold_deep</item>
+        <item name="colorOnSurface">@color/tb_text_main</item>
+        <item name="android:textColorPrimary">@color/tb_text_main</item>
+    </style>
+
+    <!-- 与宝藏面板一致的弹出菜单：底图 + 主文字色 -->
+    <style name="Tb.TextAppearance.PopupMenu" parent="TextAppearance.AppCompat.Menu">
+        <item name="android:textColor">@color/tb_text_main</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Tb.Widget.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_panel_treasure</item>
+    </style>
+
+    <style name="Tb.Widget.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/bg_panel_treasure</item>
+        <item name="android:popupElevation">6dp</item>
+        <item name="android:dropDownVerticalOffset">2dp</item>
+    </style>
+
+    <style name="Tb.Widget.DropDownListView" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:listDivider">@drawable/tb_popup_menu_divider</item>
+        <item name="android:dividerHeight">1dp</item>
+        <item name="android:divider">@drawable/tb_popup_menu_divider</item>
+    </style>
+</resources>

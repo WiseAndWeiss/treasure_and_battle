@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.DragEvent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +18,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
+import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,6 +97,8 @@ public class BagFragment extends Fragment {
     private int lastDragCenterX = -1;
     private int lastDragCenterY = -1;
     private static final String DRAG_LABEL_EQUIP_FROM_SLOT = "equip_from_slot";
+    /** 从装备栏系统拖放（DragEvent）进入背包时，与背包内 ItemTouch 拖拽共用高亮逻辑 */
+    private boolean isDragFromEquipSlot = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -177,36 +181,111 @@ public class BagFragment extends Fragment {
     private void setupEquipToBagDropListener() {
         recyclerView.setOnDragListener((v, event) -> {
             if (!(event.getLocalState() instanceof Integer)) return false;
-            Integer slotId = (Integer) event.getLocalState();
+            int slotId = (Integer) event.getLocalState();
             EquipItem equipItem = equippedItems.get(slotId);
             if (equipItem == null) return false;
 
-            if (event.getAction() == DragEvent.ACTION_DROP) {
-                if (currentPage == totalPages) {
-                    Toast.makeText(getContext(), "该页面未解锁，无法卸下到这里", Toast.LENGTH_SHORT).show();
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    isDragFromEquipSlot = true;
+                    dragStartPage = -1;
+                    dragStartUiPosition = -1;
+                    dragToUiPosition = -1;
                     return true;
-                }
-                int targetPos = findBagAdapterPositionByLocalPoint(event.getX(), event.getY());
-                if (targetPos < 0) {
-                    Toast.makeText(getContext(), "请拖到背包格子内再松手", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                int realIndex = (currentPage - 1) * itemsPerPage + targetPos;
-                if (realIndex < 0 || realIndex >= allItems.size()) return true;
-                if (allItems.get(realIndex) != null) {
-                    Toast.makeText(getContext(), "目标格子已有物品", Toast.LENGTH_SHORT).show();
+
+                case DragEvent.ACTION_DRAG_LOCATION: {
+                    int hoverPos = findBagAdapterPositionByLocalPoint(event.getX(), event.getY());
+                    if (hoverPos != dragToUiPosition) {
+                        int oldHover = dragToUiPosition;
+                        dragToUiPosition = hoverPos;
+                        if (oldHover >= 0 && oldHover < itemsPerPage) {
+                            adapter.notifyItemChanged(oldHover, "HOVER_CLEAR");
+                        }
+                        if (dragToUiPosition >= 0 && dragToUiPosition < itemsPerPage) {
+                            adapter.notifyItemChanged(dragToUiPosition, "HOVER");
+                        }
+                    }
                     return true;
                 }
 
-                allItems.set(realIndex, equipItem);
-                equippedItems.remove(slotId);
-                updateEquipSlotView(slotId, null);
-                adapter.notifyDataSetChanged();
-                Toast.makeText(getContext(), "已拖拽卸下: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
-                return true;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    if (dragToUiPosition >= 0 && dragToUiPosition < itemsPerPage) {
+                        adapter.notifyItemChanged(dragToUiPosition, "HOVER_CLEAR");
+                    }
+                    dragToUiPosition = -1;
+                    return true;
+
+                case DragEvent.ACTION_DROP:
+                    try {
+                        if (currentPage == totalPages) {
+                            Toast.makeText(getContext(), "该页面未解锁，无法卸下到这里", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        int targetPos = findBagAdapterPositionByLocalPoint(event.getX(), event.getY());
+                        if (targetPos < 0) {
+                            Toast.makeText(getContext(), "请拖到背包格子内再松手", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        int realIndex = (currentPage - 1) * itemsPerPage + targetPos;
+                        if (realIndex < 0 || realIndex >= allItems.size()) return true;
+                        if (allItems.get(realIndex) != null) {
+                            Toast.makeText(getContext(), "目标格子已有物品", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+
+                        allItems.set(realIndex, equipItem);
+                        equippedItems.remove(slotId);
+                        updateEquipSlotView(slotId, null);
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(getContext(), "已拖拽卸下: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    } finally {
+                        finishEquipSlotDragSession();
+                    }
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    finishEquipSlotDragSession();
+                    return false;
+
+                default:
+                    return true;
             }
-            return true;
         });
+    }
+
+    private void finishEquipSlotDragSession() {
+        if (!isDragFromEquipSlot) {
+            return;
+        }
+        isDragFromEquipSlot = false;
+        if (dragToUiPosition >= 0 && dragToUiPosition < itemsPerPage) {
+            adapter.notifyItemChanged(dragToUiPosition, "HOVER_CLEAR");
+        }
+        dragToUiPosition = -1;
+        dragStartPage = -1;
+        dragStartUiPosition = -1;
+    }
+
+    /** 当前手指下的背包 UI 格是否应显示「缩小高亮」（含从装备栏拖入） */
+    private boolean shouldShowBagCellHoverScale(@NonNull RecyclerView.ViewHolder holder, int adapterPosition) {
+        if (dragToUiPosition < 0 || adapterPosition != dragToUiPosition) {
+            return false;
+        }
+        boolean internalBagDrag = currentDragHolder != null;
+        if (!internalBagDrag && !isDragFromEquipSlot) {
+            return false;
+        }
+        boolean isSamePageStartTarget =
+                currentPage == dragStartPage && adapterPosition == dragStartUiPosition;
+        if (isSamePageStartTarget) {
+            return false;
+        }
+        if (internalBagDrag) {
+            boolean isCrossPageStartTarget =
+                    currentPage != dragStartPage && adapterPosition == dragStartUiPosition;
+            return holder != currentDragHolder || isCrossPageStartTarget;
+        }
+        return true;
     }
 
     private void applyAdaptiveBagCellSize() {
@@ -688,8 +767,8 @@ public class BagFragment extends Fragment {
                                 holeHolder.tvItemName.setText("");
                                 holeHolder.tvItemLevel.setVisibility(View.GONE);
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                holeHolder.ivItemIcon.setImageResource(android.R.drawable.ic_secure);
-                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                                bindBagItemIcon(holeHolder.ivItemIcon, android.R.drawable.ic_secure);
+                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
                                         ContextCompat.getColor(requireContext(), R.color.tb_slot_locked)
                                 ));
@@ -697,15 +776,15 @@ public class BagFragment extends Fragment {
                                 holeHolder.tvItemName.setText("");
                                 holeHolder.tvItemLevel.setVisibility(View.GONE);
                                 holeHolder.ivItemIcon.setVisibility(View.INVISIBLE);
-                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
                                         ContextCompat.getColor(requireContext(), R.color.tb_slot_empty)
                                 ));
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                holeHolder.ivItemIcon.setImageResource(holeItem.getIconResId());
-                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem.getIconResId());
+                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
 
                                 if (holeItem instanceof EquipItem) {
@@ -873,6 +952,8 @@ public class BagFragment extends Fragment {
     }
 
     private void applyEquipSlotPlaceholder(LinearLayout slotLayout, String text) {
+        slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure);
+        slotLayout.setPadding(0, 0, 0, 0);
         slotLayout.removeAllViews();
         TextView placeholder = new TextView(requireContext());
         placeholder.setText(text);
@@ -887,26 +968,29 @@ public class BagFragment extends Fragment {
     }
 
     private void applyEquipSlotItemView(LinearLayout slotLayout, EquipItem equipItem) {
+        // 金边画在槽位容器上（与背包格视觉一致）；内层仅填充，避免子 View 描边在部分机型上被裁掉或叠盖
+        slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure_stroke);
+        int inset = dpToPx(1);
+        slotLayout.setPadding(inset, inset, inset, inset);
         slotLayout.removeAllViews();
-        View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_bag_grid, slotLayout, false);
-        itemView.setPadding(0, 0, 0, 0);
-        itemView.setLayoutParams(new LinearLayout.LayoutParams(
+        View inner = LayoutInflater.from(requireContext()).inflate(R.layout.item_bag_grid_inner, slotLayout, false);
+        inner.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        RelativeLayout bg = itemView.findViewById(R.id.bg_item_color);
-        ImageView icon = itemView.findViewById(R.id.iv_item_icon);
-        TextView level = itemView.findViewById(R.id.tv_item_level);
-        TextView name = itemView.findViewById(R.id.tv_item_name);
+        RelativeLayout bg = inner.findViewById(R.id.bg_item_color);
+        ImageView icon = inner.findViewById(R.id.iv_item_icon);
+        TextView level = inner.findViewById(R.id.tv_item_level);
+        TextView name = inner.findViewById(R.id.tv_item_name);
 
         if (bg != null) {
-            bg.setBackgroundResource(R.drawable.bg_slot_treasure);
+            bg.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
             bg.setBackgroundTintList(ColorStateList.valueOf(equipItem.getRarity().getColor()));
         }
         if (icon != null) {
             icon.setVisibility(View.VISIBLE);
-            icon.setImageResource(equipItem.getIconResId());
+            bindBagItemIcon(icon, equipItem.getIconResId());
         }
         if (level != null) {
             level.setVisibility(View.VISIBLE);
@@ -915,7 +999,7 @@ public class BagFragment extends Fragment {
         if (name != null) {
             name.setText(equipItem.getName());
         }
-        slotLayout.addView(itemView);
+        slotLayout.addView(inner);
     }
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
@@ -926,11 +1010,7 @@ public class BagFragment extends Fragment {
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {
-                Toast.makeText(
-                        getContext(),
-                        item.getName() + " Lv." + item.getLevel() + "\n" + item.getDescription(),
-                        Toast.LENGTH_SHORT
-                ).show();
+                ItemDetailDialog.show(requireContext(), item);
                 return true;
             }
             if (menuItem.getItemId() == 2) {
@@ -974,6 +1054,19 @@ public class BagFragment extends Fragment {
         );
     }
 
+    /** 物品格图标：关闭双线性过滤，像素风图标更清晰。 */
+    private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
+        if (imageView == null) return;
+        imageView.setImageResource(iconResId);
+        Drawable d = imageView.getDrawable();
+        if (d != null) {
+            d.mutate();
+            if (d instanceof BitmapDrawable) {
+                ((BitmapDrawable) d).setFilterBitmap(false);
+            }
+        }
+    }
+
     private class BagAdapter extends RecyclerView.Adapter<BagAdapter.ViewHolder> {
         private int cellSizePx = ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -1004,11 +1097,8 @@ public class BagFragment extends Fragment {
 
             for (Object payload : payloads) {
                 if ("HOVER".equals(payload)) {
-                    boolean isSamePageStartTarget =
-                            currentPage == dragStartPage && holder.getAdapterPosition() == dragStartUiPosition;
-                    boolean isCrossPageStartTarget =
-                            currentPage != dragStartPage && holder.getAdapterPosition() == dragStartUiPosition;
-                    if ((holder != currentDragHolder || isCrossPageStartTarget) && !isSamePageStartTarget) {
+                    int pos = holder.getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION && shouldShowBagCellHoverScale(holder, pos)) {
                         holder.itemView.setScaleX(0.85f);
                         holder.itemView.setScaleY(0.85f);
                     }
@@ -1034,13 +1124,8 @@ public class BagFragment extends Fragment {
             holder.itemView.setScaleX(1.0f);
             holder.itemView.setScaleY(1.0f);
 
-            // 当目标移位时，高亮新坑位
-            boolean isSamePageStartTarget = currentPage == dragStartPage && position == dragStartUiPosition;
-            boolean isCrossPageStartTarget = currentPage != dragStartPage && position == dragStartUiPosition;
-            if (currentDragHolder != null
-                    && (holder != currentDragHolder || isCrossPageStartTarget)
-                    && position == dragToUiPosition
-                    && !isSamePageStartTarget) {
+            // 当目标移位时，高亮新坑位（背包内拖 / 装备栏拖入）
+            if (shouldShowBagCellHoverScale(holder, position)) {
                 holder.itemView.setScaleX(0.85f);
                 holder.itemView.setScaleY(0.85f);
             }
@@ -1049,8 +1134,8 @@ public class BagFragment extends Fragment {
                 holder.tvItemName.setText("");
                 holder.tvItemLevel.setVisibility(View.GONE);
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
-                holder.ivItemIcon.setImageResource(android.R.drawable.ic_secure);
-                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                bindBagItemIcon(holder.ivItemIcon, android.R.drawable.ic_secure);
+                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(requireContext(), R.color.tb_slot_locked)
                 ));
@@ -1058,15 +1143,15 @@ public class BagFragment extends Fragment {
                 holder.tvItemName.setText("");
                 holder.tvItemLevel.setVisibility(View.GONE);
                 holder.ivItemIcon.setVisibility(View.INVISIBLE);
-                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(requireContext(), R.color.tb_slot_empty)
                 ));
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
-                holder.ivItemIcon.setImageResource(item.getIconResId());
-                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure);
+                bindBagItemIcon(holder.ivItemIcon, item.getIconResId());
+                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
 
                 if (item instanceof EquipItem) {
@@ -1107,7 +1192,7 @@ public class BagFragment extends Fragment {
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 switch (menuItem.getItemId()) {
                     case 1:
-                        Toast.makeText(getContext(), item.getName() + ":" + item.getDescription(), Toast.LENGTH_SHORT).show();
+                        ItemDetailDialog.show(requireContext(), item);
                         break;
                     case 2:
                         if (item instanceof EquipItem) {

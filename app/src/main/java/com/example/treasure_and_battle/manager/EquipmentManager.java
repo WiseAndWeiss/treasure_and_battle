@@ -1,6 +1,8 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
+
+import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.EquipItem;
@@ -92,6 +94,10 @@ public class EquipmentManager {
         }
 
         EquipItem equip = new EquipItem(template.getEquipId(), template.getName(), rarity, level * 10, level, slot);
+        int iconRes = resolveEquipIconRes(template.getEquipId());
+        if (iconRes != 0) {
+            equip.setIconResId(iconRes);
+        }
 
         // 核心属性分配
         double basePower = calculateBasePower(level);
@@ -132,6 +138,17 @@ public class EquipmentManager {
         equip.setAffixes(baseAffixes);
 
         return equip;
+    }
+
+    /** 按 equipId 绑定自定义图标资源（无映射则沿用 Item 默认图标）。 */
+    private int resolveEquipIconRes(String equipId) {
+        if (equipId == null) return 0;
+        switch (equipId) {
+            case "equip_weapon_sword_iron":
+                return R.drawable.iron_sword_icon;
+            default:
+                return 0;
+        }
     }
 
     private static class EquipConfigWrapper {

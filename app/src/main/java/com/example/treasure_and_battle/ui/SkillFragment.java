@@ -139,23 +139,91 @@ public class SkillFragment extends Fragment {
     // 临时加载对应的分类假数据用以进行布局展示
     private void loadTempData(String category) {
         currentSkillList.clear();
+        int maxLevel = 5;
         for (int i = 1; i <= 10; i++) {
-            currentSkillList.add(new SkillMockData(
-                    category + "技能_" + i, 
-                    "这是一个非常厉害的" + category + "技能，拥有着独特的机制。\n它能大幅攀升属性、改变战斗结果等不可思议的作用。",
-                    (i % 5) + "/" + 5
-            ));
+            int cur = i % maxLevel;
+            if (cur == 0) cur = maxLevel;
+            String name = category + "技能_" + i;
+            String desc =
+                    "这是一个非常厉害的" + category + "技能，拥有着独特的机制。\n"
+                            + "它能大幅攀升属性、改变战斗结果等不可思议的作用。";
+            String levelDisplay = cur + "/" + maxLevel;
+            int cost = 1 + (i % 3);
+            String tags;
+            String cooldown;
+            String range;
+            if ("主动".equals(category)) {
+                tags = "主动 · 施法";
+                cooldown = (6 + i * 2) + " 秒";
+                range = "单体敌方";
+            } else if ("事件".equals(category)) {
+                tags = "事件 · 战斗触发";
+                cooldown = "无";
+                range = "满足条件时自动触发";
+            } else {
+                tags = "被动 · 永久";
+                cooldown = "无";
+                range = "常驻（脱战亦生效）";
+            }
+            String effectCurrent =
+                    "· 主要数值：强度系数 +" + (cur * 3 + i)
+                            + "\n· 次要效果：与「" + category + "」流派协同，层数可叠加。";
+            String effectNext =
+                    cur >= maxLevel
+                            ? null
+                            : "· 主要数值：强度系数 +" + ((cur + 1) * 3 + i)
+                                    + "\n· 解锁额外词条或缩短内置间隔。";
+            currentSkillList.add(
+                    new SkillMockData(
+                            name,
+                            desc,
+                            levelDisplay,
+                            category,
+                            tags,
+                            cost,
+                            cooldown,
+                            range,
+                            effectCurrent,
+                            effectNext));
         }
         adapter.notifyDataSetChanged();
     }
 
     // ================== Adapter & Mock Data ==================
     private static class SkillMockData {
-        String name, desc, levelDisplay;
-        SkillMockData(String name, String desc, String levelDisplay) {
+        final String name;
+        final String desc;
+        final String levelDisplay;
+        final String category;
+        final String tags;
+        final int skillPointPerLevel;
+        final String cooldown;
+        final String castRange;
+        final String effectCurrent;
+        /** 满级时为 null，详情窗显示「已满级」。 */
+        final String effectNext;
+
+        SkillMockData(
+                String name,
+                String desc,
+                String levelDisplay,
+                String category,
+                String tags,
+                int skillPointPerLevel,
+                String cooldown,
+                String castRange,
+                String effectCurrent,
+                String effectNext) {
             this.name = name;
             this.desc = desc;
             this.levelDisplay = levelDisplay;
+            this.category = category;
+            this.tags = tags;
+            this.skillPointPerLevel = skillPointPerLevel;
+            this.cooldown = cooldown;
+            this.castRange = castRange;
+            this.effectCurrent = effectCurrent;
+            this.effectNext = effectNext;
         }
     }
 
@@ -183,10 +251,22 @@ public class SkillFragment extends Fragment {
             holder.tvLevel.setText(item.levelDisplay);
             holder.applyCompactStyle(compactMode);
 
-            // 点击整个条目或加点按钮的事件 (TODO)
-            View.OnClickListener clickDetail = v -> {
-                Toast.makeText(v.getContext(), "TODO: 显示 [" + item.name + "] 详细介绍面板与当前等级的效果", Toast.LENGTH_SHORT).show();
-            };
+            View.OnClickListener clickDetail =
+                    v -> {
+                        SkillDetailDialog.Detail detail =
+                                new SkillDetailDialog.Detail(
+                                        item.name,
+                                        item.category,
+                                        item.tags,
+                                        item.levelDisplay,
+                                        item.skillPointPerLevel,
+                                        item.cooldown,
+                                        item.castRange,
+                                        item.effectCurrent,
+                                        item.effectNext,
+                                        item.desc);
+                        SkillDetailDialog.show(v.getContext(), detail);
+                    };
             holder.itemView.setOnClickListener(clickDetail);
             holder.btnAdd.setOnClickListener(v -> {
                 Toast.makeText(v.getContext(), "TODO: 进行 [" + item.name + "] 技能学习/升级操作", Toast.LENGTH_SHORT).show();

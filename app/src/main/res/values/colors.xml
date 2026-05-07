@@ -20,4 +20,6 @@
     <color name="tb_divider">#B37B5C3B</color>
     <color name="tb_slot_empty">#FFC9AD84</color>
     <color name="tb_slot_locked">#FF8D6D4B</color>
+    <!-- 物品格内等级数字：浅色 + 阴影描边，无底色块 -->
+    <color name="tb_slot_level_text">#FFFFF6E8</color>
 </resources>
