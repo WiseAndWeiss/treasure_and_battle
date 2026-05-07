@@ -93,9 +93,10 @@ public class ProfessionManagerTest {
         // 测试被动技能
         assertTrue("应该包含被动技能strong_body", warrior.getProfessionAllPassiveSkillIds().contains("strong_body"));
         assertTrue("应该包含被动技能iron_will", warrior.getProfessionAllPassiveSkillIds().contains("iron_will"));
+        assertTrue("应该包含被动技能brave_growth", warrior.getProfessionAllPassiveSkillIds().contains("brave_growth"));
 
-        // 测试事件技能
-        assertTrue("应该包含事件技能brave_growth", warrior.getProfessionAllEventSkillIds().contains("brave_growth"));
+        // 事件技能树目前为空
+        assertNotNull("事件技能ID列表不应为null", warrior.getProfessionAllEventSkillIds());
     }
 
     /**
@@ -166,35 +167,49 @@ public class ProfessionManagerTest {
         Profession warrior = professionManager.createProfession(ProfessionType.WARRIOR);
         assertNotNull("战士职业不应该为null", warrior);
 
-        // 学习第0层主动技能
+        // 学习第0层主动技能（无前置）
         boolean success = warrior.levelUpSkill("slash");
         assertTrue("学习slash应该成功", success);
 
         success = warrior.levelUpSkill("battle_stance");
         assertTrue("学习battle_stance应该成功", success);
 
-        // 学习第0层被动技能
+        // 学习第0层被动技能（无前置）
         success = warrior.levelUpSkill("strong_body");
         assertTrue("学习strong_body应该成功", success);
 
-        success = warrior.levelUpSkill("iron_will");
-        assertTrue("学习iron_will应该成功", success);
+        success = warrior.levelUpSkill("tough_guard");
+        assertTrue("学习tough_guard应该成功", success);
 
-        // 学习第0层事件技能
-        success = warrior.levelUpSkill("brave_growth");
-        assertTrue("学习brave_growth应该成功", success);
+        // 验证技能已学习
+        assertTrue("slash应该已学习", warrior.isLearnedSkill("slash"));
+        assertTrue("battle_stance应该已学习", warrior.isLearnedSkill("battle_stance"));
+        assertTrue("strong_body应该已学习", warrior.isLearnedSkill("strong_body"));
+        assertTrue("tough_guard应该已学习", warrior.isLearnedSkill("tough_guard"));
+
+        // 验证技能等级
+        Skill slashSkill = warrior.getLearnedSkillById("slash");
+        assertNotNull("slash技能不应该为null", slashSkill);
+        assertEquals("slash技能应为1级", 1, slashSkill.getLevel());
+
+        // 验证可以升级已学习的技能
+        assertTrue("slash应该可以升级", warrior.canLevelUpSkill("slash"));
+        success = warrior.levelUpSkill("slash");
+        assertTrue("升级slash到2级应该成功", success);
+        assertEquals("slash技能应为2级", 2, slashSkill.getLevel());
+
+        // 验证iron_will不可学习（需要前置bloodthirsty，且层级2未解锁）
+        assertFalse("iron_will在未满足前置前不可学习", warrior.isLearnableSkill("iron_will"));
 
         // 检查已学习的技能数量
         var learnedActiveSkills = warrior.getLearnedActiveSkill();
         var learnedPassiveSkills = warrior.getLearnedPassiveSkill();
-        var learnedEventSkills = warrior.getLearnedEventSkill();
 
         assertTrue("应该有已学习的主动技能", learnedActiveSkills.size() > 0);
         assertTrue("应该有已学习的被动技能", learnedPassiveSkills.size() > 0);
-        assertTrue("应该有已学习的事件技能", learnedEventSkills.size() > 0);
 
         // 检查总已学习技能
         var allLearnedSkills = warrior.getLearnedSkill();
-        assertTrue("应该有已学习的技能", allLearnedSkills.size() >= 5);
+        assertTrue("应该有已学习的技能", allLearnedSkills.size() >= 4);
     }
 }

@@ -36,7 +36,7 @@
       "maxLayer": 3
     },
     {
-      "templateId": 10102,
+      "templateId": 10103,
       "skillTreeId": "warrior_event_tree",
       "skillTreeType": "EVENT",
       "skillNodes": [],

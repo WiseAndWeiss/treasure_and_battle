@@ -191,6 +191,9 @@ public class EquipTriggerBuffAffixIntegrationTest {
                 context
         );
 
+        monster.getBaseAttributes().maxHp = maxHp;
+        monster.getBaseAttributes().physicalDef = physicalDef;
+        monster.getBaseAttributes().magicalDef = magicalDef;
         monster.getBaseAttributes().dodgeRate = dodgeRate;
         monster.markAttributeCacheDirty();
         monster.setCurrentHp(maxHp);

@@ -261,7 +261,9 @@ public class BuffManager {
                 context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
                     "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
             }
-          
+        }
+    }
+
     // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
     public void triggerBuffsForAllMonsters(BattleContext context, BuffTriggerType triggerType) {
         if (context == null || context.monsters == null) return;

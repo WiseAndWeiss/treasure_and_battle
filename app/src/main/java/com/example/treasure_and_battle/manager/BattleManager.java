@@ -78,11 +78,13 @@ public class BattleManager {
         }
 
         // 1.3 触发被动技能（战斗开始）
-        triggerPassiveSkills(player, battleContext);
-        triggerPassiveSkills(monster, battleContext);
+        triggerPassiveSkills(player, ctx);
+        for (Monster m : monsters) {
+            triggerPassiveSkills(m, ctx);
+        }
 
         // 1.3 判定先手（功能清单第5点）
-        determineTurnOrder(battleContext);
+        determineTurnOrder(ctx);
         BuffManager.getInstance(context).triggerBuffs(player, ctx, BuffTriggerType.ON_BATTLE_START);
         AffixManager.getInstance(context).triggerAffixes(player, ctx, AffixTriggerType.ON_BATTLE_START);
         BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_START);
@@ -230,21 +232,6 @@ public class BattleManager {
         for (; ctx.actionOrderIndex < ctx.roundActionOrder.size(); ctx.actionOrderIndex++) {
             if (ctx.isBattleEnded) break;
 
-        // 6.2 触发回合结束被动技能
-        triggerPassiveSkills(ctx.player, ctx);
-        triggerPassiveSkills(ctx.monster, ctx);
-
-        // 6.3 Buff Tick（减少持续时间，清理过期）
-        BuffManager.getInstance(context).tickBuffs(ctx.player);
-        BuffManager.getInstance(context).tickBuffs(ctx.monster);
-
-        // 6.3.1 Buff 回合结束处理（特殊buff的回合结束逻辑）
-        BuffManager.getInstance(context).onRoundEnd(ctx.player, ctx);
-        BuffManager.getInstance(context).onRoundEnd(ctx.monster, ctx);
-
-        // 6.4 检查是否有实体死亡
-        checkDeath(ctx);
-    }
             BattleEntity actor = ctx.roundActionOrder.get(ctx.actionOrderIndex);
             if (actor.isDead()) continue;
 
@@ -253,6 +240,14 @@ public class BattleManager {
             if (ctx.currentTarget == null) ctx.currentTarget = ctx.player;
 
             ctx.addLog(LogType.ROUND_INFO, "轮到 [%s] 行动", actor.getName());
+
+            if (actor instanceof Player) {
+                playerActionPhase(ctx);
+            } else if (actor instanceof Monster) {
+                monsterActionPhaseFor(ctx, (Monster) actor);
+            }
+        }
+    }
 
     // ====================== 被动技能系统支持 ======================
 
@@ -666,21 +661,8 @@ public class BattleManager {
 
     // 5. 先手规则判定
     private void determineTurnOrder(BattleContext ctx) {
-        if (ctx.isSurpriseAttack) {
-            // 偷袭战斗：袭击方先行动（这里假设袭击方是玩家，可根据需求调整）
-            ctx.isPlayerTurn = true;
-            ctx.addLog(LogType.INIT, "【偷袭】[%s] 发起突袭，获得先手行动权。", ctx.player.getName());
-            if (actor instanceof Player) {
-                ctx.currentTarget = ctx.getPrimaryMonsterTarget();
-                playerActionPhase(ctx);
-            } else if (actor instanceof Monster) {
-                Monster m = (Monster) actor;
-                ctx.currentTarget = ctx.player;
-                ctx.monster = m;
-                monsterActionPhaseFor(ctx, m);
-            }
-
-            checkDeath(ctx);
+        if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
+            ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
         }
     }
 
@@ -723,9 +705,16 @@ public class BattleManager {
     private void onRoundEnd(BattleContext ctx) {
         for (BattleEntity e : ctx.playerParty) {
             if (e == null || e.isDead()) continue;
+            triggerRoundEndPassiveSkills(e, ctx);
             BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_END);
             AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_END);
+            BuffManager.getInstance(context).onRoundEnd(e, ctx);
             BuffManager.getInstance(context).tickBuffs(e);
+        }
+        for (Monster m : ctx.getAliveMonsters()) {
+            if (m == null) continue;
+            triggerRoundEndPassiveSkills(m, ctx);
+            BuffManager.getInstance(context).onRoundEnd(m, ctx);
         }
         BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_END);
         AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_END);
@@ -917,7 +906,6 @@ public class BattleManager {
                 if (actor instanceof Monster) executeMonsterEscape(ctx);
                 return true;
             case SKILL:
-                SkillManager.getInstance(context).executeSkill(action.getActionRefId(), actor, target, ctx);
                 ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（TODO：技能系统接入中）",
                         actor.getName(), action.getDisplayName());
                 return true;

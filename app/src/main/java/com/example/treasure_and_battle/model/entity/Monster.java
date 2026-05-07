@@ -72,8 +72,9 @@ public class Monster extends BattleEntity {
     protected void recalculateFinalAttributes() {
         this.finalAttributes.copyFrom(this.baseAttributes);
 
-        if (this.entityAffixList != null && !this.entityAffixList.isEmpty()) {
-        }
+        AttributeSet calculatedAttrs =
+            AttributeUtils.calculateFinalAttributes(this, this.getContext());
+        this.finalAttributes.copyFrom(calculatedAttrs);
 
         int oldMaxHp = this.finalAttributes.maxHp;
         if (oldMaxHp > 0 && this.currentHp > 0) {
