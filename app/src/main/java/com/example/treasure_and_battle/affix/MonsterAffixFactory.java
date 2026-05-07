@@ -1,6 +1,5 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.affix;
 
-import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix;
 import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix;
 import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRecoverAffix;
@@ -12,9 +11,9 @@ import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 
-class MonsterAffixFactory {
+public class MonsterAffixFactory {
 
-    static BaseMonsterAffix create(MonsterAffixTemplate template, Rarity rarity,
+    public static BaseMonsterAffix create(MonsterAffixTemplate template, Rarity rarity,
                                    AffixTriggerType triggerType, float randomValue) {
         String affixClass = template.getAffixClass();
 
