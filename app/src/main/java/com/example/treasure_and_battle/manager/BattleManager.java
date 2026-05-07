@@ -1095,6 +1095,12 @@ public class BattleManager {
 
             int finalGold = (int) (baseGold * ctx.player.getFinalAttributes().goldBonus);
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
+
+            // 掉落物生成 → 存入待领取列表（玩家可选择拿取/全部拿取）
+            java.util.List<com.example.treasure_and_battle.model.item.Item> drops =
+                DropManager.getInstance(context).generateDrops(ctx);
+            ctx.pendingLoot = drops;
+            ctx.addLog(LogType.RESULT, "战斗掉落：共 %d 件物品待领取", drops.size());
         } else if (ctx.battleResult == BattleContext.BattleResult.DEFEAT) {
             ctx.player.setCurrentHp(1);
             ctx.player.setDead(false);

@@ -123,6 +123,8 @@ public class MonsterManager {
             context
         );
 
+        monster.setTemplateId(templateId);
+
         addDefaultCombatIntents(monster);
         addSkillPoolIntents(monster, template);
 
@@ -167,6 +169,13 @@ public class MonsterManager {
                     -1f, -1f,
                     skillRef.getSkillId()));
         }
+    }
+
+    // ====================== 掉落物查询 ======================
+
+    public List<MonsterTemplate.DropEntry> getDropTable(int templateId) {
+        MonsterTemplate template = templateMap.get(templateId);
+        return template == null ? null : template.getDropTable();
     }
 
     private static class MonsterConfigWrapper {

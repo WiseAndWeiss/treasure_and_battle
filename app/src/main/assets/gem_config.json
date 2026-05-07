@@ -1,0 +1,774 @@
+{
+  "gem_templates": [
+    {
+      "gemId": "ruby_普通",
+      "name": "普通红宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "RUBY",
+      "accessoryBonuses": [
+        {
+          "type": "STRENGTH",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_ATK",
+          "value": 2
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_CRIT_DMG",
+          "value": 0.01
+        }
+      ]
+    },
+    {
+      "gemId": "ruby_稀有",
+      "name": "稀有红宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "RUBY",
+      "accessoryBonuses": [
+        {
+          "type": "STRENGTH",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_ATK",
+          "value": 4
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_CRIT_DMG",
+          "value": 0.015
+        }
+      ]
+    },
+    {
+      "gemId": "ruby_罕见",
+      "name": "罕见红宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "RUBY",
+      "accessoryBonuses": [
+        {
+          "type": "STRENGTH",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_ATK",
+          "value": 6
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_CRIT_DMG",
+          "value": 0.03
+        }
+      ]
+    },
+    {
+      "gemId": "ruby_史诗",
+      "name": "史诗红宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "RUBY",
+      "accessoryBonuses": [
+        {
+          "type": "STRENGTH",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_ATK",
+          "value": 10
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_CRIT_DMG",
+          "value": 0.05
+        }
+      ]
+    },
+    {
+      "gemId": "ruby_传说",
+      "name": "传说红宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "RUBY",
+      "accessoryBonuses": [
+        {
+          "type": "STRENGTH",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_ATK",
+          "value": 20
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_CRIT_DMG",
+          "value": 0.1
+        }
+      ]
+    },
+    {
+      "gemId": "emerald_普通",
+      "name": "普通绿宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "EMERALD",
+      "accessoryBonuses": [
+        {
+          "type": "AGILITY",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "HIT_RATE",
+          "value": 0.006
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "DODGE_RATE",
+          "value": 0.008
+        }
+      ]
+    },
+    {
+      "gemId": "emerald_稀有",
+      "name": "稀有绿宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "EMERALD",
+      "accessoryBonuses": [
+        {
+          "type": "AGILITY",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "HIT_RATE",
+          "value": 0.009
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "DODGE_RATE",
+          "value": 0.012
+        }
+      ]
+    },
+    {
+      "gemId": "emerald_罕见",
+      "name": "罕见绿宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "EMERALD",
+      "accessoryBonuses": [
+        {
+          "type": "AGILITY",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "HIT_RATE",
+          "value": 0.018
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "DODGE_RATE",
+          "value": 0.024
+        }
+      ]
+    },
+    {
+      "gemId": "emerald_史诗",
+      "name": "史诗绿宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "EMERALD",
+      "accessoryBonuses": [
+        {
+          "type": "AGILITY",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "HIT_RATE",
+          "value": 0.03
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "DODGE_RATE",
+          "value": 0.04
+        }
+      ]
+    },
+    {
+      "gemId": "emerald_传说",
+      "name": "传说绿宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "EMERALD",
+      "accessoryBonuses": [
+        {
+          "type": "AGILITY",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "HIT_RATE",
+          "value": 0.06
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "DODGE_RATE",
+          "value": 0.08
+        }
+      ]
+    },
+    {
+      "gemId": "sapphire_普通",
+      "name": "普通蓝宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "SAPPHIRE",
+      "accessoryBonuses": [
+        {
+          "type": "INTELLIGENCE",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAGICAL_ATK",
+          "value": 2
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_CRIT_DMG",
+          "value": 0.01
+        }
+      ]
+    },
+    {
+      "gemId": "sapphire_稀有",
+      "name": "稀有蓝宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "SAPPHIRE",
+      "accessoryBonuses": [
+        {
+          "type": "INTELLIGENCE",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAGICAL_ATK",
+          "value": 4
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_CRIT_DMG",
+          "value": 0.015
+        }
+      ]
+    },
+    {
+      "gemId": "sapphire_罕见",
+      "name": "罕见蓝宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "SAPPHIRE",
+      "accessoryBonuses": [
+        {
+          "type": "INTELLIGENCE",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAGICAL_ATK",
+          "value": 6
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_CRIT_DMG",
+          "value": 0.03
+        }
+      ]
+    },
+    {
+      "gemId": "sapphire_史诗",
+      "name": "史诗蓝宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "SAPPHIRE",
+      "accessoryBonuses": [
+        {
+          "type": "INTELLIGENCE",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAGICAL_ATK",
+          "value": 10
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_CRIT_DMG",
+          "value": 0.05
+        }
+      ]
+    },
+    {
+      "gemId": "sapphire_传说",
+      "name": "传说蓝宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "SAPPHIRE",
+      "accessoryBonuses": [
+        {
+          "type": "INTELLIGENCE",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAGICAL_ATK",
+          "value": 20
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_CRIT_DMG",
+          "value": 0.1
+        }
+      ]
+    },
+    {
+      "gemId": "topaz_普通",
+      "name": "普通黄宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "TOPAZ",
+      "accessoryBonuses": [
+        {
+          "type": "PHYSIQUE",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_HP",
+          "value": 4
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_DEF",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "gemId": "topaz_稀有",
+      "name": "稀有黄宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "TOPAZ",
+      "accessoryBonuses": [
+        {
+          "type": "PHYSIQUE",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_HP",
+          "value": 6
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_DEF",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "gemId": "topaz_罕见",
+      "name": "罕见黄宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "TOPAZ",
+      "accessoryBonuses": [
+        {
+          "type": "PHYSIQUE",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_HP",
+          "value": 12
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_DEF",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "gemId": "topaz_史诗",
+      "name": "史诗黄宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "TOPAZ",
+      "accessoryBonuses": [
+        {
+          "type": "PHYSIQUE",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_HP",
+          "value": 20
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_DEF",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "gemId": "topaz_传说",
+      "name": "传说黄宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "TOPAZ",
+      "accessoryBonuses": [
+        {
+          "type": "PHYSIQUE",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_HP",
+          "value": 40
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "PHYSICAL_DEF",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "gemId": "amethyst_普通",
+      "name": "普通紫宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "AMETHYST",
+      "accessoryBonuses": [
+        {
+          "type": "SPIRIT",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_MP",
+          "value": 4
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_DEF",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "gemId": "amethyst_稀有",
+      "name": "稀有紫宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "AMETHYST",
+      "accessoryBonuses": [
+        {
+          "type": "SPIRIT",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_MP",
+          "value": 6
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_DEF",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "gemId": "amethyst_罕见",
+      "name": "罕见紫宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "AMETHYST",
+      "accessoryBonuses": [
+        {
+          "type": "SPIRIT",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_MP",
+          "value": 12
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_DEF",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "gemId": "amethyst_史诗",
+      "name": "史诗紫宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "AMETHYST",
+      "accessoryBonuses": [
+        {
+          "type": "SPIRIT",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_MP",
+          "value": 20
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_DEF",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "gemId": "amethyst_传说",
+      "name": "传说紫宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "AMETHYST",
+      "accessoryBonuses": [
+        {
+          "type": "SPIRIT",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "MAX_MP",
+          "value": 40
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "MAGICAL_DEF",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "gemId": "pink_普通",
+      "name": "普通粉宝石",
+      "rarityId": 0,
+      "baseValue": 50,
+      "gemType": "PINK",
+      "accessoryBonuses": [
+        {
+          "type": "LUCK",
+          "value": 1
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_AND_MAGICAL_CRIT_RATE",
+          "value": 0.008
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "GOLD_BONUS",
+          "value": 1.02
+        },
+        {
+          "type": "EXP_BONUS",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "gemId": "pink_稀有",
+      "name": "稀有粉宝石",
+      "rarityId": 1,
+      "baseValue": 120,
+      "gemType": "PINK",
+      "accessoryBonuses": [
+        {
+          "type": "LUCK",
+          "value": 2
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_AND_MAGICAL_CRIT_RATE",
+          "value": 0.012
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "GOLD_BONUS",
+          "value": 1.03
+        },
+        {
+          "type": "EXP_BONUS",
+          "value": 1.03
+        }
+      ]
+    },
+    {
+      "gemId": "pink_罕见",
+      "name": "罕见粉宝石",
+      "rarityId": 2,
+      "baseValue": 300,
+      "gemType": "PINK",
+      "accessoryBonuses": [
+        {
+          "type": "LUCK",
+          "value": 3
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_AND_MAGICAL_CRIT_RATE",
+          "value": 0.024
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "GOLD_BONUS",
+          "value": 1.06
+        },
+        {
+          "type": "EXP_BONUS",
+          "value": 1.06
+        }
+      ]
+    },
+    {
+      "gemId": "pink_史诗",
+      "name": "史诗粉宝石",
+      "rarityId": 3,
+      "baseValue": 750,
+      "gemType": "PINK",
+      "accessoryBonuses": [
+        {
+          "type": "LUCK",
+          "value": 5
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_AND_MAGICAL_CRIT_RATE",
+          "value": 0.04
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "GOLD_BONUS",
+          "value": 1.1
+        },
+        {
+          "type": "EXP_BONUS",
+          "value": 1.1
+        }
+      ]
+    },
+    {
+      "gemId": "pink_传说",
+      "name": "传说粉宝石",
+      "rarityId": 4,
+      "baseValue": 2000,
+      "gemType": "PINK",
+      "accessoryBonuses": [
+        {
+          "type": "LUCK",
+          "value": 10
+        }
+      ],
+      "weaponBonuses": [
+        {
+          "type": "PHYSICAL_AND_MAGICAL_CRIT_RATE",
+          "value": 0.08
+        }
+      ],
+      "armorBonuses": [
+        {
+          "type": "GOLD_BONUS",
+          "value": 1.2
+        },
+        {
+          "type": "EXP_BONUS",
+          "value": 1.2
+        }
+      ]
+    }
+  ]
+}

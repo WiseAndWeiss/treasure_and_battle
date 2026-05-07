@@ -13,6 +13,7 @@ import com.example.treasure_and_battle.manager.EquipAffixManager;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,13 @@ public class EquipmentManager {
         equip.setAffixes(baseAffixes);
 
         return equip;
+    }
+
+    public EquipItem generateRandomEquip(int level, Rarity rarity) {
+        if (templateMap.isEmpty()) return null;
+        List<EquipTemplate> templates = new ArrayList<>(templateMap.values());
+        EquipTemplate template = templates.get(random.nextInt(templates.size()));
+        return generateEquip(template.getTemplateId(), level, rarity);
     }
 
     private void applyEquipmentOnlyAffixes(EquipItem equip, List<BaseAffix> affixes) {

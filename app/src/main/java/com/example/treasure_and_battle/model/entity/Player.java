@@ -299,11 +299,23 @@ public class Player extends BattleEntity {
     }
 
     // ====================== 装备 ======================
-    public void equip(EquipItem item) {
-        if (item != null) {
-            equippedItems.put(item.getSlot(), item);
+    public EquipItem equip(EquipItem item) {
+        if (item == null) return null;
+        EquipItem old = equippedItems.put(item.getSlot(), item);
+        markAttributeCacheDirty();
+        return old;
+    }
+
+    public EquipItem unequip(EquipSlot slot) {
+        EquipItem removed = equippedItems.remove(slot);
+        if (removed != null) {
             markAttributeCacheDirty();
         }
+        return removed;
+    }
+
+    public EquipItem getEquippedItem(EquipSlot slot) {
+        return equippedItems.get(slot);
     }
 
     public Collection<EquipItem> getEquippedItems() {

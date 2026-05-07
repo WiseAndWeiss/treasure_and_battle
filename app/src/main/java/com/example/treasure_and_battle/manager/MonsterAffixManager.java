@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
+import com.example.treasure_and_battle.affix.MonsterAffixFactory;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.affix.MonsterAffixTemplate;
 import com.example.treasure_and_battle.model.common.Rarity;

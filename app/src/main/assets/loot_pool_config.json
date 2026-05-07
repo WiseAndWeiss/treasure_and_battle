@@ -1,0 +1,48 @@
+{
+  "loot_pools": [
+    {
+      "rarityId": 0,
+      "comment": "普通怪物 — 消耗品为主，少量宝石",
+      "entries": [
+        { "type": "CONSUMABLE", "weight": 70 },
+        { "type": "GEM",        "weight": 30 }
+      ]
+    },
+    {
+      "rarityId": 1,
+      "comment": "稀有怪物 — 加入装备，降低消耗品权重",
+      "entries": [
+        { "type": "CONSUMABLE", "weight": 55 },
+        { "type": "EQUIPMENT",  "weight": 20 },
+        { "type": "GEM",        "weight": 25 }
+      ]
+    },
+    {
+      "rarityId": 2,
+      "comment": "罕见怪物 — 装备权重进一步提升",
+      "entries": [
+        { "type": "CONSUMABLE", "weight": 40 },
+        { "type": "EQUIPMENT",  "weight": 35 },
+        { "type": "GEM",        "weight": 25 }
+      ]
+    },
+    {
+      "rarityId": 3,
+      "comment": "史诗怪物 — 装备成为主要掉落",
+      "entries": [
+        { "type": "CONSUMABLE", "weight": 25 },
+        { "type": "EQUIPMENT",  "weight": 50 },
+        { "type": "GEM",        "weight": 25 }
+      ]
+    },
+    {
+      "rarityId": 4,
+      "comment": "传说怪物 — 装备为绝对主力",
+      "entries": [
+        { "type": "CONSUMABLE", "weight": 15 },
+        { "type": "EQUIPMENT",  "weight": 60 },
+        { "type": "GEM",        "weight": 25 }
+      ]
+    }
+  ]
+}
