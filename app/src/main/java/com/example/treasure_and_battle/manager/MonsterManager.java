@@ -167,8 +167,10 @@ public class MonsterManager {
                 monster.addMonsterSkill(skillRef.getSkillId(), (ActiveSkill) skillInstance);
             }
 
+            String displayName = skillInstance != null ? skillInstance.getSkillName() : skillRef.getSkillId();
+
             monster.addIntent(new ActionIntent(
-                    skillRef.getSkillId(),
+                    displayName,
                     "怪物技能",
                     ActionIntent.IntentType.SKILL,
                     Math.max(1, skillRef.getApCost()),

@@ -28,6 +28,7 @@ public class MonsterSkill_Frenzy extends MonsterActiveSkill {
         int atkPercent = getEffectParams().x;
         int spdPercent = getEffectParams().y;
         int defReducePercent = getEffectParams().z;
+        int duration = getEffectParams().w;
 
         int currentHp = caster.getCurrentHp();
         int hpCost = (int) (currentHp * 0.15);
@@ -36,24 +37,24 @@ public class MonsterSkill_Frenzy extends MonsterActiveSkill {
 
         AttributeBuff atkBuff = new AttributeBuff(
                 "frenzy_atk", "狂化·攻击", "物攻提升%d%%",
-                BuffType.BUFF, false, 2, 1, false, atkPercent,
+                BuffType.BUFF, false, duration, 1, false, atkPercent,
                 AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE);
         battleManager.applyBuff(caster, atkBuff);
 
         AttributeBuff spdBuff = new AttributeBuff(
                 "frenzy_spd", "狂化·速度", "速度提升%d%%",
-                BuffType.BUFF, false, 2, 1, false, spdPercent,
+                BuffType.BUFF, false, duration, 1, false, spdPercent,
                 AttributeType.SPEED, ValueType.PERCENTAGE);
         battleManager.applyBuff(caster, spdBuff);
 
         AttributeBuff defReduceBuff = new AttributeBuff(
                 "frenzy_def_down", "狂化·防御降低", "物防降低%d%%",
-                BuffType.DEBUFF, false, 2, 1, false, -defReducePercent,
+                BuffType.DEBUFF, false, duration, 1, false, -defReducePercent,
                 AttributeType.PHYSICAL_DEF, ValueType.PERCENTAGE);
         battleManager.applyBuff(caster, defReduceBuff);
 
         context.addLog(LogType.ACTION,
-                "【狂化】[%s] 陷入狂暴！消耗 %d 点HP，物攻+%d%% 速度+%d%% 物防-%d%% 持续2回合",
-                caster.getName(), hpBefore - caster.getCurrentHp(), atkPercent, spdPercent, defReducePercent);
+                "【狂化】[%s] 陷入狂暴！消耗 %d 点HP，物攻+%d%% 速度+%d%% 物防-%d%% 持续%d回合",
+                caster.getName(), hpBefore - caster.getCurrentHp(), atkPercent, spdPercent, defReducePercent, duration);
     }
 }

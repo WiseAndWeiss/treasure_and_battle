@@ -181,7 +181,7 @@
       "skillId": "monster_frenzy",
       "skillName": "狂化",
       "simpleDesc": "陷入狂暴状态，牺牲防御换取毁灭性攻击力",
-      "detailedDesc": "扣HP15%，物攻+{x}%、速度+{y}%、物防-{z}%，持续2回合",
+      "detailedDesc": "扣HP15%，物攻+{x}%、速度+{y}%、物防-{z}%，持续{w}回合",
       "skillType": "ACTIVE",
       "skillRangeType": "SELF",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
@@ -191,10 +191,10 @@
         {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 35, "y": 30, "z": 30},
-        {"x": 45, "y": 40, "z": 25},
-        {"x": 55, "y": 50, "z": 20},
-        {"x": 65, "y": 60, "z": 15}
+        {"x": 35, "y": 30, "z": 30, "w": 2},
+        {"x": 45, "y": 40, "z": 25, "w": 2},
+        {"x": 55, "y": 50, "z": 20, "w": 3},
+        {"x": 65, "y": 60, "z": 15, "w": 3}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Frenzy"
     },

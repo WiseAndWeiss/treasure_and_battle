@@ -3,10 +3,12 @@ package com.example.treasure_and_battle.skill.passive.warrior;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.DamageType;
+import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 
@@ -38,8 +40,8 @@ public class PassiveSkill_ShieldBurst extends PassiveSkill {
             return;
         }
 
-        // 获取所有敌人
-        List<BattleEntity> enemies = battleManager.getAllEnemies(owner, context);
+        // 获取所有活着的敌人
+        List<BattleEntity> enemies = SkillTargetResolver.resolve(SkillRangeType.ALL_ENEMIES, owner, context);
 
         if (enemies.isEmpty()) {
             return;

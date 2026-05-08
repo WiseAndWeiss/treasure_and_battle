@@ -98,6 +98,7 @@ public class SkillTemplate {
             throw new IllegalArgumentException("Invalid skill level: " + level);
         }
         if(level == 0)  return new SkillEffectParams();
-        return new SkillEffectParams(effectParamsList.get(level - 1));
+        int idx = Math.min(level - 1, effectParamsList.size() - 1);
+        return new SkillEffectParams(effectParamsList.get(idx));
     }
 }

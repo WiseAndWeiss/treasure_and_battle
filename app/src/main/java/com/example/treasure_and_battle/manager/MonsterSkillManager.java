@@ -3,13 +3,8 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.Skill;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,21 +12,17 @@ import java.util.Map;
  * 单例模式，负责从 monster_skill_config.json 加载怪物专属技能模板，
  * 并通过反射创建技能实例。
  *
- * 设计上与 SkillManager 完全对齐，但职责分离：
- *   - SkillManager      → 加载玩家技能 (skill_config.json)
- *   - MonsterSkillManager → 加载怪物技能 (monster_skill_config.json)
+ * 加载逻辑委托给 SkillDataLoader，避免与 SkillManager 重复代码。
  */
 public class MonsterSkillManager {
     private static MonsterSkillManager instance;
     private Context context;
-    private Gson gson;
 
     private Map<Integer, SkillTemplate> templateMap = new HashMap<>();
     private Map<String, Integer> skillIdToTemplateIdMap = new HashMap<>();
 
     private MonsterSkillManager(Context context) {
         this.context = context.getApplicationContext();
-        this.gson = new Gson();
         loadMonsterSkillTemplates();
     }
 
@@ -46,31 +37,12 @@ public class MonsterSkillManager {
         instance = null;
     }
 
-    // ====================== 1. 加载怪物技能模板 ======================
-
     private void loadMonsterSkillTemplates() {
-        try {
-            InputStream is = context.getAssets().open("monster_skill_config.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String json = new String(buffer, "UTF-8");
-
-            Type type = new TypeToken<SkillConfigWrapper>() {}.getType();
-            SkillConfigWrapper wrapper = gson.fromJson(json, type);
-            if (wrapper != null && wrapper.skill_templates != null) {
-                for (SkillTemplate template : wrapper.skill_templates) {
-                    templateMap.put(template.getTemplateId(), template);
-                    skillIdToTemplateIdMap.put(template.getSkillId(), template.getTemplateId());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SkillDataLoader.loadInto(context, "monster_skill_config.json",
+                templateMap, skillIdToTemplateIdMap);
     }
 
-    // ====================== 2. 通过模板ID创建技能实例 ======================
+    // ====================== 通过模板ID创建技能实例 ======================
 
     public Skill createSkillByTemplateId(int templateId, int level) {
         SkillTemplate template = templateMap.get(templateId);
@@ -100,7 +72,7 @@ public class MonsterSkillManager {
         }
     }
 
-    // ====================== 3. 通过技能ID创建技能实例 ======================
+    // ====================== 通过技能ID创建技能实例 ======================
 
     public Skill createSkillBySkillId(String skillId, int level) {
         Integer templateId = skillIdToTemplateIdMap.get(skillId);
@@ -112,7 +84,7 @@ public class MonsterSkillManager {
         return createSkillBySkillId(skillId, 1);
     }
 
-    // ====================== 4. 查询方法 ======================
+    // ====================== 查询方法 ======================
 
     public SkillTemplate getSkillTemplate(int templateId) {
         return templateMap.get(templateId);
@@ -125,11 +97,5 @@ public class MonsterSkillManager {
 
     public boolean hasSkill(String skillId) {
         return skillIdToTemplateIdMap.containsKey(skillId);
-    }
-
-    // ====================== 内部类 ======================
-
-    private static class SkillConfigWrapper {
-        List<SkillTemplate> skill_templates;
     }
 }

@@ -53,19 +53,6 @@ public class BattleManager {
     }
 
     // ====================== 【入口】1. 初始化战斗 ======================
-    public BattleContext startBattle(Player player, Monster monster, boolean isSurpriseAttack) {
-        List<Monster> monsters = new ArrayList<>();
-        if (monster != null) {
-            monsters.add(monster);
-        }
-        return startBattle(player, monsters, isSurpriseAttack);
-    }
-
-    public BattleContext startBattle(Player player, List<Monster> monsters, boolean isSurpriseAttack) {
-        return startBattle(player, monsters,
-                isSurpriseAttack ? SurpriseDirection.PLAYER_SURPRISE : SurpriseDirection.NONE);
-    }
-
     public BattleContext startBattle(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
         BattleContext ctx = new BattleContext(player, monsters, surpriseAttacker);
 
@@ -77,14 +64,15 @@ public class BattleManager {
             m.resetActionPoints();
         }
 
-        // 1.3 触发被动技能（战斗开始）
-        triggerPassiveSkills(player, ctx);
+        // 触发被动技能（战斗开始）
+        PassiveSkillManager.getInstance().triggerPassiveSkills(player, ctx);
         for (Monster m : monsters) {
-            triggerPassiveSkills(m, ctx);
+            PassiveSkillManager.getInstance().triggerPassiveSkills(m, ctx);
         }
 
-        // 1.3 判定先手（功能清单第5点）
-        determineTurnOrder(ctx);
+        if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
+            ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
+        }
         BuffManager.getInstance(context).triggerBuffs(player, ctx, BuffTriggerType.ON_BATTLE_START);
         AffixManager.getInstance(context).triggerAffixes(player, ctx, AffixTriggerType.ON_BATTLE_START);
         BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_START);
@@ -159,16 +147,10 @@ public class BattleManager {
             }
         }
 
-        // 3.3 触发回合开始Buff和词缀
-        BuffManager.getInstance(context).triggerBuffs(ctx.currentActor, ctx, BuffTriggerType.ON_ROUND_START);
-        AffixManager.getInstance(context).triggerAffixes(ctx.currentActor, ctx, AffixTriggerType.ON_ROUND_START);
-
-        // 3.4 触发回合开始被动技能
-        triggerPassiveSkills(ctx.currentActor, ctx);
-        // 3.3 构建全局速度优先队列
+        // 构建全局速度优先队列
         buildSpeedQueue(ctx);
 
-        // 3.4 触发回合开始 Buff/词缀（全部实体）
+        // 触发回合开始 Buff/词缀（全部实体）
         for (BattleEntity e : ctx.playerParty) {
             if (e == null || e.isDead()) continue;
             BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_START);
@@ -188,21 +170,19 @@ public class BattleManager {
 
         actors.sort(Comparator.comparingInt(e -> -e.getFinalAttributes().speed));
 
-        applySurpriseToQueue(ctx, actors);
-
-        ctx.roundActionOrder = actors;
+        ctx.roundActionOrder = applySurpriseToQueue(ctx, actors);
         ctx.actionOrderIndex = 0;
 
         StringBuilder orderDesc = new StringBuilder("行动顺序: ");
-        for (BattleEntity e : actors) {
+        for (BattleEntity e : ctx.roundActionOrder) {
             orderDesc.append("[").append(e.getName()).append("(速").append(e.getFinalAttributes().speed).append(")] ");
         }
         ctx.addLog(LogType.ROUND_INFO, orderDesc.toString().trim());
     }
 
     // ====================== 5. 偷袭阵营偏移 ======================
-    public void applySurpriseToQueue(BattleContext ctx, List<BattleEntity> actors) {
-        if (ctx.surpriseAttacker == SurpriseDirection.NONE) return;
+    public List<BattleEntity> applySurpriseToQueue(BattleContext ctx, List<BattleEntity> actors) {
+        if (ctx.surpriseAttacker == SurpriseDirection.NONE) return new ArrayList<>(actors);
 
         List<BattleEntity> playerSide = new ArrayList<>();
         List<BattleEntity> monsterSide = new ArrayList<>();
@@ -215,16 +195,17 @@ public class BattleManager {
             }
         }
 
-        actors.clear();
+        List<BattleEntity> ordered = new ArrayList<>();
         if (ctx.surpriseAttacker == SurpriseDirection.PLAYER_SURPRISE) {
-            actors.addAll(playerSide);
-            actors.addAll(monsterSide);
+            ordered.addAll(playerSide);
+            ordered.addAll(monsterSide);
             ctx.addLog(LogType.INIT, "【偷袭】玩家方发起突袭，全阵营先行动。");
         } else {
-            actors.addAll(monsterSide);
-            actors.addAll(playerSide);
+            ordered.addAll(monsterSide);
+            ordered.addAll(playerSide);
             ctx.addLog(LogType.INIT, "【伏击】怪物方发起伏击，全阵营先行动。");
         }
+        return ordered;
     }
 
     // ====================== 6. 统一轮流行动阶段 ======================
@@ -249,45 +230,6 @@ public class BattleManager {
         }
     }
 
-    // ====================== 被动技能系统支持 ======================
-    // 全部委托给 PassiveSkillManager
-
-    public void triggerBattleStartPassiveSkills(BattleEntity owner, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(owner, context);
-    }
-
-    public void triggerRoundEndPassiveSkills(BattleEntity owner, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(owner, context);
-    }
-
-    public void triggerRoundStartPassiveSkills(BattleEntity owner, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(owner, context);
-    }
-
-    public void triggerPassiveSkills(BattleEntity owner, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerPassiveSkills(owner, context);
-    }
-
-    public void triggerAttackPassiveSkills(BattleEntity attacker, BattleEntity target, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerAttackPassiveSkills(attacker, target, context);
-    }
-
-    private int triggerBeforeDamageDealtPassiveSkills(BattleEntity attacker, BattleEntity target, int damage, BattleContext context) {
-        return PassiveSkillManager.getInstance().triggerBeforeDamageDealtPassiveSkills(attacker, target, damage, context);
-    }
-
-    public void triggerAfterDamageDealtPassiveSkills(BattleEntity attacker, BattleEntity target, int damage, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerAfterDamageDealtPassiveSkills(attacker, target, damage, context);
-    }
-
-    public int triggerBeforeDamageReceivedPassiveSkills(BattleEntity target, BattleEntity attacker, int damage, BattleContext context) {
-        return PassiveSkillManager.getInstance().triggerBeforeDamageReceivedPassiveSkills(target, attacker, damage, context);
-    }
-
-    public void triggerAfterDamageReceivedPassiveSkills(BattleEntity target, BattleEntity attacker, int damage, BattleContext context) {
-        PassiveSkillManager.getInstance().triggerAfterDamageReceivedPassiveSkills(target, attacker, damage, context);
-    }
-
     // ====================== 技能系统支持 ======================
 
     /**
@@ -300,24 +242,15 @@ public class BattleManager {
      */
     public void executeSkill(BattleEntity caster, com.example.treasure_and_battle.skill.active.ActiveSkill skill,
                             java.util.List<BattleEntity> targets, BattleContext context) {
-        // 设置当前战斗上下文
         this.currentBattleContext = context;
-
-        // 1. 消耗资源
-        skill.applyCastCost(caster);
-
-        // 2. 触发技能效果
-        skill.onCast(caster, targets, this);
-
-        // 3. 设置冷却
-        skill.resetCooldown();
-
-        // 4. 记录日志
-        context.addLog(LogType.ACTION, "【%s】[%s] 对目标施放了 [%s]",
-            caster.getClass().getSimpleName(), caster.getName(), skill.getSkillName());
-
-        // 清除当前战斗上下文
-        this.currentBattleContext = null;
+        try {
+            skill.applyCastCost(caster);
+            skill.onCast(caster, targets, this);
+            context.addLog(LogType.ACTION, "【%s】[%s] 对目标施放了 [%s]",
+                caster.getClass().getSimpleName(), caster.getName(), skill.getSkillName());
+        } finally {
+            this.currentBattleContext = null;
+        }
     }
 
     /**
@@ -361,13 +294,6 @@ public class BattleManager {
 
     // ====================== 【核心规则实现】功能清单具体逻辑 ======================
 
-    // 5. 先手规则判定
-    private void determineTurnOrder(BattleContext ctx) {
-        if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
-            ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
-        }
-    }
-
     // ====================== 7. 怪物行动阶段 ======================
     private void monsterActionPhaseFor(BattleContext ctx, Monster m) {
         List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
@@ -407,7 +333,7 @@ public class BattleManager {
     private void onRoundEnd(BattleContext ctx) {
         for (BattleEntity e : ctx.playerParty) {
             if (e == null || e.isDead()) continue;
-            triggerRoundEndPassiveSkills(e, ctx);
+            PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(e, ctx);
             BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_END);
             AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_END);
             BuffManager.getInstance(context).onRoundEnd(e, ctx);
@@ -415,7 +341,7 @@ public class BattleManager {
         }
         for (Monster m : ctx.getAliveMonsters()) {
             if (m == null) continue;
-            triggerRoundEndPassiveSkills(m, ctx);
+            PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(m, ctx);
             BuffManager.getInstance(context).onRoundEnd(m, ctx);
             m.tickSkillCooldowns();
         }
@@ -476,6 +402,11 @@ public class BattleManager {
 
     // ====================== 12. 普通攻击 ======================
     public void executeNormalAttack(BattleContext ctx, BattleEntity attacker, BattleEntity target) {
+        AttributeSet attackerAttr = attacker.getFinalAttributes();
+        executeNormalAttack(ctx, attacker, target, attackerAttr.physicalAtk);
+    }
+
+    public void executeNormalAttack(BattleContext ctx, BattleEntity attacker, BattleEntity target, int baseDamage) {
         String actorName = attacker.getName();
         String targetName = target.getName();
         ctx.addLog(LogType.ACTION, "[%s] 发动普通攻击。", actorName);
@@ -483,9 +414,7 @@ public class BattleManager {
         AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK);
         BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK);
 
-        AttributeSet attackerAttr = attacker.getFinalAttributes();
         AttributeSet targetAttr = target.getFinalAttributes();
-        int baseDamage = attackerAttr.physicalAtk;
         ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", baseDamage);
 
         DamageManager.getInstance(this.context).dealDamage(
@@ -545,12 +474,14 @@ public class BattleManager {
             return false;
         }
 
-        actor.consumeActionPoints(action.getApCost());
-        actor.setCurrentMp(Math.max(0, actor.getCurrentMp() - action.getMpCost()));
+        if (action.getType() != BattleAction.ActionType.SKILL) {
+            actor.consumeActionPoints(action.getApCost());
+            actor.setCurrentMp(Math.max(0, actor.getCurrentMp() - action.getMpCost()));
+        }
 
         switch (action.getType()) {
             case ATTACK:
-                executeAttackAction(ctx, action, actor, target);
+                executeNormalAttack(ctx, actor, target);
                 return true;
             case ESCAPE:
                 if (actor instanceof Monster) executeMonsterEscape(ctx);
@@ -563,14 +494,17 @@ public class BattleManager {
                         java.util.List<BattleEntity> targets =
                                 SkillTargetResolver.resolve(skill.getSkillRangeType(), actor, ctx);
                         try {
+                            this.currentBattleContext = ctx;
+                            skill.applyCastCost(actor);
                             skill.onCast(actor, targets, this);
-                            skill.resetCooldown();
                             ctx.addLog(LogType.ACTION, "[%s] 释放了 [%s]",
                                     actor.getName(), skill.getSkillName());
                         } catch (Exception e) {
                             ctx.addLog(LogType.SYSTEM, "[%s] 释放技能 [%s] 失败: %s",
                                     actor.getName(), skill.getSkillName(), e.getMessage());
                             e.printStackTrace();
+                        } finally {
+                            this.currentBattleContext = null;
                         }
                     } else {
                         ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（技能未就绪或不存在）",
@@ -585,22 +519,6 @@ public class BattleManager {
             default:
                 return false;
         }
-    }
-
-    private void executeAttackAction(BattleContext ctx, BattleAction action, BattleEntity actor, BattleEntity target) {
-        double multiplier = Math.max(0, action.getPowerMultiplier());
-        executeNormalAttack(ctx, actor, target);
-
-        if (!ctx.isHit || ctx.finalDamage <= 0 || Math.abs(multiplier - 1.0) < 0.0001) return;
-
-        int adjustedDamage = Math.max(1, (int) Math.round(ctx.finalDamage * multiplier));
-        int extraDamage = adjustedDamage - ctx.finalDamage;
-        if (extraDamage <= 0) return;
-
-        DamageManager.getInstance(this.context).dealDamage(
-                DamageConfig.normalAttack(), actor, target, extraDamage, ctx);
-        ctx.finalDamage = adjustedDamage;
-        checkDeath(ctx);
     }
 
     // ====================== 15. 怪物逃跑 ======================
@@ -631,23 +549,7 @@ public class BattleManager {
         return false;
     }
 
-    public java.util.List<BattleEntity> getAllEnemies(BattleEntity owner, BattleContext context) {
-        java.util.List<BattleEntity> enemies = new java.util.ArrayList<>();
-
-        if (owner instanceof Player) {
-            if (context.monster != null && !context.monster.isDead()) {
-                enemies.add(context.monster);
-            }
-        } else if (owner instanceof Monster) {
-            if (context.player != null && !context.player.isDead()) {
-                enemies.add(context.player);
-            }
-        }
-
-        return enemies;
-    }
-      
-    // ====================== 17. 死亡检查 ======================
+    // ====================== 16. 死亡检查 ======================
     public void checkDeath(BattleContext ctx) {
         boolean playerPartyAllDead = ctx.getAlivePlayerParty().isEmpty();
         if (playerPartyAllDead) {
@@ -661,7 +563,7 @@ public class BattleManager {
         }
     }
 
-    // ====================== 18. 战斗结算 ======================
+    // ====================== 17. 战斗结算 ======================
     public void settleBattleResult(BattleContext ctx) {
         ctx.addLog(LogType.ROUND_INFO, "======== 战斗结算 ========");
 
@@ -673,22 +575,9 @@ public class BattleManager {
         AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_BATTLE_END);
 
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
-            int baseExp = 0;
-            int baseGold = 0;
-            int monsterLevel = ctx.player.getLevel();
-            for (Monster m : ctx.monsters) {
-                if (m == null) continue;
-                baseExp += m.getExpReward();
-                baseGold += m.getGoldReward();
-                monsterLevel = Math.max(monsterLevel, m.getLevel());
-            }
-            int playerLevel = ctx.player.getLevel();
-            double expBonus = 1.0;
-            if (playerLevel < monsterLevel) expBonus += 0.1 * (monsterLevel - playerLevel);
-            int finalExp = (int) (baseExp * expBonus * ctx.player.getFinalAttributes().expBonus);
+            int finalExp = RewardCalculator.calculateExp(ctx.player, ctx.monsters);
+            int finalGold = RewardCalculator.calculateGold(ctx.player, ctx.monsters);
             ctx.player.gainExp(finalExp);
-
-            int finalGold = (int) (baseGold * ctx.player.getFinalAttributes().goldBonus);
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
 
             // 掉落物生成 → 存入待领取列表（玩家可选择拿取/全部拿取）
@@ -709,7 +598,7 @@ public class BattleManager {
         }
     }
 
-    // ====================== 19. 工具方法 ======================
+    // ====================== 18. 工具方法 ======================
 
     private Monster pickFastestAliveMonster(BattleContext ctx) {
         Monster fastest = null;
