@@ -29,6 +29,7 @@ public class MonsterTemplate {
         private int apCost;
         private int mpCost;
         private double powerMultiplier;
+        private int level;
 
         public String getSkillId() { return skillId; }
         public int getWeight() { return weight; }
@@ -36,6 +37,7 @@ public class MonsterTemplate {
         public int getApCost() { return apCost; }
         public int getMpCost() { return mpCost; }
         public double getPowerMultiplier() { return powerMultiplier; }
+        public int getLevel() { return level <= 0 ? 1 : Math.min(level, 4); }
     }
 
     private java.util.List<SkillReference> skillPool;

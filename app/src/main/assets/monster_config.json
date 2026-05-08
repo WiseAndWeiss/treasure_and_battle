@@ -18,7 +18,17 @@
       "spdMultiplier": 1.0,
       "expReward": 30,
       "goldReward": 10,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "slime_gel_common",
@@ -44,7 +54,17 @@
       "spdMultiplier": 1.0,
       "expReward": 60,
       "goldReward": 25,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "slime_gel_uncommon",
@@ -70,7 +90,26 @@
       "spdMultiplier": 1.1,
       "expReward": 120,
       "goldReward": 60,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "slime_gel_rare",
@@ -96,7 +135,35 @@
       "spdMultiplier": 1.2,
       "expReward": 250,
       "goldReward": 150,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_gel_recover",
+          "weight": 20,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "slime_crystal",
@@ -122,7 +189,44 @@
       "spdMultiplier": 1.2,
       "expReward": 600,
       "goldReward": 400,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 20,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_slime_armor",
+          "weight": 25,
+          "priority": 45,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "slime_crown_fragment",
@@ -148,7 +252,17 @@
       "spdMultiplier": 1.8,
       "expReward": 40,
       "goldReward": 15,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "wolf_fang",
@@ -174,7 +288,17 @@
       "spdMultiplier": 2.0,
       "expReward": 80,
       "goldReward": 35,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "wolf_fang_sharp",
@@ -200,7 +324,26 @@
       "spdMultiplier": 2.3,
       "expReward": 160,
       "goldReward": 80,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 30,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "wolf_pelt_rare",
@@ -226,7 +369,35 @@
       "spdMultiplier": 2.5,
       "expReward": 350,
       "goldReward": 200,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_howl",
+          "weight": 35,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "wolf_alpha_fang",
@@ -252,7 +423,44 @@
       "spdMultiplier": 3.0,
       "expReward": 800,
       "goldReward": 500,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_howl",
+          "weight": 20,
+          "priority": 38,
+          "apCost": 2,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_frenzy",
+          "weight": 25,
+          "priority": 45,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fenrir_heart",
@@ -278,7 +486,17 @@
       "spdMultiplier": 1.3,
       "expReward": 35,
       "goldReward": 20,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bandit_coin",
@@ -304,7 +522,26 @@
       "spdMultiplier": 1.5,
       "expReward": 70,
       "goldReward": 40,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bandit_ring",
@@ -330,7 +567,35 @@
       "spdMultiplier": 1.7,
       "expReward": 150,
       "goldReward": 90,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bandit_token",
@@ -382,7 +647,17 @@
       "spdMultiplier": 0.6,
       "expReward": 250,
       "goldReward": 180,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "dragon_scale_small",
@@ -408,7 +683,26 @@
       "spdMultiplier": 0.7,
       "expReward": 500,
       "goldReward": 350,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "dragon_scale",
@@ -434,7 +728,35 @@
       "spdMultiplier": 0.8,
       "expReward": 1000,
       "goldReward": 700,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_tail_sweep",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "dragon_scale_ancient",
@@ -460,7 +782,44 @@
       "spdMultiplier": 0.8,
       "expReward": 2000,
       "goldReward": 1500,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_tail_sweep",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_scales",
+          "weight": 20,
+          "priority": 45,
+          "apCost": 1,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "dragon_heart",
@@ -486,7 +845,17 @@
       "spdMultiplier": 1.2,
       "expReward": 25,
       "goldReward": 10,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fire_ember",
@@ -512,7 +881,17 @@
       "spdMultiplier": 1.4,
       "expReward": 60,
       "goldReward": 28,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fire_spark",
@@ -538,7 +917,26 @@
       "spdMultiplier": 1.5,
       "expReward": 130,
       "goldReward": 65,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fire_core",
@@ -564,7 +962,35 @@
       "spdMultiplier": 1.6,
       "expReward": 300,
       "goldReward": 170,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_inferno",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fire_blaze_core",
@@ -590,7 +1016,44 @@
       "spdMultiplier": 1.8,
       "expReward": 650,
       "goldReward": 400,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_inferno",
+          "weight": 25,
+          "priority": 42,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "fire_inferno_core",
@@ -616,7 +1079,17 @@
       "spdMultiplier": 1.2,
       "expReward": 25,
       "goldReward": 10,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "ice_shard",
@@ -642,7 +1115,17 @@
       "spdMultiplier": 1.4,
       "expReward": 60,
       "goldReward": 28,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "ice_crystal",
@@ -668,7 +1151,26 @@
       "spdMultiplier": 1.5,
       "expReward": 130,
       "goldReward": 65,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "ice_snowflake",
@@ -694,7 +1196,35 @@
       "spdMultiplier": 1.6,
       "expReward": 300,
       "goldReward": 170,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_blizzard",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "ice_frost_core",
@@ -720,7 +1250,44 @@
       "spdMultiplier": 1.8,
       "expReward": 650,
       "goldReward": 400,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_blizzard",
+          "weight": 25,
+          "priority": 42,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "ice_glacier_core",
@@ -746,7 +1313,17 @@
       "spdMultiplier": 1.3,
       "expReward": 50,
       "goldReward": 22,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "cultist_robe",
@@ -772,7 +1349,26 @@
       "spdMultiplier": 1.5,
       "expReward": 130,
       "goldReward": 60,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "cultist_badge",
@@ -798,7 +1394,35 @@
       "spdMultiplier": 1.7,
       "expReward": 300,
       "goldReward": 150,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "cultist_tome",
@@ -824,7 +1448,17 @@
       "spdMultiplier": 2.0,
       "expReward": 18,
       "goldReward": 8,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "goblin_ear",
@@ -850,7 +1484,26 @@
       "spdMultiplier": 2.5,
       "expReward": 50,
       "goldReward": 22,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "goblin_ear_gold",
@@ -876,7 +1529,35 @@
       "spdMultiplier": 2.2,
       "expReward": 110,
       "goldReward": 55,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "goblin_staff",
@@ -902,7 +1583,26 @@
       "spdMultiplier": 1.0,
       "expReward": 90,
       "goldReward": 40,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "orc_tusk",
@@ -928,7 +1628,35 @@
       "spdMultiplier": 1.2,
       "expReward": 250,
       "goldReward": 140,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "orc_tusk_war",
@@ -954,7 +1682,17 @@
       "spdMultiplier": 0.9,
       "expReward": 28,
       "goldReward": 10,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bone_fragment",
@@ -980,7 +1718,17 @@
       "spdMultiplier": 1.0,
       "expReward": 60,
       "goldReward": 25,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bone_solid",
@@ -1006,7 +1754,26 @@
       "spdMultiplier": 1.1,
       "expReward": 140,
       "goldReward": 65,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bone_dark",
@@ -1032,7 +1799,35 @@
       "spdMultiplier": 1.2,
       "expReward": 320,
       "goldReward": 170,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "bone_reinforced",
@@ -1058,7 +1853,44 @@
       "spdMultiplier": 1.3,
       "expReward": 800,
       "goldReward": 500,
-      "skillPool": [],
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 20,
+          "priority": 42,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
       "dropTable": [
         {
           "materialId": "marshal_skull",

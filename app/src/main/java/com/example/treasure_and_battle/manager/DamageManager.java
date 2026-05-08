@@ -103,18 +103,20 @@ public class DamageManager {
             }
         }
 
-        // ===== 阶段③：防御力减免 =====
+        // ===== 阶段③：伤害前拦截（被动技能 + Buff 可修改伤害） =====
         ctx.finalDamage = ctx.rawDamage;
+        if (attacker != null) {
+            ctx.finalDamage = PassiveSkillManager.getInstance()
+                    .triggerBeforeDamageDealtPassiveSkills(attacker, target, ctx.finalDamage, ctx);
+        }
+        ctx.finalDamage = BuffManager.getInstance(context)
+                .triggerBeforeDamageReceivedEvent(target, attacker, ctx.finalDamage, ctx);
+
+        // ===== 阶段④：防御力减免 =====
         if (config.useDefense && targetAttr != null) {
             int def = config.damageType == DamageType.PHYSICAL ? targetAttr.physicalDef : targetAttr.magicalDef;
             ctx.finalDamage = Math.max(1, ctx.finalDamage - def);
         }
-
-        // ===== 阶段④：伤害前拦截（被动技能 + Buff 可修改伤害） =====
-        ctx.finalDamage = PassiveSkillManager.getInstance()
-                .triggerBeforeDamageDealtPassiveSkills(attacker, target, ctx.finalDamage, ctx);
-        ctx.finalDamage = BuffManager.getInstance(context)
-                .triggerBeforeDamageReceivedEvent(target, attacker, ctx.finalDamage, ctx);
 
         // ===== 阶段⑤：减伤Buff =====
         if (config.useDamageReduction) {
@@ -135,7 +137,7 @@ public class DamageManager {
         // ===== 阶段⑧：后置触发 =====
         triggerAfterDamage(config, attacker, target, ctx);
 
-        if (config.triggerOnHitPostEvents && ctx.isHit) {
+        if (config.triggerOnHitPostEvents && ctx.isHit && attacker != null) {
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_HIT);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_HIT);
         }
@@ -187,26 +189,21 @@ public class DamageManager {
     private void triggerAfterDamage(DamageConfig config, BattleEntity attacker, BattleEntity target, BattleContext ctx) {
         if (ctx.finalDamage <= 0) return;
 
-        // 被攻击事件
         if (attacker != null) {
             BuffManager.getInstance(context).triggerAttackedEvent(target, attacker, ctx);
         }
 
-        // 受到伤害后
         BuffManager.getInstance(context).triggerAfterDamageReceivedEvent(target, attacker, ctx.finalDamage, ctx);
         PassiveSkillManager.getInstance().triggerAfterDamageReceivedPassiveSkills(target, attacker, ctx.finalDamage, ctx);
 
-        // 造成伤害后
         if (attacker != null) {
             PassiveSkillManager.getInstance().triggerAfterDamageDealtPassiveSkills(attacker, target, ctx.finalDamage, ctx);
             BuffManager.getInstance(context).triggerAfterDamageDealtEvent(attacker, target, ctx.finalDamage, ctx);
         }
 
-        // 目标受击后
         BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE_TAKEN);
         AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE_TAKEN);
 
-        // 击杀事件
         if (target.isDead() && attacker != null) {
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_KILL);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_KILL);

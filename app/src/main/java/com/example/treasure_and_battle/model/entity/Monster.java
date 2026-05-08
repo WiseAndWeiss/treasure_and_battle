@@ -4,10 +4,13 @@ import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -22,6 +25,7 @@ public class Monster extends BattleEntity {
     private Rarity rarity;
     private List<ActionIntent> intentPool;
     private int templateId;
+    private Map<String, ActiveSkill> monsterSkillMap = new HashMap<>();
 
     private Random random = new Random();
 
@@ -135,6 +139,12 @@ public class Monster extends BattleEntity {
 
         if (minHp >= 0f && hpRate < minHp) return false;
         if (maxHp >= 0f && hpRate > maxHp) return false;
+
+        if (intent.getType() == ActionIntent.IntentType.SKILL) {
+            ActiveSkill skill = monsterSkillMap.get(intent.getActionRefId());
+            if (skill != null && !skill.isCooldownReady()) return false;
+        }
+
         return true;
     }
 
@@ -211,4 +221,22 @@ public class Monster extends BattleEntity {
 
     public int getGoldReward() { return goldReward; }
     public void setGoldReward(int goldReward) { this.goldReward = goldReward; }
+
+    public void addMonsterSkill(String skillId, ActiveSkill skill) {
+        monsterSkillMap.put(skillId, skill);
+    }
+
+    public ActiveSkill getMonsterSkill(String skillId) {
+        return monsterSkillMap.get(skillId);
+    }
+
+    public Map<String, ActiveSkill> getMonsterSkillMap() {
+        return monsterSkillMap;
+    }
+
+    public void tickSkillCooldowns() {
+        for (ActiveSkill skill : monsterSkillMap.values()) {
+            skill.decreaseCooldown();
+        }
+    }
 }

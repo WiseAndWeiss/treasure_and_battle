@@ -7,11 +7,13 @@ import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
 import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.EscapeCalculator;
+import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.ActionIntent;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.affix.AffixTriggerType;
 import com.example.treasure_and_battle.model.buff.BuffTriggerType;
@@ -415,6 +417,7 @@ public class BattleManager {
             if (m == null) continue;
             triggerRoundEndPassiveSkills(m, ctx);
             BuffManager.getInstance(context).onRoundEnd(m, ctx);
+            m.tickSkillCooldowns();
         }
         BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_END);
         AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_END);
@@ -553,8 +556,27 @@ public class BattleManager {
                 if (actor instanceof Monster) executeMonsterEscape(ctx);
                 return true;
             case SKILL:
-                ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（TODO：技能系统接入中）",
-                        actor.getName(), action.getDisplayName());
+                if (actor instanceof Monster) {
+                    Monster m = (Monster) actor;
+                    ActiveSkill skill = m.getMonsterSkill(action.getActionRefId());
+                    if (skill != null && skill.isCooldownReady()) {
+                        java.util.List<BattleEntity> targets =
+                                SkillTargetResolver.resolve(skill.getSkillRangeType(), actor, ctx);
+                        try {
+                            skill.onCast(actor, targets, this);
+                            skill.resetCooldown();
+                            ctx.addLog(LogType.ACTION, "[%s] 释放了 [%s]",
+                                    actor.getName(), skill.getSkillName());
+                        } catch (Exception e) {
+                            ctx.addLog(LogType.SYSTEM, "[%s] 释放技能 [%s] 失败: %s",
+                                    actor.getName(), skill.getSkillName(), e.getMessage());
+                            e.printStackTrace();
+                        }
+                    } else {
+                        ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（技能未就绪或不存在）",
+                                actor.getName(), action.getDisplayName());
+                    }
+                }
                 return true;
             case ITEM:
                 ctx.addLog(LogType.ACTION, "[%s] 尝试使用道具 [%s]（TODO：道具体系未接入）",
