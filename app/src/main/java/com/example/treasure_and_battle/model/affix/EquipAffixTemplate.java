@@ -1,11 +1,13 @@
 package com.example.treasure_and_battle.model.affix;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 public class EquipAffixTemplate {
     private int templateId;
     private String affixName;
     private String descriptionFormat;
     private int rarityId;
-    private String triggerType;
+    private TriggerType triggerType;
     private String[] allowCategories;
     private float minValue;
     private float maxValue;
@@ -30,8 +32,8 @@ public class EquipAffixTemplate {
     public void setDescriptionFormat(String descriptionFormat) { this.descriptionFormat = descriptionFormat; }
     public int getRarityId() { return rarityId; }
     public void setRarityId(int rarityId) { this.rarityId = rarityId; }
-    public String getTriggerType() { return triggerType; }
-    public void setTriggerType(String triggerType) { this.triggerType = triggerType; }
+    public TriggerType getTriggerType() { return triggerType; }
+    public void setTriggerType(TriggerType triggerType) { this.triggerType = triggerType; }
     public String[] getAllowCategories() { return allowCategories; }
     public void setAllowCategories(String[] allowCategories) { this.allowCategories = allowCategories; }
     public float getMinValue() { return minValue; }

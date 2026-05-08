@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
@@ -23,7 +23,7 @@ public class BleedingDebuff extends BaseBuff {
     public BleedingDebuff(String buffId, String buffName, String descriptionFormat,
                           BuffType buffType, boolean isDispellable, int maxDuration,
                           int maxStackCount, boolean refreshOnApply, float buffValue) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_ROUND_END,
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.ON_ROUND_END,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
         // defaultDuration: -1 表示永久（直到层数归零）
     }
@@ -45,8 +45,8 @@ public class BleedingDebuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
-        if (triggerType == BuffTriggerType.ON_ROUND_END && this.stackCount > 0) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
+        if (triggerType == TriggerType.ON_ROUND_END && this.stackCount > 0) {
             int damage = (int) (owner.getFinalAttributes().maxHp * 0.01 * this.stackCount);
             DamageManager.getInstance(owner.getContext())
                     .dealDamage(DamageConfig.buffTrue(), null, owner, damage, context);

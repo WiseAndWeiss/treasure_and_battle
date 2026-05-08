@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.active.warrior;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
@@ -115,7 +117,7 @@ public class ActiveSkill_BloodFurySlashTest extends ActiveSkillTestBase {
 
         // When - 回合结束触发流血
         BuffManager.getInstance(context).triggerBuffs(testMonster, battleContext,
-            com.example.treasure_and_battle.model.buff.BuffTriggerType.ON_ROUND_END);
+            com.example.treasure_and_battle.model.common.TriggerType.ON_ROUND_END);
 
         // Then - 验证流血伤害（每层1%最大HP）
         int expectedDamage = (int) (maxHp * 0.01 * 3);
@@ -150,7 +152,7 @@ public class ActiveSkill_BloodFurySlashTest extends ActiveSkillTestBase {
         // When - 经过多个回合
         for (int i = 0; i < 3; i++) {
             BuffManager.getInstance(context).triggerBuffs(testMonster, battleContext,
-                com.example.treasure_and_battle.model.buff.BuffTriggerType.ON_ROUND_END);
+                com.example.treasure_and_battle.model.common.TriggerType.ON_ROUND_END);
             BuffManager.getInstance(context).tickBuffs(testMonster);
         }
 
@@ -180,7 +182,7 @@ public class ActiveSkill_BloodFurySlashTest extends ActiveSkillTestBase {
         // When - 经过足够回合让流血消失
         for (int i = 0; i < 3; i++) {
             BuffManager.getInstance(context).triggerBuffs(testMonster, battleContext,
-                com.example.treasure_and_battle.model.buff.BuffTriggerType.ON_ROUND_END);
+                com.example.treasure_and_battle.model.common.TriggerType.ON_ROUND_END);
             BuffManager.getInstance(context).tickBuffs(testMonster);
         }
 

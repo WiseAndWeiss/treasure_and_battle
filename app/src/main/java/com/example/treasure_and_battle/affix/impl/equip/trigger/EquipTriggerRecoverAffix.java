@@ -1,10 +1,12 @@
 package com.example.treasure_and_battle.affix.impl.equip.trigger;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
@@ -19,7 +21,7 @@ public class EquipTriggerRecoverAffix extends BaseEquipAffix {
     private final float damageToRecoverRatio;
 
     public EquipTriggerRecoverAffix(int affixId, String affixName, String description, Rarity rarity,
-                                    AffixTriggerType triggerType, EquipCategory[] allowCategories, float affixValue,
+                                    TriggerType triggerType, EquipCategory[] allowCategories, float affixValue,
                                     AffixRecoverResourceType recoverResourceType, ValueType recoverValueType,
                                     int recoverValue, float damageToRecoverRatio) {
         super(affixId, affixName, description, rarity, triggerType, allowCategories, affixValue);

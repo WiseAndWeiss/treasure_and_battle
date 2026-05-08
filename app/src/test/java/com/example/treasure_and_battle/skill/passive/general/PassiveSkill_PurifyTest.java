@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.passive.general;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -141,7 +143,7 @@ public class PassiveSkill_PurifyTest extends PassiveSkillTestBase {
         // 添加另一个debuff（这里用一个简单的属性buff模拟）
         BaseBuff debuff2 = new BaseBuff(
             "test_poison", "测试中毒", "中毒伤害",
-            BuffType.DEBUFF, com.example.treasure_and_battle.model.buff.BuffTriggerType.PERMANENT,
+            BuffType.DEBUFF, com.example.treasure_and_battle.model.common.TriggerType.PERMANENT,
             true, 3, 1, false, 5.0f
         ) {
             @Override
@@ -152,7 +154,7 @@ public class PassiveSkill_PurifyTest extends PassiveSkillTestBase {
             @Override
             public void onTrigger(com.example.treasure_and_battle.model.entity.BattleEntity owner,
                                 BattleContext context,
-                                com.example.treasure_and_battle.model.buff.BuffTriggerType triggerType) {
+                                com.example.treasure_and_battle.model.common.TriggerType triggerType) {
                 // 不做任何事
             }
         };

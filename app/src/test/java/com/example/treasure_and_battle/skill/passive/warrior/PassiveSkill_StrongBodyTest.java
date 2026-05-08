@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.passive.warrior;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.PassiveSkillManager;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -29,7 +31,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
 
         // When - 添加被动技能
         testPlayer.addPassiveSkill(strongBody);
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         // Then - 验证体魄增加
         assertEquals("体魄应该增加1点", 11, testPlayer.getBaseAttributes().physique);
@@ -58,7 +60,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
         PassiveSkill strongBody = createPassiveSkill("strong_body", 3); // 7%伤害降低
         testPlayer.addPassiveSkill(strongBody);
         testPlayer.setCurrentHp(200);
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         int monsterHpBefore = testMonster.getCurrentHp();
 
@@ -89,7 +91,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
 
         // When
         testPlayer.addPassiveSkill(strongBody);
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         // Then
         assertEquals("体魄应该增加2点", originalPhysique + 2, testPlayer.getBaseAttributes().physique);
@@ -106,7 +108,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
 
         // 测试等级1（3%伤害降低）
         testPlayer.addPassiveSkill(createPassiveSkill("strong_body", 1));
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         DamageReductionBuff buff1 = null;
         for (BaseBuff buff : testPlayer.getActiveBuffList()) {
@@ -123,7 +125,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
         battleContext.battleLogs.clear();
 
         testPlayer.addPassiveSkill(createPassiveSkill("strong_body", 5));
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         DamageReductionBuff buff5 = null;
         for (BaseBuff buff : testPlayer.getActiveBuffList()) {
@@ -151,7 +153,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
         testPlayer.addPassiveSkill(strongBody);
 
         // When
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         // Then - 验证日志
         assertLogExists(LogType.BUFF);
@@ -168,7 +170,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
         // Given
         PassiveSkill strongBody = createPassiveSkill("strong_body", 1);
         testPlayer.addPassiveSkill(strongBody);
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         // 查找伤害降低buff
         DamageReductionBuff drBuff = null;
@@ -195,7 +197,7 @@ public class PassiveSkill_StrongBodyTest extends PassiveSkillTestBase {
         testPlayer.addPassiveSkill(strongBody);
 
         // When
-        PassiveSkillManager.getInstance().triggerBattleStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
 
         // Then - 验证日志
         assertLogExists(LogType.BUFF);

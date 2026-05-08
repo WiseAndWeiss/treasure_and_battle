@@ -1,11 +1,13 @@
 package com.example.treasure_and_battle.affix.impl.equip.trigger;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.BuffManager;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -19,7 +21,7 @@ public class EquipTriggerBuffAffix extends BaseEquipAffix {
     private final float damageToStackRatio;
 
     public EquipTriggerBuffAffix(int affixId, String affixName, String description, Rarity rarity,
-                                 AffixTriggerType triggerType, EquipCategory[] allowCategories, float affixValue,
+                                 TriggerType triggerType, EquipCategory[] allowCategories, float affixValue,
                                  int buffTemplateId, AffixBuffApplyTarget applyTarget, int applyStacks,
                                  float damageToStackRatio) {
         super(affixId, affixName, description, rarity, triggerType, allowCategories, affixValue);

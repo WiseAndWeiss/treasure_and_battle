@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.passive.warrior;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.PassiveSkillManager;
 import com.example.treasure_and_battle.manager.BattleManager;
@@ -31,9 +33,9 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
         float originalPercentDef = baseAttr.percentPhysicalDef;
 
         // When - 经过3个回合
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
 
         // Then - 验证百分比提升
         assertEquals("物攻百分比应该提升3%", originalPercentAtk + 0.03f, baseAttr.percentPhysicalAtk, 0.001f);
@@ -56,7 +58,7 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
         float originalPercentDef = baseAttr.percentPhysicalDef;
 
         // When - 经过1个回合
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
 
         // Then
         assertEquals("物攻百分比应该提升5%", originalPercentAtk + 0.05f, baseAttr.percentPhysicalAtk, 0.001f);
@@ -79,7 +81,7 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
 
         // When - 经过多个回合
         for (int i = 0; i < 5; i++) {
-            PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+            PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
         }
 
         // Then - 验证累积提升
@@ -103,14 +105,14 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
 
         // 测试等级1（每回合1%）
         testPlayer.addPassiveSkill(createPassiveSkill("brave_growth", 1));
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
         float percentAtk1 = baseAttr.percentPhysicalAtk;
 
         // 测试等级5（每回合5%）
         baseAttr.percentPhysicalAtk = originalPercentAtk;
         battleContext.battleLogs.clear();
         testPlayer.addPassiveSkill(createPassiveSkill("brave_growth", 5));
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
         float percentAtk5 = baseAttr.percentPhysicalAtk;
 
         // 验证等级5的提升更大
@@ -132,7 +134,7 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
         testPlayer.addPassiveSkill(braveGrowth);
 
         // When
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
 
         // Then - 验证日志
         assertLogExists(LogType.BUFF);
@@ -151,7 +153,7 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
         testPlayer.addPassiveSkill(braveGrowth);
 
         // When
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
 
         // Then - 验证日志
         assertLogExists(LogType.BUFF);
@@ -173,7 +175,7 @@ public class PassiveSkill_BraveGrowthTest extends PassiveSkillTestBase {
         int baseAtk = testPlayer.getBaseAttributes().physicalAtk; // 50
 
         // When - 经过1个回合
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
 
         // Then - 验证最终物攻提升
         AttributeSet finalAttr = testPlayer.getFinalAttributes();

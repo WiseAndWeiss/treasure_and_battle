@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -183,7 +185,7 @@ public class ConfigLoader {
         JSONObject skill = getSkillByTemplateId(templateId);
         if (skill == null) return null;
         try {
-            return skill.getString("skillTriggerType");
+            return skill.getString("TriggerType");
         } catch (JSONException e) {
             Log.e(TAG, "获取skillTriggerType失败", e);
             return null;

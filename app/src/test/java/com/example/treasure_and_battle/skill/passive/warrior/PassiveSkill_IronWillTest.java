@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.passive.warrior;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.PassiveSkillManager;
 import com.example.treasure_and_battle.buff.BaseBuff;
@@ -31,7 +33,7 @@ public class PassiveSkill_IronWillTest extends PassiveSkillTestBase {
         testPlayer.setCurrentHp(30); // 30/200 = 15%，低于20%
 
         // When
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
 
         // Then - 验证物攻物防提升
         boolean hasStatBoost = false;
@@ -58,7 +60,7 @@ public class PassiveSkill_IronWillTest extends PassiveSkillTestBase {
         testPlayer.setCurrentHp(180); // 180/200 = 90%，高于20%
 
         // When
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
 
         // Then - 不应该有属性提升buff
         boolean hasStatBoost = false;
@@ -84,7 +86,7 @@ public class PassiveSkill_IronWillTest extends PassiveSkillTestBase {
 
         // 第一次触发（HP低）
         testPlayer.setCurrentHp(30);
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
 
         boolean hasBuffFirst = false;
         for (BaseBuff buff : testPlayer.getActiveBuffList()) {
@@ -96,7 +98,7 @@ public class PassiveSkill_IronWillTest extends PassiveSkillTestBase {
 
         // 第二次触发（HP恢复）
         testPlayer.setCurrentHp(180);
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
 
         boolean hasBuffSecond = false;
         for (BaseBuff buff : testPlayer.getActiveBuffList()) {
@@ -136,7 +138,7 @@ public class PassiveSkill_IronWillTest extends PassiveSkillTestBase {
         testPlayer.setCurrentHp(30);
 
         // When
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
 
         // Then - 验证日志
         assertLogExists(LogType.BUFF);

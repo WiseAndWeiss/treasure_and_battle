@@ -9,9 +9,9 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
@@ -107,8 +107,10 @@ public class DamageManager {
         ctx.finalDamage = ctx.rawDamage;
         if (attacker != null) {
             ctx.finalDamage = PassiveSkillManager.getInstance()
-                    .triggerBeforeDamageDealtPassiveSkills(attacker, target, ctx.finalDamage, ctx);
+                    .triggerBeforeDamage(attacker, target, ctx.finalDamage, ctx, TriggerType.ON_BEFORE_DAMAGE_DEALT);
         }
+        ctx.finalDamage = PassiveSkillManager.getInstance()
+                .triggerBeforeDamage(target, attacker, ctx.finalDamage, ctx, TriggerType.ON_BEFORE_DAMAGE_TAKEN);
         ctx.finalDamage = BuffManager.getInstance(context)
                 .triggerBeforeDamageReceivedEvent(target, attacker, ctx.finalDamage, ctx);
 
@@ -120,7 +122,7 @@ public class DamageManager {
 
         // ===== 阶段⑤：减伤Buff =====
         if (config.useDamageReduction) {
-            BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN);
+            BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_BEFORE_DAMAGE_TAKEN);
             ctx.finalDamage = applyCountBasedDamageReduction(ctx, target, ctx.finalDamage);
         }
 
@@ -138,8 +140,9 @@ public class DamageManager {
         triggerAfterDamage(config, attacker, target, ctx);
 
         if (config.triggerOnHitPostEvents && ctx.isHit && attacker != null) {
-            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_HIT);
-            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_HIT);
+            PassiveSkillManager.getInstance().trigger(attacker, ctx, TriggerType.ON_HIT);
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_HIT);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_HIT);
         }
 
         return ctx.finalDamage;
@@ -169,19 +172,23 @@ public class DamageManager {
     // ====================== 未命中触发 ======================
 
     private void triggerOnMiss(BattleEntity attacker, BattleEntity target, BattleContext ctx) {
-        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK_MISS);
-        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK_MISS);
-        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_DODGE);
-        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_DODGE);
+        PassiveSkillManager.getInstance().trigger(attacker, ctx, TriggerType.ON_ATTACK_MISS);
+        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_ATTACK_MISS);
+        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_ATTACK_MISS);
+        PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_DODGE);
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_DODGE);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_DODGE);
     }
 
     // ====================== 暴击触发 ======================
 
     private void triggerOnCrit(DamageConfig config, BattleEntity attacker, BattleEntity target, BattleContext ctx) {
-        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_CRIT);
-        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_CRIT);
-        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_BEING_CRIT);
-        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_BEING_CRIT);
+        PassiveSkillManager.getInstance().trigger(attacker, ctx, TriggerType.ON_CRIT);
+        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_CRIT);
+        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_CRIT);
+        PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_BEING_CRIT);
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_BEING_CRIT);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_BEING_CRIT);
     }
 
     // ====================== 伤害后置触发 ======================
@@ -194,19 +201,21 @@ public class DamageManager {
         }
 
         BuffManager.getInstance(context).triggerAfterDamageReceivedEvent(target, attacker, ctx.finalDamage, ctx);
-        PassiveSkillManager.getInstance().triggerAfterDamageReceivedPassiveSkills(target, attacker, ctx.finalDamage, ctx);
+        PassiveSkillManager.getInstance().triggerAfterDamage(target, attacker, ctx.finalDamage, ctx, TriggerType.ON_AFTER_DAMAGE_TAKEN);
 
         if (attacker != null) {
-            PassiveSkillManager.getInstance().triggerAfterDamageDealtPassiveSkills(attacker, target, ctx.finalDamage, ctx);
+            PassiveSkillManager.getInstance().triggerAfterDamage(attacker, target, ctx.finalDamage, ctx, TriggerType.ON_AFTER_DAMAGE_DEALT);
             BuffManager.getInstance(context).triggerAfterDamageDealtEvent(attacker, target, ctx.finalDamage, ctx);
         }
 
-        BuffManager.getInstance(context).triggerBuffs(target, ctx, BuffTriggerType.ON_AFTER_DAMAGE_TAKEN);
-        AffixManager.getInstance(context).triggerAffixes(target, ctx, AffixTriggerType.ON_AFTER_DAMAGE_TAKEN);
+        BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_AFTER_DAMAGE_TAKEN);
+        AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_AFTER_DAMAGE_TAKEN);
 
         if (target.isDead() && attacker != null) {
-            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_KILL);
-            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_KILL);
+            PassiveSkillManager.getInstance().trigger(attacker, target, ctx, TriggerType.ON_KILL);
+            PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_DEATH);
+            BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_KILL);
+            AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_KILL);
         }
     }
 
@@ -237,7 +246,7 @@ public class DamageManager {
 
         boolean hasShieldAfter = ShieldBuff.hasShield(target);
         if (hadShieldBefore && !hasShieldAfter && remainingDamage < incomingDamage) {
-            PassiveSkillManager.getInstance().triggerShieldBreakPassiveSkills(target, ctx.currentActor, ctx,
+            PassiveSkillManager.getInstance().triggerShieldBreak(target, ctx.currentActor, ctx,
                     BattleManager.getInstance(context));
         }
 

@@ -1,6 +1,6 @@
 package com.example.treasure_and_battle.affix.impl.monster.attribute;
 
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -19,7 +19,7 @@ public class MonsterAttributeAffixTest {
                 "怪物物攻固定",
                 "物攻+%.0f",
                 Rarity.UNCOMMON,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 12f,
                 AttributeType.PHYSICAL_ATK,
                 ValueType.FLAT
@@ -30,7 +30,7 @@ public class MonsterAttributeAffixTest {
                 "怪物物攻百分比",
                 "物攻+%.0f%%",
                 Rarity.UNCOMMON,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 0.15f,
                 AttributeType.PHYSICAL_ATK,
                 ValueType.PERCENTAGE
@@ -51,7 +51,7 @@ public class MonsterAttributeAffixTest {
                 "怪物命中",
                 "命中提高%.0f%%",
                 Rarity.RARE,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 0.2f,
                 AttributeType.HIT_RATE,
                 ValueType.PERCENTAGE

@@ -1,7 +1,9 @@
 package com.example.treasure_and_battle.affix;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -13,7 +15,7 @@ public abstract class BaseAffix {
     protected final String affixName;     // 词缀名称
     protected final String description;    // 词缀描述（用于UI显示）
     protected final Rarity rarity;        // 词缀稀有度（决定数值上限）
-    protected final AffixTriggerType triggerType; // 触发时机
+    protected final TriggerType triggerType; // 触发时机
     protected final int[] allowSlots;     // 允许出现的装备部位（空数组=全部位可用）
 
     // ====================== 词缀实例数值 ======================
@@ -21,7 +23,7 @@ public abstract class BaseAffix {
 
     // ====================== 构造函数 ======================
     public BaseAffix(int affixId, String affixName, String description, Rarity rarity,
-                     AffixTriggerType triggerType, int[] allowSlots, float affixValue) {
+                     TriggerType triggerType, int[] allowSlots, float affixValue) {
         this.affixId = affixId;
         this.affixName = affixName;
         this.description = description;
@@ -50,7 +52,7 @@ public abstract class BaseAffix {
     public String getAffixName() { return affixName; }
     public String getDescription() { return String.format(description, affixValue); } // 动态替换数值
     public Rarity getRarity() { return rarity; }
-    public AffixTriggerType getTriggerType() { return triggerType; }
+    public TriggerType getTriggerType() { return triggerType; }
     public int[] getAllowSlots() { return allowSlots; }
     public float getAffixValue() { return affixValue; }
 }

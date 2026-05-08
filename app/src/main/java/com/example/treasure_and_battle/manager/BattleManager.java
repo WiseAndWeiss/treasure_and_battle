@@ -15,8 +15,8 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.ActionIntent;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import java.util.ArrayList;
@@ -65,18 +65,10 @@ public class BattleManager {
         }
 
         // 触发被动技能（战斗开始）
-        PassiveSkillManager.getInstance().triggerPassiveSkills(player, ctx);
-        for (Monster m : monsters) {
-            PassiveSkillManager.getInstance().triggerPassiveSkills(m, ctx);
-        }
-
         if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
             ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
         }
-        BuffManager.getInstance(context).triggerBuffs(player, ctx, BuffTriggerType.ON_BATTLE_START);
-        AffixManager.getInstance(context).triggerAffixes(player, ctx, AffixTriggerType.ON_BATTLE_START);
-        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_START);
-        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_BATTLE_START);
+        TriggerDispatcher.dispatch(ctx, TriggerType.ON_BATTLE_START, context);
 
         ctx.addLog(LogType.INIT, "战斗开始：[%s] VS [%d个怪物]",
                 player.getName(), ctx.getAliveMonsters().size());
@@ -150,16 +142,9 @@ public class BattleManager {
         // 构建全局速度优先队列
         buildSpeedQueue(ctx);
 
-        // 触发回合开始 Buff/词缀（全部实体）
-        for (BattleEntity e : ctx.playerParty) {
-            if (e == null || e.isDead()) continue;
-            BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_START);
-            AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_START);
-        }
-        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_START);
-        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_START);
+        // 触发回合开始 Buff/词缀/被动（全部实体）
+        TriggerDispatcher.dispatch(ctx, TriggerType.ON_ROUND_START, context);
     }
-
     // ====================== 4. 构建速度优先队列 ======================
     public void buildSpeedQueue(BattleContext ctx) {
         List<BattleEntity> actors = new ArrayList<>();
@@ -333,20 +318,15 @@ public class BattleManager {
     private void onRoundEnd(BattleContext ctx) {
         for (BattleEntity e : ctx.playerParty) {
             if (e == null || e.isDead()) continue;
-            PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(e, ctx);
-            BuffManager.getInstance(context).triggerBuffs(e, ctx, BuffTriggerType.ON_ROUND_END);
-            AffixManager.getInstance(context).triggerAffixes(e, ctx, AffixTriggerType.ON_ROUND_END);
             BuffManager.getInstance(context).onRoundEnd(e, ctx);
             BuffManager.getInstance(context).tickBuffs(e);
         }
         for (Monster m : ctx.getAliveMonsters()) {
             if (m == null) continue;
-            PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(m, ctx);
             BuffManager.getInstance(context).onRoundEnd(m, ctx);
             m.tickSkillCooldowns();
         }
-        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_ROUND_END);
-        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_ROUND_END);
+        TriggerDispatcher.dispatch(ctx, TriggerType.ON_ROUND_END, context);
         BuffManager.getInstance(context).tickBuffsForAllMonsters(ctx);
 
         checkDeath(ctx);
@@ -411,8 +391,7 @@ public class BattleManager {
         String targetName = target.getName();
         ctx.addLog(LogType.ACTION, "[%s] 发动普通攻击。", actorName);
 
-        AffixManager.getInstance(context).triggerAffixes(attacker, ctx, AffixTriggerType.ON_ATTACK);
-        BuffManager.getInstance(context).triggerBuffs(attacker, ctx, BuffTriggerType.ON_ATTACK);
+        TriggerDispatcher.dispatch(attacker, ctx, TriggerType.ON_ATTACK, context);
 
         AttributeSet targetAttr = target.getFinalAttributes();
         ctx.addLog(LogType.DAMAGE, "  基础物理伤害：%d", baseDamage);
@@ -567,12 +546,7 @@ public class BattleManager {
     public void settleBattleResult(BattleContext ctx) {
         ctx.addLog(LogType.ROUND_INFO, "======== 战斗结算 ========");
 
-        if (ctx.player != null) {
-            BuffManager.getInstance(context).triggerBuffs(ctx.player, ctx, BuffTriggerType.ON_BATTLE_END);
-            AffixManager.getInstance(context).triggerAffixes(ctx.player, ctx, AffixTriggerType.ON_BATTLE_END);
-        }
-        BuffManager.getInstance(context).triggerBuffsForAllMonsters(ctx, BuffTriggerType.ON_BATTLE_END);
-        AffixManager.getInstance(context).triggerAffixesForAllMonsters(ctx, AffixTriggerType.ON_BATTLE_END);
+        TriggerDispatcher.dispatch(ctx, TriggerType.ON_BATTLE_END, context);
 
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
             int finalExp = RewardCalculator.calculateExp(ctx.player, ctx.monsters);

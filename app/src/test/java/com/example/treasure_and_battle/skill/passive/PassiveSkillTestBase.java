@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.skill.passive;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
@@ -134,7 +136,7 @@ public abstract class PassiveSkillTestBase {
         target.takeDamage(finalDamage);
 
         // 触发造成伤害后的被动技能
-        PassiveSkillManager.getInstance().triggerAfterDamageDealtPassiveSkills(attacker, target, finalDamage, battleContext);
+        PassiveSkillManager.getInstance().triggerAfterDamage(attacker, target, finalDamage, battleContext, TriggerType.ON_AFTER_DAMAGE_DEALT);
 
         return finalDamage;
     }
@@ -146,13 +148,13 @@ public abstract class PassiveSkillTestBase {
         int hpBefore = target.getCurrentHp();
 
         // 触发受到伤害前的被动技能（可能减少伤害）
-        int modifiedDamage = PassiveSkillManager.getInstance().triggerBeforeDamageReceivedPassiveSkills(target, attacker, damage, battleContext);
+        int modifiedDamage = PassiveSkillManager.getInstance().triggerBeforeDamage(target, attacker, damage, battleContext, TriggerType.ON_BEFORE_DAMAGE_TAKEN);
 
         // 造成伤害
         target.takeDamage(modifiedDamage);
 
         // 触发受到伤害后的被动技能
-        PassiveSkillManager.getInstance().triggerAfterDamageReceivedPassiveSkills(target, attacker, modifiedDamage, battleContext);
+        PassiveSkillManager.getInstance().triggerAfterDamage(target, attacker, modifiedDamage, battleContext, TriggerType.ON_AFTER_DAMAGE_TAKEN);
 
         // 触发buff的受击事件
         BuffManager.getInstance(context).triggerAttackedEvent(target, attacker, battleContext);
@@ -164,8 +166,8 @@ public abstract class PassiveSkillTestBase {
      * 触发战斗开始事件（用于触发ON_BATTLE_START被动技能）
      */
     protected void triggerBattleStart() {
-        PassiveSkillManager.getInstance().triggerPassiveSkills(testPlayer, battleContext);
-        PassiveSkillManager.getInstance().triggerPassiveSkills(testMonster, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_BATTLE_START);
+        PassiveSkillManager.getInstance().trigger(testMonster, battleContext, TriggerType.ON_BATTLE_START);
     }
 
     /**
@@ -173,16 +175,16 @@ public abstract class PassiveSkillTestBase {
      */
     protected void triggerRoundStart() {
         battleContext.currentActor = testPlayer;
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testPlayer, battleContext);
-        PassiveSkillManager.getInstance().triggerRoundStartPassiveSkills(testMonster, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_START);
+        PassiveSkillManager.getInstance().trigger(testMonster, battleContext, TriggerType.ON_ROUND_START);
     }
 
     /**
      * 触发回合结束事件（用于触发ON_ROUND_END被动技能）
      */
     protected void triggerRoundEnd() {
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testPlayer, battleContext);
-        PassiveSkillManager.getInstance().triggerRoundEndPassiveSkills(testMonster, battleContext);
+        PassiveSkillManager.getInstance().trigger(testPlayer, battleContext, TriggerType.ON_ROUND_END);
+        PassiveSkillManager.getInstance().trigger(testMonster, battleContext, TriggerType.ON_ROUND_END);
     }
 
     /**

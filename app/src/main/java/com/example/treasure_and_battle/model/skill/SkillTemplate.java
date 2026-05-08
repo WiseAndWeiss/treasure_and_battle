@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.model.skill;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public class SkillTemplate {
     private String detailedDesc;     // 技能详细描述
     private SkillType skillType;        // 技能类型（主动/被动/事件）
     private SkillRangeType skillRangeType; // 技能范围类型
-    private List<SkillTriggerType> skillTriggerTypes; // 技能触发类型列表（支持多触发时机）
+    private List<TriggerType> skillTriggerTypes; // 技能触发类型列表（支持多触发时机）
     private int maxLevel;           // 技能最大等级
 
     // ================ 技能效果 ================
@@ -44,7 +46,7 @@ public class SkillTemplate {
      * 获取技能触发类型列表
      * @return 不可修改的触发类型列表
      */
-    public List<SkillTriggerType> getSkillTriggerTypes() {
+    public List<TriggerType> getSkillTriggerTypes() {
         if (skillTriggerTypes == null) {
             return Collections.emptyList();
         }
@@ -55,7 +57,7 @@ public class SkillTemplate {
      * 设置技能触发类型列表
      * @param skillTriggerTypes 触发类型列表
      */
-    public void setSkillTriggerTypes(List<SkillTriggerType> skillTriggerTypes) {
+    public void setSkillTriggerTypes(List<TriggerType> skillTriggerTypes) {
         this.skillTriggerTypes = skillTriggerTypes;
     }
 
@@ -64,7 +66,7 @@ public class SkillTemplate {
      * @param triggerType 要检查的触发类型
      * @return 如果该技能在这个时机触发则返回true
      */
-    public boolean hasTriggerType(SkillTriggerType triggerType) {
+    public boolean hasTriggerType(TriggerType triggerType) {
         if (skillTriggerTypes == null) {
             return false;
         }

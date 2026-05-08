@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.utils;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -122,7 +124,7 @@ public class AttributeUtils {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
                 for (com.example.treasure_and_battle.affix.BaseAffix affix : item.getAffixes()) {
-                    if (affix.getTriggerType() == com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT) {
+                    if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
                         affix.applyAttributeBonus(modifiers);
                     }
                 }
@@ -134,7 +136,7 @@ public class AttributeUtils {
     // ====================== 怪物专属加成逻辑 ======================    
     private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
         for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
-            if (affix.getTriggerType() == com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT) {
+            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
                 affix.applyAttributeBonus(modifiers);
             }
         }

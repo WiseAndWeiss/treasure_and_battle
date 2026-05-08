@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.buff;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 /**
@@ -16,7 +16,7 @@ public abstract class BaseBuff {
     protected final String buffName;
     protected final String descriptionFormat;
     protected final BuffType buffType;
-    protected final BuffTriggerType triggerType;
+    protected final TriggerType triggerType;
     protected final boolean isDispellable;
 
     // ====================== 生命周期属性 ======================
@@ -31,7 +31,7 @@ public abstract class BaseBuff {
 
     // ====================== 构造函数 ======================
     public BaseBuff(String buffId, String buffName, String descriptionFormat,
-                    BuffType buffType, BuffTriggerType triggerType, boolean isDispellable,
+                    BuffType buffType, TriggerType triggerType, boolean isDispellable,
                     int maxDuration, int maxStackCount, boolean refreshOnApply, float buffValue) {
         this.buffId = buffId;
         this.buffName = buffName;
@@ -59,7 +59,7 @@ public abstract class BaseBuff {
      * @param context 战斗上下文
      * @param triggerType 触发类型
      */
-    public abstract void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType);
+    public abstract void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType);
 
     // ====================== 生命周期通用方法 ======================
     /**
@@ -124,7 +124,7 @@ public abstract class BaseBuff {
     public String getBuffName() { return buffName; }
     public String getDescription() { return String.format(descriptionFormat, buffValue, stackCount); }
     public BuffType getBuffType() { return buffType; }
-    public BuffTriggerType getTriggerType() { return triggerType; }
+    public TriggerType getTriggerType() { return triggerType; }
     public boolean isDispellable() { return isDispellable; }
     public int getRemainingDuration() { return remainingDuration; }
     public int getStackCount() { return stackCount; }

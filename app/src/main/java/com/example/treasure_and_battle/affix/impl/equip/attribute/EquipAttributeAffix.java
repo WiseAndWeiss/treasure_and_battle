@@ -1,8 +1,10 @@
 package com.example.treasure_and_battle.affix.impl.equip.attribute;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
@@ -21,7 +23,7 @@ public class EquipAttributeAffix extends BaseEquipAffix {
     private final EquipAffixScope affixScope;
 
     public EquipAttributeAffix(int affixId, String affixName, String description, Rarity rarity,
-                               AffixTriggerType triggerType, EquipCategory[] allowCategories, float value,
+                               TriggerType triggerType, EquipCategory[] allowCategories, float value,
                                AttributeType attributeType, ValueType valueType, EquipAffixScope affixScope) {
         super(affixId, affixName, description, rarity, triggerType, allowCategories, value);
         this.attributeType = attributeType;

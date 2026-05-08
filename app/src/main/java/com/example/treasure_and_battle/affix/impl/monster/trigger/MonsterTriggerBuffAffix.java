@@ -1,12 +1,14 @@
 package com.example.treasure_and_battle.affix.impl.monster.trigger;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.BuffManager;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -19,7 +21,7 @@ public class MonsterTriggerBuffAffix extends BaseMonsterAffix {
 	private final float damageToStackRatio;
 
 	public MonsterTriggerBuffAffix(int affixId, String affixName, String description, Rarity rarity,
-								   AffixTriggerType triggerType, float value, int buffTemplateId,
+								   TriggerType triggerType, float value, int buffTemplateId,
 								   AffixBuffApplyTarget applyTarget, int applyStacks, float damageToStackRatio) {
 		super(affixId, affixName, description, rarity, triggerType, value);
 		this.buffTemplateId = buffTemplateId;

@@ -1,6 +1,6 @@
 package com.example.treasure_and_battle.affix.impl.equip.attribute;
 
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
@@ -21,7 +21,7 @@ public class EquipAttributeAffixTest {
                 "力量词缀",
                 "力量+%.0f",
                 Rarity.UNCOMMON,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 8f,
                 AttributeType.STRENGTH,
@@ -42,7 +42,7 @@ public class EquipAttributeAffixTest {
                 "武器攻击词缀",
                 "武器攻击+%.0f%%",
                 Rarity.RARE,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 0.20f,
                 AttributeType.PHYSICAL_ATK,
@@ -66,7 +66,7 @@ public class EquipAttributeAffixTest {
                 "命中词缀",
                 "命中提高%.0f%%",
                 Rarity.EPIC,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 new EquipCategory[]{EquipCategory.ACCESSORY},
                 0.15f,
                 AttributeType.HIT_RATE,

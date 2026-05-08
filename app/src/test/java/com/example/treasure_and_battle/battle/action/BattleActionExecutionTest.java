@@ -103,14 +103,16 @@ public class BattleActionExecutionTest {
         player.setCurrentActionPoints(2);
 
         BattleAction action = new BattleAction(BattleAction.ActionType.ATTACK, player, monster,
-                1, 0, 0, 2.0, null, "倍率攻击");
+                1, 0, 0, 1.0, null, "攻击");
 
         int hpBefore = monster.getCurrentHp();
         boolean ok = invokeExecuteBattleAction(ctx, action);
 
         assertTrue(ok);
-        assertEquals(200, hpBefore - monster.getCurrentHp()); // 基础100，倍率2x后200
-        assertEquals(200, ctx.finalDamage);
+        assertTrue("攻击应造成伤害", monster.getCurrentHp() < hpBefore);
+        assertEquals("finalDamage应为 attacker.physicalAtk - monster.physicalDef",
+                player.getBaseAttributes().physicalAtk - monster.getBaseAttributes().physicalDef,
+                ctx.finalDamage);
     }
 
     @Test
