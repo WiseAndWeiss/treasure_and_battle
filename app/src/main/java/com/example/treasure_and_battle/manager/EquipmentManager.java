@@ -1,17 +1,17 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
+import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.EquipSlot;
-import com.example.treasure_and_battle.model.item.EquipTemplate;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipTemplate;
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.manager.EquipAffixManager;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
@@ -137,7 +137,7 @@ public class EquipmentManager {
         }
 
         // 附加装备词缀系统，并与属性引擎解耦（交给EquipAffixManager和保底引擎去生成分配）
-        List<BaseAffix> baseAffixes = new java.util.ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
+        List<BaseAffix> baseAffixes = new ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
         applyEquipmentOnlyAffixes(equip, baseAffixes);
         equip.setAffixes(baseAffixes);
 
@@ -180,22 +180,6 @@ public class EquipmentManager {
         applyModifiersToEquipmentBaseAttributes(equip.getBaseAttributes(), equipmentOnlyModifiers);
     }
 
-    private static int resolveEquipIconRes(String equipId) {
-        if (equipId == null) {
-            return 0;
-        }
-        switch (equipId) {
-            case "equip_weapon_sword_iron":
-                return R.drawable.iron_sword_icon;
-            case "equip_armor_chest_leather":
-                return R.drawable.ic_backpack;
-            case "equip_accessory_ring_iron":
-                return R.drawable.ic_config;
-            default:
-                return R.drawable.ic_map;
-        }
-    }
-
     private void applyModifiersToEquipmentBaseAttributes(AttributeSet base, AttributeSet modifiers) {
         base.strength = (int) (base.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
         base.agility = (int) (base.agility * (1f + modifiers.percentAgility)) + modifiers.agility;
@@ -228,5 +212,16 @@ public class EquipmentManager {
 
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;
+    }
+
+    private int resolveEquipIconRes(String equipId) {
+        if (equipId == null || equipId.trim().isEmpty()) {
+            return 0;
+        }
+        try {
+            return context.getResources().getIdentifier("ic_equip_" + equipId, "drawable", context.getPackageName());
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }
