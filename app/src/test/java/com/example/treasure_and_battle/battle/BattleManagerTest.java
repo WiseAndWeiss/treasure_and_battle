@@ -2,11 +2,19 @@ package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
+import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.utils.RandomUtils;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,36 +23,26 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import static org.junit.Assert.*;
 
-/**
- * 战斗系统单元测试
- * 覆盖核心规则：先手判定、意图看破、伤害计算、战斗结算、逃跑逻辑
- */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class BattleManagerTest {
     private Context context;
     private BattleManager battleManager;
     private Player testPlayer;
     private Monster testMonster;
 
-    // ====================== 测试初始化 ======================
     @Before
     public void setUp() {
-        // 1. 初始化 Robolectric 模拟 Context
         context = RuntimeEnvironment.application;
         battleManager = BattleManager.getInstance(context);
-
-        // 2. 设置固定随机种子，确保测试结果可复现！
         RandomUtils.setSeed(123456L);
 
-        // 3. 创建测试玩家（可控属性）
         testPlayer = new Player("TestPlayer", context);
-        // 手动设置玩家基础属性（避免依赖未完成的职业系统）
         AttributeSet playerAttr = testPlayer.getBaseAttributes();
         playerAttr.strength = 10;
         playerAttr.agility = 10;
         playerAttr.intelligence = 10;
-        playerAttr.spirit = 20; // 精神高，方便测试意图看破
+        playerAttr.spirit = 20;
         playerAttr.physique = 10;
         playerAttr.luck = 10;
         playerAttr.maxHp = 100;
@@ -53,183 +51,494 @@ public class BattleManagerTest {
         playerAttr.physicalDef = 10;
         playerAttr.magicalAtk = 20;
         playerAttr.magicalDef = 10;
-        playerAttr.speed = 15; // 速度15
-        playerAttr.physicalCritRate = 0.2f; // 20%暴击率
+        playerAttr.speed = 15;
+        playerAttr.hitRate = 1.0f;
+        playerAttr.dodgeRate = 0f;
+        playerAttr.physicalCritRate = 0f;
         playerAttr.expBonus = 1.0f;
         playerAttr.goldBonus = 1.0f;
         testPlayer.markAttributeCacheDirty();
         testPlayer.setCurrentHp(playerAttr.maxHp);
         testPlayer.setCurrentMp(playerAttr.maxMp);
 
-        // 4. 创建测试怪物（通过刚刚搭建的Monster模板系统）
-        testMonster = com.example.treasure_and_battle.manager.MonsterManager.getInstance(context).createMonsterByTemplateId(1001);
-
-        // 手动调整点怪物最终属性以适配原有测试逻辑预期
+        testMonster = com.example.treasure_and_battle.manager.MonsterManager.getInstance(context)
+                .createMonsterByTemplateId(1001, false);
         AttributeSet monsterAttr = testMonster.getBaseAttributes();
-        monsterAttr.spirit = 10; // 精神10，玩家精神20，方便测试看破
-        monsterAttr.speed = 10; // 速度10，比玩家慢
+        monsterAttr.spirit = 10;
+        monsterAttr.speed = 10;
+        monsterAttr.hitRate = 1.0f;
+        monsterAttr.dodgeRate = 0f;
+        monsterAttr.physicalCritRate = 0f;
         testMonster.markAttributeCacheDirty();
         testMonster.setCurrentHp(monsterAttr.maxHp);
         testMonster.setCurrentMp(monsterAttr.maxMp);
     }
 
-    // ====================== 测试用例1：先手判定 ======================
+    // ====================== 速度队列排序测试 ======================
+
     @Test
-    public void testTurnOrderDetermination() throws Exception {
-        // 利用反射调用私有方法测试，而不是去死循环跑 startBattle
-        java.lang.reflect.Method determineMethod = BattleManager.class.getDeclaredMethod("determineTurnOrder", BattleContext.class);
-        determineMethod.setAccessible(true);
+    public void testSpeedQueue_PlayerFasterThanMonster() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
 
-        // 场景1：常规战斗，玩家速度15 > 怪物速度10 → 玩家先行动
-        BattleContext ctx1 = new BattleContext(testPlayer, testMonster, false);
-        determineMethod.invoke(battleManager, ctx1);
-        assertTrue("玩家速度更高，应该先行动", ctx1.isPlayerTurn);
+        assertEquals(2, ctx.roundActionOrder.size());
+        assertTrue("玩家速度15>怪物速度10，应排在前面",
+                ctx.roundActionOrder.get(0) instanceof Player);
+        assertEquals("TestPlayer", ctx.roundActionOrder.get(0).getName());
+    }
 
-        // 场景2：偷袭战斗 → 玩家先行动
-        BattleContext ctx2 = new BattleContext(testPlayer, testMonster, true);
-        determineMethod.invoke(battleManager, ctx2);
-        assertTrue("偷袭战斗，玩家应该先行动", ctx2.isPlayerTurn);
-
-        // 场景3：修改怪物速度为20 > 玩家15 → 怪物先行动
-        testMonster.getBaseAttributes().speed = 20;
+    @Test
+    public void testSpeedQueue_MonsterFasterThanPlayer() {
+        testMonster.getBaseAttributes().speed = 30;
         testMonster.markAttributeCacheDirty();
-        BattleContext ctx3 = new BattleContext(testPlayer, testMonster, false);
-        determineMethod.invoke(battleManager, ctx3);
-        assertFalse("怪物速度更高，应该怪物先行动", ctx3.isPlayerTurn);
+
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals(2, ctx.roundActionOrder.size());
+        assertTrue("怪物速度30>玩家速度15，应排在前面",
+                ctx.roundActionOrder.get(0) instanceof Monster);
     }
 
-    // ====================== 测试用例2：意图看破概率 ======================
     @Test
-    public void testIntentSeeThrough() throws Exception {
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
-        ctx.isPlayerTurn = false;
-        
-        java.lang.reflect.Method mockIntentMethod = BattleManager.class.getDeclaredMethod("generateAndRevealMonsterIntents", BattleContext.class);
-        mockIntentMethod.setAccessible(true);
-        mockIntentMethod.invoke(battleManager, ctx);
+    public void testSpeedQueue_MultipleMonstersSortedBySpeed() {
+        Monster slow = createMonster("slow", 5, 100, 10);
+        Monster mid = createMonster("mid", 20, 100, 10);
+        Monster fast = createMonster("fast", 40, 100, 10);
+        testPlayer.getBaseAttributes().speed = 25;
+        testPlayer.markAttributeCacheDirty();
 
-        AttributeSet playerAttr = testPlayer.getFinalAttributes();
-        AttributeSet monsterAttr = testMonster.getFinalAttributes();
-        double seeThroughChance = 0.5 * ((double) playerAttr.spirit / monsterAttr.spirit);
-        seeThroughChance = Math.max(0.1, Math.min(0.9, seeThroughChance));
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(slow, mid, fast), SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
 
-        assertEquals("看破概率计算错误", 0.9, seeThroughChance, 0.001);
+        assertEquals(4, ctx.roundActionOrder.size());
+        assertEquals("fast", ctx.roundActionOrder.get(0).getName());
+        assertEquals("TestPlayer", ctx.roundActionOrder.get(1).getName());
+        assertEquals("mid", ctx.roundActionOrder.get(2).getName());
+        assertEquals("slow", ctx.roundActionOrder.get(3).getName());
     }
 
-    // ====================== 测试用例3：伤害计算 ======================
     @Test
-    public void testDamageCalculation() {
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
-        ctx.currentActor = testPlayer;
-        ctx.currentTarget = testMonster;
+    public void testSpeedQueue_DeadMonsterExcluded() {
+        Monster deadMonster = createMonster("dead", 100, 100, 10);
+        deadMonster.setDead(true);
+        Monster aliveMonster = createMonster("alive", 10, 100, 10);
 
-        // 玩家攻击30，怪物防御8 → 最终伤害=30-8=22
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(deadMonster, aliveMonster), SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals(2, ctx.roundActionOrder.size());
+    }
+
+    @Test
+    public void testSpeedQueue_DeadPlayerStillInQueue() {
+        testPlayer.setDead(true);
+
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals(1, ctx.roundActionOrder.size());
+        assertTrue(ctx.roundActionOrder.get(0) instanceof Monster);
+    }
+
+    // ====================== 偷袭测试 ======================
+
+    @Test
+    public void testSurprise_PlayerSurprisePushesPartyToFront() {
+        Monster fastMonster = createMonster("fast", 50, 100, 10);
+        testPlayer.getBaseAttributes().speed = 10;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = new BattleContext(testPlayer, fastMonster, SurpriseDirection.PLAYER_SURPRISE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals(2, ctx.roundActionOrder.size());
+        assertTrue(ctx.roundActionOrder.get(0) instanceof Player);
+        assertTrue(ctx.roundActionOrder.get(1) instanceof Monster);
+    }
+
+    @Test
+    public void testSurprise_MonsterSurprisePushesMonstersToFront() {
+        Monster slowMonster = createMonster("slow", 10, 100, 10);
+        testPlayer.getBaseAttributes().speed = 50;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = new BattleContext(testPlayer, slowMonster, SurpriseDirection.MONSTER_SURPRISE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals(2, ctx.roundActionOrder.size());
+        assertTrue(ctx.roundActionOrder.get(0) instanceof Monster);
+        assertTrue(ctx.roundActionOrder.get(1) instanceof Player);
+    }
+
+    @Test
+    public void testSurprise_NoSurpriseKeepsSpeedOrder() {
+        Monster slowMonster = createMonster("slow", 5, 100, 10);
+        testPlayer.getBaseAttributes().speed = 30;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = new BattleContext(testPlayer, slowMonster, SurpriseDirection.NONE);
+
+        List<BattleEntity> actors = new ArrayList<>();
+        actors.add(testPlayer);
+        actors.addAll(ctx.getAliveMonsters());
+        actors.sort((a, b) -> b.getFinalAttributes().speed - a.getFinalAttributes().speed);
+        battleManager.applySurpriseToQueue(ctx, actors);
+
+        assertEquals(2, actors.size());
+        assertTrue("无偷袭时顺序不变，玩家速度快排前", actors.get(0) instanceof Player);
+    }
+
+    // ====================== 看破概率测试 ======================
+
+    @Test
+    public void testSeeThroughChance_BasicFormula() {
+        testPlayer.getBaseAttributes().spirit = 20;
+        testMonster.getBaseAttributes().spirit = 10;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.markAttributeCacheDirty();
+
+        double chance = battleManager.calculateSeeThroughChance(testPlayer, testMonster);
+        assertEquals("精神20 vs 10 => 0.5*(20/10)=1.0, 截断到0.9", 0.9, chance, 0.001);
+    }
+
+    @Test
+    public void testSeeThroughChance_ClampedBetween01And09() {
+        testPlayer.getBaseAttributes().spirit = 1;
+        testMonster.getBaseAttributes().spirit = 100;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.markAttributeCacheDirty();
+
+        double chance = battleManager.calculateSeeThroughChance(testPlayer, testMonster);
+        assertTrue("看破率不应低于10%", chance >= 0.1);
+
+        testPlayer.getBaseAttributes().spirit = 200;
+        testMonster.getBaseAttributes().spirit = 1;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.markAttributeCacheDirty();
+
+        chance = battleManager.calculateSeeThroughChance(testPlayer, testMonster);
+        assertTrue("看破率不应高于90%", chance <= 0.9);
+    }
+
+    @Test
+    public void testIntentReveal_GeneratedOnRoundStart() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.monsterRevealedIntents.clear();
+
+        Monster m = ctx.getAliveMonsters().get(0);
+        ctx.monsterRevealedIntents.put(m.getEntityId(), new ArrayList<>());
+
+        assertNotNull(ctx.monsterRevealedIntents.get(m.getEntityId()));
+    }
+
+    // ====================== ReavealedIntent 执行标记测试 ======================
+
+    @Test
+    public void testRevealedIntent_ExecutionMarkedAfterMonsterActs() {
+        Monster dummy = createMonster("dummy", 10, 100, 10);
+        BattleContext ctx = new BattleContext(testPlayer, dummy, SurpriseDirection.NONE);
+
+        ctx.monsterRevealedIntents.clear();
+
+        com.example.treasure_and_battle.model.entity.ActionIntent intent1 =
+            new com.example.treasure_and_battle.model.entity.ActionIntent(
+                "测试攻击", "", com.example.treasure_and_battle.model.entity.ActionIntent.IntentType.ATTACK,
+                1, 0, 1.0, 100, 10, -1f, -1f, null);
+
+        java.util.List<RevealedIntent> revealed = new ArrayList<>();
+        revealed.add(new RevealedIntent(intent1, true));
+        ctx.monsterRevealedIntents.put(dummy.getEntityId(), revealed);
+
+        assertFalse("初始未执行", revealed.get(0).executed);
+        revealed.get(0).executed = true;
+        assertTrue("手动标记后应为已执行", revealed.get(0).executed);
+    }
+
+    // ====================== 伤害计算测试 ======================
+
+    @Test
+    public void testDamageCalculation_PlayerAttacksMonster() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        int monsterHpBefore = testMonster.getCurrentHp();
+        int expectedDamage = Math.max(1,
+            testPlayer.getFinalAttributes().physicalAtk - testMonster.getFinalAttributes().physicalDef);
+
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
-        assertEquals("伤害计算错误", 22, ctx.finalDamage);
-        assertEquals("怪物HP未正确扣除", 80-22, testMonster.getCurrentHp());
-
-        // 怪物攻击25，玩家防御10 -> 最终伤害 25-10=15
-        ctx.currentActor = testMonster;
-        ctx.currentTarget = testPlayer;
-        battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
-        assertEquals("伤害计算错误", 15, ctx.finalDamage);
-        assertEquals("玩家HP未正确扣除", 100-15, testPlayer.getCurrentHp());
+        assertTrue("该场景应命中", ctx.isHit);
+        assertFalse("该场景不应暴击", ctx.isCriticalHit);
+        assertEquals("伤害计算应正确", expectedDamage, ctx.finalDamage);
+        assertEquals("HP应正确扣除", monsterHpBefore - expectedDamage, testMonster.getCurrentHp());
     }
 
-    // ====================== 测试用例4：战斗胜利结算 ======================
     @Test
-    public void testVictorySettlement() throws Exception {
-        // 直接把怪物HP设为1，方便测试胜利
+    public void testDamageCalculation_MonsterAttacksPlayer() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        int playerHpBefore = testPlayer.getCurrentHp();
+        int expectedDamage = Math.max(1,
+            testMonster.getFinalAttributes().physicalAtk - testPlayer.getFinalAttributes().physicalDef);
+
+        battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
+
+        assertTrue("该场景应命中", ctx.isHit);
+        assertFalse("该场景不应暴击", ctx.isCriticalHit);
+        assertEquals("伤害计算应正确", expectedDamage, ctx.finalDamage);
+        assertEquals("HP应正确扣除", playerHpBefore - expectedDamage, testPlayer.getCurrentHp());
+    }
+
+    // ====================== 战斗结算测试 ======================
+
+    @Test
+    public void testSettlement_VictoryAwardsExpAndGold() {
         testMonster.setCurrentHp(1);
-
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
-        // 让玩家一击即杀怪物
-        ctx.currentActor = testPlayer;
-        ctx.currentTarget = testMonster;
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
+        assertTrue("该场景应命中", ctx.isHit);
 
-        // 利用反射调用战斗结算
-        java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);
-        settleMethod.setAccessible(true);
-        settleMethod.invoke(battleManager, ctx);
+        testPlayer.setCurrentExp(0);
+        ctx.battleResult = BattleContext.BattleResult.VICTORY;
+        ctx.isBattleEnded = true;
+        battleManager.settleBattleResult(ctx);
 
-        // 验证战斗结果
         assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
-        assertTrue("战斗应已结束", ctx.isBattleEnded);
+        assertTrue("应获得经验", testPlayer.getCurrentExp() > 0);
     }
 
-    // ====================== 测试用例5：战斗失败结算 ======================
     @Test
-    public void testDefeatSettlement() throws Exception {
-        // 直接把玩家HP设为1
-        testPlayer.setCurrentHp(1);
+    public void testSettlement_DefeatPreservesOneHp() {
+        int expectedDamage = Math.max(1,
+            testMonster.getFinalAttributes().physicalAtk - testPlayer.getFinalAttributes().physicalDef);
+        testPlayer.setCurrentHp(expectedDamage);
 
-        // 让怪物攻击玩家
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
-        ctx.currentActor = testMonster;
-        ctx.currentTarget = testPlayer;
-        // 怪物攻击25，玩家防御10 → 伤害15，玩家HP=1-15=0 → 死亡
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         battleManager.executeNormalAttack(ctx, testMonster, testPlayer);
+        assertTrue("该场景应命中", ctx.isHit);
 
-        // 利用反射调用战斗结算
-        java.lang.reflect.Method settleMethod = BattleManager.class.getDeclaredMethod("settleBattleResult", BattleContext.class);
-        settleMethod.setAccessible(true);
-        settleMethod.invoke(battleManager, ctx);
+        ctx.battleResult = BattleContext.BattleResult.DEFEAT;
+        ctx.isBattleEnded = true;
+        battleManager.settleBattleResult(ctx);
 
-        // 验证战斗结果
-        assertEquals("战斗结果应为失败", BattleContext.BattleResult.DEFEAT, ctx.battleResult);
-        assertEquals("玩家HP应保留1点", 1, testPlayer.getCurrentHp());
-        assertFalse("玩家不应处于死亡状态", testPlayer.isDead());
+        assertEquals("失败后HP应保留1点", 1, testPlayer.getCurrentHp());
+        assertFalse("玩家不应标记为死亡", testPlayer.isDead());
     }
 
-    // ====================== 测试用例6：逃跑逻辑 ======================
     @Test
-    public void testEscapeLogic() {
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
+    public void testSettlement_AggregatesExpFromAllMonsters() {
+        Monster m1 = createMonster("m1", 10, 100, 10);
+        Monster m2 = createMonster("m2", 12, 100, 10);
+        m1.setExpReward(30);
+        m2.setExpReward(40);
+
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
+        testPlayer.setCurrentExp(0);
+        ctx.battleResult = BattleContext.BattleResult.VICTORY;
+        ctx.isBattleEnded = true;
+        battleManager.settleBattleResult(ctx);
+
+        assertEquals(70, testPlayer.getCurrentExp());
+    }
+
+    // ====================== 死亡检查测试 ======================
+
+    @Test
+    public void testCheckDeath_AllMonstersDownIsVictory() {
+        Monster m1 = createMonster("m1", 10, 100, 10);
+        Monster m2 = createMonster("m2", 10, 100, 10);
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
+
+        m1.setDead(true);
+        battleManager.checkDeath(ctx);
+        assertFalse("单只死了不应结束", ctx.isBattleEnded);
+
+        m2.setDead(true);
+        battleManager.checkDeath(ctx);
+        assertTrue("全部死了应结束", ctx.isBattleEnded);
+        assertEquals("结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
+    }
+
+    @Test
+    public void testCheckDeath_PlayerDeadIsDefeat() {
+        testPlayer.setDead(true);
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        battleManager.checkDeath(ctx);
+
+        assertTrue("玩家死亡应结束", ctx.isBattleEnded);
+        assertEquals("结果应为失败", BattleContext.BattleResult.DEFEAT, ctx.battleResult);
+    }
+
+    // ====================== 逃跑测试 ======================
+
+    @Test
+    public void testEscape_ConsumesActionPoint() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.currentActionPoints = 2;
+        testPlayer.setCurrentActionPoints(2);
+
+        battleManager.executePlayerEscape(ctx);
+
+        assertEquals("应消耗1点行动点", 1, ctx.currentActionPoints);
+    }
+
+    @Test
+    public void testEscape_VictoryWhenNoMonsters() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.monsters.clear();
+        testPlayer.setCurrentActionPoints(2);
         ctx.currentActionPoints = 2;
 
-        // 玩家速度15，怪物速度10 → 逃跑成功率=0.2 + (15/10-1)*0.5=0.2+0.25=0.45
-        // 因为设置了固定种子，这里结果是可预测的
         boolean escaped = battleManager.executePlayerEscape(ctx);
-
-        // 验证行动点消耗
-        assertEquals("行动点应消耗1点", 1, ctx.currentActionPoints);
-
-        // 验证逃跑结果（因为种子固定，这里可以断言具体结果）
-        // 实际运行时根据种子123456的结果调整断言
-        // assertFalse("逃跑应失败", escaped);
+        assertTrue("无怪物时应逃跑成功", escaped);
+        assertTrue(ctx.isBattleEnded);
+        assertEquals(BattleContext.BattleResult.VICTORY, ctx.battleResult);
     }
 
-    // ====================== 测试用例7：战斗日志系统验证 ======================
     @Test
-    public void testBattleLogSystem() {
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, false);
-        
-        // 模拟一个极其简单的战斗交互流程来测试日志：
-        // 1. 设置攻击执行者
-        ctx.currentActor = testPlayer;
-        ctx.currentTarget = testMonster;
-        ctx.currentRound = 1;
+    public void testEscape_MonsterEscapeOnlyRemovesSelf() {
+        Monster m1 = createMonster("m1", 100, 100, 10);
+        Monster m2 = createMonster("m2", 20, 100, 10);
+        testPlayer.getBaseAttributes().speed = 1;
+        testPlayer.markAttributeCacheDirty();
 
-        // 手动清空日志（以防上面初始化有残留）
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
+        ctx.currentActor = m1;
+
+        RandomUtils.setSeed(0L);
+        boolean escaped = battleManager.executeMonsterEscape(ctx);
+
+        assertTrue("高速怪物应逃跑成功", escaped);
+        assertTrue("逃跑怪物应标记死亡", m1.isDead());
+        assertFalse("非行动怪物不应死亡", m2.isDead());
+        assertFalse("有存活怪物时战斗不应结束", ctx.isBattleEnded);
+    }
+
+    // ====================== 日志系统测试 ======================
+
+    @Test
+    public void testBattleLog_NotEmptyAfterAttack() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.currentRound = 1;
         ctx.battleLogs.clear();
 
-        // 2. 执行一次玩家对怪物的普攻
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
 
-        // 3. 必定会产生一些日志，比如 DAMAGE 类型的日志
-        assertFalse("战斗日志不应该为空！", ctx.battleLogs.isEmpty());
-        
-        System.out.println("====== 日志系统输出测试开始 ======");
+        assertFalse("战斗日志不应为空", ctx.battleLogs.isEmpty());
         for (com.example.treasure_and_battle.battle.log.BattleLogEntry log : ctx.battleLogs) {
-            System.out.println(log.toString());
-            // 验证每条日志都被成功格式化，不包含 %d 或 %s 占位符（应该被正确替换了）
-            assertFalse("日志未能正确应用 format 字符串！", log.toString().contains("%d") && !log.toString().contains("%%"));
+            String str = log.toString();
+            assertFalse("日志不应包含未替换的%d占位符", str.contains("%d") && !str.contains("%%"));
         }
-        System.out.println("====== 日志系统输出测试结束 ======");
-        
-        // 简单断言第一条一定是 Action 类型或 Damage 类型（基于我们在BattleManager里的插入顺序）
-        assertNotNull(ctx.battleLogs.get(0).getType());
+    }
+
+    // ====================== 极端情形测试 ======================
+
+    @Test
+    public void testEdgeCase_BuildQueueWithEmptyMonsterList() {
+        BattleContext ctx = new BattleContext(testPlayer, new ArrayList<>(), SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        assertEquals("空怪物列表，队列应只有玩家", 1, ctx.roundActionOrder.size());
+        assertTrue(ctx.roundActionOrder.get(0) instanceof Player);
+    }
+
+    @Test
+    public void testEdgeCase_MonsterDiesBeforeActionInQueue() {
+        Monster fastMonster = createMonster("fast", 50, 5, 30);
+        Monster slowMonster = createMonster("slow", 10, 100, 10);
+        testPlayer.getBaseAttributes().physicalAtk = 100;
+        testPlayer.getBaseAttributes().speed = 30;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(fastMonster, slowMonster), SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        ctx.currentActor = fastMonster;
+        ctx.currentTarget = slowMonster;
+        battleManager.executeNormalAttack(ctx, testPlayer, fastMonster);
+        checkActorDeadAndSkip(ctx, "fast", 1);
+    }
+
+    private void checkActorDeadAndSkip(BattleContext ctx, String name, int aliveCount) {
+        for (BattleEntity e : ctx.roundActionOrder) {
+            if (e.getName().equals(name)) {
+                assertTrue(e.isDead());
+            }
+        }
+    }
+
+    @Test
+    public void testEdgeCase_PlayerPartyListed() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        assertNotNull(ctx.playerParty);
+        assertEquals(1, ctx.playerParty.size());
+        assertSame(testPlayer, ctx.playerParty.get(0));
+    }
+
+    @Test
+    public void testEdgeCase_MonsterEscapeAllMonstersGone() {
+        Monster onlyMonster = createMonster("only", 100, 100, 10);
+        testPlayer.getBaseAttributes().speed = 1;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = new BattleContext(testPlayer, onlyMonster, SurpriseDirection.NONE);
+        ctx.currentActor = onlyMonster;
+
+        RandomUtils.setSeed(0L);
+        battleManager.executeMonsterEscape(ctx);
+
+        assertTrue("逃跑后应结束战斗", ctx.isBattleEnded);
+        assertEquals("结果应为怪物逃跑", BattleContext.BattleResult.MONSTER_ESCAPED, ctx.battleResult);
+    }
+
+    @Test
+    public void testEdgeCase_PickActingMonsterSkipsDead() {
+        Monster deadFast = createMonster("deadFast", 99, 100, 10);
+        deadFast.setDead(true);
+        Monster aliveSlow = createMonster("aliveSlow", 20, 100, 10);
+        Monster aliveFaster = createMonster("aliveFaster", 40, 100, 10);
+
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(deadFast, aliveSlow, aliveFaster), SurpriseDirection.NONE);
+        Monster selected = battleManager.pickActingMonster(ctx);
+
+        assertNotNull(selected);
+        assertEquals("aliveFaster", selected.getName());
+    }
+
+    @Test
+    public void testEdgeCase_BuildQueueIncludesPlayerParty() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        battleManager.buildSpeedQueue(ctx);
+
+        boolean playerInQueue = ctx.roundActionOrder.stream().anyMatch(e -> e instanceof Player);
+        assertTrue("玩家必须在速度队列中", playerInQueue);
+    }
+
+    // ====================== 辅助方法 ======================
+
+    private Monster createMonster(String id, int speed, int maxHp, int patk) {
+        int strength = patk;
+        int agility = speed;
+        int physique = Math.max(0, (maxHp - strength - 10) / 2);
+        int intelligence = 1;
+        int spirit = 1;
+        int luck = 1;
+
+        Monster m = new Monster(id, id, 1,
+                com.example.treasure_and_battle.model.common.Rarity.COMMON,
+                strength, agility, intelligence, spirit, physique, luck,
+                10, 10,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                context);
+        AttributeSet attr = m.getBaseAttributes();
+        attr.hitRate = 1.0f;
+        attr.dodgeRate = 0f;
+        attr.physicalCritRate = 0f;
+        attr.maxHp = maxHp;
+        attr.physicalAtk = patk;
+        attr.speed = speed;
+        attr.physicalDef = 5;
+        attr.magicalDef = 5;
+        m.markAttributeCacheDirty();
+        m.setCurrentHp(maxHp);
+        return m;
     }
 }

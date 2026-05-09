@@ -1,9 +1,11 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -32,6 +34,10 @@ public class AffixManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }
+
     // ====================== 1. 词缀触发与调度 ======================
     /**
      * 触发指定实体的全部合法词缀
@@ -39,7 +45,7 @@ public class AffixManager {
      * @param ctx 当前所处的战斗上下文
      * @param triggerType 触发时机（如：战斗开始、回合开始、攻击时等）
      */
-    public void triggerAffixes(BattleEntity entity, BattleContext ctx, AffixTriggerType triggerType) {
+    public void triggerAffixes(BattleEntity entity, BattleContext ctx, TriggerType triggerType) {
         List<BaseAffix> activeAffixes = getActiveAffixes(entity);
 
         if (activeAffixes == null || activeAffixes.isEmpty()) {
@@ -48,7 +54,7 @@ public class AffixManager {
 
         for (BaseAffix affix : activeAffixes) {
             if (affix.getTriggerType() == triggerType) {
-                affix.onTrigger(ctx);
+                affix.onTrigger(entity, ctx);
                 ctx.addLogWithMeta(
                         com.example.treasure_and_battle.battle.log.LogType.AFFIX,
                         affix,
@@ -80,8 +86,8 @@ public class AffixManager {
             }
         } else if (entity instanceof Monster) {
             Monster monster = (Monster) entity;
-            if (monster.getMonsterAffixList() != null) {
-                affixes.addAll(monster.getMonsterAffixList());
+            if (monster.getEntityAffixList() != null) {
+                affixes.addAll(monster.getEntityAffixList());
             }
         }
 

@@ -4,7 +4,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -20,7 +20,7 @@ public class RegeneratingBuff extends BaseBuff {
     public RegeneratingBuff(String buffId, String buffName, String descriptionFormat,
                             BuffType buffType, boolean isDispellable, int maxDuration,
                             int maxStackCount, boolean refreshOnApply, float buffValue, ValueType valueType) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_ROUND_END,
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.ON_ROUND_END,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
         this.valueType = valueType;
     }
@@ -31,8 +31,8 @@ public class RegeneratingBuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
-        if (triggerType == BuffTriggerType.ON_ROUND_END) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
+        if (triggerType == TriggerType.ON_ROUND_END) {
             if (this.valueType == ValueType.FLAT) {
                 int healAmount = (int) (this.buffValue * this.stackCount);
                 owner.healHp(healAmount);

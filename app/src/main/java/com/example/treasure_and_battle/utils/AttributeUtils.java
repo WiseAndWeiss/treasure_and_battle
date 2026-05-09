@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.utils;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -17,7 +19,7 @@ public class AttributeUtils {
     private static final long CACHE_DURATION = 100; // 100ms缓存，避免同一帧多次计算
 
     // ====================== 【唯一入口】通用属性计算方法 ======================
-    public static void calculateFinalAttributes(BattleEntity entity, Context context) {
+    public static AttributeSet calculateFinalAttributes(BattleEntity entity, Context context) {
         AttributeSet modifiers = new AttributeSet();
         modifiers.maxHp = 0;
         modifiers.maxMp = 0;
@@ -38,8 +40,16 @@ public class AttributeUtils {
 
         BuffManager.getInstance(context).applyAllBuffAttributeBonus(modifiers, entity);
 
+        // 应用被动技能的属性加成
+        if (entity.getPassiveSkillList() != null) {
+            for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : entity.getPassiveSkillList()) {
+                passiveSkill.applyAttributeBonus(modifiers);
+            }
+        }
+
+        // 开始计算最终属性
         AttributeSet baseAttr = entity.getBaseAttributes();
-        AttributeSet finalAttr = entity.getFinalAttributes();
+        AttributeSet finalAttr = new AttributeSet();  // 使用临时对象避免递归
         finalAttr.copyFrom(baseAttr);
 
         // ------------------ 阶段 1: 计算最终六维属性 ------------------
@@ -82,14 +92,14 @@ public class AttributeUtils {
         finalAttr.expBonus += diffLuck * 0.01f;
 
         // ------------------ 阶段 3: 计算同乘区百分比及固定数值加成 ------------------
-        finalAttr.physicalAtk = (int) (finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
-        finalAttr.magicalAtk = (int) (finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
-        finalAttr.physicalDef = (int) (finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
-        finalAttr.magicalDef = (int) (finalAttr.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
-        finalAttr.speed = (int) (finalAttr.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
+        finalAttr.physicalAtk = Math.round(finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
+        finalAttr.magicalAtk = Math.round(finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
+        finalAttr.physicalDef = Math.round(finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
+        finalAttr.magicalDef = Math.round(finalAttr.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
+        finalAttr.speed = Math.round(finalAttr.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
 
-        finalAttr.maxHp = (int) (finalAttr.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
-        finalAttr.maxMp = (int) (finalAttr.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
+        finalAttr.maxHp = Math.round(finalAttr.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
+        finalAttr.maxMp = Math.round(finalAttr.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
 
         finalAttr.physicalCritRate += modifiers.physicalCritRate;
         finalAttr.physicalCritDmg += modifiers.physicalCritDmg;
@@ -104,6 +114,8 @@ public class AttributeUtils {
         finalAttr.expBonus += modifiers.expBonus;
 
         applyHardCaps(finalAttr);
+
+        return finalAttr;  // 返回计算结果
     }
 
     // ====================== 玩家专属加成逻辑 ======================     
@@ -112,76 +124,48 @@ public class AttributeUtils {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
                 for (com.example.treasure_and_battle.affix.BaseAffix affix : item.getAffixes()) {
-                    if (affix.getTriggerType() == com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT) {
+                    if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
                         affix.applyAttributeBonus(modifiers);
                     }
                 }
             }
+            modifiers.add(item.getTotalGemBonuses());
         }
     }
 
     // ====================== 怪物专属加成逻辑 ======================    
     private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getAffixes()) {
-            if (affix.getTriggerType() == com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT) {
+        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
+            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
                 affix.applyAttributeBonus(modifiers);
             }
         }
     }
 
-    // ====================== 基础属性计算 ======================
-    public static void calculatePlayerBaseAttributes(Player player) {
-        AttributeSet base = player.getBaseAttributes();
-        int level = player.getLevel();
-
-        base.strength = level * 2;
-        base.agility = level * 2;
-        base.intelligence = level * 2;
-        base.spirit = level * 2;
-        base.physique = level * 2;
-        base.luck = level;
-
-        calculateDerivedAttributes(base);
-
-        player.setCurrentHp(base.maxHp);
-        player.setCurrentMp(base.maxMp);
-        player.setCurrentActionPoints(base.maxActionPoints);
-    }
-
-    private static AttributeSet calculateBaseAttributes(Player player) {        
-        AttributeSet base = new AttributeSet();
-        int level = player.getLevel();
-
-        base.maxHp = base.physique * 2 + level * 10;
-        base.maxMp = base.intelligence * 2 + level * 5;
-        base.physicalAtk = base.strength;
-        base.physicalDef = base.physique / 2;
-        base.magicalAtk = base.intelligence;
-        base.magicalDef = base.spirit / 2;
-        base.speed = base.agility;
-
-        base.physicalCritRate = base.luck * 0.002f;
-        base.physicalCritDmg = base.strength * 0.005f;
-        base.magicalCritRate = base.luck * 0.002f;
-        base.magicalCritDmg = base.intelligence * 0.005f;
-        base.hitRate = base.agility * 0.003f;
-        base.dodgeRate = base.agility * 0.004f;
-        base.debuffResist = (base.spirit + base.physique) * 0.004f;
-        base.mpCostReduction = base.spirit * 0.005f;
-        base.lootRarityBonus = base.luck;
-        base.goldBonus = base.luck * 0.01f;
-        base.expBonus = base.luck * 0.01f;
-
-        return base;
-    }
-
-    public static void calculateMonsterBaseAttributes(Monster monster) {        
+    public static void calculateMonsterBaseAttributes(Monster monster) {
         AttributeSet base = monster.getBaseAttributes();
         calculateDerivedAttributes(base);
 
         monster.setCurrentHp(base.maxHp);
         monster.setCurrentMp(base.maxMp);
         monster.setCurrentActionPoints(base.maxActionPoints);
+    }
+
+    /**
+     * 六维驱动 + 职业系数：怪物基础属性计算入口
+     * 先用六维派生战斗属性，再乘以怪物职业系数（补偿无装备缺陷）
+     */
+    public static void calculateMonsterBaseAttributesWithCoefficients(AttributeSet base,
+            float hpMul, float atkMul, float defMul, float spdMul) {
+        calculateDerivedAttributes(base);
+
+        base.maxHp = (int) (base.maxHp * hpMul);
+        base.maxMp = (int) (base.maxMp * hpMul);
+        base.physicalAtk = (int) (base.physicalAtk * atkMul);
+        base.magicalAtk = (int) (base.magicalAtk * atkMul);
+        base.physicalDef = (int) (base.physicalDef * defMul);
+        base.magicalDef = (int) (base.magicalDef * defMul);
+        base.speed = (int) (base.speed * spdMul);
     }
 
     private static void calculateDerivedAttributes(AttributeSet base) {
@@ -192,7 +176,7 @@ public class AttributeUtils {
         base.magicalAtk = base.intelligence;
         base.magicalDef = base.spirit / 2;
         base.speed = base.agility;
-        base.maxActionPoints = 2; 
+        base.maxActionPoints = 2;
 
         base.physicalCritRate = base.luck * 0.002f;
         base.physicalCritDmg = 2.0f + base.strength * 0.005f;
@@ -209,12 +193,9 @@ public class AttributeUtils {
     }
 
     private static void applyHardCaps(AttributeSet attr) {
-        attr.dodgeRate = Math.min(attr.dodgeRate, 0.8f);  
-        attr.hitRate = Math.min(attr.hitRate, 1.0f);      
-        attr.physicalCritRate = Math.min(attr.physicalCritRate, 0.95f); 
-        attr.magicalCritRate = Math.min(attr.magicalCritRate, 0.95f);
-        attr.mpCostReduction = Math.min(attr.mpCostReduction, 0.5f); 
-        attr.debuffResist = Math.min(attr.debuffResist, 1.0f); 
+        attr.mpCostReduction = Math.min(attr.mpCostReduction, 1.0f);
+        attr.debuffResist = Math.min(attr.debuffResist, 1.0f);
+        attr.damageReductionRate = Math.min(attr.damageReductionRate, 1.0f);
     }
 
     public static void invalidateCache() {

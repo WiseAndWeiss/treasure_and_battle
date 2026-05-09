@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.buff;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 /**
@@ -16,7 +16,7 @@ public abstract class BaseBuff {
     protected final String buffName;
     protected final String descriptionFormat;
     protected final BuffType buffType;
-    protected final BuffTriggerType triggerType;
+    protected final TriggerType triggerType;
     protected final boolean isDispellable;
 
     // ====================== 生命周期属性 ======================
@@ -31,7 +31,7 @@ public abstract class BaseBuff {
 
     // ====================== 构造函数 ======================
     public BaseBuff(String buffId, String buffName, String descriptionFormat,
-                    BuffType buffType, BuffTriggerType triggerType, boolean isDispellable,
+                    BuffType buffType, TriggerType triggerType, boolean isDispellable,
                     int maxDuration, int maxStackCount, boolean refreshOnApply, float buffValue) {
         this.buffId = buffId;
         this.buffName = buffName;
@@ -59,7 +59,7 @@ public abstract class BaseBuff {
      * @param context 战斗上下文
      * @param triggerType 触发类型
      */
-    public abstract void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType);
+    public abstract void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType);
 
     // ====================== 生命周期通用方法 ======================
     /**
@@ -106,6 +106,10 @@ public abstract class BaseBuff {
         this.stackCount = Math.max(0, Math.min(stackCount, this.maxStackCount));
     }
 
+    public void setRemainingDuration(int duration) {
+        this.remainingDuration = Math.max(0, Math.min(duration, this.maxDuration));
+    }
+
     /**
      * 判断Buff是否应该被移除。
      * 只要持续回合耗尽（等于0），或者层数归零（<=0），即视为过期。
@@ -120,9 +124,77 @@ public abstract class BaseBuff {
     public String getBuffName() { return buffName; }
     public String getDescription() { return String.format(descriptionFormat, buffValue, stackCount); }
     public BuffType getBuffType() { return buffType; }
-    public BuffTriggerType getTriggerType() { return triggerType; }
+    public TriggerType getTriggerType() { return triggerType; }
     public boolean isDispellable() { return isDispellable; }
     public int getRemainingDuration() { return remainingDuration; }
     public int getStackCount() { return stackCount; }
     public float getBuffValue() { return buffValue; }
+
+    // ====================== 事件回调方法（可选重写） ======================
+
+    /**
+     * 受到伤害前回调（可修改伤害值）
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    public int onBeforeDamageReceived(BattleEntity owner, BattleEntity attacker, int damage, BattleContext context) {
+        return damage; // 默认不修改伤害
+    }
+
+    /**
+     * 被攻击时回调
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param context 战斗上下文
+     */
+    public void onAttacked(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
+     * 受到伤害后回调（HP扣除之后）
+     * @param owner buff持有者
+     * @param attacker 攻击者
+     * @param actualHpDamage 实际HP伤害（扣除护盾、减伤等之后）
+     * @param context 战斗上下文
+     */
+    public void onAfterDamageReceived(BattleEntity owner, BattleEntity attacker, int actualHpDamage, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
+     * 造成伤害前回调（可修改伤害值）
+     * @param owner buff持有者
+     * @param target 目标
+     * @param damage 原始伤害
+     * @param context 战斗上下文
+     * @return 修改后的伤害值
+     */
+    public int onBeforeDamageDealt(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        return damage; // 默认不修改伤害
+    }
+
+    /**
+     * 造成伤害后回调
+     * @param owner buff持有者
+     * @param target 目标
+     * @param damage 实际造成的伤害
+     * @param context 战斗上下文
+     */
+    public void onAfterDamageDealt(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        // 默认不执行任何操作
+    }
+
+    /**
+     * 攻击时回调
+     * @param owner buff持有者
+     * @param target 目标
+     * @param context 战斗上下文
+     */
+    public void onAttack(BattleEntity owner, BattleEntity target, BattleContext context) {
+        // 默认不执行任何操作
+    }
 }

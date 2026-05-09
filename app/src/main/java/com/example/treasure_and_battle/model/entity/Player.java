@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.EquipItem;
 import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
@@ -112,8 +113,8 @@ public class Player extends BattleEntity {
         this.finalAttributes.copyFrom(this.baseAttributes);
 
         // 2. 调用 AttributeUtils 叠加玩家专属加成（装备 + 词缀 + Buff）
-        // 注意：这里可以直接利用 AttributeSet 的 add() 方法进行叠加
-        // AttributeUtils.getInstance().calculatePlayerFinalAttributes(this.finalAttributes, this);
+        AttributeSet calculatedAttrs = AttributeUtils.calculateFinalAttributes(this, this.getContext());
+        this.finalAttributes.copyFrom(calculatedAttrs);
 
         // 3. 同步战斗资源上限（保持当前 HP/MP 比例）
         int oldMaxHp = this.finalAttributes.maxHp;
@@ -212,12 +213,109 @@ public class Player extends BattleEntity {
     public int getSkillPoints() { return skillPoints; }
     public void setSkillPoints(int skillPoints) { this.skillPoints = skillPoints; }
 
+    // ====================== 六维属性手动分配 ======================
+    private int allocatedStrength;
+    private int allocatedAgility;
+    private int allocatedIntelligence;
+    private int allocatedSpirit;
+    private int allocatedPhysique;
+    private int allocatedLuck;
+
+    public boolean allocateTalentPoint(String attributeName) {
+        if (talentPoints <= 0) return false;
+
+        switch (attributeName.toUpperCase()) {
+            case "STRENGTH":
+                baseAttributes.strength++;
+                allocatedStrength++;
+                talentPoints--;
+                break;
+            case "AGILITY":
+                baseAttributes.agility++;
+                allocatedAgility++;
+                talentPoints--;
+                break;
+            case "INTELLIGENCE":
+                baseAttributes.intelligence++;
+                allocatedIntelligence++;
+                talentPoints--;
+                break;
+            case "SPIRIT":
+                baseAttributes.spirit++;
+                allocatedSpirit++;
+                talentPoints--;
+                break;
+            case "PHYSIQUE":
+                baseAttributes.physique++;
+                allocatedPhysique++;
+                talentPoints--;
+                break;
+            case "LUCK":
+                baseAttributes.luck++;
+                allocatedLuck++;
+                talentPoints--;
+                break;
+            default:
+                return false;
+        }
+        markAttributeCacheDirty();
+        return true;
+    }
+
+    public void resetAllTalentPoints() {
+        baseAttributes.strength -= allocatedStrength;
+        baseAttributes.agility -= allocatedAgility;
+        baseAttributes.intelligence -= allocatedIntelligence;
+        baseAttributes.spirit -= allocatedSpirit;
+        baseAttributes.physique -= allocatedPhysique;
+        baseAttributes.luck -= allocatedLuck;
+
+        talentPoints += allocatedStrength + allocatedAgility + allocatedIntelligence
+                + allocatedSpirit + allocatedPhysique + allocatedLuck;
+
+        allocatedStrength = 0;
+        allocatedAgility = 0;
+        allocatedIntelligence = 0;
+        allocatedSpirit = 0;
+        allocatedPhysique = 0;
+        allocatedLuck = 0;
+
+        markAttributeCacheDirty();
+        getFinalAttributes();
+        this.currentHp = getFinalAttributes().maxHp;
+        this.currentMp = getFinalAttributes().maxMp;
+    }
+
+    public int getAllocatedStrength() { return allocatedStrength; }
+    public int getAllocatedAgility() { return allocatedAgility; }
+    public int getAllocatedIntelligence() { return allocatedIntelligence; }
+    public int getAllocatedSpirit() { return allocatedSpirit; }
+    public int getAllocatedPhysique() { return allocatedPhysique; }
+    public int getAllocatedLuck() { return allocatedLuck; }
+
+    public int getTotalAllocatedPoints() {
+        return allocatedStrength + allocatedAgility + allocatedIntelligence
+                + allocatedSpirit + allocatedPhysique + allocatedLuck;
+    }
+
     // ====================== 装备 ======================
-    public void equip(EquipItem item) {
-        if (item != null) {
-            equippedItems.put(item.getSlot(), item);
+    public EquipItem equip(EquipItem item) {
+        if (item == null) return null;
+        EquipItem old = equippedItems.put(item.getSlot(), item);
+        markAttributeCacheDirty();
+        return old;
+    }
+
+    public EquipItem unequip(EquipSlot slot) {
+        EquipItem removed = equippedItems.remove(slot);
+        if (removed != null) {
             markAttributeCacheDirty();
         }
+        return removed;
+    }
+
+    public EquipItem getEquippedItem(EquipSlot slot) {
+        return equippedItems.get(slot);
     }
 
     public Collection<EquipItem> getEquippedItems() {

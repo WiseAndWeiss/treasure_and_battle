@@ -1,34 +1,1900 @@
-﻿{
+{
   "monster_templates": [
     {
       "templateId": 1001,
-      "entityId": "monster_slime_small",
+      "entityId": "slime_small",
       "name": "小史莱姆",
+      "level": 3,
+      "rarityId": 0,
+      "strength": 6,
+      "agility": 4,
+      "intelligence": 3,
+      "spirit": 3,
+      "physique": 8,
+      "luck": 3,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 3.5,
+      "defMultiplier": 1.2,
+      "spdMultiplier": 1.0,
+      "expReward": 30,
+      "goldReward": 10,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "slime_gel_common",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 1002,
+      "entityId": "slime_common",
+      "name": "史莱姆",
       "level": 5,
       "rarityId": 1,
-      "maxHp": 80,
-      "maxMp": 30,
-      "patk": 25,
-      "matt": 15,
-      "pdef": 8,
-      "mdef": 5,
-      "speed": 12,
-      "strength": 5,
+      "strength": 8,
       "agility": 5,
+      "intelligence": 4,
+      "spirit": 4,
+      "physique": 10,
+      "luck": 4,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 1.0,
+      "expReward": 60,
+      "goldReward": 25,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "slime_gel_uncommon",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 1003,
+      "entityId": "slime_big",
+      "name": "大史莱姆",
+      "level": 8,
+      "rarityId": 2,
+      "strength": 10,
+      "agility": 6,
       "intelligence": 5,
       "spirit": 5,
-      "physique": 5,
+      "physique": 12,
       "luck": 5,
-      "expReward": 50,
-      "goldReward": 20,
-      "intents": [
+      "hpMultiplier": 4.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 1.8,
+      "spdMultiplier": 1.1,
+      "expReward": 120,
+      "goldReward": 60,
+      "skillPool": [
         {
-          "intentId": "intent_attack_basic",
-          "weight": 70
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
         },
         {
-          "intentId": "intent_attack_heavy",
-          "weight": 30
+          "skillId": "monster_acid_spray",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "slime_gel_rare",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 1004,
+      "entityId": "slime_giant",
+      "name": "巨型史莱姆",
+      "level": 12,
+      "rarityId": 3,
+      "strength": 14,
+      "agility": 7,
+      "intelligence": 6,
+      "spirit": 6,
+      "physique": 16,
+      "luck": 7,
+      "hpMultiplier": 4.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.2,
+      "expReward": 250,
+      "goldReward": 150,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_gel_recover",
+          "weight": 20,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "slime_crystal",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 1005,
+      "entityId": "slime_king",
+      "name": "史莱姆国王",
+      "level": 18,
+      "rarityId": 4,
+      "strength": 20,
+      "agility": 10,
+      "intelligence": 9,
+      "spirit": 9,
+      "physique": 22,
+      "luck": 10,
+      "hpMultiplier": 5.5,
+      "atkMultiplier": 6.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.2,
+      "expReward": 600,
+      "goldReward": 400,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 20,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_slime_armor",
+          "weight": 25,
+          "priority": 45,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "slime_crown_fragment",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 2001,
+      "entityId": "wolf_pup",
+      "name": "幼狼",
+      "level": 4,
+      "rarityId": 0,
+      "strength": 8,
+      "agility": 12,
+      "intelligence": 3,
+      "spirit": 3,
+      "physique": 5,
+      "luck": 5,
+      "hpMultiplier": 2.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 1.3,
+      "spdMultiplier": 1.8,
+      "expReward": 40,
+      "goldReward": 15,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "wolf_fang",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 2002,
+      "entityId": "wolf_forest",
+      "name": "森林狼",
+      "level": 7,
+      "rarityId": 1,
+      "strength": 12,
+      "agility": 18,
+      "intelligence": 4,
+      "spirit": 4,
+      "physique": 7,
+      "luck": 7,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 2.0,
+      "expReward": 80,
+      "goldReward": 35,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "wolf_fang_sharp",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 2003,
+      "entityId": "wolf_dire",
+      "name": "恐狼",
+      "level": 10,
+      "rarityId": 2,
+      "strength": 16,
+      "agility": 24,
+      "intelligence": 5,
+      "spirit": 5,
+      "physique": 9,
+      "luck": 9,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 5.5,
+      "defMultiplier": 1.8,
+      "spdMultiplier": 2.3,
+      "expReward": 160,
+      "goldReward": 80,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 30,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "wolf_pelt_rare",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 2004,
+      "entityId": "wolf_alpha",
+      "name": "头狼",
+      "level": 15,
+      "rarityId": 3,
+      "strength": 22,
+      "agility": 32,
+      "intelligence": 7,
+      "spirit": 7,
+      "physique": 12,
+      "luck": 12,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 6.5,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 2.5,
+      "expReward": 350,
+      "goldReward": 200,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_howl",
+          "weight": 35,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "wolf_alpha_fang",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 2005,
+      "entityId": "wolf_fenrir",
+      "name": "芬里尔",
+      "level": 22,
+      "rarityId": 4,
+      "strength": 30,
+      "agility": 44,
+      "intelligence": 10,
+      "spirit": 10,
+      "physique": 16,
+      "luck": 16,
+      "hpMultiplier": 4.0,
+      "atkMultiplier": 7.5,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 3.0,
+      "expReward": 800,
+      "goldReward": 500,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_howl",
+          "weight": 20,
+          "priority": 38,
+          "apCost": 2,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_frenzy",
+          "weight": 25,
+          "priority": 45,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fenrir_heart",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 3001,
+      "entityId": "bandit_thug",
+      "name": "山贼喽罗",
+      "level": 3,
+      "rarityId": 0,
+      "strength": 8,
+      "agility": 7,
+      "intelligence": 4,
+      "spirit": 4,
+      "physique": 6,
+      "luck": 4,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.3,
+      "expReward": 35,
+      "goldReward": 20,
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bandit_coin",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 3002,
+      "entityId": "bandit_raider",
+      "name": "山贼劫匪",
+      "level": 6,
+      "rarityId": 1,
+      "strength": 11,
+      "agility": 9,
+      "intelligence": 5,
+      "spirit": 5,
+      "physique": 8,
+      "luck": 5,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.2,
+      "spdMultiplier": 1.5,
+      "expReward": 70,
+      "goldReward": 40,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bandit_ring",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 3003,
+      "entityId": "bandit_chief",
+      "name": "山贼头目",
+      "level": 10,
+      "rarityId": 2,
+      "strength": 15,
+      "agility": 12,
+      "intelligence": 7,
+      "spirit": 7,
+      "physique": 11,
+      "luck": 6,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.7,
+      "expReward": 150,
+      "goldReward": 90,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bandit_token",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 4001,
+      "entityId": "dragon_egg",
+      "name": "龙蛋",
+      "level": 8,
+      "rarityId": 0,
+      "strength": 10,
+      "agility": 2,
+      "intelligence": 8,
+      "spirit": 8,
+      "physique": 20,
+      "luck": 5,
+      "hpMultiplier": 5.0,
+      "atkMultiplier": 3.0,
+      "defMultiplier": 3.5,
+      "spdMultiplier": 0.5,
+      "expReward": 90,
+      "goldReward": 60,
+      "skillPool": [],
+      "dropTable": [
+        {
+          "materialId": "dragon_egg_shell",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 4002,
+      "entityId": "dragon_wyrm",
+      "name": "幼龙",
+      "level": 14,
+      "rarityId": 1,
+      "strength": 18,
+      "agility": 4,
+      "intelligence": 12,
+      "spirit": 12,
+      "physique": 28,
+      "luck": 8,
+      "hpMultiplier": 6.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 4.0,
+      "spdMultiplier": 0.6,
+      "expReward": 250,
+      "goldReward": 180,
+      "skillPool": [
+        {
+          "skillId": "monster_wild_bite",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "dragon_scale_small",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 4003,
+      "entityId": "dragon_drake",
+      "name": "亚龙",
+      "level": 20,
+      "rarityId": 2,
+      "strength": 28,
+      "agility": 6,
+      "intelligence": 16,
+      "spirit": 16,
+      "physique": 38,
+      "luck": 11,
+      "hpMultiplier": 7.0,
+      "atkMultiplier": 5.5,
+      "defMultiplier": 4.5,
+      "spdMultiplier": 0.7,
+      "expReward": 500,
+      "goldReward": 350,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "dragon_scale",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 4004,
+      "entityId": "dragon_elder",
+      "name": "巨龙",
+      "level": 28,
+      "rarityId": 3,
+      "strength": 40,
+      "agility": 8,
+      "intelligence": 22,
+      "spirit": 22,
+      "physique": 50,
+      "luck": 15,
+      "hpMultiplier": 8.0,
+      "atkMultiplier": 6.5,
+      "defMultiplier": 5.0,
+      "spdMultiplier": 0.8,
+      "expReward": 1000,
+      "goldReward": 700,
+      "skillPool": [
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_tail_sweep",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "dragon_scale_ancient",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 4005,
+      "entityId": "dragon_ancient",
+      "name": "远古的龙神",
+      "level": 35,
+      "rarityId": 4,
+      "strength": 55,
+      "agility": 10,
+      "intelligence": 30,
+      "spirit": 30,
+      "physique": 66,
+      "luck": 20,
+      "hpMultiplier": 9.0,
+      "atkMultiplier": 8.0,
+      "defMultiplier": 6.0,
+      "spdMultiplier": 0.8,
+      "expReward": 2000,
+      "goldReward": 1500,
+      "skillPool": [
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_breath",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_tail_sweep",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_dragon_scales",
+          "weight": 20,
+          "priority": 45,
+          "apCost": 1,
+          "mpCost": 15,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "dragon_heart",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 5001,
+      "entityId": "fire_spark",
+      "name": "小火灵",
+      "level": 2,
+      "rarityId": 0,
+      "strength": 3,
+      "agility": 5,
+      "intelligence": 10,
+      "spirit": 5,
+      "physique": 3,
+      "luck": 3,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 1.2,
+      "expReward": 25,
+      "goldReward": 10,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fire_ember",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 5002,
+      "entityId": "fire_spirit",
+      "name": "火灵",
+      "level": 5,
+      "rarityId": 1,
+      "strength": 4,
+      "agility": 7,
+      "intelligence": 14,
+      "spirit": 7,
+      "physique": 4,
+      "luck": 4,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.4,
+      "expReward": 60,
+      "goldReward": 28,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fire_spark",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 5003,
+      "entityId": "fire_ember",
+      "name": "余烬火灵",
+      "level": 9,
+      "rarityId": 2,
+      "strength": 6,
+      "agility": 9,
+      "intelligence": 18,
+      "spirit": 9,
+      "physique": 5,
+      "luck": 5,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.5,
+      "expReward": 130,
+      "goldReward": 65,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fire_core",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 5004,
+      "entityId": "fire_blaze",
+      "name": "烈焰火灵",
+      "level": 14,
+      "rarityId": 3,
+      "strength": 8,
+      "agility": 12,
+      "intelligence": 24,
+      "spirit": 12,
+      "physique": 7,
+      "luck": 7,
+      "hpMultiplier": 4.0,
+      "atkMultiplier": 5.5,
+      "defMultiplier": 3.0,
+      "spdMultiplier": 1.6,
+      "expReward": 300,
+      "goldReward": 170,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_inferno",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fire_blaze_core",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 5005,
+      "entityId": "fire_inferno",
+      "name": "地狱火灵",
+      "level": 20,
+      "rarityId": 4,
+      "strength": 11,
+      "agility": 15,
+      "intelligence": 32,
+      "spirit": 16,
+      "physique": 9,
+      "luck": 9,
+      "hpMultiplier": 4.5,
+      "atkMultiplier": 6.5,
+      "defMultiplier": 3.5,
+      "spdMultiplier": 1.8,
+      "expReward": 650,
+      "goldReward": 400,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_inferno",
+          "weight": 25,
+          "priority": 42,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "fire_inferno_core",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 6001,
+      "entityId": "ice_spark",
+      "name": "小冰灵",
+      "level": 2,
+      "rarityId": 0,
+      "strength": 3,
+      "agility": 5,
+      "intelligence": 5,
+      "spirit": 10,
+      "physique": 3,
+      "luck": 3,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 3.5,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 1.2,
+      "expReward": 25,
+      "goldReward": 10,
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "ice_shard",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 6002,
+      "entityId": "ice_spirit",
+      "name": "冰灵",
+      "level": 5,
+      "rarityId": 1,
+      "strength": 4,
+      "agility": 7,
+      "intelligence": 7,
+      "spirit": 14,
+      "physique": 4,
+      "luck": 4,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.4,
+      "expReward": 60,
+      "goldReward": 28,
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "ice_crystal",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 6003,
+      "entityId": "ice_snowflake",
+      "name": "雪花之灵",
+      "level": 9,
+      "rarityId": 2,
+      "strength": 6,
+      "agility": 9,
+      "intelligence": 9,
+      "spirit": 18,
+      "physique": 5,
+      "luck": 5,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.5,
+      "expReward": 130,
+      "goldReward": 65,
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 30,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "ice_snowflake",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 6004,
+      "entityId": "ice_frost",
+      "name": "冰霜之灵",
+      "level": 14,
+      "rarityId": 3,
+      "strength": 8,
+      "agility": 12,
+      "intelligence": 12,
+      "spirit": 24,
+      "physique": 7,
+      "luck": 7,
+      "hpMultiplier": 4.0,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 3.0,
+      "spdMultiplier": 1.6,
+      "expReward": 300,
+      "goldReward": 170,
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_blizzard",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "ice_frost_core",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 6005,
+      "entityId": "ice_glacier",
+      "name": "冰川之灵",
+      "level": 20,
+      "rarityId": 4,
+      "strength": 11,
+      "agility": 15,
+      "intelligence": 16,
+      "spirit": 32,
+      "physique": 9,
+      "luck": 9,
+      "hpMultiplier": 4.5,
+      "atkMultiplier": 6.0,
+      "defMultiplier": 3.5,
+      "spdMultiplier": 1.8,
+      "expReward": 650,
+      "goldReward": 400,
+      "skillPool": [
+        {
+          "skillId": "monster_frost_bolt",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_blizzard",
+          "weight": 25,
+          "priority": 42,
+          "apCost": 2,
+          "mpCost": 20,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_ice_barrier",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "ice_glacier_core",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 7001,
+      "entityId": "cultist_acolyte",
+      "name": "邪教徒",
+      "level": 5,
+      "rarityId": 0,
+      "strength": 6,
+      "agility": 6,
+      "intelligence": 8,
+      "spirit": 8,
+      "physique": 5,
+      "luck": 4,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 1.3,
+      "expReward": 50,
+      "goldReward": 22,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "cultist_robe",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 7002,
+      "entityId": "cultist_elite",
+      "name": "邪教精锐",
+      "level": 10,
+      "rarityId": 1,
+      "strength": 10,
+      "agility": 9,
+      "intelligence": 12,
+      "spirit": 12,
+      "physique": 7,
+      "luck": 6,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.5,
+      "expReward": 130,
+      "goldReward": 60,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "cultist_badge",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 7003,
+      "entityId": "cultist_leader",
+      "name": "邪教头目",
+      "level": 16,
+      "rarityId": 2,
+      "strength": 14,
+      "agility": 12,
+      "intelligence": 17,
+      "spirit": 17,
+      "physique": 10,
+      "luck": 8,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.7,
+      "expReward": 300,
+      "goldReward": 150,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 30,
+          "priority": 40,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "cultist_tome",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 8001,
+      "entityId": "goblin_grunt",
+      "name": "地精",
+      "level": 2,
+      "rarityId": 0,
+      "strength": 4,
+      "agility": 8,
+      "intelligence": 3,
+      "spirit": 2,
+      "physique": 3,
+      "luck": 4,
+      "hpMultiplier": 2.0,
+      "atkMultiplier": 3.5,
+      "defMultiplier": 1.0,
+      "spdMultiplier": 2.0,
+      "expReward": 18,
+      "goldReward": 8,
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "goblin_ear",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 8002,
+      "entityId": "goblin_scout",
+      "name": "地精斥候",
+      "level": 6,
+      "rarityId": 1,
+      "strength": 6,
+      "agility": 12,
+      "intelligence": 4,
+      "spirit": 3,
+      "physique": 4,
+      "luck": 6,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 1.2,
+      "spdMultiplier": 2.5,
+      "expReward": 50,
+      "goldReward": 22,
+      "skillPool": [
+        {
+          "skillId": "monster_throw_sand",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_backstab",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "goblin_ear_gold",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 8003,
+      "entityId": "goblin_shaman",
+      "name": "地精萨满",
+      "level": 10,
+      "rarityId": 2,
+      "strength": 5,
+      "agility": 10,
+      "intelligence": 14,
+      "spirit": 8,
+      "physique": 5,
+      "luck": 7,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 2.2,
+      "expReward": 110,
+      "goldReward": 55,
+      "skillPool": [
+        {
+          "skillId": "monster_fire_burst",
+          "weight": 30,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_acid_spray",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 1,
+          "mpCost": 8,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_flame_shield",
+          "weight": 25,
+          "priority": 38,
+          "apCost": 1,
+          "mpCost": 12,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "goblin_staff",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 8004,
+      "entityId": "orc_warrior",
+      "name": "兽人战士",
+      "level": 8,
+      "rarityId": 1,
+      "strength": 14,
+      "agility": 6,
+      "intelligence": 3,
+      "spirit": 4,
+      "physique": 12,
+      "luck": 3,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.0,
+      "expReward": 90,
+      "goldReward": 40,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "orc_tusk",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 8005,
+      "entityId": "orc_warlord",
+      "name": "兽人督军",
+      "level": 14,
+      "rarityId": 2,
+      "strength": 20,
+      "agility": 8,
+      "intelligence": 5,
+      "spirit": 6,
+      "physique": 18,
+      "luck": 4,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.2,
+      "expReward": 250,
+      "goldReward": 140,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "orc_tusk_war",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 9001,
+      "entityId": "skeleton_tiny",
+      "name": "小骷髅",
+      "level": 3,
+      "rarityId": 0,
+      "strength": 7,
+      "agility": 3,
+      "intelligence": 2,
+      "spirit": 1,
+      "physique": 6,
+      "luck": 2,
+      "hpMultiplier": 2.5,
+      "atkMultiplier": 3.5,
+      "defMultiplier": 1.5,
+      "spdMultiplier": 0.9,
+      "expReward": 28,
+      "goldReward": 10,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 1
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bone_fragment",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 9002,
+      "entityId": "skeleton_soldier",
+      "name": "骷髅人",
+      "level": 6,
+      "rarityId": 1,
+      "strength": 10,
+      "agility": 4,
+      "intelligence": 2,
+      "spirit": 1,
+      "physique": 8,
+      "luck": 3,
+      "hpMultiplier": 3.0,
+      "atkMultiplier": 4.0,
+      "defMultiplier": 1.8,
+      "spdMultiplier": 1.0,
+      "expReward": 60,
+      "goldReward": 25,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 40,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 2
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bone_solid",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 9003,
+      "entityId": "skeleton_warrior",
+      "name": "骷髅战士",
+      "level": 10,
+      "rarityId": 2,
+      "strength": 14,
+      "agility": 6,
+      "intelligence": 3,
+      "spirit": 2,
+      "physique": 11,
+      "luck": 4,
+      "hpMultiplier": 3.5,
+      "atkMultiplier": 4.5,
+      "defMultiplier": 2.0,
+      "spdMultiplier": 1.1,
+      "expReward": 140,
+      "goldReward": 65,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 35,
+          "priority": 32,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 3
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bone_dark",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 9004,
+      "entityId": "skeleton_elite",
+      "name": "骷髅精英",
+      "level": 16,
+      "rarityId": 3,
+      "strength": 20,
+      "agility": 8,
+      "intelligence": 4,
+      "spirit": 3,
+      "physique": 16,
+      "luck": 6,
+      "hpMultiplier": 4.0,
+      "atkMultiplier": 5.0,
+      "defMultiplier": 2.5,
+      "spdMultiplier": 1.2,
+      "expReward": 320,
+      "goldReward": 170,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 25,
+          "priority": 33,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 30,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "bone_reinforced",
+          "dropRate": 1.0
+        }
+      ]
+    },
+    {
+      "templateId": 9005,
+      "entityId": "skeleton_marshal",
+      "name": "骷髅元帅",
+      "level": 24,
+      "rarityId": 4,
+      "strength": 30,
+      "agility": 11,
+      "intelligence": 6,
+      "spirit": 4,
+      "physique": 22,
+      "luck": 8,
+      "hpMultiplier": 4.5,
+      "atkMultiplier": 5.5,
+      "defMultiplier": 3.0,
+      "spdMultiplier": 1.3,
+      "expReward": 800,
+      "goldReward": 500,
+      "skillPool": [
+        {
+          "skillId": "monster_charge",
+          "weight": 20,
+          "priority": 30,
+          "apCost": 1,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_heavy_strike",
+          "weight": 25,
+          "priority": 35,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_sweep",
+          "weight": 25,
+          "priority": 40,
+          "apCost": 2,
+          "mpCost": 0,
+          "powerMultiplier": 1.0,
+          "level": 4
+        },
+        {
+          "skillId": "monster_intimidate",
+          "weight": 20,
+          "priority": 42,
+          "apCost": 1,
+          "mpCost": 10,
+          "powerMultiplier": 1.0,
+          "level": 4
+        }
+      ],
+      "dropTable": [
+        {
+          "materialId": "marshal_skull",
+          "dropRate": 1.0
         }
       ]
     }
