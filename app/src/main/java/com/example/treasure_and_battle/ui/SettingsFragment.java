@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.example.treasure_and_battle.R;
 
 // 设置界面：音效、音量、存档、账号、关于
@@ -34,6 +36,28 @@ public class SettingsFragment extends Fragment {
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putBoolean("showMapPoi", isChecked);
             editor.apply();
+        });
+
+        View btnTrade = view.findViewById(R.id.btn_open_trade);
+        btnTrade.setOnClickListener(v -> {
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                    .hide(this)
+                    .addToBackStack("trade")
+                    .commit();
+        });
+
+        View btnBattle = view.findViewById(R.id.btn_open_battle);
+        btnBattle.setOnClickListener(v -> {
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
+                    .hide(this)
+                    .addToBackStack("battle")
+                    .commit();
         });
 
         // TODO 后续在这里写设置项：音量、音效开关、存档重置

@@ -180,6 +180,22 @@ public class EquipmentManager {
         applyModifiersToEquipmentBaseAttributes(equip.getBaseAttributes(), equipmentOnlyModifiers);
     }
 
+    private static int resolveEquipIconRes(String equipId) {
+        if (equipId == null) {
+            return 0;
+        }
+        switch (equipId) {
+            case "equip_weapon_sword_iron":
+                return R.drawable.iron_sword_icon;
+            case "equip_armor_chest_leather":
+                return R.drawable.ic_backpack;
+            case "equip_accessory_ring_iron":
+                return R.drawable.ic_config;
+            default:
+                return R.drawable.ic_map;
+        }
+    }
+
     private void applyModifiersToEquipmentBaseAttributes(AttributeSet base, AttributeSet modifiers) {
         base.strength = (int) (base.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
         base.agility = (int) (base.agility * (1f + modifiers.percentAgility)) + modifiers.agility;

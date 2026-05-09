@@ -64,4 +64,18 @@
         android:shadowDy="1"
         android:shadowRadius="3.5" />
 
+    <!-- 可堆叠且数量 &gt; 1 时显示，如 ×12（与商人格角标风格一致，无底色） -->
+    <TextView
+        android:id="@+id/tv_bag_stack_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:textColor="@color/tb_slot_level_text"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
 </RelativeLayout>
