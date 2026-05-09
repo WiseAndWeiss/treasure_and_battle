@@ -39,7 +39,7 @@ public class DropManagerTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         dropManager = DropManager.getInstance(context);
-        InventoryManager.getInstance().getItems().clear();
+        InventoryManager.getInstance().clearAllSlots();
     }
 
     // ====================== generateDrops ======================

@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.model.item.ConsumableItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;

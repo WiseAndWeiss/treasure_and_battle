@@ -22,12 +22,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.manager.EquipmentManager;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.ConsumableItem;
-import com.example.treasure_and_battle.model.item.EquipItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.MaterialItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -152,9 +152,18 @@ public class TradeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (tradeBagBottom != null) {
+            tradeBagBottom.reloadFromInventory();
+        }
         if (tvGold != null) {
             refreshGoldLabel();
         }
+    }
+
+    @Override
+    public void onPause() {
+        InventoryGridSync.flushSharedGridToManager();
+        super.onPause();
     }
 
     private static int unitSellPriceForListing(@NonNull Item item) {
@@ -343,6 +352,8 @@ public class TradeFragment extends Fragment {
         }
         tradeGold -= total;
         listing.consumeStock(qty);
+        // 购买只改了共享网格，须立刻写回 InventoryManager；否则 Trade.onResume 的 reload 或切回背包会读到旧列表
+        InventoryGridSync.flushSharedGridToManager();
         refreshGoldLabel();
         if (merchantAdapter != null) {
             merchantAdapter.notifyDataSetChanged();
