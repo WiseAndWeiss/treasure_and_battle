@@ -1,0 +1,159 @@
+{
+  "events": [
+    {
+      "type": "BATTLE",
+      "weight": 45,
+      "radius": 50,
+      "strokeColor": "#FFFF0000",
+      "fillColor": "#30FF0000",
+      "expireTime": 30000,
+      "triggerDistance": 70,
+      "subEvents": [
+        {
+          "key": "battle_slime",
+          "name": "史莱姆袭击",
+          "desc": "一只小史莱姆挡住了去路，击败可获得金币",
+          "reward": "金币×200、随机装备×1",
+          "risk": "生命值-10%",
+          "label": "进入战斗"
+        },
+        {
+          "key": "battle_goblin",
+          "name": "哥布林伏击",
+          "desc": "狡猾的哥布林从暗处发起偷袭，击败可获得大量金币",
+          "reward": "金币×500、随机装备×1",
+          "risk": "生命值-20%",
+          "label": "进入战斗"
+        }
+      ]
+    },
+    {
+      "type": "BENEFIT",
+      "weight": 15,
+      "radius": 20,
+      "strokeColor": "#FF00FF00",
+      "fillColor": "#3000FF00",
+      "expireTime": 25000,
+      "triggerDistance": 60,
+      "subEvents": [
+        {
+          "key": "recovery",
+          "name": "恢复",
+          "desc": "回复80点生命值",
+          "reward": "生命值+80",
+          "risk": "无",
+          "label": "回复生命"
+        },
+        {
+          "key": "training",
+          "name": "锻炼",
+          "desc": "增加5点力量属性",
+          "reward": "力量+5",
+          "risk": "无",
+          "label": "增强力量"
+        },
+        {
+          "key": "treasure",
+          "name": "宝藏事件",
+          "desc": "发现一处隐藏宝藏，随机获得金币、装备、材料或宝石",
+          "reward": "金币×300~800、随机装备×1、随机材料×3、随机宝石×1",
+          "risk": "无",
+          "label": "开启宝藏"
+        }
+      ]
+    },
+    {
+      "type": "NEUTRAL",
+      "weight": 20,
+      "radius": 20,
+      "strokeColor": "#FFFFFF00",
+      "fillColor": "#30FFFF00",
+      "expireTime": 35000,
+      "triggerDistance": 50,
+      "subEvents": [
+        {
+          "key": "merchant",
+          "name": "商人",
+          "desc": "遇到流浪商人，可低价购买折扣道具",
+          "reward": "折扣道具（5折）",
+          "risk": "消耗少量金币",
+          "label": "交易"
+        },
+        {
+          "key": "exploration",
+          "name": "探险",
+          "desc": "发现一处神秘洞穴，深入探索可能遇到未知事物",
+          "reward": "未知宝物",
+          "risk": "可能遇到危险",
+          "label": "深入探险"
+        },
+        {
+          "key": "traveler",
+          "name": "迷路的旅人",
+          "desc": "一位迷路的旅人需要帮助，帮助后可获得补给品和金币奖励",
+          "reward": "补给品×3、金币×200、1小时幸运值提升",
+          "risk": "无",
+          "label": "帮助旅人"
+        },
+        {
+          "key": "scholar",
+          "name": "学者事件",
+          "desc": "遇到一位云游学者，可消耗金币进行天赋点/技能点洗点重置",
+          "reward": "天赋点重置、技能点重置",
+          "risk": "消耗金币×500",
+          "label": "洗点重置"
+        },
+        {
+          "key": "statue_blessing",
+          "name": "雕像祝福",
+          "desc": "发现一座古老雕像，获得祝福，在下N场战斗开始时获得随机增益",
+          "reward": "下3场战斗获得随机Buff（攻击+10%/防御+10%/生命+15%）",
+          "risk": "无",
+          "label": "接受祝福"
+        },
+        {
+          "key": "monster_camp",
+          "name": "休息的怪物",
+          "desc": "发现一只正在休息的怪物，可以偷袭它，必定获得先手攻击",
+          "reward": "必定先手攻击、战斗胜利获得双倍掉落",
+          "risk": "若战斗失败则受到额外伤害",
+          "label": "偷袭"
+        },
+        {
+          "key": "cave_treasure",
+          "name": "洞穴寻宝",
+          "desc": "洞穴深处藏有宝箱，开启后有概率遭遇怪物偷袭",
+          "reward": "宝箱奖励（金币/装备/宝石）、若击败偷袭怪物额外获得掉落",
+          "risk": "30%概率遭遇怪物偷袭",
+          "label": "开启宝箱"
+        },
+        {
+          "key": "equipment_reforge",
+          "name": "装备重炼",
+          "desc": "遇到一位铁匠大师，可以基于某一装备选择部分词条重新生成",
+          "reward": "装备词条重炼，有机会获得更优属性",
+          "risk": "词条随机变化，可能变差",
+          "label": "重炼装备"
+        }
+      ]
+    },
+    {
+      "type": "UNKNOWN",
+      "weight": 20,
+      "radius": 20,
+      "strokeColor": "#FF888888",
+      "fillColor": "#30888888",
+      "expireTime": 40000,
+      "triggerDistance": 50,
+      "subEvents": []
+    }
+  ],
+  "global": {
+    "maxCount": 10,
+    "minDistance": 100,
+    "maxDistance": 500,
+    "generateInterval": 10000,
+    "generateMinNum": 3,
+    "generateMaxNum": 5
+  }
+}

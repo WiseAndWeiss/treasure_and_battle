@@ -19,7 +19,7 @@
         <!-- 高德地图API KEY-->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="14f89c7ad3fbae08d5247150cffe2561" />
+            android:value="687c9afc7be2fc318dc531fc5315f5c0" />
 
         <!-- 定位服务 -->
         <service
@@ -36,14 +36,18 @@
             </intent-filter>
         </activity>
 
-        <!-- 后续战斗/交易页面的注册位（TODO 后续开发时添加）
-        <activity
-            android:name=".ui.BattleActivity"
-            android:exported="false" />
+        <!-- 注册 TradeActivity -->
         <activity
             android:name=".ui.TradeActivity"
             android:exported="false" />
-        -->
+
+        <activity
+            android:name=".ui.BattleActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ui.NeutralEventActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>
