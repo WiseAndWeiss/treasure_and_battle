@@ -3,7 +3,6 @@ package com.example.treasure_and_battle.ui;
 import android.content.ClipData;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -29,14 +28,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.Recyclycler;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.manager.EquipmentManager;
-import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
+import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,7 +96,6 @@ public class BagFragment extends Fragment {
     private int lastDragCenterX = -1;
     private int lastDragCenterY = -1;
     private static final String DRAG_LABEL_EQUIP_FROM_SLOT = "equip_from_slot";
-    /** 从装备栏系统拖放（DragEvent）进入背包时，与背包内 ItemTouch 拖拽共用高亮逻辑 */
     private boolean isDragFromEquipSlot = false;
 
     @Override
@@ -108,8 +106,6 @@ public class BagFragment extends Fragment {
             ((ViewGroup) view).setClipChildren(false);
             ((ViewGroup) view).setClipToPadding(false);
         }
-
-        initDummyData();
 
         tvPageInfo = view.findViewById(R.id.tv_page_info);
         tvFilterInfo = view.findViewById(R.id.tv_filter_info);
@@ -124,6 +120,7 @@ public class BagFragment extends Fragment {
 
         bindEquipSlots(view);
 
+        initDummyData();
         setupRecyclerView();
         setupPagination();
         setupDragAndDrop();
@@ -267,7 +264,6 @@ public class BagFragment extends Fragment {
         dragStartUiPosition = -1;
     }
 
-    /** 当前手指下的背包 UI 格是否应显示「缩小高亮」（含从装备栏拖入） */
     private boolean shouldShowBagCellHoverScale(@NonNull RecyclerView.ViewHolder holder, int adapterPosition) {
         if (dragToUiPosition < 0 || adapterPosition != dragToUiPosition) {
             return false;
@@ -600,14 +596,14 @@ public class BagFragment extends Fragment {
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                if (currentPage == totalPages) return makeMovementFlags(0, 0); // 第5页写死锁定，禁止拖拽起步
+                if (currentPage == totalPages) return makeMovementFlags(0, 0);
                 int uiPos = viewHolder.getAdapterPosition();
                 if (uiPos == RecyclerView.NO_POSITION) return makeMovementFlags(0, 0);
                 int realPos = (currentPage - 1) * itemsPerPage + uiPos;
                 if (realPos < 0 || realPos >= allItems.size()
                         || allItems.get(realPos) == null
                         || !canDisplayByCurrentFilter(allItems.get(realPos))) {
-                    return makeMovementFlags(0, 0); // 空格子禁止拖拽
+                    return makeMovementFlags(0, 0);
                 }
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
                 return makeMovementFlags(dragFlags, 0);
@@ -621,13 +617,12 @@ public class BagFragment extends Fragment {
                 int oldHover = dragToUiPosition;
                 dragToUiPosition = toPos;
 
-                // 使用 Payload 局部刷新以避免卡顿
                 if (oldHover != -1) {
                     adapter.notifyItemChanged(oldHover, "HOVER_CLEAR");
                 }
                 adapter.notifyItemChanged(dragToUiPosition, "HOVER");
 
-                return false; // 返回 false，阻止系统默认的数据挤占移位
+                return false;
             }
 
             @Override
@@ -652,7 +647,6 @@ public class BagFragment extends Fragment {
                     stopEdgeScroll();
                     isNavigatingPage = false;
                     int releasePos = findBagAdapterPositionByGlobalPoint(lastDragCenterX, lastDragCenterY);
-                    // 仅在命中有效格子时覆盖目标位置，避免误把可交换目标回退到起点
                     if (releasePos >= 0) {
                         dragToUiPosition = releasePos;
                     } else if (dragToUiPosition < 0) {
@@ -667,7 +661,6 @@ public class BagFragment extends Fragment {
                         if (!handledEquipDrop && currentPage == totalPages && realFrom != realTo) {
                             Toast.makeText(getContext(), "该页面未解锁，无法放置", Toast.LENGTH_SHORT).show();
                         } else if (!handledEquipDrop && realFrom != realTo) {
-                            // 纯粹地交换原目标格和新目标格的数据
                             Item temp = allItems.get(realFrom);
                             allItems.set(realFrom, allItems.get(realTo));
                             allItems.set(realTo, temp);
@@ -685,7 +678,7 @@ public class BagFragment extends Fragment {
                     lastDragCenterX = -1;
                     lastDragCenterY = -1;
 
-                    adapter.notifyDataSetChanged(); // 刷新全局状态，消除残影与Hover
+                    adapter.notifyDataSetChanged();
                 }
             }
 
@@ -694,7 +687,6 @@ public class BagFragment extends Fragment {
                                     @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive) {
-                    // 拖拽物本体始终保持原尺寸，不参与“目标格子缩小”动画
                     viewHolder.itemView.setScaleX(1.0f);
                     viewHolder.itemView.setScaleY(1.0f);
 
@@ -707,7 +699,6 @@ public class BagFragment extends Fragment {
                     lastDragCenterX = (int) (recyclerLocation[0] + viewX + viewHolder.itemView.getWidth() / 2f);
                     lastDragCenterY = (int) (recyclerLocation[1] + viewHolder.itemView.getTop() + dY + viewHolder.itemView.getHeight() / 2f);
 
-                    // 边缘触发翻页检测
                     float centerYInRecycler = viewY + viewHolder.itemView.getHeight() / 2f;
                     boolean withinBagHeight = centerYInRecycler >= 0 && centerYInRecycler <= screenHeight;
                     if (withinBagHeight && viewX < screenWidth * 0.1f && dX < 0) {
@@ -718,7 +709,6 @@ public class BagFragment extends Fragment {
                         stopEdgeScroll();
                     }
 
-                    // 使用拖拽中心实时命中目标格，确保四个方向都能正确交换
                     float centerXInRecycler = viewX + viewHolder.itemView.getWidth() / 2f;
                     int hoverPos = findBagAdapterPositionByLocalPoint(centerXInRecycler, centerYInRecycler);
                     if (hoverPos >= 0 && hoverPos != dragToUiPosition) {
@@ -730,24 +720,20 @@ public class BagFragment extends Fragment {
                         adapter.notifyItemChanged(dragToUiPosition, "HOVER");
                     }
 
-                    // 仅当目前处于原始页面时，才绘制原始格子的虚影
                     if (currentPage == dragStartPage) {
                         c.save();
-                        // 在起始坑位绘制一个“背景格子”虚影；当目标还是起始位时，缩小坑位而不是缩小拖拽物
                         float bgScale = (dragToUiPosition == dragStartUiPosition) ? 0.85f : 1.0f;
                         float pivotX = dragStartCellLeft + dragStartCellWidth / 2f;
                         float pivotY = dragStartCellTop + dragStartCellHeight / 2f;
                         c.translate(pivotX, pivotY);
                         c.scale(bgScale, bgScale);
                         c.translate(-dragStartCellWidth / 2f, -dragStartCellHeight / 2f);
-                        // 强制截取绘制层，令背景格子统一附上30% (76/255) 的透明度
                         c.saveLayerAlpha(0, 0, dragStartCellWidth, dragStartCellHeight, 76);
                         viewHolder.itemView.draw(c);
                         c.restore();
                         c.restore();
                     }
 
-                    // 跨页后，填补本来被拖拽物作为 draggedView 占掉坑位而引起的空白
                     if (currentPage != dragStartPage) {
                         if (holeView == null && viewHolder.itemView.getWidth() > 0) {
                             holeView = LayoutInflater.from(requireContext()).inflate(R.layout.item_bag_grid, recyclerView, false);
@@ -767,7 +753,6 @@ public class BagFragment extends Fragment {
                             if (currentPage == totalPages) {
                                 holeHolder.tvItemName.setText("");
                                 holeHolder.tvItemLevel.setVisibility(View.GONE);
-                                bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
                                 bindBagItemIcon(holeHolder.ivItemIcon, android.R.drawable.ic_secure);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
@@ -777,7 +762,6 @@ public class BagFragment extends Fragment {
                             } else if (holeItem == null) {
                                 holeHolder.tvItemName.setText("");
                                 holeHolder.tvItemLevel.setVisibility(View.GONE);
-                                bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
                                 holeHolder.ivItemIcon.setVisibility(View.INVISIBLE);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
@@ -789,7 +773,6 @@ public class BagFragment extends Fragment {
                                 bindBagItemIcon(holeHolder.ivItemIcon, holeItem.getIconResId());
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
-                                bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
 
                                 if (holeItem instanceof EquipItem) {
                                     holeHolder.tvItemLevel.setVisibility(View.VISIBLE);
@@ -831,7 +814,7 @@ public class BagFragment extends Fragment {
                         }
                         edgeScrollRunnable = null;
                     };
-                    edgeScrollHandler.postDelayed(edgeScrollRunnable, 800); // 边缘悬停判定时间
+                    edgeScrollHandler.postDelayed(edgeScrollRunnable, 800);
                 }
             }
 
@@ -972,7 +955,6 @@ public class BagFragment extends Fragment {
     }
 
     private void applyEquipSlotItemView(LinearLayout slotLayout, EquipItem equipItem) {
-        // 金边画在槽位容器上（与背包格视觉一致）；内层仅填充，避免子 View 描边在部分机型上被裁掉或叠盖
         slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure_stroke);
         int inset = dpToPx(1);
         slotLayout.setPadding(inset, inset, inset, inset);
@@ -987,10 +969,6 @@ public class BagFragment extends Fragment {
         ImageView icon = inner.findViewById(R.id.iv_item_icon);
         TextView level = inner.findViewById(R.id.tv_item_level);
         TextView name = inner.findViewById(R.id.tv_item_name);
-        TextView stackCount = inner.findViewById(R.id.tv_bag_stack_count);
-        if (stackCount != null) {
-            stackCount.setVisibility(View.GONE);
-        }
 
         if (bg != null) {
             bg.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
@@ -1062,7 +1040,6 @@ public class BagFragment extends Fragment {
         );
     }
 
-    /** 物品格图标：关闭双线性过滤，像素风图标更清晰。 */
     private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
         if (imageView == null) return;
         imageView.setImageResource(iconResId);
@@ -1072,18 +1049,6 @@ public class BagFragment extends Fragment {
             if (d instanceof BitmapDrawable) {
                 ((BitmapDrawable) d).setFilterBitmap(false);
             }
-        }
-    }
-
-    private static void bindBagStackCountBadge(@Nullable TextView tv, @Nullable Item item) {
-        if (tv == null) {
-            return;
-        }
-        if (item != null && item.canStack() && item.getCount() > 1) {
-            tv.setVisibility(View.VISIBLE);
-            tv.setText("×" + item.getCount());
-        } else {
-            tv.setVisibility(View.GONE);
         }
     }
 
@@ -1107,7 +1072,6 @@ public class BagFragment extends Fragment {
             return new ViewHolder(view);
         }
 
-        // 接管 Payload 局部刷新以避免卡顿和闪退
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
             if (payloads.isEmpty()) {
@@ -1127,7 +1091,6 @@ public class BagFragment extends Fragment {
                     holder.itemView.setScaleY(1.0f);
                 } else if ("PAGE_TURN".equals(payload)) {
                     if (holder == currentDragHolder) {
-                        // 【核心防闪退点】禁止更新正在被拖拽和追踪的 ViewHolder 视图状态
                         continue;
                     }
                     onBindViewHolder(holder, position);
@@ -1144,7 +1107,6 @@ public class BagFragment extends Fragment {
             holder.itemView.setScaleX(1.0f);
             holder.itemView.setScaleY(1.0f);
 
-            // 当目标移位时，高亮新坑位（背包内拖 / 装备栏拖入）
             if (shouldShowBagCellHoverScale(holder, position)) {
                 holder.itemView.setScaleX(0.85f);
                 holder.itemView.setScaleY(0.85f);
@@ -1153,7 +1115,6 @@ public class BagFragment extends Fragment {
             if (currentPage == totalPages) {
                 holder.tvItemName.setText("");
                 holder.tvItemLevel.setVisibility(View.GONE);
-                bindBagStackCountBadge(holder.tvBagStackCount, null);
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
                 bindBagItemIcon(holder.ivItemIcon, android.R.drawable.ic_secure);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
@@ -1163,7 +1124,6 @@ public class BagFragment extends Fragment {
             } else if (item == null) {
                 holder.tvItemName.setText("");
                 holder.tvItemLevel.setVisibility(View.GONE);
-                bindBagStackCountBadge(holder.tvBagStackCount, null);
                 holder.ivItemIcon.setVisibility(View.INVISIBLE);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
@@ -1175,7 +1135,6 @@ public class BagFragment extends Fragment {
                 bindBagItemIcon(holder.ivItemIcon, item.getIconResId());
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
-                bindBagStackCountBadge(holder.tvBagStackCount, item);
 
                 if (item instanceof EquipItem) {
                     EquipItem eq = (EquipItem) item;
@@ -1276,7 +1235,6 @@ public class BagFragment extends Fragment {
             ImageView ivItemIcon;
             TextView tvItemLevel;
             TextView tvItemName;
-            TextView tvBagStackCount;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -1284,7 +1242,6 @@ public class BagFragment extends Fragment {
                 ivItemIcon = itemView.findViewById(R.id.iv_item_icon);
                 tvItemLevel = itemView.findViewById(R.id.tv_item_level);
                 tvItemName = itemView.findViewById(R.id.tv_item_name);
-                tvBagStackCount = itemView.findViewById(R.id.tv_bag_stack_count);
             }
         }
     }
