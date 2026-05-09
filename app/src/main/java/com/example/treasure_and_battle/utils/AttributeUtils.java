@@ -1,16 +1,12 @@
 package com.example.treasure_and_battle.utils;
 
-import com.example.treasure_and_battle.model.common.TriggerType;
-
 import android.content.Context;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.manager.BuffManager;
-import com.example.treasure_and_battle.manager.EquipmentManager;
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
 
 public class AttributeUtils {
     // 单例属性快照，避免频繁计算
@@ -127,7 +123,7 @@ public class AttributeUtils {
     }
 
     private static void applyPlayerEquipmentBonus(Player player, AttributeSet modifiers) {
-        for (com.example.treasure_and_battle.model.item.EquipItem item : player.getEquippedItems()) {
+        for (EquipItem item : player.getEquippedItems()) {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
                 for (com.example.treasure_and_battle.affix.BaseAffix affix : item.getAffixes()) {

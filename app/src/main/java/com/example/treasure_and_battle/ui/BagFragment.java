@@ -3,7 +3,6 @@ package com.example.treasure_and_battle.ui;
 import android.content.ClipData;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.DragEvent;
 import android.os.Bundle;
@@ -30,10 +29,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.manager.EquipmentManager;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;

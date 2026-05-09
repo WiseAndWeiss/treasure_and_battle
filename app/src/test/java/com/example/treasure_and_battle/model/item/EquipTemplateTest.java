@@ -1,5 +1,6 @@
 package com.example.treasure_and_battle.model.item;
 
+import com.example.treasure_and_battle.model.item.equip.EquipTemplate;
 import com.google.gson.Gson;
 
 import org.junit.Test;

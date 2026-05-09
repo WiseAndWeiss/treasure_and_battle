@@ -10,8 +10,8 @@ import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.profession.ProfessionType;
 
 import org.junit.Before;

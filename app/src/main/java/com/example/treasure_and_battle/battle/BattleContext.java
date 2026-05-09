@@ -1,8 +1,9 @@
 package com.example.treasure_and_battle.battle;
 
+import com.example.treasure_and_battle.battle.damage.DamageSource;
 import com.example.treasure_and_battle.battle.log.BattleLogEntry;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.model.entity.ActionIntent;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -10,7 +11,6 @@ import com.example.treasure_and_battle.model.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -4,8 +4,8 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.profession.ProfessionManager;
 import com.example.treasure_and_battle.profession.ProfessionType;

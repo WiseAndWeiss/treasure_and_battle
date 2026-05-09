@@ -1,10 +1,10 @@
 package com.example.treasure_and_battle.buff.impl.periodic;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.battle.DamageConfig;
+import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
-import com.example.treasure_and_battle.manager.DamageManager;
+import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;

@@ -2,6 +2,8 @@ package com.example.treasure_and_battle.model.item;
 
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
 
 import org.junit.Test;
 

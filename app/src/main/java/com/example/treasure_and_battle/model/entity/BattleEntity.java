@@ -3,11 +3,10 @@ package com.example.treasure_and_battle.model.entity;
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.battle.DamageType;
+import com.example.treasure_and_battle.battle.damage.DamageType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
-import com.example.treasure_and_battle.skill.event.EventSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 

@@ -1,17 +1,18 @@
 package com.example.treasure_and_battle.attribute;
 
-import com.example.treasure_and_battle.model.common.TriggerType;
-
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import org.junit.Before;
@@ -52,8 +53,8 @@ public class AttributeCalculationTest {
     @Test
     public void testEquipmentDamageCalculation() {
         // 创建一件武器
-        com.example.treasure_and_battle.model.item.EquipItem weapon = new com.example.treasure_and_battle.model.item.EquipItem(
-                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, com.example.treasure_and_battle.model.item.EquipSlot.WEAPON);
+        EquipItem weapon = new EquipItem(
+                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
         
         // 武器自带的基础属性
         weapon.getBaseAttributes().physicalAtk = 20;
@@ -120,28 +121,28 @@ public class AttributeCalculationTest {
         // 为角色加 20% 的力量百分比Buff
         AttributeBuff strengthPercentBuff = new AttributeBuff("str_percent", "力量百分比", "",
             BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.STRENGTH, ValueType.PERCENTAGE);
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
 
         // 为角色加 50 点固定力量
         AttributeBuff strengthFixedBuff = new AttributeBuff("str_fixed", "力量固定", "",
             BuffType.BUFF, true, 99, 1, false, 50f, AttributeType.STRENGTH, ValueType.FLAT);
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
 
         // ------------------ 挂载：基础物攻的百分比与固定值增益 ------------------
         // 一个buff让我的物理攻击力增加100
         AttributeBuff atkFixedBuff = new AttributeBuff("atk_fixed", "物攻固定", "",
             BuffType.BUFF, true, 99, 1, false, 100f, AttributeType.PHYSICAL_ATK, ValueType.FLAT);
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
 
         // 另一个buff让我的物理攻击力提高了20%
         AttributeBuff atkPercentBuff1 = new AttributeBuff("atk_percent_1", "物攻百分比20", "",
             BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE);
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
 
         // 被动技能也可以看作一个不会过期的百分比Buff，提高了50%
         AttributeBuff atkPercentBuff2 = new AttributeBuff("atk_percent_2", "物攻百分比50", "",
             BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE);
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
 
         // 触发核心基石与复合运算计算方法
         AttributeUtils.calculateFinalAttributes(testPlayer, context);
@@ -159,8 +160,8 @@ public class AttributeCalculationTest {
     public void testEquipmentAndBuffCombinedCalculation() {
         // 测试词缀（装备）和buff同时存在时的计算结果
         // ------------------ 装备配置 ------------------
-        com.example.treasure_and_battle.model.item.EquipItem weapon = new com.example.treasure_and_battle.model.item.EquipItem(
-                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, com.example.treasure_and_battle.model.item.EquipSlot.WEAPON);
+        EquipItem weapon = new EquipItem(
+                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
         weapon.getBaseAttributes().physicalAtk = 20; // 武器基础属性，相当于固定物攻+20
         
         java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
@@ -186,23 +187,23 @@ public class AttributeCalculationTest {
         // ------------------ Buff配置 ------------------
         AttributeBuff strengthPercentBuff = new AttributeBuff("str_percent", "力量百分比", "",
             BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.STRENGTH, ValueType.PERCENTAGE); // 百分比力量+20%
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, strengthPercentBuff);
         
         AttributeBuff strengthFixedBuff = new AttributeBuff("str_fixed", "力量固定", "",
             BuffType.BUFF, true, 99, 1, false, 50f, AttributeType.STRENGTH, ValueType.FLAT); // 固定力量+50
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, strengthFixedBuff);
 
         AttributeBuff atkFixedBuff = new AttributeBuff("atk_fixed", "物攻固定", "",
             BuffType.BUFF, true, 99, 1, false, 100f, AttributeType.PHYSICAL_ATK, ValueType.FLAT); // 固定物攻+100
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkFixedBuff);
 
         AttributeBuff atkPercentBuff1 = new AttributeBuff("atk_percent_1", "物攻百分比20", "",
             BuffType.BUFF, true, 99, 1, false, 0.20f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE); // 百分比物攻+20%
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff1);
 
         AttributeBuff atkPercentBuff2 = new AttributeBuff("atk_percent_2", "物攻百分比50", "",
             BuffType.BUFF, true, 99, 1, false, 0.50f, AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE); // 百分比物攻+50%
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
+        BuffManager.getInstance(context).addBuff(testPlayer, atkPercentBuff2);
 
         // ------------------ 最终结算与断言 ------------------
         AttributeUtils.calculateFinalAttributes(testPlayer, context);

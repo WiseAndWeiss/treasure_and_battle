@@ -1,12 +1,12 @@
 package com.example.treasure_and_battle.skill.passive.warrior;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.battle.DamageConfig;
-import com.example.treasure_and_battle.battle.DamageType;
+import com.example.treasure_and_battle.battle.damage.DamageConfig;
+import com.example.treasure_and_battle.battle.damage.DamageType;
 import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.BattleManager;
-import com.example.treasure_and_battle.manager.DamageManager;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
+import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;

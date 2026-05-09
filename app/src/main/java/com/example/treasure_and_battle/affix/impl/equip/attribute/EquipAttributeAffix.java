@@ -11,7 +11,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
-import com.example.treasure_and_battle.model.item.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 
 /**
  * 通用装备属性词缀：通过 AttributeType + ValueType 统一承载固定值/百分比属性加成。

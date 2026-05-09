@@ -1,8 +1,9 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.MaterialItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Before;
 import org.junit.Test;

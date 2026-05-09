@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
@@ -12,9 +12,9 @@ import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.model.item.EquipCategory;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 
 import org.junit.Before;
 import org.junit.Test;

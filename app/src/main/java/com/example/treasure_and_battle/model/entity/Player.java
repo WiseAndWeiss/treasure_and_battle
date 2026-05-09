@@ -2,8 +2,8 @@ package com.example.treasure_and_battle.model.entity;
 
 import android.content.Context;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 import java.util.HashMap;
 import java.util.Map;
