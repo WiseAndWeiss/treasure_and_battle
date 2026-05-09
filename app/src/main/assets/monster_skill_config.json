@@ -1,0 +1,488 @@
+{
+  "skill_templates": [
+    {
+      "templateId": 90001,
+      "skillId": "monster_charge",
+      "skillName": "冲撞",
+      "simpleDesc": "蓄力冲锋，以身体撞击敌人",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 150},
+        {"x": 170},
+        {"x": 190},
+        {"x": 210}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Charge"
+    },
+    {
+      "templateId": 90002,
+      "skillId": "monster_heavy_strike",
+      "skillName": "重击",
+      "simpleDesc": "全力一击造成巨额伤害，需要冷却",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 200},
+        {"x": 230},
+        {"x": 260},
+        {"x": 290}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_HeavyStrike"
+    },
+    {
+      "templateId": 90003,
+      "skillId": "monster_wild_bite",
+      "skillName": "野性撕咬",
+      "simpleDesc": "用利齿撕咬敌人，造成撕裂伤持续流血",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害，附加{y}层流血",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 130, "y": 2},
+        {"x": 150, "y": 2},
+        {"x": 170, "y": 3},
+        {"x": 190, "y": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_WildBite"
+    },
+    {
+      "templateId": 90004,
+      "skillId": "monster_sweep",
+      "skillName": "横扫",
+      "simpleDesc": "挥动武器/肢体横扫全场",
+      "detailedDesc": "对全体敌人造成{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100},
+        {"x": 115},
+        {"x": 130},
+        {"x": 145}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Sweep"
+    },
+    {
+      "templateId": 90101,
+      "skillId": "monster_acid_spray",
+      "skillName": "酸液喷射",
+      "simpleDesc": "喷射腐蚀性黏液，降低敌人防御",
+      "detailedDesc": "对单体造成{x}%魔法攻击伤害，目标物防降低{y}%持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 8, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 110, "y": 10, "z": 2},
+        {"x": 125, "y": 15, "z": 2},
+        {"x": 140, "y": 20, "z": 3},
+        {"x": 155, "y": 25, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_AcidSpray"
+    },
+    {
+      "templateId": 90102,
+      "skillId": "monster_gel_recover",
+      "skillName": "凝胶再生",
+      "simpleDesc": "利用凝胶体质快速再生，恢复大量生命值",
+      "detailedDesc": "恢复最大生命值的{x}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20},
+        {"x": 25},
+        {"x": 30},
+        {"x": 35}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_GelRecover"
+    },
+    {
+      "templateId": 90103,
+      "skillId": "monster_slime_armor",
+      "skillName": "黏液护甲",
+      "simpleDesc": "分泌黏液包裹全身，大幅提升防御",
+      "detailedDesc": "物防+{x}%，法防+{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 15, "y": 10, "z": 3},
+        {"x": 20, "y": 15, "z": 3},
+        {"x": 25, "y": 20, "z": 4},
+        {"x": 30, "y": 25, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_SlimeArmor"
+    },
+    {
+      "templateId": 90201,
+      "skillId": "monster_howl",
+      "skillName": "狼嚎",
+      "simpleDesc": "仰天长嚎鼓舞士气，全体友方攻击力与速度提升",
+      "detailedDesc": "全体物攻+{x}%，全体速度+{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ALLIES",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 8, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 10, "y": 5, "z": 3},
+        {"x": 15, "y": 8, "z": 3},
+        {"x": 20, "y": 10, "z": 4},
+        {"x": 25, "y": 12, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Howl"
+    },
+    {
+      "templateId": 90202,
+      "skillId": "monster_frenzy",
+      "skillName": "狂化",
+      "simpleDesc": "陷入狂暴状态，牺牲防御换取毁灭性攻击力",
+      "detailedDesc": "扣HP15%，物攻+{x}%、速度+{y}%、物防-{z}%，持续{w}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 4,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 35, "y": 30, "z": 30, "w": 2},
+        {"x": 45, "y": 40, "z": 25, "w": 2},
+        {"x": 55, "y": 50, "z": 20, "w": 3},
+        {"x": 65, "y": 60, "z": 15, "w": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Frenzy"
+    },
+    {
+      "templateId": 90301,
+      "skillId": "monster_backstab",
+      "skillName": "背刺",
+      "simpleDesc": "伺机发动致命偷袭",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 160},
+        {"x": 180},
+        {"x": 200},
+        {"x": 220}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Backstab"
+    },
+    {
+      "templateId": 90302,
+      "skillId": "monster_intimidate",
+      "skillName": "威吓",
+      "simpleDesc": "凶恶咆哮震慑全场，降低敌人攻击力",
+      "detailedDesc": "全体物攻-{x}%、法攻-{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 10, "y": 10, "z": 2},
+        {"x": 15, "y": 15, "z": 2},
+        {"x": 20, "y": 20, "z": 3},
+        {"x": 25, "y": 25, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Intimidate"
+    },
+    {
+      "templateId": 90303,
+      "skillId": "monster_throw_sand",
+      "skillName": "撒沙",
+      "simpleDesc": "卑劣的散沙攻击，遮蔽敌人视线",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害，命中率降低{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 20, "z": 2},
+        {"x": 110, "y": 25, "z": 2},
+        {"x": 120, "y": 30, "z": 3},
+        {"x": 130, "y": 35, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_ThrowSand"
+    },
+    {
+      "templateId": 90401,
+      "skillId": "monster_dragon_breath",
+      "skillName": "龙息",
+      "simpleDesc": "喷吐毁灭性龙息，灼烧全体敌人",
+      "detailedDesc": "对全体敌人造成{x}%魔法攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 15, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 120},
+        {"x": 150},
+        {"x": 180},
+        {"x": 210}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_DragonBreath"
+    },
+    {
+      "templateId": 90402,
+      "skillId": "monster_tail_sweep",
+      "skillName": "龙尾扫击",
+      "simpleDesc": "巨尾横扫单体敌人，势不可挡",
+      "detailedDesc": "对单体造成{x}%物理攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 180},
+        {"x": 210},
+        {"x": 240},
+        {"x": 270}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_TailSweep"
+    },
+    {
+      "templateId": 90403,
+      "skillId": "monster_dragon_roar",
+      "skillName": "龙吼",
+      "simpleDesc": "远古龙威震慑全场，削弱敌方攻防",
+      "detailedDesc": "全体物攻-{x}%、物防-{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 4,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 12, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 12, "y": 12, "z": 2},
+        {"x": 16, "y": 16, "z": 2},
+        {"x": 20, "y": 20, "z": 3},
+        {"x": 25, "y": 25, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_DragonRoar"
+    },
+    {
+      "templateId": 90404,
+      "skillId": "monster_dragon_scales",
+      "skillName": "龙鳞护体",
+      "simpleDesc": "龙鳞硬化，生成强力护盾",
+      "detailedDesc": "获得最大HP的{x}%护盾值",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 30},
+        {"x": 40},
+        {"x": 50},
+        {"x": 60}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_DragonScales"
+    },
+    {
+      "templateId": 90501,
+      "skillId": "monster_fire_burst",
+      "skillName": "火焰爆裂",
+      "simpleDesc": "凝聚火焰之力引爆单体敌人",
+      "detailedDesc": "对单体造成{x}%魔法攻击伤害，附加{y}层灼烧",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 130, "y": 2},
+        {"x": 155, "y": 3},
+        {"x": 180, "y": 3},
+        {"x": 205, "y": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_FireBurst"
+    },
+    {
+      "templateId": 90502,
+      "skillId": "monster_inferno",
+      "skillName": "烈焰风暴",
+      "simpleDesc": "释放毁灭性的火焰风暴席卷全场",
+      "detailedDesc": "对全体敌人造成{x}%魔法攻击伤害，附加{y}层灼烧",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 2},
+        {"x": 120, "y": 2},
+        {"x": 140, "y": 3},
+        {"x": 160, "y": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Inferno"
+    },
+    {
+      "templateId": 90503,
+      "skillId": "monster_flame_shield",
+      "skillName": "火焰护盾",
+      "simpleDesc": "火焰缠绕全身，生成护盾",
+      "detailedDesc": "获得最大HP的{x}%护盾值，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 15, "y": 1, "z": 3},
+        {"x": 20, "y": 1, "z": 3},
+        {"x": 25, "y": 2, "z": 4},
+        {"x": 30, "y": 2, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_FlameShield"
+    },
+    {
+      "templateId": 90601,
+      "skillId": "monster_frost_bolt",
+      "skillName": "冰霜弹",
+      "simpleDesc": "发射极寒冰弹冻结敌人行动",
+      "detailedDesc": "对单体造成{x}%魔法攻击伤害，速度降低{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 120, "y": 10, "z": 2},
+        {"x": 140, "y": 15, "z": 2},
+        {"x": 160, "y": 20, "z": 3},
+        {"x": 180, "y": 25, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_FrostBolt"
+    },
+    {
+      "templateId": 90602,
+      "skillId": "monster_blizzard",
+      "skillName": "暴风雪",
+      "simpleDesc": "召唤暴风雪冻结全体敌人",
+      "detailedDesc": "对全体敌人造成{x}%魔法攻击伤害，速度降低{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 3,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 90, "y": 10, "z": 2},
+        {"x": 110, "y": 13, "z": 2},
+        {"x": 130, "y": 16, "z": 3},
+        {"x": 150, "y": 18, "z": 3}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_Blizzard"
+    },
+    {
+      "templateId": 90603,
+      "skillId": "monster_ice_barrier",
+      "skillName": "冰霜屏障",
+      "simpleDesc": "凝结冰霜铸成坚壁，获得护盾并提升法防",
+      "detailedDesc": "获得最大HP的{x}%护盾，法防+{y}%，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 4,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20, "y": 15, "z": 3},
+        {"x": 28, "y": 20, "z": 3},
+        {"x": 36, "y": 25, "z": 4},
+        {"x": 44, "y": 30, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.monster.MonsterSkill_IceBarrier"
+    }
+  ]
+}

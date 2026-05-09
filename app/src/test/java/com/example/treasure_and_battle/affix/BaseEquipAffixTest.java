@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.affix;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -21,7 +21,7 @@ public class BaseEquipAffixTest {
                 "装备测试词缀",
                 "值%.0f",
                 Rarity.UNCOMMON,
-                AffixTriggerType.ON_HIT,
+                TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON, EquipCategory.ACCESSORY},
                 3f
         );
@@ -33,7 +33,7 @@ public class BaseEquipAffixTest {
 
     private static class DummyEquipAffix extends BaseEquipAffix {
         DummyEquipAffix(int affixId, String affixName, String description, Rarity rarity,
-                        AffixTriggerType triggerType, EquipCategory[] allowCategories, float affixValue) {
+                        TriggerType triggerType, EquipCategory[] allowCategories, float affixValue) {
             super(affixId, affixName, description, rarity, triggerType, allowCategories, affixValue);
         }
 

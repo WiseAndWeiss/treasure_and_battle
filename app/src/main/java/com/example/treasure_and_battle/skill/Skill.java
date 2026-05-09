@@ -1,9 +1,11 @@
 package com.example.treasure_and_battle.skill;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.model.skill.SkillType;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
-import com.example.treasure_and_battle.model.skill.SkillTriggerType;
+
 import com.example.treasure_and_battle.model.skill.SkillCostParams;
 import com.example.treasure_and_battle.model.skill.SkillEffectParams;
 
@@ -44,8 +46,8 @@ public abstract class Skill {
      * @deprecated 使用 hasTriggerType() 或 getSkillTriggerTypes() 代替
      */
     @Deprecated
-    public SkillTriggerType getSkillTriggerType() {
-        List<SkillTriggerType> types = template.getSkillTriggerTypes();
+    public TriggerType getSkillTriggerType() {
+        List<TriggerType> types = template.getSkillTriggerTypes();
         return types.isEmpty() ? null : types.get(0);
     }
 
@@ -53,7 +55,7 @@ public abstract class Skill {
      * 获取所有触发类型
      * @return 触发类型列表
      */
-    public List<SkillTriggerType> getSkillTriggerTypes() {
+    public List<TriggerType> getSkillTriggerTypes() {
         return template.getSkillTriggerTypes();
     }
 
@@ -62,7 +64,7 @@ public abstract class Skill {
      * @param triggerType 要检查的触发类型
      * @return 如果该技能在这个时机触发则返回true
      */
-    public boolean hasTriggerType(SkillTriggerType triggerType) {
+    public boolean hasTriggerType(TriggerType triggerType) {
         return template.hasTriggerType(triggerType);
     }
 

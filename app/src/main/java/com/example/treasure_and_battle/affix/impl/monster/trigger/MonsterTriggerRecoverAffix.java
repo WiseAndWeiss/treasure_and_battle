@@ -1,10 +1,12 @@
 package com.example.treasure_and_battle.affix.impl.monster.trigger;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
@@ -18,7 +20,7 @@ public class MonsterTriggerRecoverAffix extends BaseMonsterAffix {
 	private final float damageToRecoverRatio;
 
 	public MonsterTriggerRecoverAffix(int affixId, String affixName, String description, Rarity rarity,
-									  AffixTriggerType triggerType, float value,
+									  TriggerType triggerType, float value,
 									  AffixRecoverResourceType recoverResourceType, ValueType recoverValueType,
 									  int recoverValue, float damageToRecoverRatio) {
 		super(affixId, affixName, description, rarity, triggerType, value);

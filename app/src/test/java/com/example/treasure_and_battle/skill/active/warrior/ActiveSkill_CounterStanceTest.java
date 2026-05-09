@@ -70,13 +70,10 @@ public class ActiveSkill_CounterStanceTest extends ActiveSkillTestBase {
         int hpAfter = testPlayer.getCurrentHp();
         int actualDamage = hpBefore - hpAfter;
 
-        // 计算期望伤害：(怪物攻击 - 玩家防御) * (1 - 减伤比例)
-        int baseDamageAfterDefense = Math.max(1, monsterAttack - playerDefense);
-        int expectedDamage = (int) (baseDamageAfterDefense * 0.75); // 75%伤害（25%减伤）
+        int expectedDamage = Math.max(1, (int)(monsterAttack * 0.75) - playerDefense);
 
-        assertEquals("伤害应该减少25%", expectedDamage, actualDamage, 2); // 允许小幅误差
+        assertEquals("伤害应该减少25%", expectedDamage, actualDamage, 2);
 
-        // 验证日志包含减伤信息
         assertLogExists(LogType.DAMAGE);
 
         printBattleLogs();
@@ -145,9 +142,8 @@ public class ActiveSkill_CounterStanceTest extends ActiveSkillTestBase {
         int hpAfter = testPlayer.getCurrentHp();
         int actualDamage = hpBefore - hpAfter;
 
-        // 计算期望伤害：(怪物攻击 - 玩家防御) * (1 - 减伤比例)
-        int baseDamageAfterDefense = Math.max(1, monsterAttack - playerDefense);
-        int expectedDamage = (int) (baseDamageAfterDefense * 0.75); // 75%伤害（25%减伤）
+        // 计算期望伤害：减伤25%在防御之前应用
+        int expectedDamage = Math.max(1, (int)(monsterAttack * 0.75) - playerDefense);
 
         assertEquals("等级5应该减少25%伤害", expectedDamage, actualDamage, 2);
 
@@ -209,9 +205,7 @@ public class ActiveSkill_CounterStanceTest extends ActiveSkillTestBase {
         int playerHpAfter = testPlayer.getCurrentHp();
         int damageReceived = playerHpBefore - playerHpAfter;
 
-        // 计算期望伤害：(怪物攻击 - 玩家防御) * (1 - 减伤比例)
-        int baseDamageAfterDefense = Math.max(1, monsterAttack - playerDefense);
-        int expectedDamage = (int) (baseDamageAfterDefense * 0.75); // 75%伤害（25%减伤）
+        int expectedDamage = Math.max(1, (int)(monsterAttack * 0.75) - playerDefense);
         assertEquals("应该减少25%伤害", expectedDamage, damageReceived, 2);
 
         // 验证怪物受到反击伤害

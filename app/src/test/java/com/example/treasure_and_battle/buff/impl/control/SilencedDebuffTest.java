@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.buff.impl.control;
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.Player;
 
@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class SilencedDebuffTest {
 
     private Context context;
@@ -35,10 +35,10 @@ public class SilencedDebuffTest {
     public void testTriggerOnlyOnRoundStart() {
         SilencedDebuff buff = new SilencedDebuff("silenced", "沉默", "", BuffType.DEBUFF, true, 2, 1, true, 0f);
 
-        buff.onTrigger(player, ctx, BuffTriggerType.ON_HIT);
+        buff.onTrigger(player, ctx, TriggerType.ON_HIT);
         assertEquals(0, ctx.battleLogs.size());
 
-        buff.onTrigger(player, ctx, BuffTriggerType.ON_ROUND_START);
+        buff.onTrigger(player, ctx, TriggerType.ON_ROUND_START);
         assertEquals(1, ctx.battleLogs.size());
     }
 }

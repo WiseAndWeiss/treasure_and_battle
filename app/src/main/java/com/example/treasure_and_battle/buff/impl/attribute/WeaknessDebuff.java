@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.buff.impl.attribute;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
@@ -18,7 +18,7 @@ public class WeaknessDebuff extends BaseBuff {
                           BuffType buffType, boolean isDispellable, int maxDuration,
                           int maxStackCount, boolean refreshOnApply, float buffValue,
                           int attackReductionPercent) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.PERMANENT,
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.PERMANENT,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
         this.attackReductionPercent = attackReductionPercent;
     }
@@ -31,7 +31,7 @@ public class WeaknessDebuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
         // 虚弱debuff不需要触发效果，只通过applyAttributeBonus影响属性
     }
 }

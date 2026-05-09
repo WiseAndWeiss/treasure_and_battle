@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class EquipTriggerRecoverAffixTest {
 
     private Context context;
@@ -49,7 +49,7 @@ public class EquipTriggerRecoverAffixTest {
     public void testDescriptionDamageRatioMode() {
         EquipTriggerRecoverAffix affix = new EquipTriggerRecoverAffix(
                 401, "吸血", "%.0f%%触发，回复伤害%.0f%%", Rarity.RARE,
-                AffixTriggerType.ON_HIT, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
+                TriggerType.ON_HIT, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
                 AffixRecoverResourceType.HP, ValueType.FLAT, 0, 0.5f
         );
 
@@ -60,7 +60,7 @@ public class EquipTriggerRecoverAffixTest {
     public void testRecoverByPercentageOnMp() {
         EquipTriggerRecoverAffix affix = new EquipTriggerRecoverAffix(
                 402, "回蓝", "", Rarity.RARE,
-                AffixTriggerType.ON_ATTACK, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
+                TriggerType.ON_ATTACK, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
                 AffixRecoverResourceType.MP, ValueType.PERCENTAGE, 25, 0f
         );
 
@@ -75,7 +75,7 @@ public class EquipTriggerRecoverAffixTest {
     public void testRecoverByDamageRatioOnHp() {
         EquipTriggerRecoverAffix affix = new EquipTriggerRecoverAffix(
                 403, "吸血", "", Rarity.RARE,
-                AffixTriggerType.ON_HIT, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
+                TriggerType.ON_HIT, new EquipCategory[]{EquipCategory.WEAPON}, 1.0f,
                 AffixRecoverResourceType.HP, ValueType.FLAT, 0, 0.5f
         );
 

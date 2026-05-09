@@ -9,11 +9,11 @@ import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.manager.BuffManager;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class EquipTriggerBuffAffixIntegrationTest {
 
     private Context context;
@@ -88,7 +88,7 @@ public class EquipTriggerBuffAffixIntegrationTest {
         assertEquals("燃烧层数应等于 floor(本次最终伤害 * 30%)", expectedStacks, burning.getStackCount());
 
         int hpBeforeDot = tankMonster.getCurrentHp();
-        buffManager.triggerBuffs(tankMonster, ctx, BuffTriggerType.ON_ROUND_END);
+        buffManager.triggerBuffs(tankMonster, ctx, TriggerType.ON_ROUND_END);
         int hpAfterDot = tankMonster.getCurrentHp();
 
         int expectedDotDamage = Math.max(1, expectedStacks - tankMonster.getFinalAttributes().magicalDef);
@@ -133,7 +133,7 @@ public class EquipTriggerBuffAffixIntegrationTest {
                 "玩家攻击提升",
                 "玩家物攻提高 %.0f%%",
                 Rarity.RARE,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 0.20f,
                 AttributeType.PHYSICAL_ATK,
@@ -146,7 +146,7 @@ public class EquipTriggerBuffAffixIntegrationTest {
                 "武器攻击提升",
                 "武器物攻提高 %.0f%%",
                 Rarity.RARE,
-                AffixTriggerType.PERMANENT,
+                TriggerType.PERMANENT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 0.50f,
                 AttributeType.PHYSICAL_ATK,
@@ -162,7 +162,7 @@ public class EquipTriggerBuffAffixIntegrationTest {
                 "焚烬",
                 "命中后有 %.0f%% 概率施加相当于本次伤害 %.0f%% 层数的燃烧",
                 Rarity.RARE,
-                AffixTriggerType.ON_HIT,
+                TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 1.0f,
                 3002,

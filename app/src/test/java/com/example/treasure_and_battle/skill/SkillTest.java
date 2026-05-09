@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  * 测试技能基类和主动技能的通用功能
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class SkillTest {
 
     // ====================== 测试常量配置 ======================

@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.skill.passive;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
-import com.example.treasure_and_battle.model.skill.SkillTriggerType;
+
 import com.example.treasure_and_battle.model.skill.SkillType;
 import com.example.treasure_and_battle.skill.Skill;
 

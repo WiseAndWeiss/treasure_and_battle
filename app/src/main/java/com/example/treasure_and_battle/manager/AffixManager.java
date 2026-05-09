@@ -1,9 +1,11 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -43,7 +45,7 @@ public class AffixManager {
      * @param ctx 当前所处的战斗上下文
      * @param triggerType 触发时机（如：战斗开始、回合开始、攻击时等）
      */
-    public void triggerAffixes(BattleEntity entity, BattleContext ctx, AffixTriggerType triggerType) {
+    public void triggerAffixes(BattleEntity entity, BattleContext ctx, TriggerType triggerType) {
         List<BaseAffix> activeAffixes = getActiveAffixes(entity);
 
         if (activeAffixes == null || activeAffixes.isEmpty()) {
@@ -61,15 +63,6 @@ public class AffixManager {
                         affix.getAffixName()
                 );
             }
-        }
-    }
-
-    // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
-    public void triggerAffixesForAllMonsters(BattleContext ctx, AffixTriggerType triggerType) {
-        if (ctx == null || ctx.monsters == null) return;
-        for (Monster m : ctx.monsters) {
-            if (m == null) continue;
-            triggerAffixes(m, ctx, triggerType);
         }
     }
 

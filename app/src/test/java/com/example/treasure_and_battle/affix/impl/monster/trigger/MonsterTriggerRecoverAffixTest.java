@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class MonsterTriggerRecoverAffixTest {
 
     private Context context;
@@ -48,7 +48,7 @@ public class MonsterTriggerRecoverAffixTest {
     public void testPercentageRecoverMp() {
         MonsterTriggerRecoverAffix affix = new MonsterTriggerRecoverAffix(
                 601, "怪物回蓝", "", Rarity.RARE,
-                AffixTriggerType.ON_ROUND_END, 1.0f,
+                TriggerType.ON_ROUND_END, 1.0f,
                 AffixRecoverResourceType.MP, ValueType.PERCENTAGE, 25, 0f
         );
 
@@ -62,7 +62,7 @@ public class MonsterTriggerRecoverAffixTest {
     public void testDamageRatioRecoverHp() {
         MonsterTriggerRecoverAffix affix = new MonsterTriggerRecoverAffix(
                 602, "怪物回血", "", Rarity.RARE,
-                AffixTriggerType.ON_HIT, 1.0f,
+                TriggerType.ON_HIT, 1.0f,
                 AffixRecoverResourceType.HP, ValueType.FLAT, 0, 0.5f
         );
 
@@ -78,12 +78,12 @@ public class MonsterTriggerRecoverAffixTest {
     public void testDescriptionBranches() {
         MonsterTriggerRecoverAffix ratio = new MonsterTriggerRecoverAffix(
                 603, "A", "%.0f%%触发，恢复伤害%.0f%%", Rarity.RARE,
-                AffixTriggerType.ON_HIT, 1.0f,
+                TriggerType.ON_HIT, 1.0f,
                 AffixRecoverResourceType.HP, ValueType.FLAT, 0, 0.2f
         );
         MonsterTriggerRecoverAffix fixed = new MonsterTriggerRecoverAffix(
                 604, "B", "%.0f%%触发，恢复%d", Rarity.RARE,
-                AffixTriggerType.ON_HIT, 1.0f,
+                TriggerType.ON_HIT, 1.0f,
                 AffixRecoverResourceType.HP, ValueType.FLAT, 10, 0f
         );
 

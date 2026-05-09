@@ -4,7 +4,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
@@ -18,7 +18,7 @@ public class ShieldBuff extends BaseBuff {
     public ShieldBuff(String buffId, String buffName, String descriptionFormat,
                       BuffType buffType, boolean isDispellable, int maxDuration,
                       int maxStackCount, boolean refreshOnApply, float buffValue) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.ON_BEFORE_DAMAGE_TAKEN,
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.ON_BEFORE_DAMAGE_TAKEN,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
 
         // 护盾特殊处理：stackCount即为护盾值，初始化为maxStackCount
@@ -31,7 +31,7 @@ public class ShieldBuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
         // ON_DAMAGE_TAKEN 时机通常用于触发特殊的受击反伤/回血，
         // 而真正的护盾挡伤消耗，必须在战斗引擎计算最终伤害时通过提供专用拦截器进行层数抵扣，而不走这个标准 trigger()
     }
@@ -49,5 +49,14 @@ public class ShieldBuff extends BaseBuff {
                 owner.getClass().getSimpleName(), this.buffName, absorbed, this.stackCount);
                 
         return incomingDamage - absorbed;
+    }
+
+    public static boolean hasShield(BattleEntity entity) {
+        for (com.example.treasure_and_battle.buff.BaseBuff buff : entity.getActiveBuffList()) {
+            if (buff instanceof ShieldBuff) {
+                return ((ShieldBuff) buff).getStackCount() > 0;
+            }
+        }
+        return false;
     }
 }

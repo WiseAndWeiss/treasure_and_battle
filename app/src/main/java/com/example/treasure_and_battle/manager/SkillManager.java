@@ -57,23 +57,8 @@ public class SkillManager {
 
     // ====================== 1. 加载技能模板 ======================
     private void loadSkillTemplates() {
-        try {
-            InputStream is = context.getAssets().open("skill_config.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String json = new String(buffer, "UTF-8");
-
-            Type type = new TypeToken<SkillConfigWrapper>() {}.getType();
-            SkillConfigWrapper wrapper = gson.fromJson(json, type);
-            for (SkillTemplate template : wrapper.skill_templates) {
-                templateMap.put(template.getTemplateId(), template);
-                skillIdToTemplateIdMap.put(template.getSkillId(), template.getTemplateId());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SkillDataLoader.loadInto(context, "skill_config.json",
+                templateMap, skillIdToTemplateIdMap);
     }
 
     // ====================== 2. 通过模板ID创建技能实例 ======================
@@ -266,10 +251,6 @@ public class SkillManager {
     }
 
     // ====================== 配置文件包装类 ======================
-    private static class SkillConfigWrapper {
-        List<SkillTemplate> skill_templates;
-    }
-
     private static class SkillTreeConfigWrapper {
         List<SkillTreeTemplate> skill_tree_templates;
     }

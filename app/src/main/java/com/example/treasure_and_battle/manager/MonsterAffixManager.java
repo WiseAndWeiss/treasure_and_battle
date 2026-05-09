@@ -1,9 +1,11 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.affix.MonsterAffixFactory;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.affix.MonsterAffixTemplate;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -95,8 +97,7 @@ public class MonsterAffixManager {
     }
 
     public BaseMonsterAffix createAffixFromTemplate(MonsterAffixTemplate template, Rarity rarity, float randomValue) {
-        AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
-        return MonsterAffixFactory.create(template, rarity, triggerType, randomValue);
+        return MonsterAffixFactory.create(template, rarity, template.getTriggerType(), randomValue);
     }
 
     private static class ConfigWrapper {

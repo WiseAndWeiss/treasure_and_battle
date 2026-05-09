@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class EquipTriggerRecoverAffixIntegrationTest {
 
     private Context context;
@@ -52,7 +52,7 @@ public class EquipTriggerRecoverAffixIntegrationTest {
             "灵息",
             "攻击时有 %.0f%% 概率恢复 %d 点MP",
             Rarity.RARE,
-            AffixTriggerType.ON_ATTACK,
+            TriggerType.ON_ATTACK,
             new EquipCategory[]{EquipCategory.WEAPON},
             1.0f,
             AffixRecoverResourceType.MP,
@@ -80,7 +80,7 @@ public class EquipTriggerRecoverAffixIntegrationTest {
             "闪身回息",
             "闪避时有 %.0f%% 概率恢复 %d 点HP",
             Rarity.RARE,
-            AffixTriggerType.ON_DODGE,
+            TriggerType.ON_DODGE,
             new EquipCategory[]{EquipCategory.ARMOR},
             1.0f,
             AffixRecoverResourceType.HP,
@@ -111,7 +111,7 @@ public class EquipTriggerRecoverAffixIntegrationTest {
             "掠夺之刃",
             "攻击命中后有 %.0f%% 概率恢复本次伤害 %.0f%% 的生命值",
             Rarity.EPIC,
-            AffixTriggerType.ON_HIT,
+            TriggerType.ON_HIT,
             new EquipCategory[]{EquipCategory.WEAPON},
             1.0f,
             AffixRecoverResourceType.HP,

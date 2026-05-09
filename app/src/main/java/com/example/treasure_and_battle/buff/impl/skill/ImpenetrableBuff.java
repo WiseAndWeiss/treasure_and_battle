@@ -5,7 +5,7 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.manager.BuffManager;
@@ -24,7 +24,7 @@ public class ImpenetrableBuff extends BaseBuff {
                             BuffType buffType, boolean isDispellable, int maxDuration,
                             int maxStackCount, boolean refreshOnApply, float buffValue,
                             int conversionPercent, BuffManager buffManager) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.PERMANENT,
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.PERMANENT,
                 isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
         this.conversionPercent = conversionPercent;
         this.buffManager = buffManager;
@@ -36,7 +36,7 @@ public class ImpenetrableBuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
         // 固若金汤不需要触发效果，通过onAfterDamageReceived处理
     }
 

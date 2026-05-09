@@ -1,11 +1,13 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.affix.EquipAffixFactory;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.core.RngEngine;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.affix.EquipAffixTemplate;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -95,10 +97,9 @@ public class EquipAffixManager {
             }
 
             float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-            AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
             EquipCategory[] categories = getCategoriesFromTemplate(template);
 
-            BaseEquipAffix affix = EquipAffixFactory.create(template, targetRarity, triggerType, categories, randomValue);
+            BaseEquipAffix affix = EquipAffixFactory.create(template, targetRarity, template.getTriggerType(), categories, randomValue);
             if (affix != null) {
                 affixList.add(affix);
             }

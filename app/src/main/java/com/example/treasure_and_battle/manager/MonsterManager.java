@@ -5,6 +5,8 @@ import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.ActionIntent;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.MonsterTemplate;
+import com.example.treasure_and_battle.skill.Skill;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
@@ -154,12 +156,22 @@ public class MonsterManager {
     private void addSkillPoolIntents(Monster monster, MonsterTemplate template) {
         if (template == null || template.getSkillPool() == null) return;
 
+        MonsterSkillManager msm = MonsterSkillManager.getInstance(context);
+
         for (MonsterTemplate.SkillReference skillRef : template.getSkillPool()) {
             if (skillRef == null || skillRef.getSkillId() == null || skillRef.getSkillId().isEmpty()) continue;
 
+            int skillLevel = skillRef.getLevel();
+            Skill skillInstance = msm.createSkillBySkillId(skillRef.getSkillId(), skillLevel);
+            if (skillInstance instanceof ActiveSkill) {
+                monster.addMonsterSkill(skillRef.getSkillId(), (ActiveSkill) skillInstance);
+            }
+
+            String displayName = skillInstance != null ? skillInstance.getSkillName() : skillRef.getSkillId();
+
             monster.addIntent(new ActionIntent(
-                    "技能:" + skillRef.getSkillId(),
-                    "怪物技能占位动作（等待技能系统接入）",
+                    displayName,
+                    "怪物技能",
                     ActionIntent.IntentType.SKILL,
                     Math.max(1, skillRef.getApCost()),
                     Math.max(0, skillRef.getMpCost()),

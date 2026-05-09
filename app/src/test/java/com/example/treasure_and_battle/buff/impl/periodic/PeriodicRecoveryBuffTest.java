@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.buff.impl.periodic;
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class PeriodicRecoveryBuffTest {
 
     private Context context;
@@ -51,7 +51,7 @@ public class PeriodicRecoveryBuffTest {
         flatHeal.tryStack(flatHeal);
 
         // 模拟回合结束触发
-        flatHeal.onTrigger(testPlayer, ctx, BuffTriggerType.ON_ROUND_END);
+        flatHeal.onTrigger(testPlayer, ctx, TriggerType.ON_ROUND_END);
         assertEquals(600, testPlayer.getCurrentHp()); // 500 + (50 * 2) = 600
 
         // 回合衰减（不掉层数，掉最大回合），此时持续回合应当剩2
@@ -62,7 +62,7 @@ public class PeriodicRecoveryBuffTest {
 
         // 测试溢出治疗：直接设为950血
         testPlayer.setCurrentHp(950);
-        flatHeal.onTrigger(testPlayer, ctx, BuffTriggerType.ON_ROUND_END);
+        flatHeal.onTrigger(testPlayer, ctx, TriggerType.ON_ROUND_END);
         assertEquals(1000, testPlayer.getCurrentHp()); // 950 + 100 = 1050 -> 溢出应被maxHp截断
     }
 
@@ -77,7 +77,7 @@ public class PeriodicRecoveryBuffTest {
         pctHeal.tryStack(pctHeal);
 
         // 触发一次回复
-        pctHeal.onTrigger(testPlayer, ctx, BuffTriggerType.ON_ROUND_END);
+        pctHeal.onTrigger(testPlayer, ctx, TriggerType.ON_ROUND_END);
         assertEquals(650, testPlayer.getCurrentHp()); // 500 + 150 = 650
 
         // 测完2次回合衰减该buff应当消失
@@ -92,7 +92,7 @@ public class PeriodicRecoveryBuffTest {
                 BuffType.BUFF, true, 2, 99, true, 0.1f, ValueType.PERCENTAGE);
 
         // 触发一次回复 (单层，恢复50)
-        mpHeal.onTrigger(testPlayer, ctx, BuffTriggerType.ON_ROUND_END);
+        mpHeal.onTrigger(testPlayer, ctx, TriggerType.ON_ROUND_END);
         assertEquals(150, testPlayer.getCurrentMp()); // 100 + 50 = 150
 
         // 测回合流失

@@ -1,8 +1,10 @@
 package com.example.treasure_and_battle.affix.impl.monster.attribute;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -14,7 +16,7 @@ public class MonsterAttributeAffix extends BaseMonsterAffix {
     private final ValueType valueType;
 
     public MonsterAttributeAffix(int affixId, String affixName, String description, Rarity rarity,
-                                 AffixTriggerType triggerType, float value, AttributeType attributeType, ValueType valueType) {
+                                 TriggerType triggerType, float value, AttributeType attributeType, ValueType valueType) {
         super(affixId, affixName, description, rarity, triggerType, value);
         this.attributeType = attributeType;
         this.valueType = valueType;

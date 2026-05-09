@@ -2,7 +2,7 @@ package com.example.treasure_and_battle.buff;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
@@ -73,7 +73,7 @@ public class BaseBuffTest {
                     "测试Buff",
                     "值=%.1f, 层=%d",
                     BuffType.BUFF,
-                    BuffTriggerType.PERMANENT,
+                    TriggerType.PERMANENT,
                     true,
                     maxDuration,
                     maxStackCount,
@@ -88,7 +88,7 @@ public class BaseBuffTest {
         }
 
         @Override
-        public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
+        public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
             // no-op
         }
     }

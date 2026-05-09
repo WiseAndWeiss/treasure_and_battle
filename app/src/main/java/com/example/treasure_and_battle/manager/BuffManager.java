@@ -8,7 +8,7 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTemplate;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import com.google.gson.Gson;
@@ -200,7 +200,7 @@ public class BuffManager {
         }
     }
 
-    public void triggerBuffs(BattleEntity entity, BattleContext context, BuffTriggerType triggerType) {
+    public void triggerBuffs(BattleEntity entity, BattleContext context, TriggerType triggerType) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
         for (BaseBuff buff : buffList) {
             if (buff.getTriggerType() == triggerType) {
@@ -275,15 +275,6 @@ public class BuffManager {
                 context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
                     "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
             }
-        }
-    }
-
-    // ====================== 多目标战斗辅助（减少BattleManager显式循环） ======================
-    public void triggerBuffsForAllMonsters(BattleContext context, BuffTriggerType triggerType) {
-        if (context == null || context.monsters == null) return;
-        for (Monster m : context.monsters) {
-            if (m == null) continue;
-            triggerBuffs(m, context, triggerType);
         }
     }
 

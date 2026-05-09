@@ -1,11 +1,13 @@
 package com.example.treasure_and_battle.affix;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.affix.EquipAffixTemplate;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
@@ -16,7 +18,7 @@ import com.example.treasure_and_battle.model.item.EquipCategory;
 public class EquipAffixFactory {
 
     public static BaseEquipAffix create(EquipAffixTemplate template, Rarity targetRarity,
-                                        AffixTriggerType triggerType, EquipCategory[] categories,
+                                        TriggerType triggerType, EquipCategory[] categories,
                                         float randomValue) {
         String affixClass = template.getAffixClass();
 

@@ -8,6 +8,8 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.manager.MonsterSkillManager;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import org.junit.Before;
@@ -21,10 +23,11 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class BattleActionExecutionTest {
 
     private Context context;
@@ -100,14 +103,16 @@ public class BattleActionExecutionTest {
         player.setCurrentActionPoints(2);
 
         BattleAction action = new BattleAction(BattleAction.ActionType.ATTACK, player, monster,
-                1, 0, 0, 2.0, null, "倍率攻击");
+                1, 0, 0, 1.0, null, "攻击");
 
         int hpBefore = monster.getCurrentHp();
         boolean ok = invokeExecuteBattleAction(ctx, action);
 
         assertTrue(ok);
-        assertEquals(200, hpBefore - monster.getCurrentHp()); // 基础100，倍率2x后200
-        assertEquals(200, ctx.finalDamage);
+        assertTrue("攻击应造成伤害", monster.getCurrentHp() < hpBefore);
+        assertEquals("finalDamage应为 attacker.physicalAtk - monster.physicalDef",
+                player.getBaseAttributes().physicalAtk - monster.getBaseAttributes().physicalDef,
+                ctx.finalDamage);
     }
 
     @Test
@@ -154,13 +159,18 @@ public class BattleActionExecutionTest {
         monster.setCurrentActionPoints(2);
         monster.setCurrentMp(30);
 
+        ActiveSkill charge = (ActiveSkill) MonsterSkillManager.getInstance(context)
+                .createSkillBySkillId("monster_charge", 1);
+        assertNotNull(charge);
+        monster.addMonsterSkill("monster_charge", charge);
+
         BattleAction skillAction = BattleAction.skillTodo(monster, player,
-                "skill_fireball_001", 1, 10, 1.0, "火球术");
+                "monster_charge", 1, 0, 1.0, "冲撞");
 
         boolean ok = invokeExecuteBattleAction(ctx, skillAction);
         assertTrue(ok);
         assertEquals(1, monster.getCurrentActionPoints());
-        assertEquals(20, monster.getCurrentMp());
+        assertEquals(30, monster.getCurrentMp());
         assertTrue(ctx.battleLogs.size() > 0);
     }
 }

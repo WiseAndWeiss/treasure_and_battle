@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.attribute;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
@@ -61,25 +63,25 @@ public class AttributeCalculationTest {
         // 添加固定的力量词条 (+10)
         affixes.add(new EquipAttributeAffix(
                 1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 10f,
             AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加力量百分比词条 (+20%)
         affixes.add(new EquipAttributeAffix(
                 2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.20f,
             AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         // 添加固定物理攻击力词条 (+30)
         affixes.add(new EquipAttributeAffix(
                 3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 30f,
             AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加物理攻击力百分比词条 (+15%)
         affixes.add(new EquipAttributeAffix(
                 4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.15f,
             AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         weapon.setAffixes(affixes);
@@ -164,19 +166,19 @@ public class AttributeCalculationTest {
         java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
         affixes.add(new EquipAttributeAffix(
                 1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 10f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 10f,
             AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定力量+10
         affixes.add(new EquipAttributeAffix(
                 2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.20f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.20f,
             AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比力量+20%
         affixes.add(new EquipAttributeAffix(
                 3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 30f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 30f,
             AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定物攻+30
         affixes.add(new EquipAttributeAffix(
                 4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-            com.example.treasure_and_battle.model.affix.AffixTriggerType.PERMANENT, null, 0.15f,
+            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.15f,
             AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比物攻+15%
         weapon.setAffixes(affixes);
         testPlayer.equip(weapon);

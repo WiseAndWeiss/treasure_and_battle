@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.model.buff;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 // Buff模板类，对应AffixTemplate，用于JSON配置化管理
 public class BuffTemplate {
     private int templateId;          // 模板唯一ID
@@ -7,7 +9,7 @@ public class BuffTemplate {
     private String buffName;         // Buff名称
     private String descriptionFormat;// 描述格式（用于UI显示）
     private String buffType;         // Buff类型（对应BuffType枚举）
-    private String triggerType;      // 触发时机（对应BuffTriggerType枚举）
+    private TriggerType triggerType;      // 触发时机
     private boolean isDispellable;   // 是否可驱散
     private int defaultDuration;     // 默认持续回合数
     private int maxStackCount;       // 最大堆叠层数
@@ -29,8 +31,8 @@ public class BuffTemplate {
     public void setDescriptionFormat(String descriptionFormat) { this.descriptionFormat = descriptionFormat; }
     public String getBuffType() { return buffType; }
     public void setBuffType(String buffType) { this.buffType = buffType; }
-    public String getTriggerType() { return triggerType; }
-    public void setTriggerType(String triggerType) { this.triggerType = triggerType; }
+    public TriggerType getTriggerType() { return triggerType; }
+    public void setTriggerType(TriggerType triggerType) { this.triggerType = triggerType; }
     public boolean isDispellable() { return isDispellable; }
     public void setDispellable(boolean dispellable) { isDispellable = dispellable; }
     public int getDefaultDuration() { return defaultDuration; }

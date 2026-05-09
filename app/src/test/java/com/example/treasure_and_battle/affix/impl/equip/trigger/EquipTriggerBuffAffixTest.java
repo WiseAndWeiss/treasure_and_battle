@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class EquipTriggerBuffAffixTest {
 
     private Context context;
@@ -46,7 +46,7 @@ public class EquipTriggerBuffAffixTest {
                 "灼附",
                 "有%.0f%%概率施加%d层",
                 Rarity.RARE,
-                AffixTriggerType.ON_HIT,
+                TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 1.0f,
                 3002,
@@ -65,7 +65,7 @@ public class EquipTriggerBuffAffixTest {
                 "灼附",
                 "有%.0f%%概率施加伤害%.0f%%层数",
                 Rarity.RARE,
-                AffixTriggerType.ON_HIT,
+                TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 1.0f,
                 3002,
@@ -84,7 +84,7 @@ public class EquipTriggerBuffAffixTest {
                 "灼附",
                 "",
                 Rarity.RARE,
-                AffixTriggerType.ON_HIT,
+                TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON},
                 1.0f,
                 3002,

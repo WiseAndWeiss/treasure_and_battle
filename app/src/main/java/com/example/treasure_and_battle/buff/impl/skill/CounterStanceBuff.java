@@ -1,11 +1,12 @@
 package com.example.treasure_and_battle.buff.impl.skill;
 
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 
@@ -14,18 +15,16 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
  * 效果：受到的伤害减少x%，每受到一次攻击就反击一次
  */
 public class CounterStanceBuff extends BaseBuff {
-    private final int damageReductionPercent; // 伤害减免百分比
-    private int counterAttackCount = 0; // 反击次数统计
-    private final BattleManager battleManager;
+    private final int damageReductionPercent;
+    private int counterAttackCount = 0;
 
     public CounterStanceBuff(String buffId, String buffName, String descriptionFormat,
                               BuffType buffType, boolean isDispellable, int maxDuration,
                               int maxStackCount, boolean refreshOnApply, float buffValue,
-                              int damageReductionPercent, BattleManager battleManager) {
-        super(buffId, buffName, descriptionFormat, buffType, BuffTriggerType.PERMANENT,
+                              int damageReductionPercent) {
+        super(buffId, buffName, descriptionFormat, buffType, TriggerType.PERMANENT,
               isDispellable, maxDuration, maxStackCount, refreshOnApply, buffValue);
         this.damageReductionPercent = damageReductionPercent;
-        this.battleManager = battleManager;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class CounterStanceBuff extends BaseBuff {
     }
 
     @Override
-    public void onTrigger(BattleEntity owner, BattleContext context, BuffTriggerType triggerType) {
+    public void onTrigger(BattleEntity owner, BattleContext context, TriggerType triggerType) {
         // 不需要，我们使用事件回调
     }
 
@@ -70,14 +69,11 @@ public class CounterStanceBuff extends BaseBuff {
             "【反击姿态】[%s] 对 [%s] 发动了反击！",
             owner.getName(), attacker.getName());
 
-        // 计算反击伤害（普通攻击）
         AttributeSet ownerAttr = owner.getFinalAttributes();
-
-        // 反击使用普通攻击伤害
         int baseDamage = ownerAttr.physicalAtk;
 
-        // 造成伤害
-        int finalDamage = battleManager.dealPhysicalDamage(owner, attacker, baseDamage, context);
+        int finalDamage = DamageManager.getInstance(owner.getContext())
+                .dealDamage(DamageConfig.counterAttack(), owner, attacker, baseDamage, context);
 
         counterAttackCount++;
 

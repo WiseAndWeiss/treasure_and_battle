@@ -1,8 +1,10 @@
 package com.example.treasure_and_battle.affix.impl;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -11,7 +13,7 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
 public class PermanentStrengthAffix extends BaseAffix {
 
     public PermanentStrengthAffix(int affixId, String affixName, String description, Rarity rarity, int[] allowSlots, float affixValue) {
-        super(affixId, affixName, description, rarity, AffixTriggerType.PERMANENT, allowSlots, affixValue);
+        super(affixId, affixName, description, rarity, TriggerType.PERMANENT, allowSlots, affixValue);
     }
 
     // 常驻属性词缀：实现属性加成

@@ -2,9 +2,11 @@ package com.example.treasure_and_battle.item;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -74,14 +76,14 @@ public class ConsumableExecutor {
 
         if (e.target == Target.ALL_ENEMIES) {
             for (Monster m : ctx.getAliveMonsters()) {
-                m.takeDamage(dmg);
+                DamageManager.getInstance(player.getContext()).dealDamage(DamageConfig.itemDamage(), null, m, dmg, ctx);
                 ctx.addLog(LogType.DAMAGE, "对[%s]造成 %d 伤害", m.getName(), dmg);
                 applyDebuffs(ctx, m, dmg, e.debuffs);
             }
         } else {
             Monster target = ctx.getPrimaryMonsterTarget();
             if (target == null) return false;
-            target.takeDamage(dmg);
+            DamageManager.getInstance(player.getContext()).dealDamage(DamageConfig.itemDamage(), null, target, dmg, ctx);
             ctx.addLog(LogType.DAMAGE, "对[%s]造成 %d 伤害", target.getName(), dmg);
             applyDebuffs(ctx, target, dmg, e.debuffs);
         }

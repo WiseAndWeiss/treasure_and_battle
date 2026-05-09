@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  * 测试技能管理器的反射创建、类型检查、属性值匹配等功能
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class SkillManagerTest {
 
     // ====================== 测试常量配置 ======================

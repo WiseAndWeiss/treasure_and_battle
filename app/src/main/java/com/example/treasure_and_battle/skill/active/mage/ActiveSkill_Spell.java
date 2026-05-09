@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.buff.impl.control.SlowDebuff;
 import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
