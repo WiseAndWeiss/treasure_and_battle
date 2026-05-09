@@ -213,4 +213,15 @@ public class EquipmentManager {
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;
     }
+
+    private int resolveEquipIconRes(String equipId) {
+        if (equipId == null || equipId.trim().isEmpty()) {
+            return 0;
+        }
+        try {
+            return context.getResources().getIdentifier("ic_equip_" + equipId, "drawable", context.getPackageName());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }
