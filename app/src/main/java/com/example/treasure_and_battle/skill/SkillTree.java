@@ -1,8 +1,7 @@
 package com.example.treasure_and_battle.skill;
 
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.skill.SkillTreeTemplate;
-import com.example.treasure_and_battle.model.skill.SkillType;
 
 import java.util.ArrayList;
 import java.util.List;

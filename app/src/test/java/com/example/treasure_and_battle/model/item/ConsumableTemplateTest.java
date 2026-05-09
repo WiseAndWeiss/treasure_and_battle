@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.model.item;
 
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableTemplate;
 import com.google.gson.Gson;
 
 import org.junit.Test;

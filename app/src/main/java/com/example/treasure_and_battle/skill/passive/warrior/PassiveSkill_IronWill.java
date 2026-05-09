@@ -7,7 +7,7 @@ import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
 import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
 import com.example.treasure_and_battle.buff.impl.periodic.PoisoningDebuff;
 import com.example.treasure_and_battle.buff.impl.attribute.WeaknessDebuff;
-import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.common.ValueType;

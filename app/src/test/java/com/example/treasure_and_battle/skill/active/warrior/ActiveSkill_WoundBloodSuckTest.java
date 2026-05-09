@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.skill.active.warrior;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
-import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.active.ActiveSkillTestBase;
 

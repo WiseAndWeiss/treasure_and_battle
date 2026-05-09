@@ -1,6 +1,10 @@
 package com.example.treasure_and_battle.model.item;
 
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Test;
 

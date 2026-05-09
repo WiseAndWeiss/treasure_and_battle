@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.model.entity;
 
+import java.util.List;
+
 public class MonsterTemplate {
     private int templateId;
     private String entityId;
@@ -40,7 +42,7 @@ public class MonsterTemplate {
         public int getLevel() { return level <= 0 ? 1 : Math.min(level, 4); }
     }
 
-    private java.util.List<SkillReference> skillPool;
+    private List<SkillReference> skillPool;
 
     public static class DropEntry {
         private String materialId;
@@ -50,7 +52,7 @@ public class MonsterTemplate {
         public float getDropRate() { return dropRate; }
     }
 
-    private java.util.List<DropEntry> dropTable;
+    private List<DropEntry> dropTable;
 
     public int getTemplateId() { return templateId; }
     public String getEntityId() { return entityId; }
@@ -69,6 +71,6 @@ public class MonsterTemplate {
     public float getSpdMultiplier() { return spdMultiplier; }
     public int getExpReward() { return expReward; }
     public int getGoldReward() { return goldReward; }
-    public java.util.List<SkillReference> getSkillPool() { return skillPool; }
-    public java.util.List<DropEntry> getDropTable() { return dropTable; }
+    public List<SkillReference> getSkillPool() { return skillPool; }
+    public List<DropEntry> getDropTable() { return dropTable; }
 }

@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.skill.monster;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.common.ValueType;

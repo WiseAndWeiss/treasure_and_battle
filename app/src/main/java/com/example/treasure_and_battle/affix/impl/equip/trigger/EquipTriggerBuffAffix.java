@@ -5,13 +5,13 @@ import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.buff.BaseBuff;
-import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
-import com.example.treasure_and_battle.model.item.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 public class EquipTriggerBuffAffix extends BaseEquipAffix {
