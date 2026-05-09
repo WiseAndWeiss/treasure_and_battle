@@ -7,6 +7,7 @@ import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Before;
 import org.junit.Test;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,7 +21,7 @@ public class InventoryManagerTest {
     @Before
     public void setUp() {
         inventory = InventoryManager.getInstance();
-        for (Item item : new java.util.ArrayList<>(inventory.getItems())) {
+        for (Item item : new ArrayList<>(inventory.getItems())) {
             inventory.removeItem(item);
         }
     }

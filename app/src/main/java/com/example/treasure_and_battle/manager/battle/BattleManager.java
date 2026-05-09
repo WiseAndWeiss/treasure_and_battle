@@ -18,6 +18,7 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.item.Item;
 
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.utils.RandomUtils;
@@ -229,7 +230,7 @@ public class BattleManager {
      * @param context 战斗上下文
      */
     public void executeSkill(BattleEntity caster, com.example.treasure_and_battle.skill.active.ActiveSkill skill,
-                            java.util.List<BattleEntity> targets, BattleContext context) {
+                            List<BattleEntity> targets, BattleContext context) {
         this.currentBattleContext = context;
         try {
             skill.applyCastCost(caster);
@@ -473,7 +474,7 @@ public class BattleManager {
                     Monster m = (Monster) actor;
                     ActiveSkill skill = m.getMonsterSkill(action.getActionRefId());
                     if (skill != null && skill.isCooldownReady()) {
-                        java.util.List<BattleEntity> targets =
+                        List<BattleEntity> targets =
                                 SkillTargetResolver.resolve(skill.getSkillRangeType(), actor, ctx);
                         try {
                             this.currentBattleContext = ctx;
@@ -560,7 +561,7 @@ public class BattleManager {
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
 
             // 掉落物生成 → 存入待领取列表（玩家可选择拿取/全部拿取）
-            java.util.List<com.example.treasure_and_battle.model.item.Item> drops =
+            List<Item> drops =
                 DropManager.getInstance(context).generateDrops(ctx);
             ctx.pendingLoot = drops;
             ctx.addLog(LogType.RESULT, "战斗掉落：共 %d 件物品待领取", drops.size());

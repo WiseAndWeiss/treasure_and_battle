@@ -247,7 +247,7 @@ public class BattleManagerTest {
                 "测试攻击", "", ActionIntent.IntentType.ATTACK,
                 1, 0, 1.0, 100, 10, -1f, -1f, null);
 
-        java.util.List<RevealedIntent> revealed = new ArrayList<>();
+        List<RevealedIntent> revealed = new ArrayList<>();
         revealed.add(new RevealedIntent(intent1, true));
         ctx.monsterRevealedIntents.put(dummy.getEntityId(), revealed);
 

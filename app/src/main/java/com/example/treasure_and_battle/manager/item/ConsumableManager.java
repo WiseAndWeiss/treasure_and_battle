@@ -16,6 +16,8 @@ import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Debu
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Effect;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Target;
 
+import java.util.List;
+
 public class ConsumableManager {
 
     public static boolean execute(Player player, BattleContext ctx, ConsumableItem item, Context context) {
@@ -91,7 +93,7 @@ public class ConsumableManager {
     }
 
     private static void applyDebuffs(BattleContext ctx, Monster target, int dmg,
-                                      java.util.List<DebuffEntry> debuffs) {
+                                      List<DebuffEntry> debuffs) {
         if (debuffs == null || debuffs.isEmpty()) return;
         BuffManager bm = BuffManager.getInstance(target.getContext());
         for (DebuffEntry de : debuffs) {

@@ -131,7 +131,7 @@ public class EquipmentManager {
         }
 
         // 附加装备词缀系统，并与属性引擎解耦（交给EquipAffixManager和保底引擎去生成分配）
-        List<BaseAffix> baseAffixes = new java.util.ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
+        List<BaseAffix> baseAffixes = new ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
         applyEquipmentOnlyAffixes(equip, baseAffixes);
         equip.setAffixes(baseAffixes);
 

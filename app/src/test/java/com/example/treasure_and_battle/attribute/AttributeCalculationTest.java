@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
+import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
@@ -14,6 +15,8 @@ import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.utils.AttributeUtils;
+import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.common.TriggerType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +24,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,35 +60,35 @@ public class AttributeCalculationTest {
     public void testEquipmentDamageCalculation() {
         // 创建一件武器
         EquipItem weapon = new EquipItem(
-                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
+                "1", "Test Sword", Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
         
         // 武器自带的基础属性
         weapon.getBaseAttributes().physicalAtk = 20;
         
-        java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
+        List<BaseAffix> affixes = new ArrayList<>();
         
         // 添加固定的力量词条 (+10)
         affixes.add(new EquipAttributeAffix(
-                1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 10f,
+                1, "力量+", "", Rarity.COMMON, 
+            TriggerType.PERMANENT, null, 10f,
             AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加力量百分比词条 (+20%)
         affixes.add(new EquipAttributeAffix(
-                2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.20f,
+                2, "力量%+", "", Rarity.UNCOMMON, 
+            TriggerType.PERMANENT, null, 0.20f,
             AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         // 添加固定物理攻击力词条 (+30)
         affixes.add(new EquipAttributeAffix(
-                3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 30f,
+                3, "物攻+", "", Rarity.RARE, 
+            TriggerType.PERMANENT, null, 30f,
             AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL));
                 
         // 添加物理攻击力百分比词条 (+15%)
         affixes.add(new EquipAttributeAffix(
-                4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.15f,
+                4, "物攻%+", "", Rarity.EPIC, 
+            TriggerType.PERMANENT, null, 0.15f,
             AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL));
                 
         weapon.setAffixes(affixes);
@@ -161,25 +167,25 @@ public class AttributeCalculationTest {
         // 测试词缀（装备）和buff同时存在时的计算结果
         // ------------------ 装备配置 ------------------
         EquipItem weapon = new EquipItem(
-                "1", "Test Sword", com.example.treasure_and_battle.model.common.Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
+                "1", "Test Sword", Rarity.LEGENDARY, 100, 10, EquipSlot.WEAPON);
         weapon.getBaseAttributes().physicalAtk = 20; // 武器基础属性，相当于固定物攻+20
         
-        java.util.List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new java.util.ArrayList<>();
+        List<BaseAffix> affixes = new ArrayList<>();
         affixes.add(new EquipAttributeAffix(
-                1, "力量+", "", com.example.treasure_and_battle.model.common.Rarity.COMMON, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 10f,
+                1, "力量+", "", Rarity.COMMON, 
+            TriggerType.PERMANENT, null, 10f,
             AttributeType.STRENGTH, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定力量+10
         affixes.add(new EquipAttributeAffix(
-                2, "力量%+", "", com.example.treasure_and_battle.model.common.Rarity.UNCOMMON, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.20f,
+                2, "力量%+", "", Rarity.UNCOMMON, 
+            TriggerType.PERMANENT, null, 0.20f,
             AttributeType.STRENGTH, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比力量+20%
         affixes.add(new EquipAttributeAffix(
-                3, "物攻+", "", com.example.treasure_and_battle.model.common.Rarity.RARE, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 30f,
+                3, "物攻+", "", Rarity.RARE, 
+            TriggerType.PERMANENT, null, 30f,
             AttributeType.PHYSICAL_ATK, ValueType.FLAT, EquipAffixScope.GLOBAL)); // 固定物攻+30
         affixes.add(new EquipAttributeAffix(
-                4, "物攻%+", "", com.example.treasure_and_battle.model.common.Rarity.EPIC, 
-            com.example.treasure_and_battle.model.common.TriggerType.PERMANENT, null, 0.15f,
+                4, "物攻%+", "", Rarity.EPIC, 
+            TriggerType.PERMANENT, null, 0.15f,
             AttributeType.PHYSICAL_ATK, ValueType.PERCENTAGE, EquipAffixScope.GLOBAL)); // 百分比物攻+15%
         weapon.setAffixes(affixes);
         testPlayer.equip(weapon);

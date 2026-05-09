@@ -11,6 +11,7 @@ import com.example.treasure_and_battle.model.buff.BuffTemplate;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.utils.RandomUtils;
+import com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -19,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -176,17 +178,17 @@ public class BuffManager {
      */
     public void onRoundEnd(BattleEntity entity, BattleContext context) {
         // 收集需要转化的ImpenetrableBuff
-        List<com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff> imprenetrableBuffs = new java.util.ArrayList<>();
+        List<ImpenetrableBuff> imprenetrableBuffs = new ArrayList<>();
         List<BaseBuff> buffList = entity.getActiveBuffList();
 
         for (BaseBuff buff : buffList) {
-            if (buff instanceof com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) {
-                imprenetrableBuffs.add((com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) buff);
+            if (buff instanceof ImpenetrableBuff) {
+                imprenetrableBuffs.add((ImpenetrableBuff) buff);
             }
         }
 
         // 在遍历完成后进行护盾转化，避免ConcurrentModificationException
-        for (com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff imprenetrableBuff : imprenetrableBuffs) {
+        for (ImpenetrableBuff imprenetrableBuff : imprenetrableBuffs) {
             imprenetrableBuff.convertToShieldOnRoundEnd(entity, context);
         }
     }

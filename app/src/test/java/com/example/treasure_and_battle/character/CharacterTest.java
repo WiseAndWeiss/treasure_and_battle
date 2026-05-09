@@ -13,6 +13,7 @@ import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.affix.BaseAffix;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -287,7 +288,7 @@ public class CharacterTest {
     @Test
     public void testGeneratePlayerInjectsEquipmentPermanentAffixes() {
         EquipItem ring = new EquipItem("ring_str", "力量戒指", Rarity.RARE, 80, 1, EquipSlot.RING);
-        List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new ArrayList<>();
+        List<BaseAffix> affixes = new ArrayList<>();
         affixes.add(new EquipAttributeAffix(
                 101, "力量+", "", Rarity.COMMON,
                 TriggerType.PERMANENT, null, 10f,
@@ -303,7 +304,7 @@ public class CharacterTest {
     @Test
     public void testGeneratePlayerInjectsNonPermanentAffixes() {
         EquipItem necklace = new EquipItem("necklace_1", "触发项链", Rarity.EPIC, 150, 1, EquipSlot.NECKLACE);
-        List<com.example.treasure_and_battle.affix.BaseAffix> affixes = new ArrayList<>();
+        List<BaseAffix> affixes = new ArrayList<>();
         affixes.add(new EquipAttributeAffix(
                 201, "物攻+", "", Rarity.COMMON,
                 TriggerType.ON_HIT, null, 5f,

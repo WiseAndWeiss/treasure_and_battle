@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * 职业管理器
@@ -190,7 +191,7 @@ public class ProfessionManager {
      * @return 所有职业类型列表
      */
     public List<ProfessionType> getAllProfessionTypes() {
-        return new java.util.ArrayList<>(professionTypeToTemplateIdMap.keySet());
+        return new ArrayList<>(professionTypeToTemplateIdMap.keySet());
     }
 
     /**
@@ -198,7 +199,7 @@ public class ProfessionManager {
      * @return 所有职业模板列表
      */
     public List<ProfessionTemplate> getAllProfessionTemplates() {
-        return new java.util.ArrayList<>(professionTemplateMap.values());
+        return new ArrayList<>(professionTemplateMap.values());
     }
 
     // ====================== 配置文件包装类 ======================

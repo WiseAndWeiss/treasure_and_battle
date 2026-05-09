@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.model.skill;
 import android.content.Context;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class SkillTreeTemplate {
     public class SkillNode {
@@ -42,13 +43,13 @@ public class SkillTreeTemplate {
     public List<SkillNode> getSkillNodes() { return skillNodes; }
     public List<Integer> getUnlockLayerNeededPoints() { return unlockLayerNeededPoints; }
     public List<String> getAllSkillIds() {
-        List<String> skillIds = new java.util.ArrayList<>();
+        List<String> skillIds = new ArrayList<>();
         for (SkillNode skillNode : skillNodes)
             skillIds.add(skillNode.skillId);
         return skillIds;
     }
     public List<String> getSkillIdsInLayer(int layer) {
-        List<String> skillIds = new java.util.ArrayList<>();
+        List<String> skillIds = new ArrayList<>();
         for (SkillNode skillNode : skillNodes)
             if (skillNode.layer == layer)
                 skillIds.add(skillNode.skillId);
@@ -64,7 +65,7 @@ public class SkillTreeTemplate {
         return -1;
     }
     public List<String> getPrerequisiteSkillIds(String skillId) {
-        List<String> prerequisiteSkillIds = new java.util.ArrayList<>();
+        List<String> prerequisiteSkillIds = new ArrayList<>();
         for (SkillNode skillNode : skillNodes)
             if (skillNode.skillId.equals(skillId))
                 prerequisiteSkillIds = skillNode.prerequisiteSkillIds;

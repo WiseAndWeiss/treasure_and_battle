@@ -1,6 +1,7 @@
 package com.example.treasure_and_battle.utils;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -113,7 +114,7 @@ public class RandomUtils {
         }
 
         // 先打乱列表，再取前count个
-        List<T> shuffled = new java.util.ArrayList<>(list);
+        List<T> shuffled = new ArrayList<>(list);
         shuffleList(shuffled);
         return shuffled.subList(0, count);
     }
