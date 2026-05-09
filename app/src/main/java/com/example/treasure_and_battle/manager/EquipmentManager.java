@@ -3,6 +3,8 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
+
+import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.EquipItem;
@@ -95,6 +97,10 @@ public class EquipmentManager {
         }
 
         EquipItem equip = new EquipItem(template.getEquipId(), template.getName(), rarity, level * 10, level, slot);
+        int iconRes = resolveEquipIconRes(template.getEquipId());
+        if (iconRes != 0) {
+            equip.setIconResId(iconRes);
+        }
 
         // 核心属性分配
         double basePower = calculateBasePower(level);

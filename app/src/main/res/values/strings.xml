@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">treasure_and_battle</string>
+    <string name="item_detail_close">关闭</string>
 </resources>
