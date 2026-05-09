@@ -20,4 +20,18 @@
         <item name="android:textAppearanceLargePopupMenu">@style/Tb.TextAppearance.PopupMenu</item>
         <item name="android:textAppearanceSmallPopupMenu">@style/Tb.TextAppearance.PopupMenu</item>
     </style>
+
+    <!-- 勿使用 Widget.Tb.xxx 命名：AAPT 会要求存在父样式 Widget.Tb -->
+    <style name="TbBattleCommand">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_tab_idle</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/tb_text_main</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

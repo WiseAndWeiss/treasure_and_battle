@@ -61,8 +61,12 @@ public class MainActivity extends AppCompatActivity {
 
     // 优雅切换 Fragment 避免每次重复销毁/重建实例和布局
     private void switchFragment(Fragment targetFragment) {
+        androidx.fragment.app.FragmentManager fm = getSupportFragmentManager();
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+        }
         if (activeFragment != targetFragment) {
-            getSupportFragmentManager().beginTransaction()
+            fm.beginTransaction()
                     .hide(activeFragment)
                     .show(targetFragment)
                     .commit();
