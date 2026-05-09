@@ -1,51 +1,63 @@
 package com.example.treasure_and_battle.character;
 
-
 import android.content.Context;
 
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.item.EquipItem;
+import com.example.treasure_and_battle.model.item.EquipSlot;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.profession.ProfessionManager;
 import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.skill.Skill;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 角色类
+ * 职责：管理持久数据（等级、经验、金币、天赋、装备、HP/MP），
+ * 通过 generatePlayer() 生成战斗用的 Player 快照。
+ */
 public class Character {
-    private Context mContext;
-    // ================ 基础信息 ================
-    private final int characterId;         // 角色唯一标识
-    private String name;                   // 角色名称
-    private Profession profession;         // 角色职业
-    private ProfessionType professionType; // 角色职业类型
+    private final Context mContext;
+    private final int characterId;
+    private String name;
+    private Profession profession;
+    private ProfessionType professionType;
 
-    // ================ 成长信息 ================
-    private int level;                // 等级
-    private int currentExp;           // 当前经验值
-    private int expToNextLevel;       // 升级所需经验值
-    private int talentPoints;         // 可用天赋点数
-    private int skillPoints;          // 可用技能点数
-    private int gold;                 // 金币数量
+    // ========== 等级与经验 ==========
+    private int level;
+    private int currentExp;
+    private int expToNextLevel;
 
-    // ================ 属性信息 ================
-    private AttributeSet baseAttributes;        // 角色基础属性系统
-    private AttributeSet finalAttributes;          // 角色属性系统
-    private Boolean finalAttributesDirtyFlag;      // 脏标记
-    private int currentHp;                         // 当前生命值
-    private int currentMp;                         // 当前魔法值
+    // ========== 资源 ==========
+    private int talentPoints;
+    private int skillPoints;
+    private int gold;
 
-    // ================ 装备系统 ================
-    // private CharacterEquipment equipments;        // 角色装备系统
+    // ========== HP/MP（跨战斗持久化） ==========
+    private int currentHp;
+    private int currentMp;
 
-    // ================ 技能系统 ================
-    // private CharacterSkills skills;          // 角色技能系统
-    // 这是一个伪属性，技能系统实际由Profession类管理，这里只提供接口
+    // ========== 装备 ==========
+    private Map<EquipSlot, EquipItem> equippedItems = new HashMap<>();
 
-    // ================ 物品仓库 ================
-    // private CharacterInventory inventory;       // 角色物品仓库系统
+    // ========== 天赋分配 ==========
+    private int allocatedStrength;
+    private int allocatedAgility;
+    private int allocatedIntelligence;
+    private int allocatedSpirit;
+    private int allocatedPhysique;
+    private int allocatedLuck;
 
-    // ================ 统计信息 ================
-    // private CharacterStats stats;            // 角色统计信息系统
+    // ========== 构造 ==========
 
-    // ================ 构造函数 ================
     public Character(int characterId, String name, ProfessionType professionType, Context context) {
         this.mContext = context;
         this.characterId = characterId;
@@ -54,111 +66,162 @@ public class Character {
         this.profession = ProfessionManager.getInstance(context).createProfession(professionType);
         this.level = 1;
         this.currentExp = 0;
-        this.expToNextLevel = expValueForLevel(level);
+        this.expToNextLevel = expValueForLevel(1);
         this.talentPoints = 0;
         this.skillPoints = 0;
         this.gold = 0;
-        // this.equipments = new CharacterEquipment();
-        // this.inventory = new CharacterInventory();
-        updateFinalAttributes();
-        int currentHp = this.finalAttributes.maxHp;
-        int currentMp = this.finalAttributes.maxMp;
-        // this.stats = new CharacterStats();
+        this.currentHp = 20;
+        this.currentMp = 10;
     }
 
-    // ================ Getter方法 ================
+    // ========== 经验与升级 ==========
+
+    public void gainExp(int expAmount) {
+        this.currentExp += expAmount;
+        while (this.currentExp >= this.expToNextLevel) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        this.currentExp -= this.expToNextLevel;
+        this.level++;
+        this.expToNextLevel = expValueForLevel(this.level);
+        this.talentPoints += 1;
+        this.skillPoints += 2;
+    }
+
+    private int expValueForLevel(int level) {
+        int BASE_EXP = 100;
+        int OFFSET_EXP = 3;
+        return BASE_EXP * (level * level + OFFSET_EXP * level);
+    }
+
+    // ========== 天赋分配 ==========
+
+    public boolean allocateTalentPoint(String attributeName) {
+        if (talentPoints <= 0) return false;
+
+        switch (attributeName.toUpperCase()) {
+            case "STRENGTH":   allocatedStrength++;   talentPoints--; break;
+            case "AGILITY":    allocatedAgility++;    talentPoints--; break;
+            case "INTELLIGENCE": allocatedIntelligence++; talentPoints--; break;
+            case "SPIRIT":     allocatedSpirit++;     talentPoints--; break;
+            case "PHYSIQUE":   allocatedPhysique++;   talentPoints--; break;
+            case "LUCK":       allocatedLuck++;       talentPoints--; break;
+            default: return false;
+        }
+        return true;
+    }
+
+    public void resetAllTalentPoints() {
+        talentPoints += allocatedStrength + allocatedAgility + allocatedIntelligence
+                + allocatedSpirit + allocatedPhysique + allocatedLuck;
+        allocatedStrength = 0;
+        allocatedAgility = 0;
+        allocatedIntelligence = 0;
+        allocatedSpirit = 0;
+        allocatedPhysique = 0;
+        allocatedLuck = 0;
+    }
+
+    // ========== 装备 ==========
+
+    public EquipItem equip(EquipItem item) {
+        if (item == null) return null;
+        return equippedItems.put(item.getSlot(), item);
+    }
+
+    public EquipItem unequip(EquipSlot slot) {
+        return equippedItems.remove(slot);
+    }
+
+    public EquipItem getEquippedItem(EquipSlot slot) {
+        return equippedItems.get(slot);
+    }
+
+    public Collection<EquipItem> getEquippedItems() {
+        return equippedItems.values();
+    }
+
+    // ========== 生成战斗实体 ==========
+
+    public Player generatePlayer() {
+        Player player = new Player(name, mContext);
+        player.owner = this;
+
+        injectBaseAttributes(player);
+        player.copyEquipmentFrom(this.equippedItems);
+        player.setLevel(level);
+        player.setCurrentHp(Math.min(currentHp, player.getFinalAttributes().maxHp));
+        player.setCurrentMp(Math.min(currentMp, player.getFinalAttributes().maxMp));
+
+        injectSkills(player);
+
+        return player;
+    }
+
+    private void injectBaseAttributes(Player player) {
+        AttributeSet base = player.getBaseAttributes();
+        base.strength = allocatedStrength;
+        base.agility = allocatedAgility;
+        base.intelligence = allocatedIntelligence;
+        base.spirit = allocatedSpirit;
+        base.physique = allocatedPhysique;
+        base.luck = allocatedLuck;
+
+        player.markAttributeCacheDirty();
+    }
+
+    private void injectSkills(Player player) {
+        if (profession == null) return;
+
+        for (Skill skill : profession.getLearnedActiveSkill()) {
+            if (skill instanceof ActiveSkill) {
+                player.addActiveSkill((ActiveSkill) skill);
+            }
+        }
+        List<PassiveSkill> passiveSkills = new ArrayList<>();
+        for (Skill skill : profession.getLearnedPassiveSkill()) {
+            if (skill instanceof PassiveSkill) {
+                passiveSkills.add((PassiveSkill) skill);
+            }
+        }
+        player.setPassiveSkillList(passiveSkills);
+    }
+
+    // ========== 战斗后同步 ==========
+
+    public void syncFromPlayer(Player player) {
+        this.currentHp = player.getCurrentHp();
+        this.currentMp = player.getCurrentMp();
+        // 消耗品变化由 InventoryManager 单例自动反映
+    }
+
+    // ========== Getter ==========
+
+    public Context getContext() { return mContext; }
     public int getCharacterId() { return characterId; }
     public String getName() { return name; }
-    public String getProfessionType() { return professionType.toString(); }
+    public void setName(String name) { this.name = name; }
+    public Profession getProfession() { return profession; }
+    public ProfessionType getProfessionType() { return professionType; }
     public int getLevel() { return level; }
     public int getCurrentExp() { return currentExp; }
     public int getExpToNextLevel() { return expToNextLevel; }
     public int getTalentPoints() { return talentPoints; }
     public int getSkillPoints() { return skillPoints; }
     public int getGold() { return gold; }
+    public void addGold(int amount) { this.gold += amount; }
+    public boolean spendGold(int amount) { if (this.gold < amount) return false; this.gold -= amount; return true; }
     public int getCurrentHp() { return currentHp; }
+    public void setCurrentHp(int hp) { this.currentHp = hp; }
     public int getCurrentMp() { return currentMp; }
-    public AttributeSet getCharacterAttributes() {
-        if (finalAttributesDirtyFlag)
-            updateFinalAttributes();
-        AttributeSet attributes = new AttributeSet();
-        attributes.copyFrom(this.finalAttributes);
-        return attributes;
-    }
-    public int getMaxHp() { 
-        if (finalAttributesDirtyFlag)
-            updateFinalAttributes();
-        return this.finalAttributes.maxHp;
-    }
-    public int getMaxMp() {
-        if (finalAttributesDirtyFlag)
-            updateFinalAttributes();
-        return this.finalAttributes.maxMp;
-    }
-
-    // ================ Setter方法 ================
-    public void setName(String name) { this.name = name; }
-    public boolean addExp(int exp) { // 该方法在经验溢出自动升级时返回true，否则返回false
-        this.currentExp += exp;
-        if (this.currentExp >= this.expToNextLevel) {
-            levelUp();
-            return true;
-        }
-        return false;
-    }
-    public void levelUp() {
-        while(currentExp >= expToNextLevel) {
-            currentExp -= expToNextLevel;
-            level++;
-            expToNextLevel = expValueForLevel(level);
-            talentPoints += 1;
-            skillPoints += 2;
-            finalAttributesDirtyFlag = true;
-            currentHp = getMaxHp();
-            currentMp = getMaxMp();
-        }
-    }
-    public int addGold(int gold) { this.gold += gold; return this.gold; }
-    public int spendGold(int gold) { this.gold -= gold; return this.gold; }
-    public void changeCurrentHp(int offset) { this.currentHp += offset; }
-    public void setCurrentHp(int currentHp) { this.currentHp = currentHp; }
-    public void changeCurrentMp(int offset) { this.currentMp += offset; }
-    public void setCurrentMp(int currentMp) { this.currentMp = currentMp; }
-    // TODO: 添加其他Setter方法：装备系统、技能系统、物品仓库、统计信息等
-
-    // ================ 其他方法 ================
-    public Player generatePlayer() {
-        // TODO: 生成即时的Player对象，以供战斗系统使用
-        return null;
-    }
-//    public void onBattleFinished(BattleResult result) {
-//        // TODO: 处理战斗结束后的逻辑，如更新角色状态、处理战斗奖励等
-//    }
-    public boolean saveCharacter() {
-        // TODO: 保存角色信息到数据库
-        return true;
-    }
-    public static Character loadCharacter(int characterId) {
-        // TODO: 从数据库加载角色信息
-        return null;
-    }
-
-
-    // ================ 私有方法 ================
-    private int expValueForLevel(int level) {
-        int BASE_EXP = 100;
-        int OFFSET_EXP = 3; 
-        // 经验值计算公式（示例）
-        return BASE_EXP * (level * level  + OFFSET_EXP * level);
-    }
-
-    private int updateFinalAttributes() {
-        // TODO
-//        this.finalAttributes = new AttributeSet()
-//            .addAttributes(this.baseAttributes)
-//            .addAttributes(this.equipments.getEquipmentsAttributes());
-//        this.finalAttributesDirtyFlag = false;
-//        return this.finalAttributes;
-        return 0;
-    }
+    public void setCurrentMp(int mp) { this.currentMp = mp; }
+    public int getAllocatedStrength() { return allocatedStrength; }
+    public int getAllocatedAgility() { return allocatedAgility; }
+    public int getAllocatedIntelligence() { return allocatedIntelligence; }
+    public int getAllocatedSpirit() { return allocatedSpirit; }
+    public int getAllocatedPhysique() { return allocatedPhysique; }
+    public int getAllocatedLuck() { return allocatedLuck; }
 }

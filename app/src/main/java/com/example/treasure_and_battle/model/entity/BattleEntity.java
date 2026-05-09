@@ -202,6 +202,20 @@ public abstract class BattleEntity {
         this.entityAffixList = new ArrayList<>(affixList);
         markAttributeCacheDirty();
     }
+    public void addAffix(BaseAffix affix) {
+        if (affix != null) {
+            this.entityAffixList.add(affix);
+        }
+    }
+
+    // ====================== 主动技能管理 ======================
+
+    public void addActiveSkill(ActiveSkill skill) {
+        if (activeSkillList == null) {
+            activeSkillList = new ArrayList<>();
+        }
+        activeSkillList.add(skill);
+    }
 
     // ====================== 被动技能管理 ======================
 
@@ -223,7 +237,12 @@ public abstract class BattleEntity {
             passiveSkillList = new ArrayList<>();
         }
         passiveSkillList.add(passiveSkill);
-        markAttributeCacheDirty(); // 被动技能可能影响属性
+        markAttributeCacheDirty();
+    }
+
+    public void setPassiveSkillList(List<PassiveSkill> list) {
+        this.passiveSkillList = new ArrayList<>(list);
+        markAttributeCacheDirty();
     }
 
     /**

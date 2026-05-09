@@ -551,7 +551,9 @@ public class BattleManager {
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
             int finalExp = RewardCalculator.calculateExp(ctx.player, ctx.monsters);
             int finalGold = RewardCalculator.calculateGold(ctx.player, ctx.monsters);
-            ctx.player.gainExp(finalExp);
+            if (ctx.player.owner != null) {
+                ctx.player.owner.gainExp(finalExp);
+            }
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
 
             // 掉落物生成 → 存入待领取列表（玩家可选择拿取/全部拿取）

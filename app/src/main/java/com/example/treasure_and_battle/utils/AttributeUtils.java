@@ -33,9 +33,9 @@ public class AttributeUtils {
         modifiers.debuffResist = 0f;
 
         if (entity instanceof Player) {
-            applyPlayerSpecificBonus((Player) entity, modifiers, context);      
+            applyPlayerEquipmentBonus((Player) entity, modifiers);
         } else if (entity instanceof Monster) {
-            applyMonsterSpecificBonus((Monster) entity, modifiers, context);    
+            applyEntityAffixBonus((Monster) entity, modifiers);
         }
 
         BuffManager.getInstance(context).applyAllBuffAttributeBonus(modifiers, entity);
@@ -118,8 +118,15 @@ public class AttributeUtils {
         return finalAttr;  // 返回计算结果
     }
 
-    // ====================== 玩家专属加成逻辑 ======================     
-    private static void applyPlayerSpecificBonus(Player player, AttributeSet modifiers, Context context) {
+    private static void applyEntityAffixBonus(BattleEntity entity, AttributeSet modifiers) {
+        for (com.example.treasure_and_battle.affix.BaseAffix affix : entity.getEntityAffixList()) {
+            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
+                affix.applyAttributeBonus(modifiers);
+            }
+        }
+    }
+
+    private static void applyPlayerEquipmentBonus(Player player, AttributeSet modifiers) {
         for (com.example.treasure_and_battle.model.item.EquipItem item : player.getEquippedItems()) {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
@@ -130,15 +137,6 @@ public class AttributeUtils {
                 }
             }
             modifiers.add(item.getTotalGemBonuses());
-        }
-    }
-
-    // ====================== 怪物专属加成逻辑 ======================    
-    private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
-            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
-                affix.applyAttributeBonus(modifiers);
-            }
         }
     }
 
