@@ -1,7 +1,8 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.skill;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;

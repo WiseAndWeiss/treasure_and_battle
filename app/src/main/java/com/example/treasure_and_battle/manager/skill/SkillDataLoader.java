@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.skill;
 
 import android.content.Context;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

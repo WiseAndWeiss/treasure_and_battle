@@ -5,7 +5,7 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.attribute.WeaknessDebuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;

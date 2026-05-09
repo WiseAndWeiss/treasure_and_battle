@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.battle;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
@@ -9,6 +9,7 @@ import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
 
+import com.example.treasure_and_battle.manager.skill.PassiveSkillManager;
 import com.example.treasure_and_battle.manager.affix.AffixManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.TriggerType;

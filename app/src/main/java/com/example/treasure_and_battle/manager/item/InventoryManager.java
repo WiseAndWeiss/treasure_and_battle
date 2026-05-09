@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import com.example.treasure_and_battle.model.item.Item;
 import java.util.ArrayList;

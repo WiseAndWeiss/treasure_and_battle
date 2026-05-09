@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;

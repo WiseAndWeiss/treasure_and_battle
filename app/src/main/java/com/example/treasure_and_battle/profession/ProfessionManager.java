@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.profession;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

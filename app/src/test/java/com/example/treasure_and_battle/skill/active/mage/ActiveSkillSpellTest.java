@@ -1,10 +1,9 @@
 package com.example.treasure_and_battle.skill.active.mage;
 
-import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.control.SlowDebuff;
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.active.ActiveSkillTestBase;

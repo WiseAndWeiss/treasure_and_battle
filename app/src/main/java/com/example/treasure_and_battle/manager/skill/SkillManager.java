@@ -1,6 +1,7 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.skill;
 
 import android.content.Context;
+
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.model.skill.SkillTreeTemplate;
 import com.example.treasure_and_battle.skill.Skill;
@@ -9,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;

@@ -1,6 +1,7 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.skill;
 
 import android.content.Context;
+
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.Skill;
 

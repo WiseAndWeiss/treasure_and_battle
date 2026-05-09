@@ -1,6 +1,7 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import android.content.Context;
+
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableTemplate;

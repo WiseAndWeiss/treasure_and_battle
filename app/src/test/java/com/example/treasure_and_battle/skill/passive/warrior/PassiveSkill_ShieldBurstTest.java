@@ -2,7 +2,6 @@ package com.example.treasure_and_battle.skill.passive.warrior;
 
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
-import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkillTestBase;
 

@@ -1,10 +1,12 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.manager.battle.DamageManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;

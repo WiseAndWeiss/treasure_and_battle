@@ -1,6 +1,7 @@
 package com.example.treasure_and_battle.skill.passive;
 
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 
@@ -105,7 +106,7 @@ public abstract class PassiveSkill extends Skill {
      * @param context 战斗上下文
      * @param battleManager 战斗管理器（用于触发AOE伤害等效果）
      */
-    public void onShieldBreak(BattleEntity owner, BattleEntity attacker, BattleContext context, com.example.treasure_and_battle.manager.BattleManager battleManager) {
+    public void onShieldBreak(BattleEntity owner, BattleEntity attacker, BattleContext context, BattleManager battleManager) {
         // 子类重写
     }
 
