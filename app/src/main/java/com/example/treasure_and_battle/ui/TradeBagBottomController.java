@@ -26,11 +26,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.manager.EquipmentManager;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.EquipSlot;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,22 +115,21 @@ public final class TradeBagBottomController {
     }
 
     private void initDummyData() {
-        allItems = new ArrayList<>(totalPages * itemsPerPage);
-        for (int i = 0; i < totalPages * itemsPerPage; i++) {
-            if (i == 0) {
-                allItems.add(EquipmentManager.getInstance(host.requireContext()).generateEquip(3001, 1, Rarity.COMMON));
-            } else if (i == 1) {
-                allItems.add(EquipmentManager.getInstance(host.requireContext()).generateEquip(3003, 10, Rarity.LEGENDARY));
-            } else {
-                allItems.add(null);
-            }
+        allItems = InventoryGridSync.getSharedBagGrid(host.requireContext());
+    }
+
+    /** 从 {@link InventoryManager} 刷新网格显示（与背包页共用数据时调用） */
+    public void reloadFromInventory() {
+        InventoryGridSync.reloadSharedGridFromManager();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
         }
     }
 
     /** 商人购入放入背包 */
     public boolean tryPutInFirstEmptySlot(@NonNull Item item) {
-        int cap = (totalPages - 1) * itemsPerPage;
-        for (int i = 0; i < cap && i < allItems.size(); i++) {
+        int cap = Math.min(InventoryGridSync.BAG_SLOT_COUNT, allItems.size());
+        for (int i = 0; i < cap; i++) {
             if (allItems.get(i) == null) {
                 allItems.set(i, item);
                 if (adapter != null) {
@@ -146,9 +143,9 @@ public final class TradeBagBottomController {
 
     /** 与 {@link #tryPutInFirstEmptySlot} 使用相同的索引范围，用于估算可放入数量 */
     public int countEmptySlots() {
-        int cap = (totalPages - 1) * itemsPerPage;
+        int cap = Math.min(InventoryGridSync.BAG_SLOT_COUNT, allItems.size());
         int n = 0;
-        for (int i = 0; i < cap && i < allItems.size(); i++) {
+        for (int i = 0; i < cap; i++) {
             if (allItems.get(i) == null) {
                 n++;
             }
@@ -383,11 +380,11 @@ public final class TradeBagBottomController {
     }
 
     private void compactItemsByFilter(@NonNull EquipSlot slot) {
-        int unlockedCapacity = (totalPages - 1) * itemsPerPage;
+        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
         List<Item> matches = new ArrayList<>();
         List<Item> others = new ArrayList<>();
 
-        for (int i = 0; i < unlockedCapacity; i++) {
+        for (int i = 0; i < bagCapacity; i++) {
             Item item = allItems.get(i);
             if (item instanceof EquipItem && ((EquipItem) item).getSlot() == slot) {
                 matches.add(item);
@@ -406,11 +403,11 @@ public final class TradeBagBottomController {
     }
 
     private void compactAllItemsForward() {
-        int unlockedCapacity = (totalPages - 1) * itemsPerPage;
+        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
         List<Item> nonEmptyItems = new ArrayList<>();
         int emptyCount = 0;
 
-        for (int i = 0; i < unlockedCapacity; i++) {
+        for (int i = 0; i < bagCapacity; i++) {
             Item item = allItems.get(i);
             if (item == null) {
                 emptyCount++;
@@ -469,7 +466,6 @@ public final class TradeBagBottomController {
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                if (currentPage == totalPages) return makeMovementFlags(0, 0); // 第5页写死锁定，禁止拖拽起步
                 int uiPos = viewHolder.getAdapterPosition();
                 if (uiPos == RecyclerView.NO_POSITION) return makeMovementFlags(0, 0);
                 int realPos = (currentPage - 1) * itemsPerPage + uiPos;
@@ -533,9 +529,7 @@ public final class TradeBagBottomController {
                         int realFrom = (dragStartPage - 1) * itemsPerPage + dragStartUiPosition;
                         int realTo = (currentPage - 1) * itemsPerPage + dragToUiPosition;
 
-                        if (!handledEquipDrop && currentPage == totalPages && realFrom != realTo) {
-                            Toast.makeText(host.getContext(), "该页面未解锁，无法放置", Toast.LENGTH_SHORT).show();
-                        } else if (!handledEquipDrop && realFrom != realTo) {
+                        if (!handledEquipDrop && realFrom != realTo) {
                             // 纯粹地交换原目标格和新目标格的数据
                             Item temp = allItems.get(realFrom);
                             allItems.set(realFrom, allItems.get(realTo));
@@ -633,17 +627,7 @@ public final class TradeBagBottomController {
                             int realPosition = (currentPage - 1) * itemsPerPage + dragStartUiPosition;
                             Item holeItem = allItems.get(realPosition);
 
-                            if (currentPage == totalPages) {
-                                holeHolder.tvItemName.setText("");
-                                holeHolder.tvItemLevel.setVisibility(View.GONE);
-                                bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
-                                holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                bindBagItemIcon(holeHolder.ivItemIcon, android.R.drawable.ic_secure);
-                                holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                                holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                                        ContextCompat.getColor(host.requireContext(), R.color.tb_slot_locked)
-                                ));
-                            } else if (holeItem == null) {
+                            if (holeItem == null) {
                                 holeHolder.tvItemName.setText("");
                                 holeHolder.tvItemLevel.setVisibility(View.GONE);
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
@@ -837,17 +821,7 @@ public final class TradeBagBottomController {
                 holder.itemView.setScaleY(0.85f);
             }
 
-            if (currentPage == totalPages) {
-                holder.tvItemName.setText("");
-                holder.tvItemLevel.setVisibility(View.GONE);
-                bindBagStackCountBadge(holder.tvBagStackCount, null);
-                holder.ivItemIcon.setVisibility(View.VISIBLE);
-                bindBagItemIcon(holder.ivItemIcon, android.R.drawable.ic_secure);
-                holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(host.requireContext(), R.color.tb_slot_locked)
-                ));
-            } else if (item == null) {
+            if (item == null) {
                 holder.tvItemName.setText("");
                 holder.tvItemLevel.setVisibility(View.GONE);
                 bindBagStackCountBadge(holder.tvBagStackCount, null);
@@ -874,10 +848,6 @@ public final class TradeBagBottomController {
             }
 
             holder.itemView.setOnClickListener(v -> {
-                if (currentPage == totalPages) {
-                    Toast.makeText(host.getContext(), "该页面为未解锁区域，后续功能开放", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 if (item != null) {
                     showItemMenu(v, realPosition, item);
                 }
@@ -902,11 +872,15 @@ public final class TradeBagBottomController {
                         break;
                     case 2:
                         SellItemDialog.show(host.requireActivity(), allItems, realPosition, item,
-                                () -> adapter.notifyDataSetChanged(),
+                                () -> {
+                                    InventoryGridSync.flushSharedGridToManager();
+                                    adapter.notifyDataSetChanged();
+                                },
                                 host::addGoldFromSell);
                         break;
                     case 3:
                         allItems.set(realPosition, null);
+                        InventoryGridSync.flushSharedGridToManager();
                         adapter.notifyDataSetChanged();
                         Toast.makeText(host.getContext(), "已丢弃" + item.getName(), Toast.LENGTH_SHORT).show();
                         break;
