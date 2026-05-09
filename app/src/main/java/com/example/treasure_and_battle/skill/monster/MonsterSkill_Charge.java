@@ -1,0 +1,35 @@
+package com.example.treasure_and_battle.skill.monster;
+
+import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.battle.log.LogType;
+import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.skill.SkillTemplate;
+
+import java.util.List;
+
+/**
+ * 冲撞 (通用) - 怪物主动技能
+ * 蓄力冲锋，以身体撞击敌人，对单体造成{x}%物理伤害
+ */
+public class MonsterSkill_Charge extends MonsterActiveSkill {
+    public MonsterSkill_Charge(SkillTemplate template) {
+        super(template);
+    }
+
+    @Override
+    public void onCast(BattleEntity caster, List<BattleEntity> targets, BattleManager battleManager) {
+        if (targets.isEmpty()) return;
+
+        BattleEntity target = targets.get(0);
+        BattleContext context = battleManager.getContext();
+
+        int damagePercent = getEffectParams().x;
+        int baseDamage = (int) (caster.getFinalAttributes().physicalAtk * damagePercent / 100.0f);
+        int damageDealt = battleManager.dealPhysicalDamage(caster, target, baseDamage, context);
+
+        context.addLog(LogType.ACTION,
+                "【冲撞】[%s] 蓄力冲锋撞击 [%s]，造成 %d 点伤害",
+                caster.getName(), target.getName(), damageDealt);
+    }
+}

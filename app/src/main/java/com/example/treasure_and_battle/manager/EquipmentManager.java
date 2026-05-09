@@ -1,6 +1,10 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
+import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
+import com.example.treasure_and_battle.model.affix.EquipAffixScope;
+
+import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.EquipItem;
@@ -11,6 +15,7 @@ import com.example.treasure_and_battle.manager.EquipAffixManager;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +97,10 @@ public class EquipmentManager {
         }
 
         EquipItem equip = new EquipItem(template.getEquipId(), template.getName(), rarity, level * 10, level, slot);
+        int iconRes = resolveEquipIconRes(template.getEquipId());
+        if (iconRes != 0) {
+            equip.setIconResId(iconRes);
+        }
 
         // 核心属性分配
         double basePower = calculateBasePower(level);
@@ -129,10 +138,77 @@ public class EquipmentManager {
 
         // 附加装备词缀系统，并与属性引擎解耦（交给EquipAffixManager和保底引擎去生成分配）
         List<BaseAffix> baseAffixes = new java.util.ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
+        applyEquipmentOnlyAffixes(equip, baseAffixes);
         equip.setAffixes(baseAffixes);
 
         return equip;
     }
+
+    public EquipItem generateRandomEquip(int level, Rarity rarity) {
+        if (templateMap.isEmpty()) return null;
+        List<EquipTemplate> templates = new ArrayList<>(templateMap.values());
+        EquipTemplate template = templates.get(random.nextInt(templates.size()));
+        return generateEquip(template.getTemplateId(), level, rarity);
+    }
+
+    private void applyEquipmentOnlyAffixes(EquipItem equip, List<BaseAffix> affixes) {
+        if (equip == null || affixes == null || affixes.isEmpty()) {
+            return;
+        }
+
+        AttributeSet equipmentOnlyModifiers = new AttributeSet();
+        boolean hasEquipmentOnlyAffix = false;
+
+        for (BaseAffix affix : affixes) {
+            if (!(affix instanceof EquipAttributeAffix)) {
+                continue;
+            }
+
+            EquipAttributeAffix equipAffix = (EquipAttributeAffix) affix;
+            if (equipAffix.getAffixScope() != EquipAffixScope.EQUIPMENT_ONLY) {
+                continue;
+            }
+
+            equipAffix.applyToEquipmentAttributeBonus(equipmentOnlyModifiers);
+            hasEquipmentOnlyAffix = true;
+        }
+
+        if (!hasEquipmentOnlyAffix) {
+            return;
+        }
+
+        applyModifiersToEquipmentBaseAttributes(equip.getBaseAttributes(), equipmentOnlyModifiers);
+    }
+
+    private void applyModifiersToEquipmentBaseAttributes(AttributeSet base, AttributeSet modifiers) {
+        base.strength = (int) (base.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
+        base.agility = (int) (base.agility * (1f + modifiers.percentAgility)) + modifiers.agility;
+        base.intelligence = (int) (base.intelligence * (1f + modifiers.percentIntelligence)) + modifiers.intelligence;
+        base.spirit = (int) (base.spirit * (1f + modifiers.percentSpirit)) + modifiers.spirit;
+        base.physique = (int) (base.physique * (1f + modifiers.percentPhysique)) + modifiers.physique;
+        base.luck = (int) (base.luck * (1f + modifiers.percentLuck)) + modifiers.luck;
+
+        base.maxHp = (int) (base.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
+        base.maxMp = (int) (base.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
+        base.maxActionPoints += modifiers.maxActionPoints;
+
+        base.physicalAtk = (int) (base.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
+        base.magicalAtk = (int) (base.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
+        base.physicalDef = (int) (base.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
+        base.magicalDef = (int) (base.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
+        base.speed = (int) (base.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
+
+        base.physicalCritRate += modifiers.physicalCritRate;
+        base.physicalCritDmg += modifiers.physicalCritDmg;
+        base.magicalCritRate += modifiers.magicalCritRate;
+        base.magicalCritDmg += modifiers.magicalCritDmg;
+        base.hitRate += modifiers.hitRate;
+        base.dodgeRate += modifiers.dodgeRate;
+        base.debuffResist += modifiers.debuffResist;
+        base.damageReductionRate += modifiers.damageReductionRate;
+    }
+
+
 
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;

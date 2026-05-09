@@ -1,8 +1,11 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.common.TriggerType;
+
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
-import com.example.treasure_and_battle.model.affix.AffixTriggerType;
+import com.example.treasure_and_battle.affix.MonsterAffixFactory;
+
 import com.example.treasure_and_battle.model.affix.MonsterAffixTemplate;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -37,7 +40,7 @@ public class MonsterAffixManager {
         return instance;
     }
 
-    private void loadTemplates() {
+    public void loadTemplates() {
         try {
             InputStream is = context.getAssets().open("monster_affix_config.json");
             int size = is.available();
@@ -63,24 +66,7 @@ public class MonsterAffixManager {
 
         float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
         Rarity rarity = Rarity.fromId(template.getRarityId());
-        AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
-
-        try {
-            Class<?> affixClass = Class.forName(template.getAffixClass());
-            return (BaseMonsterAffix) affixClass.getConstructor(
-                    int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class
-            ).newInstance(
-                    template.getTemplateId(),
-                    template.getAffixName(),
-                    template.getDescriptionFormat(),
-                    rarity,
-                    triggerType,
-                    randomValue
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return createAffixFromTemplate(template, rarity, randomValue);
     }
 
     // 随机给怪物生成词缀：可以结合引擎，这里直接随机
@@ -95,33 +81,23 @@ public class MonsterAffixManager {
 
             float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
             Rarity rarity = Rarity.fromId(template.getRarityId());
-            AffixTriggerType triggerType = AffixTriggerType.valueOf(template.getTriggerType());
-
-            try {
-                Class<?> affixClass = Class.forName(template.getAffixClass());
-                BaseMonsterAffix affix = (BaseMonsterAffix) affixClass.getConstructor(
-                        int.class, String.class, String.class, Rarity.class, AffixTriggerType.class, float.class
-                ).newInstance(
-                        template.getTemplateId(),
-                        template.getAffixName(),
-                        template.getDescriptionFormat(),
-                        rarity,
-                        triggerType,
-                        randomValue
-                );
+            BaseMonsterAffix affix = createAffixFromTemplate(template, rarity, randomValue);
+            if (affix != null) {
                 affixList.add(affix);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
         return affixList;
     }
 
-    private MonsterAffixTemplate getRandomTemplate() {
+    public MonsterAffixTemplate getRandomTemplate() {
         List<MonsterAffixTemplate> validTemplates = new ArrayList<>(templateMap.values());
         if (validTemplates.isEmpty()) return null;
         return validTemplates.get(RandomUtils.getRandomInt(0, validTemplates.size() - 1));
+    }
+
+    public BaseMonsterAffix createAffixFromTemplate(MonsterAffixTemplate template, Rarity rarity, float randomValue) {
+        return MonsterAffixFactory.create(template, rarity, template.getTriggerType(), randomValue);
     }
 
     private static class ConfigWrapper {

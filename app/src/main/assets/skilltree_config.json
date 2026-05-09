@@ -1,0 +1,47 @@
+{
+  "skill_tree_templates": [
+    {
+      "templateId": 10101,
+      "skillTreeId": "warrior_active_tree",
+      "skillTreeType": "ACTIVE",
+      "skillNodes": [
+        {"skillId": "slash", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "battle_stance", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "whirlwind_slash", "prerequisiteSkillIds": ["slash", "battle_stance"], "layer": 1},
+        {"skillId": "firm_as_rock", "prerequisiteSkillIds": ["whirlwind_slash"], "layer": 1},
+        {"skillId": "counter_stance", "prerequisiteSkillIds": ["whirlwind_slash"], "layer": 1},
+        {"skillId": "blood_fury_slash", "prerequisiteSkillIds": ["whirlwind_slash"], "layer": 1},
+        {"skillId": "go_all_out", "prerequisiteSkillIds": ["whirlwind_slash"], "layer": 1},
+        {"skillId": "impenetrable", "prerequisiteSkillIds": ["firm_as_rock"], "layer": 2},
+        {"skillId": "shield_strike", "prerequisiteSkillIds": ["counter_stance"], "layer": 2},
+        {"skillId": "mad_slaughter_slash", "prerequisiteSkillIds": ["blood_fury_slash"], "layer": 2},
+        {"skillId": "wound_blood_suck", "prerequisiteSkillIds": ["go_all_out"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 15],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10102,
+      "skillTreeId": "warrior_passive_tree",
+      "skillTreeType": "PASSIVE",
+      "skillNodes": [
+        {"skillId": "strong_body", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "tough_guard", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "bloodthirsty", "prerequisiteSkillIds": ["strong_body", "tough_guard"], "layer": 1},
+        {"skillId": "brave_growth", "prerequisiteSkillIds": ["strong_body", "tough_guard"], "layer": 1},
+        {"skillId": "iron_will", "prerequisiteSkillIds": ["bloodthirsty"], "layer": 2},
+        {"skillId": "shield_burst", "prerequisiteSkillIds": ["brave_growth"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 10],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10103,
+      "skillTreeId": "warrior_event_tree",
+      "skillTreeType": "EVENT",
+      "skillNodes": [],
+      "unlockLayerNeededPoints": [0],
+      "maxLayer": 1
+    }
+  ]
+}

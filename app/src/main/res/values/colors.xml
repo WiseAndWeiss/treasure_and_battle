@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="purple_200">#FFD2B07B</color>
+    <color name="purple_500">#FF8A623B</color>
+    <color name="purple_700">#FF5D4128</color>
+    <color name="teal_200">#FFC58E55</color>
+    <color name="teal_700">#FF8F5E31</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="tb_bg_dark">#FF2F2117</color>
+    <color name="tb_bg_surface">#FF9D7750</color>
+    <color name="tb_panel">#FFD9C29A</color>
+    <color name="tb_panel_soft">#FFC9AD84</color>
+    <color name="tb_gold">#FF7B512C</color>
+    <color name="tb_gold_deep">#FF5F3A1D</color>
+    <color name="tb_battle">#FF944324</color>
+    <color name="tb_text_main">#FF301F12</color>
+    <color name="tb_text_sub">#FF583F2A</color>
+    <color name="tb_divider">#B37B5C3B</color>
+    <color name="tb_slot_empty">#FFC9AD84</color>
+    <color name="tb_slot_locked">#FF8D6D4B</color>
+    <!-- 物品格内等级数字：浅色 + 阴影描边，无底色块 -->
+    <color name="tb_slot_level_text">#FFFFF6E8</color>
 </resources>

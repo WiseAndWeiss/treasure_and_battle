@@ -2,15 +2,14 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.buff.BuffFactory;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
-import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffTemplate;
-import com.example.treasure_and_battle.model.buff.BuffTriggerType;
+import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
-import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -48,6 +47,10 @@ public class BuffManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }
+
     // ====================== 1. 加载Buff模板（对应AffixManager的加载逻辑） ======================
     private void loadBuffTemplates() {
         try {
@@ -73,68 +76,45 @@ public class BuffManager {
         BuffTemplate template = templateMap.get(templateId);
         if (template == null) return null;
 
-        // 随机生成Buff数值
         float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-        BuffType buffType = BuffType.valueOf(template.getBuffType());
-        BuffTriggerType triggerType = BuffTriggerType.valueOf(template.getTriggerType());
 
-        // 反射生成Buff实例，和AffixManager完全一致
-        try {
-            Class<?> buffClass = Class.forName(template.getBuffClass());
+        return BuffFactory.create(template, randomValue);
+    }
 
-            if (AttributeBuff.class.isAssignableFrom(buffClass)) {
-                if (template.getAttributeType() == null || template.getValueType() == null) {
-                    throw new IllegalArgumentException("AttributeBuff template missing attributeType/valueType: " + template.getBuffId());
-                }
-
-                AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
-                ValueType valueType = ValueType.valueOf(template.getValueType());
-
-                return (BaseBuff) buffClass.getConstructor(
-                        String.class, String.class, String.class,
-                        BuffType.class, boolean.class, int.class,
-                        int.class, boolean.class, float.class,
-                        AttributeType.class, ValueType.class
-                ).newInstance(
-                        template.getBuffId(),
-                        template.getBuffName(),
-                        template.getDescriptionFormat(),
-                        buffType,
-                        template.isDispellable(),
-                        template.getDefaultDuration(),
-                        template.getMaxStackCount(),
-                        template.isRefreshOnApply(),
-                        randomValue,
-                        attributeType,
-                        valueType
-                );
+    /**
+     * 通过稳定的buffId字符串查找并创建Buff实例
+     * 避免硬编码templateId，解耦代码与JSON配置中的数字ID
+     */
+    public BaseBuff createBuffByBuffId(String buffId) {
+        for (BuffTemplate template : templateMap.values()) {
+            if (template.getBuffId().equals(buffId)) {
+                float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
+                return BuffFactory.create(template, randomValue);
             }
-
-            BaseBuff buff = (BaseBuff) buffClass.getConstructor(
-                    String.class, String.class, String.class,
-                    BuffType.class, boolean.class, int.class,
-                    int.class, boolean.class, float.class
-            ).newInstance(
-                    template.getBuffId(),
-                    template.getBuffName(),
-                    template.getDescriptionFormat(),
-                    buffType,
-                    template.isDispellable(),
-                    template.getDefaultDuration(),
-                    template.getMaxStackCount(),
-                    template.isRefreshOnApply(),
-                    randomValue
-            );
-            return buff;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     // ====================== 3. Buff添加/移除/堆叠管理 ======================
     public void addBuff(BattleEntity entity, BaseBuff buff) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
+
+        // 特殊处理：流血debuff应该唯一，不同来源叠加层数
+        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+            for (BaseBuff existingBuff : buffList) {
+                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+                    // 叠加流血层数
+                    ((com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) existingBuff)
+                        .stackBleeding(buff.getStackCount());
+                    entity.markAttributeCacheDirty();
+                    return;
+                }
+            }
+            // 没有现有流血debuff，直接添加
+            buffList.add(buff);
+            entity.markAttributeCacheDirty();
+            return;
+        }
 
         // 相同Buff尝试堆叠
         for (BaseBuff existingBuff : buffList) {
@@ -191,6 +171,27 @@ public class BuffManager {
         }
     }
 
+    /**
+     * 回合结束时的buff处理（在tickBuffs之后调用）
+     * 用于处理特殊buff的回合结束逻辑
+     */
+    public void onRoundEnd(BattleEntity entity, BattleContext context) {
+        // 收集需要转化的ImpenetrableBuff
+        List<com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff> imprenetrableBuffs = new java.util.ArrayList<>();
+        List<BaseBuff> buffList = entity.getActiveBuffList();
+
+        for (BaseBuff buff : buffList) {
+            if (buff instanceof com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) {
+                imprenetrableBuffs.add((com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff) buff);
+            }
+        }
+
+        // 在遍历完成后进行护盾转化，避免ConcurrentModificationException
+        for (com.example.treasure_and_battle.buff.impl.skill.ImpenetrableBuff imprenetrableBuff : imprenetrableBuffs) {
+            imprenetrableBuff.convertToShieldOnRoundEnd(entity, context);
+        }
+    }
+
     // ====================== 5. 属性加成与触发调度 ======================
     public void applyAllBuffAttributeBonus(AttributeSet attributeSet, BattleEntity entity) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
@@ -199,7 +200,7 @@ public class BuffManager {
         }
     }
 
-    public void triggerBuffs(BattleEntity entity, BattleContext context, BuffTriggerType triggerType) {
+    public void triggerBuffs(BattleEntity entity, BattleContext context, TriggerType triggerType) {
         List<BaseBuff> buffList = entity.getActiveBuffList();
         for (BaseBuff buff : buffList) {
             if (buff.getTriggerType() == triggerType) {
@@ -208,6 +209,80 @@ public class BuffManager {
                     "【状态生效】[%s] 身上的 [%s] 状态被触发。", entity.getClass().getSimpleName(), buff.getBuffName());
                 
             }
+        }
+    }
+
+    // ====================== 事件触发方法 ======================
+
+    /**
+     * 触发"被攻击"事件的buff回调
+     */
+    public void triggerAttackedEvent(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAttacked(owner, attacker, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAttacked 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发"受到伤害前"事件的buff回调（可能修改伤害值）
+     */
+    public int triggerBeforeDamageReceivedEvent(BattleEntity owner, BattleEntity attacker, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        int modifiedDamage = damage;
+
+        for (BaseBuff buff : buffList) {
+            try {
+                modifiedDamage = buff.onBeforeDamageReceived(owner, attacker, modifiedDamage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onBeforeDamageReceived 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+
+        return modifiedDamage;
+    }
+
+    /**
+     * 触发"受到伤害后"事件的buff回调（HP扣除之后）
+     */
+    public void triggerAfterDamageReceivedEvent(BattleEntity owner, BattleEntity attacker, int actualHpDamage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAfterDamageReceived(owner, attacker, actualHpDamage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAfterDamageReceived 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 触发"造成伤害后"事件的buff回调
+     */
+    public void triggerAfterDamageDealtEvent(BattleEntity owner, BattleEntity target, int damage, BattleContext context) {
+        List<BaseBuff> buffList = owner.getActiveBuffList();
+        for (BaseBuff buff : buffList) {
+            try {
+                buff.onAfterDamageDealt(owner, target, damage, context);
+            } catch (Exception e) {
+                context.addLog(com.example.treasure_and_battle.battle.log.LogType.SYSTEM,
+                    "Buff [%s] onAfterDamageDealt 触发失败: %s", buff.getBuffName(), e.getMessage());
+            }
+        }
+    }
+
+    public void tickBuffsForAllMonsters(BattleContext context) {
+        if (context == null || context.monsters == null) return;
+        for (Monster m : context.monsters) {
+            if (m == null) continue;
+            tickBuffs(m);
         }
     }
 

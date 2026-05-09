@@ -10,6 +10,8 @@ pluginManagement {
         mavenCentral()
         // 高德地图仓库
         maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
         // 权限库仓库
         maven { url = uri("https://jitpack.io") }
         gradlePluginPortal()
@@ -25,6 +27,8 @@ dependencyResolutionManagement {
         mavenCentral()
         // 高德地图仓库
         maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
         // 权限库仓库
         maven { url = uri("https://jitpack.io") }
     }
