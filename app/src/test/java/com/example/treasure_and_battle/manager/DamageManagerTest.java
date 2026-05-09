@@ -3,12 +3,12 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.battle.DamageConfig;
-import com.example.treasure_and_battle.battle.DamageType;
+import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
-import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.battle.damage.DamageSource;
 import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
+import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -154,7 +154,7 @@ public class DamageManagerTest {
         resetHp();
         int before = testMonster.getCurrentHp();
         // 真伤：只看闪避，无视防御。命中率=1-0.05=0.95
-        damageManager.dealDamage(DamageConfig.trueDamage(com.example.treasure_and_battle.battle.DamageSource.ACTIVE_SKILL),
+        damageManager.dealDamage(DamageConfig.trueDamage(DamageSource.ACTIVE_SKILL),
                 testPlayer, testMonster, 100, battleContext);
 
         int damageTaken = before - testMonster.getCurrentHp();
@@ -239,7 +239,7 @@ public class DamageManagerTest {
         testMonster.getActiveBuffList().add(shield);
 
         int before = testMonster.getCurrentHp();
-        damageManager.dealDamage(DamageConfig.trueDamage(com.example.treasure_and_battle.battle.DamageSource.ACTIVE_SKILL),
+        damageManager.dealDamage(DamageConfig.trueDamage(DamageSource.ACTIVE_SKILL),
                 testPlayer, testMonster, 50, battleContext);
 
         int damageTaken = before - testMonster.getCurrentHp();
@@ -260,7 +260,7 @@ public class DamageManagerTest {
 
         int before = testMonster.getCurrentHp();
         // 穿甲：无视防御和减伤，但受护盾。100伤害 - 30护盾 = 70扣血
-        damageManager.dealDamage(DamageConfig.piercing(com.example.treasure_and_battle.battle.DamageSource.PIERCING),
+        damageManager.dealDamage(DamageConfig.piercing(DamageSource.PIERCING),
                 testPlayer, testMonster, 100, battleContext);
 
         int damageTaken = before - testMonster.getCurrentHp();
@@ -272,7 +272,7 @@ public class DamageManagerTest {
     public void testPiercingDamage_NoShield_FullDamage() {
         resetHp();
         int before = testMonster.getCurrentHp();
-        damageManager.dealDamage(DamageConfig.piercing(com.example.treasure_and_battle.battle.DamageSource.PIERCING),
+        damageManager.dealDamage(DamageConfig.piercing(DamageSource.PIERCING),
                 testPlayer, testMonster, 100, battleContext);
 
         int damageTaken = before - testMonster.getCurrentHp();
@@ -308,7 +308,7 @@ public class DamageManagerTest {
         testMonster.getActiveBuffList().add(reduction);
 
         int before = testMonster.getCurrentHp();
-        damageManager.dealDamage(DamageConfig.trueDamage(com.example.treasure_and_battle.battle.DamageSource.ACTIVE_SKILL),
+        damageManager.dealDamage(DamageConfig.trueDamage(DamageSource.ACTIVE_SKILL),
                 testPlayer, testMonster, 50, battleContext);
 
         int damageTaken = before - testMonster.getCurrentHp();
@@ -334,6 +334,6 @@ public class DamageManagerTest {
         resetHp();
         damageManager.dealDamage(DamageConfig.buffMagical(), null, testMonster, 10, battleContext);
         assertEquals("buff魔法伤害来源应为BUFF",
-                com.example.treasure_and_battle.battle.DamageSource.BUFF, battleContext.damageSource);
+                DamageSource.BUFF, battleContext.damageSource);
     }
 }

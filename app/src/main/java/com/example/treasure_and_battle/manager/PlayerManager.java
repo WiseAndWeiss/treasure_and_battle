@@ -1,8 +1,8 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
-import com.example.treasure_and_battle.model.entity.Player;
 
 public class PlayerManager {
     private static PlayerManager instance;
@@ -23,32 +23,31 @@ public class PlayerManager {
         instance = null;
     }
 
-    // ====================== 天赋点分配 ======================
+    // ====================== 天赋点分配（委托 Character） ======================
 
-    public boolean allocateTalentPoint(Player player, String attributeName) {
-        if (player == null || attributeName == null) return false;
-        boolean success = player.allocateTalentPoint(attributeName);
-        return success;
+    public boolean allocateTalentPoint(Character character, String attributeName) {
+        if (character == null || attributeName == null) return false;
+        return character.allocateTalentPoint(attributeName);
     }
 
-    public boolean allocateTalentPoint(Player player, AttributeType attributeType) {
-        return allocateTalentPoint(player, attributeType.name());
+    public boolean allocateTalentPoint(Character character, AttributeType attributeType) {
+        return allocateTalentPoint(character, attributeType.name());
     }
 
-    public void resetAllTalentPoints(Player player) {
-        if (player == null) return;
-        player.resetAllTalentPoints();
+    public void resetAllTalentPoints(Character character) {
+        if (character == null) return;
+        character.resetAllTalentPoints();
     }
 
-    public int getAllocatedStat(Player player, String attributeName) {
-        if (player == null) return 0;
+    public int getAllocatedStat(Character character, String attributeName) {
+        if (character == null) return 0;
         switch (attributeName.toUpperCase()) {
-            case "STRENGTH":    return player.getAllocatedStrength();
-            case "AGILITY":     return player.getAllocatedAgility();
-            case "INTELLIGENCE": return player.getAllocatedIntelligence();
-            case "SPIRIT":      return player.getAllocatedSpirit();
-            case "PHYSIQUE":    return player.getAllocatedPhysique();
-            case "LUCK":        return player.getAllocatedLuck();
+            case "STRENGTH":    return character.getAllocatedStrength();
+            case "AGILITY":     return character.getAllocatedAgility();
+            case "INTELLIGENCE": return character.getAllocatedIntelligence();
+            case "SPIRIT":      return character.getAllocatedSpirit();
+            case "PHYSIQUE":    return character.getAllocatedPhysique();
+            case "LUCK":        return character.getAllocatedLuck();
             default:            return 0;
         }
     }

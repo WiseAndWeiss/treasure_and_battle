@@ -8,7 +8,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
-import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 
 /**
  * 固若金汤Buff

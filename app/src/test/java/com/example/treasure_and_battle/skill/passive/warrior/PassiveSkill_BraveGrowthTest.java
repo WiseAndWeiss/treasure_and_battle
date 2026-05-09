@@ -3,8 +3,7 @@ package com.example.treasure_and_battle.skill.passive.warrior;
 import com.example.treasure_and_battle.model.common.TriggerType;
 
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.PassiveSkillManager;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.skill.PassiveSkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkillTestBase;

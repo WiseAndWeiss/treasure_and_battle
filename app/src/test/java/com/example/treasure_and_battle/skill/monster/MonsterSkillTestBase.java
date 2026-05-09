@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.skill.monster;
 
 import com.example.treasure_and_battle.manager.MonsterManager;
-import com.example.treasure_and_battle.manager.MonsterSkillManager;
+import com.example.treasure_and_battle.manager.skill.MonsterSkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;

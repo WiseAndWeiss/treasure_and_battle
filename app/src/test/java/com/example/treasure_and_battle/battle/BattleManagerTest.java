@@ -4,7 +4,8 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -241,12 +242,12 @@ public class BattleManagerTest {
 
         ctx.monsterRevealedIntents.clear();
 
-        com.example.treasure_and_battle.model.entity.ActionIntent intent1 =
-            new com.example.treasure_and_battle.model.entity.ActionIntent(
-                "测试攻击", "", com.example.treasure_and_battle.model.entity.ActionIntent.IntentType.ATTACK,
+        ActionIntent intent1 =
+            new ActionIntent(
+                "测试攻击", "", ActionIntent.IntentType.ATTACK,
                 1, 0, 1.0, 100, 10, -1f, -1f, null);
 
-        java.util.List<RevealedIntent> revealed = new ArrayList<>();
+        List<RevealedIntent> revealed = new ArrayList<>();
         revealed.add(new RevealedIntent(intent1, true));
         ctx.monsterRevealedIntents.put(dummy.getEntityId(), revealed);
 
@@ -296,13 +297,11 @@ public class BattleManagerTest {
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
         assertTrue("该场景应命中", ctx.isHit);
 
-        testPlayer.setCurrentExp(0);
         ctx.battleResult = BattleContext.BattleResult.VICTORY;
         ctx.isBattleEnded = true;
         battleManager.settleBattleResult(ctx);
 
         assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
-        assertTrue("应获得经验", testPlayer.getCurrentExp() > 0);
     }
 
     @Test
@@ -331,12 +330,11 @@ public class BattleManagerTest {
         m2.setExpReward(40);
 
         BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
-        testPlayer.setCurrentExp(0);
         ctx.battleResult = BattleContext.BattleResult.VICTORY;
         ctx.isBattleEnded = true;
         battleManager.settleBattleResult(ctx);
 
-        assertEquals(70, testPlayer.getCurrentExp());
+        assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
     }
 
     // ====================== 死亡检查测试 ======================

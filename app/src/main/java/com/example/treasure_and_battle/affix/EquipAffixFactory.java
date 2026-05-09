@@ -13,7 +13,7 @@ import com.example.treasure_and_battle.model.affix.EquipAffixTemplate;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
-import com.example.treasure_and_battle.model.item.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 
 public class EquipAffixFactory {
 

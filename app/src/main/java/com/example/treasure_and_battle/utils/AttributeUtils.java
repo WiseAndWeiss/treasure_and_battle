@@ -1,16 +1,12 @@
 package com.example.treasure_and_battle.utils;
 
-import com.example.treasure_and_battle.model.common.TriggerType;
-
 import android.content.Context;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.manager.BuffManager;
-import com.example.treasure_and_battle.manager.EquipmentManager;
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
 
 public class AttributeUtils {
     // 单例属性快照，避免频繁计算
@@ -33,9 +29,9 @@ public class AttributeUtils {
         modifiers.debuffResist = 0f;
 
         if (entity instanceof Player) {
-            applyPlayerSpecificBonus((Player) entity, modifiers, context);      
+            applyPlayerEquipmentBonus((Player) entity, modifiers);
         } else if (entity instanceof Monster) {
-            applyMonsterSpecificBonus((Monster) entity, modifiers, context);    
+            applyEntityAffixBonus((Monster) entity, modifiers);
         }
 
         BuffManager.getInstance(context).applyAllBuffAttributeBonus(modifiers, entity);
@@ -118,9 +114,16 @@ public class AttributeUtils {
         return finalAttr;  // 返回计算结果
     }
 
-    // ====================== 玩家专属加成逻辑 ======================     
-    private static void applyPlayerSpecificBonus(Player player, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.model.item.EquipItem item : player.getEquippedItems()) {
+    private static void applyEntityAffixBonus(BattleEntity entity, AttributeSet modifiers) {
+        for (com.example.treasure_and_battle.affix.BaseAffix affix : entity.getEntityAffixList()) {
+            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
+                affix.applyAttributeBonus(modifiers);
+            }
+        }
+    }
+
+    private static void applyPlayerEquipmentBonus(Player player, AttributeSet modifiers) {
+        for (EquipItem item : player.getEquippedItems()) {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
                 for (com.example.treasure_and_battle.affix.BaseAffix affix : item.getAffixes()) {
@@ -130,15 +133,6 @@ public class AttributeUtils {
                 }
             }
             modifiers.add(item.getTotalGemBonuses());
-        }
-    }
-
-    // ====================== 怪物专属加成逻辑 ======================    
-    private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
-            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
-                affix.applyAttributeBonus(modifiers);
-            }
         }
     }
 

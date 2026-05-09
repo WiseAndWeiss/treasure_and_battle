@@ -1,8 +1,6 @@
 package com.example.treasure_and_battle.skill.active.warrior;
 
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.BattleManager;
-import com.example.treasure_and_battle.manager.BuffManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.BattleEntity;

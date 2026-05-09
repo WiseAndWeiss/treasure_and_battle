@@ -4,7 +4,7 @@ import com.example.treasure_and_battle.model.common.TriggerType;
 
 
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 
 /**
  * 装备专属词缀基类

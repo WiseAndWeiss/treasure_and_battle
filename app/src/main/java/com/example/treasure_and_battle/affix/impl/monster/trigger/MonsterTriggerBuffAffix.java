@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
-import com.example.treasure_and_battle.manager.BuffManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 
 import com.example.treasure_and_battle.model.attribute.AttributeSet;

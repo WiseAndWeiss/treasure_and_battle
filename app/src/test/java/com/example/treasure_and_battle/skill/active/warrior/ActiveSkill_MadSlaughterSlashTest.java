@@ -4,8 +4,8 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.attribute.WeaknessDebuff;
 import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
-import com.example.treasure_and_battle.manager.BattleManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -354,7 +354,7 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
             .orElse(null);
 
         // When - 经过1回合
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).tickBuffs(testMonster);
+        BuffManager.getInstance(context).tickBuffs(testMonster);
 
         // Then
         List<BaseBuff> buffsAfterTick1 = testMonster.getActiveBuffList();
@@ -367,7 +367,7 @@ public class ActiveSkill_MadSlaughterSlashTest extends ActiveSkillTestBase {
         assertEquals("剩余持续时间应该为1", 1, weaknessAfter1.getRemainingDuration());
 
         // When - 再经过1回合
-        com.example.treasure_and_battle.manager.BuffManager.getInstance(context).tickBuffs(testMonster);
+        BuffManager.getInstance(context).tickBuffs(testMonster);
 
         // Then - 虚弱debuff应该消失，但流血debuff应该保留（如果还有层数）
         List<BaseBuff> buffsAfterTick2 = testMonster.getActiveBuffList();

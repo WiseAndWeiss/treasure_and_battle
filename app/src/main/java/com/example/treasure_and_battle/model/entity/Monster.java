@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.model.entity;
 
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
