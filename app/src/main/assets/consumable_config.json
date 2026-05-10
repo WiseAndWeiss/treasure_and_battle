@@ -515,38 +515,6 @@
       "description": "使用后刷新3个随机事件点"
     },
     {
-      "consumableId": "scroll_double_exp",
-      "name": "双倍经验卷轴",
-      "rarityId": 3,
-      "baseValue": 400,
-      "maxStack": 5,
-      "usableInBattle": false,
-      "usableOutBattle": true,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "DOUBLE_EXP"
-        }
-      ],
-      "description": "使用后60分钟内战斗经验翻倍"
-    },
-    {
-      "consumableId": "talisman_stealth",
-      "name": "潜行符",
-      "rarityId": 1,
-      "baseValue": 50,
-      "maxStack": 8,
-      "usableInBattle": false,
-      "usableOutBattle": true,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "STEALTH"
-        }
-      ],
-      "description": "60分钟内怪物事件不会自动触发战斗"
-    },
-    {
       "consumableId": "incense_monster",
       "name": "引怪香",
       "rarityId": 1,
@@ -606,22 +574,6 @@
         }
       ],
       "description": "HP锁定为1，本回合攻击力提升200%"
-    },
-    {
-      "consumableId": "echo_stone",
-      "name": "回音石",
-      "rarityId": 2,
-      "baseValue": 150,
-      "maxStack": 5,
-      "usableInBattle": true,
-      "usableOutBattle": false,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "ECHO_SKILL"
-        }
-      ],
-      "description": "复制上一轮怪物对自身使用的技能并施放(TODO)"
     }
   ]
 }
