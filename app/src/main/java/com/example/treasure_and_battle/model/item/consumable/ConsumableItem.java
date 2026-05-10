@@ -24,7 +24,7 @@ public class ConsumableItem extends Item {
         public int buffTemplateId;
         public int stacks;
         public int duration;
-        public boolean isPercent;
+        public String valueType; // "FLAT" or "PERCENTAGE"
 
         public BuffEntry() {}
     }
@@ -40,7 +40,7 @@ public class ConsumableItem extends Item {
         public EffectType type;
         public Target target;
         public float value;
-        public boolean isPercent;
+        public String valueType; // "FLAT" or "PERCENTAGE"
         public int shieldDuration;
         public String utilityId;
         public List<BuffEntry> buffs;
