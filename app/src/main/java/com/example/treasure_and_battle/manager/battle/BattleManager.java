@@ -19,6 +19,10 @@ import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.manager.item.ConsumableManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.manager.item.ItemManager;
 
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.utils.RandomUtils;
@@ -586,12 +590,49 @@ public class BattleManager {
                 }
                 return true;
             case ITEM:
-                ctx.addLog(LogType.ACTION, "[%s] 尝试使用道具 [%s]（TODO：道具体系未接入）",
-                        actor.getName(), action.getDisplayName());
+                executeUseItem(ctx, actor, action);
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void executeUseItem(BattleContext ctx, BattleEntity actor, BattleAction action) {
+        if (!(actor instanceof Player)) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 无法使用道具（非玩家）", actor.getName());
+            return;
+        }
+        Player player = (Player) actor;
+        String consumableId = action.getActionRefId();
+        if (consumableId == null || consumableId.isEmpty()) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 使用道具失败：未指定道具ID", actor.getName());
+            return;
+        }
+
+        ConsumableItem item = findConsumableInInventory(consumableId);
+        if (item == null) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 使用道具失败：[%s] 不存在或已用尽",
+                    actor.getName(), action.getDisplayName());
+            return;
+        }
+
+        boolean ok = ConsumableManager.execute(player, ctx, item, context);
+        if (!ok) {
+            ctx.addLog(LogType.SYSTEM, "[%s] 使用 [%s] 失败", actor.getName(), item.getName());
+            return;
+        }
+
+        InventoryManager.getInstance().consumeOne(consumableId);
+        ctx.addLog(LogType.ACTION, "[%s] 使用了 [%s]", actor.getName(), item.getName());
+    }
+
+    private ConsumableItem findConsumableInInventory(String consumableId) {
+        for (ConsumableItem c : InventoryManager.getInstance().getBattleUsableConsumables()) {
+            if (c.getId().equals(consumableId)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     // ====================== 15. 怪物逃跑 ======================

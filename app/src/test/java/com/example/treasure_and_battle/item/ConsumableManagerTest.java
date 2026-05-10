@@ -85,7 +85,7 @@ public class ConsumableManagerTest {
     @Test
     public void testHealHP_Percent() {
         player.setCurrentHp(100);
-        ConsumableItem item = createSimpleHealHP(10, true);
+        ConsumableItem item = createSimpleHealHP(10, "PERCENTAGE");
         assertTrue(ConsumableManager.execute(player, null, item, context));
         assertEquals(120, player.getCurrentHp());
     }
@@ -93,7 +93,7 @@ public class ConsumableManagerTest {
     @Test
     public void testHealHP_Flat() {
         player.setCurrentHp(100);
-        ConsumableItem item = createSimpleHealHP(25, false);
+        ConsumableItem item = createSimpleHealHP(25, "FLAT");
         assertTrue(ConsumableManager.execute(player, null, item, context));
         assertEquals(125, player.getCurrentHp());
     }
@@ -101,7 +101,7 @@ public class ConsumableManagerTest {
     @Test
     public void testHealHP_Overflow() {
         player.setCurrentHp(190);
-        ConsumableItem item = createSimpleHealHP(50, true);
+        ConsumableItem item = createSimpleHealHP(50, "PERCENTAGE");
         assertTrue(ConsumableManager.execute(player, null, item, context));
         assertEquals(200, player.getCurrentHp());
     }
@@ -111,7 +111,7 @@ public class ConsumableManagerTest {
         player.setCurrentHp(100);
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e.value = 0;
-        e.isPercent = true;
+        e.valueType = "PERCENTAGE";
         ConsumableItem item = new ConsumableItem("c", "测试",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
         assertTrue(ConsumableManager.execute(player, null, item, context));
@@ -123,7 +123,7 @@ public class ConsumableManagerTest {
         player.setCurrentHp(100);
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e.value = 50;
-        e.isPercent = true;
+        e.valueType = "PERCENTAGE";
         e.shieldDuration = 3;
         ConsumableItem item = new ConsumableItem("c", "圣愈",
                 Rarity.LEGENDARY, 800, 5, true, true, Arrays.asList(e), "");
@@ -135,7 +135,7 @@ public class ConsumableManagerTest {
     @Test
     public void testHealMP_Percent() {
         player.setCurrentMp(30);
-        ConsumableItem item = createSimpleHealMP(20, true);
+        ConsumableItem item = createSimpleHealMP(20, "PERCENTAGE");
         assertTrue(ConsumableManager.execute(player, null, item, context));
         assertEquals(50, player.getCurrentMp());
     }
@@ -143,7 +143,7 @@ public class ConsumableManagerTest {
     @Test
     public void testHealMP_Flat() {
         player.setCurrentMp(10);
-        ConsumableItem item = createSimpleHealMP(30, false);
+        ConsumableItem item = createSimpleHealMP(30, "FLAT");
         assertTrue(ConsumableManager.execute(player, null, item, context));
         assertEquals(40, player.getCurrentMp());
     }
@@ -153,7 +153,7 @@ public class ConsumableManagerTest {
         player.setCurrentMp(10);
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_MP);
         e.value = 0;
-        e.isPercent = true;
+        e.valueType = "PERCENTAGE";
         ConsumableItem item = new ConsumableItem("c", "测试",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
         assertTrue(ConsumableManager.execute(player, null, item, context));
@@ -173,7 +173,7 @@ public class ConsumableManagerTest {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.DAMAGE);
         e.target = Target.SINGLE_ENEMY;
         e.value = 20;
-        e.isPercent = false;
+        e.valueType = "FLAT";
 
         ConsumableItem item = new ConsumableItem("bomb", "炸弹",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
@@ -195,7 +195,7 @@ public class ConsumableManagerTest {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.DAMAGE);
         e.target = Target.ALL_ENEMIES;
         e.value = 20;
-        e.isPercent = false;
+        e.valueType = "FLAT";
 
         ConsumableItem item = new ConsumableItem("bomb", "炸弹",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
@@ -208,7 +208,7 @@ public class ConsumableManagerTest {
     public void testDamageNullContext() {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.DAMAGE);
         e.value = 10;
-        e.isPercent = false;
+        e.valueType = "FLAT";
         ConsumableItem item = new ConsumableItem("bomb", "炸弹",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
         assertFalse(ConsumableManager.execute(player, null, item, context));
@@ -225,7 +225,7 @@ public class ConsumableManagerTest {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.DAMAGE);
         e.target = Target.SINGLE_ENEMY;
         e.value = 50;
-        e.isPercent = true;
+        e.valueType = "PERCENTAGE";
 
         ConsumableItem item = new ConsumableItem("bomb", "炸弹",
                 Rarity.COMMON, 10, 10, true, true, Arrays.asList(e), "");
@@ -328,10 +328,10 @@ public class ConsumableManagerTest {
     public void testMultipleEffects() {
         ConsumableItem.Effect e1 = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e1.value = 10;
-        e1.isPercent = false;
+        e1.valueType = "FLAT";
         ConsumableItem.Effect e2 = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_MP);
         e2.value = 5;
-        e2.isPercent = false;
+        e2.valueType = "FLAT";
 
         player.setCurrentHp(100);
         player.setCurrentMp(20);
@@ -346,10 +346,10 @@ public class ConsumableManagerTest {
     public void testMultipleEffectsFailOnSecond() {
         ConsumableItem.Effect e1 = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e1.value = 10;
-        e1.isPercent = false;
+        e1.valueType = "FLAT";
         ConsumableItem.Effect e2 = new ConsumableItem.Effect(ConsumableItem.EffectType.DAMAGE);
         e2.value = 10;
-        e2.isPercent = false;
+        e2.valueType = "FLAT";
 
         player.setCurrentHp(100);
         ConsumableItem item = new ConsumableItem("combo", "组合",
@@ -363,23 +363,23 @@ public class ConsumableManagerTest {
     private ConsumableItem createHealItem() {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e.value = 10;
-        e.isPercent = false;
+        e.valueType = "FLAT";
         return new ConsumableItem("heal", "回复", Rarity.COMMON, 10, 10,
                 true, true, Arrays.asList(e), "");
     }
 
-    private ConsumableItem createSimpleHealHP(float value, boolean isPercent) {
+    private ConsumableItem createSimpleHealHP(float value, String valueType) {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e.value = value;
-        e.isPercent = isPercent;
+        e.valueType = valueType;
         return new ConsumableItem("heal", "回复", Rarity.COMMON, 10, 10,
                 true, true, Arrays.asList(e), "");
     }
 
-    private ConsumableItem createSimpleHealMP(float value, boolean isPercent) {
+    private ConsumableItem createSimpleHealMP(float value, String valueType) {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_MP);
         e.value = value;
-        e.isPercent = isPercent;
+        e.valueType = valueType;
         return new ConsumableItem("heal_mp", "回蓝", Rarity.COMMON, 10, 10,
                 true, true, Arrays.asList(e), "");
     }

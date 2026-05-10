@@ -1,6 +1,9 @@
 package com.example.treasure_and_battle.manager.item;
 
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import java.util.Iterator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +30,10 @@ public class InventoryManager {
         return instance;
     }
 
+    public static synchronized void releaseInstance() {
+        instance = null;
+    }  
+     
     private int countOccupiedSlots() {
         int n = 0;
         for (Item item : items) {
@@ -38,6 +45,10 @@ public class InventoryManager {
     }
 
     public boolean addItem(Item newItem) {
+        if (newItem == null) {
+            throw new IllegalArgumentException("Cannot add null item to inventory");
+        }
+      
         if (newItem.canStack()) {
             for (Item item : items) {
                 if (item == null) {
@@ -69,6 +80,10 @@ public class InventoryManager {
     }
 
     public void removeItem(Item item) {
+        if (item == null) {
+            return;
+        }
+      
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i) == item) {
                 items.set(i, null);
@@ -82,6 +97,46 @@ public class InventoryManager {
         return items;
     }
 
+    public List<ConsumableItem> getBattleUsableConsumables() {
+        List<ConsumableItem> result = new ArrayList<>();
+        for (Item item : items) {
+            if (item instanceof ConsumableItem) {
+                ConsumableItem c = (ConsumableItem) item;
+                if (c.isUsableInBattle() && c.getCount() > 0) {
+                    result.add(c);
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean consumeOne(String consumableId) {
+        // 参数校验
+        if (consumableId == null || consumableId.isEmpty()) {
+            return false;
+        }
+
+        // 用普通for循环遍历，保留索引信息
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            
+            // 先判断非空，再判断类型，最后判断ID
+            if (item != null 
+                && item instanceof ConsumableItem 
+                && consumableId.equals(item.getId())) {
+                
+                if (item.getCount() <= 1) {
+                    // 正确做法：将对应槽位置空，保持列表长度和索引不变
+                    items.set(i, null);
+                } else {
+                    item.setCount(item.getCount() - 1);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+      
     public boolean isCompletelyEmpty() {
         for (Item item : items) {
             if (item != null) {
