@@ -42,6 +42,49 @@
       "skillNodes": [],
       "unlockLayerNeededPoints": [0],
       "maxLayer": 1
+    },
+    {
+      "templateId": 10201,
+      "skillTreeId": "mage_active_tree",
+      "skillTreeType": "ACTIVE",
+      "skillNodes": [
+        {"skillId": "spell", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "regulate_breath", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "fireball", "prerequisiteSkillIds": ["spell", "regulate_breath"], "layer": 1},
+        {"skillId": "concentrate_spirit", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "wind_howl", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "flame_surge", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "poison_infest", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "bitter_medicine", "prerequisiteSkillIds": ["concentrate_spirit"], "layer": 2},
+        {"skillId": "blizzard_storm", "prerequisiteSkillIds": ["wind_howl"], "layer": 2},
+        {"skillId": "bone_burning_sky", "prerequisiteSkillIds": ["flame_surge"], "layer": 2},
+        {"skillId": "scrape_poison", "prerequisiteSkillIds": ["poison_infest"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 15],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10202,
+      "skillTreeId": "mage_passive_tree",
+      "skillTreeType": "PASSIVE",
+      "skillNodes": [
+        {"skillId": "purify", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "tough_guard", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "mana_fill", "prerequisiteSkillIds": ["purify", "tough_guard"], "layer": 1},
+        {"skillId": "glow_protect", "prerequisiteSkillIds": ["purify", "tough_guard"], "layer": 1},
+        {"skillId": "poison_symbiosis", "prerequisiteSkillIds": ["mana_fill"], "layer": 2},
+        {"skillId": "revive_once", "prerequisiteSkillIds": ["glow_protect"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 10],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10203,
+      "skillTreeId": "mage_event_tree",
+      "skillTreeType": "EVENT",
+      "skillNodes": [],
+      "unlockLayerNeededPoints": [0],
+      "maxLayer": 1
     }
   ]
 }

@@ -309,6 +309,276 @@
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Spell"
     },
     {
+      "templateId": 110202,
+      "skillId": "regulate_breath",
+      "skillName": "调息",
+      "simpleDesc": "凝神静气，调和自身魔力与气血，以深沉的精神力催动躯体自愈，稳固自身战斗状态",
+      "detailedDesc": "恢复{x}点血量与{y}点魔法值，获得5%回生buff，持续{z}回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 4, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 5, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20, "y": 20, "z": 0},
+        {"x": 30, "y": 30, "z": 0},
+        {"x": 40, "y": 40, "z": 0},
+        {"x": 60, "y": 60, "z": 1},
+        {"x": 80, "y": 80, "z": 2}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_RegulateBreath"
+    },
+    {
+      "templateId": 110203,
+      "skillId": "fireball",
+      "skillName": "火球术",
+      "simpleDesc": "牵引天地游离火元素，于掌心凝练成炽热火球，裹挟滚烫高温直击敌方身躯，炸裂的火焰魔力会持续灼烧血肉",
+      "detailedDesc": "对单个目标造成{x}%法术攻击伤害，附加{y}层燃烧效果",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 21, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 24, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 27, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 2},
+        {"x": 110, "y": 2},
+        {"x": 120, "y": 4},
+        {"x": 140, "y": 4},
+        {"x": 160, "y": 8}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Fireball"
+    },
+    {
+      "templateId": 110204,
+      "skillId": "flame_surge",
+      "skillName": "炽能涌动",
+      "simpleDesc": "引动周身流转的火焰魔力萦绕己身，以抵御敌人的攻势，并馈以涌动的灼伤反噬",
+      "detailedDesc": "生成{x}点护盾，护盾存续期间受击有{y}概率对攻击者附加{z}层燃烧",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 30, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 35, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 40, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 30, "y": 20, "z": 1},
+        {"x": 50, "y": 30, "z": 1},
+        {"x": 70, "y": 40, "z": 2},
+        {"x": 90, "y": 50, "z": 2},
+        {"x": 120, "y": 60, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_FlameSurge"
+    },
+    {
+      "templateId": 110205,
+      "skillId": "bone_burning_sky",
+      "skillName": "焚骨烬天",
+      "simpleDesc": "以自身气血为献祭唤醒极致的焚世烈火，席卷整片战场，穿透皮肉筋骨，倾洒于所有敌寇",
+      "detailedDesc": "对全体敌人造成{x}%法术攻击伤害，附加{y}层燃烧与易伤效果",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 40, "hpCost": 50},
+        {"actionPointCost": 2, "mpCost": 50, "hpCost": 60},
+        {"actionPointCost": 2, "mpCost": 60, "hpCost": 70},
+        {"actionPointCost": 2, "mpCost": 70, "hpCost": 80},
+        {"actionPointCost": 2, "mpCost": 80, "hpCost": 90}
+      ],
+      "effectParamsList": [
+        {"x": 100, "y": 2},
+        {"x": 110, "y": 2},
+        {"x": 125, "y": 3},
+        {"x": 140, "y": 4},
+        {"x": 155, "y": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_BoneBurningSky"
+    },
+    {
+      "templateId": 110206,
+      "skillId": "wind_howl",
+      "skillName": "狂风呼啸",
+      "simpleDesc": "召唤狂风席卷战场，撕扯敌方身躯造成法术损伤，并凝滞敌身攻势与视线",
+      "detailedDesc": "对全体敌人造成{x}%法术伤害，附加2回合{y}%减速与{z}%致盲",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 25, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 30, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 35, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 40, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 45, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 80, "y": 10, "z": 10},
+        {"x": 90, "y": 15, "z": 10},
+        {"x": 100, "y": 15, "z": 15},
+        {"x": 110, "y": 20, "z": 20},
+        {"x": 120, "y": 25, "z": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_WindHowl"
+    },
+    {
+      "templateId": 110207,
+      "skillId": "blizzard_storm",
+      "skillName": "暴风骤雪",
+      "simpleDesc": "召引凛冽风雪肆虐全场，漫天冰雪裹挟刺骨寒意，稍有不慎血肉就可能遭受封冻",
+      "detailedDesc": "对全体敌人造成{x}%法术伤害，目标有{y}%概率被冻结1回合",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 35, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 40, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 45, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 50, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 55, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 90, "y": 20},
+        {"x": 100, "y": 30},
+        {"x": 110, "y": 40},
+        {"x": 120, "y": 50},
+        {"x": 130, "y": 60}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_BlizzardStorm"
+    },
+    {
+      "templateId": 110208,
+      "skillId": "concentrate_spirit",
+      "skillName": "凝神定气",
+      "simpleDesc": "摒弃杂念凝心聚神，将散乱魔力收敛归一，短时间唤醒自身法术潜能，以为蓄力迸发更为凌厉的攻势。",
+      "detailedDesc": "提升自身{x}点魔法攻击与{y}点法术暴击率，持续一回合，无冷却时间",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 30, "y": 2},
+        {"x": 45, "y": 3},
+        {"x": 60, "y": 4},
+        {"x": 75, "y": 5},
+        {"x": 90, "y": 6}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_ConcentrateSpirit"
+    },
+    {
+      "templateId": 110209,
+      "skillId": "bitter_medicine",
+      "skillName": "苦口良药",
+      "simpleDesc": "世间良药多味苦涩，以灵韵丹药瞬间温养气血，药性醇厚却略带沉滞，服药之后身形短暂趋于虚弱，乃是固本培元必经的调息之态",
+      "detailedDesc": "为自身附加2回合10%虚弱buff，瞬间恢复{x}%最大血量与{y}%最大蓝量",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 4,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 28, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 30, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 20, "y": 20},
+        {"x": 25, "y": 25},
+        {"x": 30, "y": 30},
+        {"x": 35, "y": 35},
+        {"x": 40, "y": 40}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_BitterMedicine"
+    },
+    {
+      "templateId": 110210,
+      "skillId": "poison_infest",
+      "skillName": "诡毒侵染",
+      "simpleDesc": "催动阴柔毒息化作术法流转，悄然侵入敌方经脉肌理，于无声无息间蚕食对手生机与战力",
+      "detailedDesc": "对单个敌人造成{x}点固定伤害，附加{y}层中毒效果",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 15, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 25, "y": 2},
+        {"x": 35, "y": 3},
+        {"x": 45, "y": 4},
+        {"x": 55, "y": 5},
+        {"x": 65, "y": 6}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_PoisonInfest"
+    },
+    {
+      "templateId": 110211,
+      "skillId": "scrape_poison",
+      "skillName": "刮骨疗毒",
+      "simpleDesc": "毒素沉淤骨髓，唯有忍刮骨之痛方能根除。这济世疗愈的法门，如今被法师引为攻伐之术，强行引动淤毒，予敌人刻骨重创",
+      "detailedDesc": "对单个敌人造成{x}点基础伤害，若目标存在中毒buff，清空所有中毒层数，每层额外造成{y}%法术攻击伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 40, "y": 15},
+        {"x": 50, "y": 18},
+        {"x": 60, "y": 22},
+        {"x": 70, "y": 28},
+        {"x": 80, "y": 35}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_ScrapePoison"
+    },
+    {
       "templateId": 110301,
       "skillId": "shot",
       "skillName": "点射",
@@ -330,6 +600,168 @@
         {"x": 120, "y": 20}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_Shot"
+    },
+    {
+      "templateId": 110302,
+      "skillId": "see_through",
+      "skillName": "看破",
+      "simpleDesc": "敛目凝神，洞察破绽，看穿防御的薄弱之处，为所有攻势撕开突破口",
+      "detailedDesc": "降低目标{x}%物理防御和{y}%法术防御",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 8, "y": 8},
+        {"x": 12, "y": 12},
+        {"x": 16, "y": 16},
+        {"x": 20, "y": 20},
+        {"x": 25, "y": 25}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_SeeThrough"
+    },
+    {
+      "templateId": 110303,
+      "skillId": "three_phase_arrow",
+      "skillName": "三相箭",
+      "simpleDesc": "凝聚三种力量于箭矢，兼具物理、法术与真实伤害，形成难以抵御的攻势",
+      "detailedDesc": "对单个敌人造成{x}%物理攻击伤害、{y}%法术攻击伤害与敏捷*{z}点真实伤害",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 8, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 8, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 45, "y": 25, "z": 2},
+        {"x": 55, "y": 30, "z": 2},
+        {"x": 70, "y": 35, "z": 3},
+        {"x": 85, "y": 40, "z": 3},
+        {"x": 95, "y": 50, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ThreePhaseArrow"
+    },
+    {
+      "templateId": 110304,
+      "skillId": "dust_arrow_rain",
+      "skillName": "扬尘箭雨",
+      "simpleDesc": "漫天箭矢散射席卷全场，箭风卷起扬尘迷障，让身处其中的敌人目光受限、行动滞缓",
+      "detailedDesc": "对所有敌人造成{x}%物理攻击伤害，附加2回合{y}%减速与{z}%致盲效果",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 15, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 65, "y": 3, "z": 3},
+        {"x": 70, "y": 6, "z": 6},
+        {"x": 75, "y": 9, "z": 9},
+        {"x": 80, "y": 12, "z": 12},
+        {"x": 85, "y": 15, "z": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_DustArrowRain"
+    },
+    {
+      "templateId": 110305,
+      "skillId": "wind_arrow",
+      "skillName": "凭风引箭",
+      "simpleDesc": "借风势引箭出击，以自身迅捷为衡，顺势破快敌、逆势滞速敌",
+      "detailedDesc": "对敌人造成{x}%物理攻击伤害；敌方速度低于自身时附加(1-速度比值)%的额外伤害，高于自身时施加2回合{y}%减速",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 10, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 85, "y": 6},
+        {"x": 90, "y": 9},
+        {"x": 95, "y": 12},
+        {"x": 100, "y": 15},
+        {"x": 105, "y": 18}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_WindArrow"
+    },
+    {
+      "templateId": 110306,
+      "skillId": "full_concentration",
+      "skillName": "全神贯注",
+      "simpleDesc": "凝神聚气专注瞄准，感知致命弱点，让每一次攻击都愈发趋近必杀",
+      "detailedDesc": "自身暴击率提升{x}%，暴击伤害提升{y}%",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 5, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 5, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 6, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 6, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 7, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 2, "y": 4},
+        {"x": 4, "y": 7},
+        {"x": 4, "y": 10},
+        {"x": 6, "y": 12},
+        {"x": 8, "y": 14}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_FullConcentration"
+    },
+    {
+      "templateId": 110307,
+      "skillId": "pierce_weak",
+      "skillName": "蚀弱穿射",
+      "simpleDesc": "尖锐箭矢穿透一切护体屏障，直击敌体，同时侵蚀敌方肉身使其短暂陷入易损的状态",
+      "detailedDesc": "无视护盾和装备对单个敌人造成{x}%穿甲伤害，附加1回合{y}%易伤效果",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 1,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 12, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 14, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 95, "y": 5},
+        {"x": 100, "y": 8},
+        {"x": 105, "y": 12},
+        {"x": 110, "y": 16},
+        {"x": 115, "y": 20}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_PierceWeak"
     },
     {
       "templateId": 210001,
@@ -477,6 +909,90 @@
         {"x": 100}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_Purify"
+    },
+    {
+      "templateId": 210202,
+      "skillId": "mana_fill",
+      "skillName": "魔力充盈",
+      "simpleDesc": "身心与天地魔元同息共鸣，周身魔力流转不止，能自然回补自身元气。当魔力盈满无缺之时，过剩的魔导之力便会浸润术法本源，使术法攻势愈强",
+      "detailedDesc": "回合开始时恢复{x}%最大MP；若MP已满，则本回合魔法攻击提升{y}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 3, "y": 5},
+        {"x": 5, "y": 5},
+        {"x": 7, "y": 8},
+        {"x": 9, "y": 12},
+        {"x": 12, "y": 15}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_ManaFill"
+    },
+    {
+      "templateId": 210203,
+      "skillId": "glow_protect",
+      "skillName": "辉光庇护",
+      "simpleDesc": "深邃的精神修为超脱凡俗桎梏，身形灵动难被捕捉，同时涤荡外界负面侵扰",
+      "detailedDesc": "战斗开始时，提升自身精神属性千分之{x}的闪避率与异常抵抗率",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_BATTLE_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 8},
+        {"x": 10},
+        {"x": 12},
+        {"x": 15},
+        {"x": 18}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_GlowProtect"
+    },
+    {
+      "templateId": 210204,
+      "skillId": "poison_symbiosis",
+      "skillName": "毒愈共生",
+      "simpleDesc": "借侵蚀中毒敌手之机，引对方衰败生机回流己身，滋养气血伤势，于攻势之中维系自身续航稳态。",
+      "detailedDesc": "对带有中毒效果的敌人造成伤害时，恢复本次伤害{x}%的生命值",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_AFTER_DAMAGE_DEALT"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 10},
+        {"x": 15},
+        {"x": 20},
+        {"x": 28},
+        {"x": 35}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_PoisonSymbiosis"
+    },
+    {
+      "templateId": 210205,
+      "skillId": "revive_once",
+      "skillName": "起死回生",
+      "simpleDesc": "起死回生的秘术，身陷濒死殒命之刻，硬生生卸掉致命重创，重锁残躯生机并回暖气血根基，乃是绝境翻盘的护身底蕴",
+      "detailedDesc": "首次受到致命伤害时，将生命值恢复至{x}%，每场战斗仅限触发一次",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_DEATH"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 15},
+        {"x": 20},
+        {"x": 30},
+        {"x": 40},
+        {"x": 50}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_ReviveOnce"
     }
   ]
 }
