@@ -5,6 +5,23 @@
     android:layout_marginHorizontal="6dp"
     android:layout_marginVertical="4dp">
 
+    <TextView
+        android:id="@+id/tv_battle_monster_intent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_tab_idle"
+        android:includeFontPadding="false"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:text="?"
+        android:textColor="@color/tb_gold"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,5 +69,16 @@
             android:max="100"
             android:progress="100"
             android:progressTint="@color/tb_battle" />
+
+        <TextView
+            android:id="@+id/tv_battle_monster_hp_val"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/tb_text_sub"
+            android:textSize="9sp"
+            android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

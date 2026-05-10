@@ -43,13 +43,28 @@ public final class SellItemDialog {
             return;
         }
 
-        int maxQty = Math.max(1, item.getCount());
         int unit = unitSellPrice(item);
         if (unit <= 0) {
             Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        boolean needsQuantityPicker = item.canStack() && item.getCount() > 1;
+        if (!needsQuantityPicker) {
+            int qty = item.getCount();
+            int pay = unit * qty;
+            MaterialAlertDialogBuilder simple = new MaterialAlertDialogBuilder(
+                    context, R.style.ThemeOverlay_Tb_ItemDetailDialog);
+            simple.setTitle("出售");
+            simple.setMessage("以 " + pay + " 金币出售「" + item.getName() + "」？");
+            simple.setNegativeButton("取消", null);
+            simple.setPositiveButton("出售", (d, w) ->
+                    trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned));
+            simple.show();
+            return;
+        }
+
+        int maxQty = Math.max(1, item.getCount());
         android.view.View root = LayoutInflater.from(context).inflate(R.layout.dialog_sell_item, null, false);
         TextView tvName = root.findViewById(R.id.tv_sell_item_name);
         TextView tvUnit = root.findViewById(R.id.tv_sell_unit_price);
@@ -95,29 +110,8 @@ public final class SellItemDialog {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnOk.setOnClickListener(v -> {
             int qty = seek.getProgress() + 1;
-            Item current = bagSlots.get(bagIndex);
-            if (current != item) {
-                Toast.makeText(context, "物品已变化", Toast.LENGTH_SHORT).show();
+            if (trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned)) {
                 dialog.dismiss();
-                return;
-            }
-            if (qty > item.getCount()) {
-                Toast.makeText(context, "数量无效", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int pay = unit * qty;
-            if (item.getCount() > qty) {
-                item.setCount(item.getCount() - qty);
-            } else {
-                bagSlots.set(bagIndex, null);
-            }
-            if (onGoldEarned != null) {
-                onGoldEarned.accept(pay);
-            }
-            Toast.makeText(context, "已出售，获得 " + pay + " 金币", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-            if (onSold != null) {
-                onSold.run();
             }
         });
 
@@ -125,5 +119,49 @@ public final class SellItemDialog {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
+    }
+
+    /**
+     * 不可堆叠或格内仅 1 个时使用简单确认；可堆叠且多个时由 {@link #show} 内 SeekBar 选择数量。
+     */
+    private static boolean trySellQuantity(
+            @NonNull Context context,
+            @NonNull List<Item> bagSlots,
+            int bagIndex,
+            @NonNull Item expectedItem,
+            int qty,
+            @Nullable Runnable onSold,
+            @Nullable java.util.function.IntConsumer onGoldEarned) {
+        if (bagIndex < 0 || bagIndex >= bagSlots.size()) {
+            return false;
+        }
+        Item item = bagSlots.get(bagIndex);
+        if (item != expectedItem) {
+            Toast.makeText(context, "物品已变化", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (qty <= 0 || qty > item.getCount()) {
+            Toast.makeText(context, "数量无效", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        int unit = unitSellPrice(item);
+        if (unit <= 0) {
+            Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        int pay = unit * qty;
+        if (item.getCount() > qty) {
+            item.setCount(item.getCount() - qty);
+        } else {
+            bagSlots.set(bagIndex, null);
+        }
+        if (onGoldEarned != null) {
+            onGoldEarned.accept(pay);
+        }
+        Toast.makeText(context, "已出售，获得 " + pay + " 金币", Toast.LENGTH_SHORT).show();
+        if (onSold != null) {
+            onSold.run();
+        }
+        return true;
     }
 }

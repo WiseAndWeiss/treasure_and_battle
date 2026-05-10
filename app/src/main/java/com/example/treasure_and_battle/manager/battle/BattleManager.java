@@ -58,6 +58,25 @@ public class BattleManager {
 
     // ====================== 【入口】1. 初始化战斗 ======================
     public BattleContext startBattle(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
+        BattleContext ctx = createAndInitBattle(player, monsters, surpriseAttacker);
+        battleLoop(ctx);
+        return ctx;
+    }
+
+    /**
+     * UI 驱动战斗：完成开局与第一回合开始，按速度条执行到「玩家」行动前暂停；之后由界面在玩家耗光行动点后调用
+     * {@link #onPlayerTurnFullySpent(BattleContext)} 继续。
+     */
+    public BattleContext bootstrapBattleForUi(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
+        BattleContext ctx = createAndInitBattle(player, monsters, surpriseAttacker);
+        if (!beginRoundForUi(ctx)) {
+            return ctx;
+        }
+        runMonsterTurnsUntilPlayerTurn(ctx);
+        return ctx;
+    }
+
+    private BattleContext createAndInitBattle(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
         BattleContext ctx = new BattleContext(player, monsters, surpriseAttacker);
 
         player.setDead(false);
@@ -68,7 +87,6 @@ public class BattleManager {
             m.resetActionPoints();
         }
 
-        // 触发被动技能（战斗开始）
         if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
             ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
         }
@@ -76,35 +94,103 @@ public class BattleManager {
 
         ctx.addLog(LogType.INIT, "战斗开始：[%s] VS [%d个怪物]",
                 player.getName(), ctx.getAliveMonsters().size());
-
-        battleLoop(ctx);
-
         return ctx;
     }
 
-    // ====================== 2. 战斗主循环 ======================
+    /** 新回合：递增回合数、日志、回合开始阶段（意图/速度条）。达到回合上限则结束战斗。 */
+    private boolean beginRoundForUi(BattleContext ctx) {
+        ctx.currentRound++;
+        ctx.resetDamageData();
+
+        if (ctx.currentRound >= 100) {
+            ctx.isBattleEnded = true;
+            ctx.battleResult = BattleContext.BattleResult.DEFEAT;
+            ctx.addLog(LogType.SYSTEM, "【系统】达到回合数上限(100)，战斗强制判定为失败。");
+            return false;
+        }
+
+        ctx.addLog(LogType.ROUND_INFO, "======== 第 %d 回合开始 ========", ctx.currentRound);
+
+        onRoundStart(ctx);
+        return !ctx.isBattleEnded;
+    }
+
+    /**
+     * 从当前 {@link BattleContext#actionOrderIndex} 起执行怪物行动，直到轮到玩家或战斗结束或需进入下一回合。
+     */
+    public void runMonsterTurnsUntilPlayerTurn(BattleContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        if (ctx.roundActionOrder == null) {
+            ctx.roundActionOrder = new ArrayList<>();
+        }
+        while (!ctx.isBattleEnded) {
+            if (ctx.actionOrderIndex >= ctx.roundActionOrder.size()) {
+                onRoundEnd(ctx);
+                if (ctx.isBattleEnded) {
+                    return;
+                }
+                if (!beginRoundForUi(ctx)) {
+                    return;
+                }
+                continue;
+            }
+
+            BattleEntity actor = ctx.roundActionOrder.get(ctx.actionOrderIndex);
+            if (actor.isDead()) {
+                ctx.actionOrderIndex++;
+                continue;
+            }
+
+            ctx.currentActor = actor;
+            ctx.currentTarget = ctx.getPrimaryMonsterTarget();
+            if (ctx.currentTarget == null) {
+                ctx.currentTarget = ctx.player;
+            }
+
+            ctx.addLog(LogType.ROUND_INFO, "轮到 [%s] 行动", actor.getName());
+
+            if (actor instanceof Player) {
+                ctx.currentActionPoints = ctx.player.getCurrentActionPoints();
+                ctx.addLog(LogType.ROUND_INFO, "玩家回合，行动点: %d", ctx.currentActionPoints);
+                return;
+            }
+
+            monsterActionPhaseFor(ctx, (Monster) actor);
+            ctx.actionOrderIndex++;
+            checkDeath(ctx);
+        }
+    }
+
+    /** 玩家本回合行动点已用尽时调用：越过玩家序号并继续执行速度条上后续单位。 */
+    public void onPlayerTurnFullySpent(BattleContext ctx) {
+        if (ctx == null || ctx.isBattleEnded) {
+            return;
+        }
+        if (ctx.player != null && ctx.player.getCurrentActionPoints() > 0) {
+            return;
+        }
+        ctx.actionOrderIndex++;
+        runMonsterTurnsUntilPlayerTurn(ctx);
+    }
+
+    // ====================== 2. 战斗主循环（全自动，含玩家自动普攻） ======================
     private void battleLoop(BattleContext ctx) {
         while (!ctx.isBattleEnded) {
-            ctx.currentRound++;
-            ctx.resetDamageData();
-
-            if (ctx.currentRound >= 100) {
-                ctx.isBattleEnded = true;
-                ctx.battleResult = BattleContext.BattleResult.DEFEAT;
-                ctx.addLog(LogType.SYSTEM, "【系统】达到回合数上限(100)，战斗强制判定为失败。");
+            if (!beginRoundForUi(ctx)) {
                 break;
             }
 
-            ctx.addLog(LogType.ROUND_INFO, "======== 第 %d 回合开始 ========", ctx.currentRound);
-
-            onRoundStart(ctx);
-            if (ctx.isBattleEnded) break;
-
             executeRoundActionPhase(ctx);
-            if (ctx.isBattleEnded) break;
+            if (ctx.isBattleEnded) {
+                break;
+            }
 
             onRoundEnd(ctx);
-            if (ctx.isBattleEnded) break;
+            if (ctx.isBattleEnded) {
+                break;
+            }
         }
 
         settleBattleResult(ctx);
@@ -288,7 +374,7 @@ public class BattleManager {
         List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
         if (revealed == null || revealed.isEmpty()) {
             BattleAction fallback = BattleAction.normalAttack(m, ctx.player);
-            executeBattleAction(ctx, fallback);
+            submitBattleAction(ctx, fallback);
             return;
         }
 
@@ -299,7 +385,7 @@ public class BattleManager {
             BattleAction action = toBattleAction(ctx, m, ri.intent);
             if (action == null) continue;
 
-            executeBattleAction(ctx, action);
+            submitBattleAction(ctx, action);
         }
     }
 
@@ -311,7 +397,7 @@ public class BattleManager {
         if (ctx.currentActionPoints > 0 && !ctx.isBattleEnded) {
             Monster target = ctx.getPrimaryMonsterTarget();
             if (target != null) {
-                executeBattleAction(ctx, BattleAction.normalAttack(ctx.player, target));
+                submitBattleAction(ctx, BattleAction.normalAttack(ctx.player, target));
             }
             ctx.currentActionPoints = 0;
             ctx.player.setCurrentActionPoints(0);
@@ -434,7 +520,7 @@ public class BattleManager {
     }
 
     // ====================== 14. 执行战斗动作 ======================
-    private boolean executeBattleAction(BattleContext ctx, BattleAction action) {
+    public boolean submitBattleAction(BattleContext ctx, BattleAction action) {
         if (action == null || action.getActor() == null) return false;
 
         BattleEntity actor = action.getActor();
@@ -462,10 +548,14 @@ public class BattleManager {
             actor.setCurrentMp(Math.max(0, actor.getCurrentMp() - action.getMpCost()));
         }
 
+        AttributeSet attackerAttr = actor.getFinalAttributes();
+
         switch (action.getType()) {
-            case ATTACK:
-                executeNormalAttack(ctx, actor, target);
+            case ATTACK: {
+                int baseDamage = (int) Math.round(attackerAttr.physicalAtk * action.getPowerMultiplier());
+                executeNormalAttack(ctx, actor, target, baseDamage);
                 return true;
+            }
             case ESCAPE:
                 if (actor instanceof Monster) executeMonsterEscape(ctx);
                 return true;
@@ -557,6 +647,7 @@ public class BattleManager {
             int finalGold = RewardCalculator.calculateGold(ctx.player, ctx.monsters);
             if (ctx.player.owner != null) {
                 ctx.player.owner.gainExp(finalExp);
+                ctx.player.owner.addGold(finalGold);
             }
             ctx.addLog(LogType.RESULT, "获得战利品：\n  - 金币：+%d\n  - 经验：+%d", finalGold, finalExp);
 

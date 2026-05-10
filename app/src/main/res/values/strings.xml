@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">treasure_and_battle</string>
     <string name="item_detail_close">关闭</string>
+    <string name="battle_log_book_cd">战斗记录</string>
 </resources>

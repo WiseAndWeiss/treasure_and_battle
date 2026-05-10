@@ -1,12 +1,12 @@
 package com.example.treasure_and_battle.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,80 +18,260 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.PlayerManager;
+import com.example.treasure_and_battle.manager.skill.SkillManager;
+import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.skill.SkillEffectParams;
+import com.example.treasure_and_battle.model.skill.SkillRangeType;
+import com.example.treasure_and_battle.model.skill.SkillTemplate;
+import com.example.treasure_and_battle.model.skill.SkillType;
+import com.example.treasure_and_battle.profession.Profession;
+import com.example.treasure_and_battle.skill.Skill;
+import com.example.treasure_and_battle.skill.SkillTree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SkillFragment extends Fragment {
 
-    // 左侧 Tabs
     private TextView tabPassive;
     private TextView tabEvent;
     private TextView tabActive;
 
-    // 技能列表
     private RecyclerView rvSkills;
     private SkillAdapter adapter;
     private boolean compactMode;
 
-    // 临时模拟的数据池
-    private List<SkillMockData> currentSkillList = new ArrayList<>();
+    private TextView tvStatsLeft;
+    private TextView tvStatsRight;
+    private TextView tvRemainingTalent;
+    private TextView tvRemainingSkillPoints;
+
+    private TextView tvTalentStr;
+    private TextView tvTalentAgi;
+    private TextView tvTalentInt;
+    private TextView tvTalentSpr;
+    private TextView tvTalentPhy;
+    private TextView tvTalentLuc;
+
+    private Character character;
+    private int currentTabIndex;
+
+    private final List<SkillListRow> currentSkillList = new ArrayList<>();
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        character = PlayerCharacterHolder.getOrCreate(context);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_skill, container, false);
 
-        // 1. 绑定UI组件
         tabPassive = view.findViewById(R.id.tab_passive);
         tabEvent = view.findViewById(R.id.tab_event);
         tabActive = view.findViewById(R.id.tab_active);
         rvSkills = view.findViewById(R.id.rv_skills);
         compactMode = getResources().getConfiguration().smallestScreenWidthDp < 380;
 
-        // 2. 初始化 RecyclerView
+        tvStatsLeft = view.findViewById(R.id.tv_stats_content);
+        tvStatsRight = view.findViewById(R.id.tv_stats_content_right);
+        tvRemainingTalent = view.findViewById(R.id.tv_remaining_points);
+        tvRemainingSkillPoints = view.findViewById(R.id.tv_remaining_skill_points);
+
+        tvTalentStr = view.findViewById(R.id.tv_talent_str);
+        tvTalentAgi = view.findViewById(R.id.tv_talent_agi);
+        tvTalentInt = view.findViewById(R.id.tv_talent_int);
+        tvTalentSpr = view.findViewById(R.id.tv_talent_spr);
+        tvTalentPhy = view.findViewById(R.id.tv_talent_phy);
+        tvTalentLuc = view.findViewById(R.id.tv_talent_luc);
+
         rvSkills.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new SkillAdapter(currentSkillList, compactMode);
+        adapter = new SkillAdapter(this, currentSkillList, compactMode);
         rvSkills.setAdapter(adapter);
         applyResponsiveUi(view);
 
-        // 3. 绑定左侧 Tab 切换监听器
         tabPassive.setOnClickListener(v -> selectTab(0));
         tabEvent.setOnClickListener(v -> selectTab(1));
         tabActive.setOnClickListener(v -> selectTab(2));
 
-        // 4. 绑定六维天赋加点按钮点击事件 (TODO)
-        View.OnClickListener talentAddListener = v -> {
-            Toast.makeText(getContext(), "TODO: 执行天赋点增加及数值重算", Toast.LENGTH_SHORT).show();
-        };
-        view.findViewById(R.id.btn_add_str).setOnClickListener(talentAddListener);
-        view.findViewById(R.id.btn_add_agi).setOnClickListener(talentAddListener);
-        view.findViewById(R.id.btn_add_int).setOnClickListener(talentAddListener);
-        view.findViewById(R.id.btn_add_spr).setOnClickListener(talentAddListener);
-        view.findViewById(R.id.btn_add_phy).setOnClickListener(talentAddListener);
-        view.findViewById(R.id.btn_add_luc).setOnClickListener(talentAddListener);
+        PlayerManager pm = PlayerManager.getInstance(requireContext());
+        view.findViewById(R.id.btn_add_str).setOnClickListener(v -> tryAllocateTalent(pm, "STRENGTH"));
+        view.findViewById(R.id.btn_add_agi).setOnClickListener(v -> tryAllocateTalent(pm, "AGILITY"));
+        view.findViewById(R.id.btn_add_int).setOnClickListener(v -> tryAllocateTalent(pm, "INTELLIGENCE"));
+        view.findViewById(R.id.btn_add_spr).setOnClickListener(v -> tryAllocateTalent(pm, "SPIRIT"));
+        view.findViewById(R.id.btn_add_phy).setOnClickListener(v -> tryAllocateTalent(pm, "PHYSIQUE"));
+        view.findViewById(R.id.btn_add_luc).setOnClickListener(v -> tryAllocateTalent(pm, "LUCK"));
 
-        // 初始加载被动技能
+        setupDebugGrantRow(view);
+
         selectTab(0);
+        refreshCharacterPanels();
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshWhenVisible();
+    }
+
+    /**
+     * 主界面用 {@link androidx.fragment.app.FragmentTransaction#hide} / {@code show} 切换 Tab 时，
+     * 被隐藏的 Fragment 往往不会再次走 {@link #onResume()}，从交易等页面返回后切回技能页需在变为可见时刷新。
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            refreshWhenVisible();
+        }
+    }
+
+    private void refreshWhenVisible() {
+        if (getContext() != null) {
+            character = PlayerCharacterHolder.getOrCreate(requireContext());
+        }
+        refreshCharacterPanels();
+        reloadSkillsForCurrentTab();
+    }
+
+    /**
+     * Debug 包在「角色属性」卡内显示三个快捷按钮；正式包隐藏。
+     * 若需在 release 也显示，把下面 {@link BuildConfig#DEBUG} 判断去掉或改为 true。
+     */
+    private void setupDebugGrantRow(View root) {
+        View row = root.findViewById(R.id.row_skill_debug_grant);
+        if (row == null) {
+            return;
+        }
+        row.setVisibility(View.VISIBLE);
+        root.findViewById(R.id.btn_debug_gain_exp).setOnClickListener(v -> grantDebugExp(50000));
+        root.findViewById(R.id.btn_debug_gain_talent).setOnClickListener(v -> grantDebugTalentPoints(20));
+        root.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v -> grantDebugSkillPoints(20));
+    }
+
+    private void grantDebugExp(int exp) {
+        if (character == null || exp <= 0) {
+            return;
+        }
+        character.gainExp(exp);
+        refreshCharacterPanels();
+        reloadSkillsForCurrentTab();
+        Toast.makeText(getContext(), "已获得 " + exp + " 经验", Toast.LENGTH_SHORT).show();
+    }
+
+    private void grantDebugTalentPoints(int amount) {
+        if (character == null || amount <= 0) {
+            return;
+        }
+        character.addTalentPoints(amount);
+        refreshCharacterPanels();
+        Toast.makeText(getContext(), "已获得 " + amount + " 天赋点", Toast.LENGTH_SHORT).show();
+    }
+
+    private void grantDebugSkillPoints(int amount) {
+        if (character == null || amount <= 0) {
+            return;
+        }
+        character.addSkillPoints(amount);
+        refreshCharacterPanels();
+        reloadSkillsForCurrentTab();
+        Toast.makeText(getContext(), "已获得 " + amount + " 技能点", Toast.LENGTH_SHORT).show();
+    }
+
+    private void tryAllocateTalent(PlayerManager pm, String attributeName) {
+        if (character == null) {
+            return;
+        }
+        if (!pm.allocateTalentPoint(character, attributeName)) {
+            Toast.makeText(getContext(), "天赋点不足或分配失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        refreshCharacterPanels();
+    }
+
+    private void refreshCharacterPanels() {
+        if (character == null || tvStatsLeft == null) {
+            return;
+        }
+        Profession profession = character.getProfession();
+        String jobName = profession != null ? profession.getProfessionName() : "—";
+
+        Player preview = character.generatePlayer();
+        AttributeSet fa = preview.getFinalAttributes();
+
+        String left = String.format(Locale.CHINA,
+                "职业：%s\n等级：%d\n名称：%s\n经验：%d / %d\n血量：%d / %d\n魔力：%d / %d\n金币：%d",
+                jobName,
+                character.getLevel(),
+                character.getName(),
+                character.getCurrentExp(),
+                character.getExpToNextLevel(),
+                character.getCurrentHp(),
+                fa.maxHp,
+                character.getCurrentMp(),
+                fa.maxMp,
+                character.getGold());
+        tvStatsLeft.setText(left);
+
+        String right = String.format(Locale.CHINA,
+                "物攻：%d\n魔攻：%d\n物防：%d\n魔防：%d\n速度：%d\n暴击：%s\n闪避：%s",
+                fa.physicalAtk,
+                fa.magicalAtk,
+                fa.physicalDef,
+                fa.magicalDef,
+                fa.speed,
+                percentLabel(fa.physicalCritRate),
+                percentLabel(fa.dodgeRate));
+        tvStatsRight.setText(right);
+
+        PlayerManager pm = PlayerManager.getInstance(requireContext());
+        if (tvTalentStr != null) {
+            tvTalentStr.setText("力量 " + pm.getAllocatedStat(character, "STRENGTH"));
+            tvTalentAgi.setText("敏捷 " + pm.getAllocatedStat(character, "AGILITY"));
+            tvTalentInt.setText("智力 " + pm.getAllocatedStat(character, "INTELLIGENCE"));
+            tvTalentSpr.setText("精神 " + pm.getAllocatedStat(character, "SPIRIT"));
+            tvTalentPhy.setText("体魄 " + pm.getAllocatedStat(character, "PHYSIQUE"));
+            tvTalentLuc.setText("幸运 " + pm.getAllocatedStat(character, "LUCK"));
+        }
+        if (tvRemainingTalent != null) {
+            tvRemainingTalent.setText("剩余天赋点: " + character.getTalentPoints());
+        }
+        if (tvRemainingSkillPoints != null) {
+            tvRemainingSkillPoints.setText("剩余技能点: " + character.getSkillPoints());
+        }
+    }
+
+    private static String percentLabel(float rate01) {
+        return String.format(Locale.CHINA, "%.0f%%", rate01 * 100f);
+    }
+
     private void applyResponsiveUi(View root) {
-        if (!compactMode) return;
+        if (!compactMode) {
+            return;
+        }
         setTextSizeSp(tabPassive, 13f);
         setTextSizeSp(tabEvent, 13f);
         setTextSizeSp(tabActive, 13f);
 
-        TextView tvRemainingSkillPoints = root.findViewById(R.id.tv_remaining_skill_points);
-        if (tvRemainingSkillPoints != null) {
-            setTextSizeSp(tvRemainingSkillPoints, 11f);
+        TextView tvRemainingSkill = root.findViewById(R.id.tv_remaining_skill_points);
+        if (tvRemainingSkill != null) {
+            setTextSizeSp(tvRemainingSkill, 11f);
         }
         rvSkills.setPadding(dpToPx(6), dpToPx(6), dpToPx(6), dpToPx(6));
     }
 
     private void setTextSizeSp(TextView textView, float sp) {
-        if (textView == null) return;
+        if (textView == null) {
+            return;
+        }
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
     }
 
@@ -104,93 +284,197 @@ public class SkillFragment extends Fragment {
     }
 
     private void selectTab(int index) {
-        // 重置所有 Tab 样式
+        currentTabIndex = index;
         resetTabStyle(tabPassive);
         resetTabStyle(tabEvent);
         resetTabStyle(tabActive);
 
-        // 针对选中的 Tab 设为高亮且更替数据
         if (index == 0) {
             highlightTab(tabPassive);
-            loadTempData("被动");
         } else if (index == 1) {
             highlightTab(tabEvent);
-            loadTempData("事件");
-        } else if (index == 2) {
+        } else {
             highlightTab(tabActive);
-            loadTempData("主动");
+        }
+        reloadSkillsForCurrentTab();
+    }
+
+    private void reloadSkillsForCurrentTab() {
+        currentSkillList.clear();
+        if (character == null) {
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+            return;
+        }
+        Profession profession = character.getProfession();
+        if (profession == null) {
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+            return;
+        }
+
+        SkillTree tree;
+        String categoryLabel;
+        if (currentTabIndex == 0) {
+            tree = profession.getPassiveSkillTree();
+            categoryLabel = "被动";
+        } else if (currentTabIndex == 1) {
+            tree = profession.getEventSkillTree();
+            categoryLabel = "事件";
+        } else {
+            tree = profession.getActiveSkillTree();
+            categoryLabel = "主动";
+        }
+
+        SkillManager sm = SkillManager.getInstance(requireContext());
+        for (String skillId : tree.getAllSkillIds()) {
+            SkillTemplate template = sm.getSkillTemplateBySkillId(skillId);
+            if (template == null) {
+                continue;
+            }
+            Skill learned = profession.getLearnedSkillById(skillId);
+            int curLevel = learned != null ? learned.getLevel() : 0;
+            int maxLevel = template.getMaxLevel();
+
+            boolean canUpgrade = character.getSkillPoints() > 0 && profession.canLevelUpSkill(skillId);
+
+            String levelDisplay = curLevel + "/" + maxLevel;
+            String tags = buildTags(template);
+            String cooldown = template.getCooldown() <= 0 ? "无" : template.getCooldown() + " 回合";
+            String range = rangeLabel(template.getSkillRangeType());
+
+            String effectCurrent = formatEffectBlock(template, curLevel);
+            String effectNext;
+            if (curLevel >= maxLevel) {
+                effectNext = null;
+            } else {
+                effectNext = formatEffectBlock(template, curLevel + 1);
+            }
+
+            currentSkillList.add(new SkillListRow(
+                    skillId,
+                    template.getSkillName(),
+                    template.getSimpleDesc(),
+                    levelDisplay,
+                    categoryLabel,
+                    tags,
+                    1,
+                    cooldown,
+                    range,
+                    effectCurrent,
+                    effectNext,
+                    canUpgrade));
+        }
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        if (tvRemainingSkillPoints != null && character != null) {
+            tvRemainingSkillPoints.setText("剩余技能点: " + character.getSkillPoints());
         }
     }
 
+    void onSkillUpgradeClicked(@NonNull SkillListRow row) {
+        if (character == null) {
+            return;
+        }
+        Profession profession = character.getProfession();
+        if (profession == null) {
+            return;
+        }
+        if (character.getSkillPoints() <= 0) {
+            Toast.makeText(getContext(), "技能点不足", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!profession.canLevelUpSkill(row.skillId)) {
+            Toast.makeText(getContext(), "当前无法学习或升级该技能", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!profession.levelUpSkill(row.skillId)) {
+            Toast.makeText(getContext(), "升级失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!SkillUiBridge.trySpendOneSkillPoint(character)) {
+            Toast.makeText(getContext(), "技能点扣减异常，请重进游戏", Toast.LENGTH_SHORT).show();
+        }
+        Toast.makeText(getContext(), "已升级：" + row.name, Toast.LENGTH_SHORT).show();
+        refreshCharacterPanels();
+        reloadSkillsForCurrentTab();
+    }
+
+    private static String buildTags(SkillTemplate template) {
+        SkillType type = template.getSkillType();
+        String typePart = type == SkillType.ACTIVE ? "主动" : type == SkillType.PASSIVE ? "被动" : "事件";
+        String triggerPart = "—";
+        if (template.getSkillTriggerTypes() != null && !template.getSkillTriggerTypes().isEmpty()) {
+            triggerPart = String.valueOf(template.getSkillTriggerTypes().get(0));
+        }
+        return typePart + " · " + triggerPart;
+    }
+
+    private static String rangeLabel(@Nullable SkillRangeType r) {
+        if (r == null) {
+            return "—";
+        }
+        switch (r) {
+            case SINGLE_ENEMY:
+                return "单体敌方";
+            case ALL_ENEMIES:
+                return "全体敌方";
+            case SELF:
+                return "自身";
+            case ALL_ALLIES:
+                return "全体友方";
+            case NONE:
+            default:
+                return "无目标";
+        }
+    }
+
+    private static String formatEffectBlock(SkillTemplate template, int level) {
+        if (level <= 0) {
+            return "（未学习）";
+        }
+        SkillEffectParams p = template.getEffectParamsWithLevel(level);
+        String raw = template.getDetailedDesc() != null ? template.getDetailedDesc() : template.getSimpleDesc();
+        return applyEffectPlaceholders(raw, p);
+    }
+
+    private static String applyEffectPlaceholders(String templateText, SkillEffectParams p) {
+        if (templateText == null) {
+            return "";
+        }
+        return templateText
+                .replace("{x}", String.valueOf(p.x))
+                .replace("{y}", String.valueOf(p.y))
+                .replace("{z}", String.valueOf(p.z))
+                .replace("{w}", String.valueOf(p.w));
+    }
+
     private void resetTabStyle(TextView tv) {
-        if (tv == null) return;
+        if (tv == null) {
+            return;
+        }
         tv.setBackgroundResource(R.drawable.bg_tab_idle);
         tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_sub));
         tv.setTypeface(null, android.graphics.Typeface.NORMAL);
     }
 
     private void highlightTab(TextView tv) {
-        if (tv == null) return;
+        if (tv == null) {
+            return;
+        }
         tv.setBackgroundResource(R.drawable.bg_tab_active);
         tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_bg_dark));
         tv.setTypeface(null, android.graphics.Typeface.BOLD);
     }
 
-    // 临时加载对应的分类假数据用以进行布局展示
-    private void loadTempData(String category) {
-        currentSkillList.clear();
-        int maxLevel = 5;
-        for (int i = 1; i <= 10; i++) {
-            int cur = i % maxLevel;
-            if (cur == 0) cur = maxLevel;
-            String name = category + "技能_" + i;
-            String desc =
-                    "这是一个非常厉害的" + category + "技能，拥有着独特的机制。\n"
-                            + "它能大幅攀升属性、改变战斗结果等不可思议的作用。";
-            String levelDisplay = cur + "/" + maxLevel;
-            int cost = 1 + (i % 3);
-            String tags;
-            String cooldown;
-            String range;
-            if ("主动".equals(category)) {
-                tags = "主动 · 施法";
-                cooldown = (6 + i * 2) + " 秒";
-                range = "单体敌方";
-            } else if ("事件".equals(category)) {
-                tags = "事件 · 战斗触发";
-                cooldown = "无";
-                range = "满足条件时自动触发";
-            } else {
-                tags = "被动 · 永久";
-                cooldown = "无";
-                range = "常驻（脱战亦生效）";
-            }
-            String effectCurrent =
-                    "· 主要数值：强度系数 +" + (cur * 3 + i)
-                            + "\n· 次要效果：与「" + category + "」流派协同，层数可叠加。";
-            String effectNext =
-                    cur >= maxLevel
-                            ? null
-                            : "· 主要数值：强度系数 +" + ((cur + 1) * 3 + i)
-                                    + "\n· 解锁额外词条或缩短内置间隔。";
-            currentSkillList.add(
-                    new SkillMockData(
-                            name,
-                            desc,
-                            levelDisplay,
-                            category,
-                            tags,
-                            cost,
-                            cooldown,
-                            range,
-                            effectCurrent,
-                            effectNext));
-        }
-        adapter.notifyDataSetChanged();
-    }
+    // ================== 列表数据 ==================
 
-    // ================== Adapter & Mock Data ==================
-    private static class SkillMockData {
+    static final class SkillListRow {
+        final String skillId;
         final String name;
         final String desc;
         final String levelDisplay;
@@ -200,10 +484,12 @@ public class SkillFragment extends Fragment {
         final String cooldown;
         final String castRange;
         final String effectCurrent;
-        /** 满级时为 null，详情窗显示「已满级」。 */
+        @Nullable
         final String effectNext;
+        final boolean canPressAction;
 
-        SkillMockData(
+        SkillListRow(
+                String skillId,
                 String name,
                 String desc,
                 String levelDisplay,
@@ -213,7 +499,9 @@ public class SkillFragment extends Fragment {
                 String cooldown,
                 String castRange,
                 String effectCurrent,
-                String effectNext) {
+                @Nullable String effectNext,
+                boolean canPressAction) {
+            this.skillId = skillId;
             this.name = name;
             this.desc = desc;
             this.levelDisplay = levelDisplay;
@@ -224,14 +512,17 @@ public class SkillFragment extends Fragment {
             this.castRange = castRange;
             this.effectCurrent = effectCurrent;
             this.effectNext = effectNext;
+            this.canPressAction = canPressAction;
         }
     }
 
     private static class SkillAdapter extends RecyclerView.Adapter<SkillAdapter.SkillViewHolder> {
-        private final List<SkillMockData> data;
+        private final SkillFragment host;
+        private final List<SkillListRow> data;
         private final boolean compactMode;
 
-        SkillAdapter(List<SkillMockData> data, boolean compactMode) {
+        SkillAdapter(SkillFragment host, List<SkillListRow> data, boolean compactMode) {
+            this.host = host;
             this.data = data;
             this.compactMode = compactMode;
         }
@@ -245,11 +536,15 @@ public class SkillFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull SkillViewHolder holder, int position) {
-            SkillMockData item = data.get(position);
+            SkillListRow item = data.get(position);
             holder.tvName.setText(item.name);
             holder.tvDesc.setText(item.desc);
             holder.tvLevel.setText(item.levelDisplay);
             holder.applyCompactStyle(compactMode);
+
+            float alpha = item.canPressAction ? 1f : 0.38f;
+            holder.btnAdd.setAlpha(alpha);
+            holder.btnAdd.setEnabled(item.canPressAction);
 
             View.OnClickListener clickDetail =
                     v -> {
@@ -269,7 +564,11 @@ public class SkillFragment extends Fragment {
                     };
             holder.itemView.setOnClickListener(clickDetail);
             holder.btnAdd.setOnClickListener(v -> {
-                Toast.makeText(v.getContext(), "TODO: 进行 [" + item.name + "] 技能学习/升级操作", Toast.LENGTH_SHORT).show();
+                if (!item.canPressAction) {
+                    Toast.makeText(v.getContext(), "技能点不足或已达上限/未满足前置", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                host.onSkillUpgradeClicked(item);
             });
         }
 
@@ -282,6 +581,7 @@ public class SkillFragment extends Fragment {
             TextView tvName, tvDesc, tvLevel;
             ImageView btnAdd;
             private boolean compactApplied = false;
+
             SkillViewHolder(View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tv_skill_name);
@@ -291,7 +591,9 @@ public class SkillFragment extends Fragment {
             }
 
             void applyCompactStyle(boolean compactMode) {
-                if (!compactMode || compactApplied) return;
+                if (!compactMode || compactApplied) {
+                    return;
+                }
                 tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
                 tvDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
                 tvLevel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
