@@ -107,10 +107,13 @@ public class CharacterTest {
 
     @Test
     public void testLevelUpThreeTimesBaseMaxHpMp() {
-        character.gainExp(character.getExpToNextLevel() * 5);
-        int levelsGained = character.getLevel() - 1;
-        assertEquals(20 + levelsGained * 8, character.getBaseMaxHp());
-        assertEquals(10 + levelsGained * 4, character.getBaseMaxMp());
+        character.gainExp(character.getExpToNextLevel());
+        character.gainExp(character.getExpToNextLevel());
+        character.gainExp(character.getExpToNextLevel());
+
+        assertEquals(4, character.getLevel());
+        assertEquals(20 + 3 * 8, character.getBaseMaxHp());
+        assertEquals(10 + 3 * 4, character.getBaseMaxMp());
     }
 
     @Test
