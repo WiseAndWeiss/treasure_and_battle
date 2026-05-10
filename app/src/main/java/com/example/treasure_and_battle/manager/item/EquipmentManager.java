@@ -8,14 +8,18 @@ import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.equip.ArmorType;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.item.equip.EquipTemplate;
+import com.example.treasure_and_battle.model.item.equip.WeaponType;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +44,6 @@ public class EquipmentManager {
         return instance;
     }
 
-    // ====================== 1. 加载装备模板 ======================
     private void loadTemplates() {
         try {
             InputStream is = context.getAssets().open("equip_config.json");
@@ -63,7 +66,6 @@ public class EquipmentManager {
         }
     }
 
-    // 根据数学模型计算不同等级的“核心威力积分(Power)”
     private double calculateBasePower(int level) {
         if (level <= 30) {
             return 10.0 + 0.8 * (level - 1);
@@ -73,7 +75,6 @@ public class EquipmentManager {
         }
     }
 
-    // 根据品质倍率转换
     private double getRarityMultiplier(Rarity rarity) {
         switch (rarity) {
             case COMMON: return 1.0;
@@ -93,7 +94,7 @@ public class EquipmentManager {
         try {
             slot = EquipSlot.valueOf(template.getSlot());
         } catch (IllegalArgumentException e) {
-            slot = EquipSlot.WEAPON; // fallback
+            slot = EquipSlot.WEAPON;
         }
 
         EquipItem equip = new EquipItem(template.getEquipId(), template.getName(), rarity, level * 10, level, slot);
@@ -102,41 +103,29 @@ public class EquipmentManager {
             equip.setIconResId(iconRes);
         }
 
-        // 核心属性分配
         double basePower = calculateBasePower(level);
         double multiplier = getRarityMultiplier(rarity);
-
-        // 浮动系数 0.9 ~ 1.1
         double floatCoefficient = 0.9 + random.nextDouble() * 0.2;
         double finalPower = basePower * multiplier * floatCoefficient;
 
         AttributeSet attrs = equip.getBaseAttributes();
 
-        // 装备属性基准映射
-        switch (slot) {
+        switch (slot.getCategory()) {
             case WEAPON:
-                attrs.physicalAtk = (int) Math.round(finalPower * 0.8);
+                applyWeaponAttributes(attrs, template.getWeaponType(), finalPower);
                 break;
-            case HELMET:
-            case CHEST:
-            case LEGGINGS:
-            case BOOTS:
-                // 防具
-                attrs.maxHp = (int) Math.round(finalPower * 0.4);
-                attrs.physicalDef = (int) Math.round(finalPower * 0.1);
-                attrs.magicalDef = (int) Math.round(finalPower * 0.1);
+            case ARMOR:
+                applyArmorAttributes(attrs, template.getArmorType(), slot, finalPower);
                 break;
-            case NECKLACE:
-            case RING:
-            case BRACELET:
-                // 饰品
-                attrs.maxHp = (int) Math.round(finalPower * 0.4);
-                attrs.strength = (int) Math.round(finalPower * 0.05);
-                attrs.physique = (int) Math.round(finalPower * 0.05);
+            case ACCESSORY:
+                applyAccessoryAttributes(attrs, finalPower);
+                break;
+            default:
+                android.util.Log.w("EquipmentManager",
+                        "Unknown equip category: " + slot.getCategory() + " for slot " + slot);
                 break;
         }
 
-        // 附加装备词缀系统，并与属性引擎解耦（交给EquipAffixManager和保底引擎去生成分配）
         List<BaseAffix> baseAffixes = new ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
         applyEquipmentOnlyAffixes(equip, baseAffixes);
         equip.setAffixes(baseAffixes);
@@ -150,6 +139,192 @@ public class EquipmentManager {
         EquipTemplate template = templates.get(random.nextInt(templates.size()));
         return generateEquip(template.getTemplateId(), level, rarity);
     }
+
+    // ====================== 武器属性 ======================
+
+    private void applyWeaponAttributes(AttributeSet attrs, String weaponTypeStr, double finalPower) {
+        WeaponType weaponType = WeaponType.SWORD;
+        if (weaponTypeStr != null) {
+            try { weaponType = WeaponType.valueOf(weaponTypeStr); } catch (IllegalArgumentException ignored) {}
+        }
+
+        switch (weaponType) {
+            case SWORD:
+                attrs.physicalAtk = (int) Math.round(finalPower * 0.7);
+                attrs.physicalDef = (int) Math.round(finalPower * 0.1);
+                attrs.strength = (int) Math.round(finalPower * 0.1);
+                break;
+            case BOW:
+                attrs.physicalAtk = (int) Math.round(finalPower * 0.5);
+                attrs.physicalCritRate = 0.05f;
+                attrs.agility = (int) Math.round(finalPower * 0.1);
+                break;
+            case STAFF:
+                attrs.magicalAtk = (int) Math.round(finalPower * 0.7);
+                attrs.magicalCritRate = 0.05f;
+                attrs.intelligence = (int) Math.round(finalPower * 0.1);
+                break;
+        }
+    }
+
+    // ====================== 护甲属性 ======================
+
+    private void applyArmorAttributes(AttributeSet attrs, String armorTypeStr, EquipSlot slot, double finalPower) {
+        ArmorType armorType = ArmorType.HEAVY;
+        if (armorTypeStr != null) {
+            try { armorType = ArmorType.valueOf(armorTypeStr); } catch (IllegalArgumentException ignored) {}
+        }
+
+        switch (armorType) {
+            case HEAVY:
+                applyHeavyArmor(attrs, slot, finalPower);
+                break;
+            case LIGHT:
+                applyLightArmor(attrs, slot, finalPower);
+                break;
+            case CLOTH:
+                applyClothArmor(attrs, slot, finalPower);
+                break;
+        }
+    }
+
+    private void applyHeavyArmor(AttributeSet attrs, EquipSlot slot, double p) {
+        switch (slot) {
+            case CHEST:
+                attrs.maxHp = (int) Math.round(p * 0.6);
+                attrs.physicalDef = (int) Math.round(p * 0.15);
+                attrs.damageReductionRate = 0.02f;
+                attrs.physique = (int) Math.round(p * 0.08);
+                break;
+            case HELMET:
+                attrs.maxHp = (int) Math.round(p * 0.4);
+                attrs.physicalDef = (int) Math.round(p * 0.10);
+                attrs.physique = (int) Math.round(p * 0.05);
+                break;
+            case LEGGINGS:
+                attrs.maxHp = (int) Math.round(p * 0.45);
+                attrs.physicalDef = (int) Math.round(p * 0.12);
+                attrs.physique = (int) Math.round(p * 0.06);
+                break;
+            case BOOTS:
+                attrs.maxHp = (int) Math.round(p * 0.3);
+                attrs.physicalDef = (int) Math.round(p * 0.08);
+                attrs.physique = (int) Math.round(p * 0.04);
+                break;
+            default: break;
+        }
+    }
+
+    private void applyLightArmor(AttributeSet attrs, EquipSlot slot, double p) {
+        switch (slot) {
+            case CHEST:
+                attrs.maxHp = (int) Math.round(p * 0.4);
+                attrs.physicalDef = (int) Math.round(p * 0.08);
+                attrs.magicalDef = (int) Math.round(p * 0.08);
+                attrs.dodgeRate = 0.02f;
+                attrs.luck = (int) Math.round(p * 0.05);
+                break;
+            case HELMET:
+                attrs.maxHp = (int) Math.round(p * 0.3);
+                attrs.physicalDef = (int) Math.round(p * 0.06);
+                attrs.magicalDef = (int) Math.round(p * 0.06);
+                attrs.luck = (int) Math.round(p * 0.04);
+                break;
+            case LEGGINGS:
+                attrs.maxHp = (int) Math.round(p * 0.35);
+                attrs.physicalDef = (int) Math.round(p * 0.07);
+                attrs.magicalDef = (int) Math.round(p * 0.07);
+                attrs.luck = (int) Math.round(p * 0.04);
+                break;
+            case BOOTS:
+                attrs.maxHp = (int) Math.round(p * 0.25);
+                attrs.physicalDef = (int) Math.round(p * 0.05);
+                attrs.magicalDef = (int) Math.round(p * 0.05);
+                attrs.dodgeRate = 0.03f;
+                attrs.luck = (int) Math.round(p * 0.03);
+                break;
+            default: break;
+        }
+    }
+
+    private void applyClothArmor(AttributeSet attrs, EquipSlot slot, double p) {
+        switch (slot) {
+            case CHEST:
+                attrs.maxHp = (int) Math.round(p * 0.25);
+                attrs.maxMp = (int) Math.round(p * 0.4);
+                attrs.magicalDef = (int) Math.round(p * 0.15);
+                attrs.debuffResist = 0.03f;
+                attrs.spirit = (int) Math.round(p * 0.08);
+                break;
+            case HELMET:
+                attrs.maxHp = (int) Math.round(p * 0.2);
+                attrs.maxMp = (int) Math.round(p * 0.3);
+                attrs.magicalDef = (int) Math.round(p * 0.10);
+                attrs.spirit = (int) Math.round(p * 0.06);
+                break;
+            case LEGGINGS:
+                attrs.maxHp = (int) Math.round(p * 0.22);
+                attrs.maxMp = (int) Math.round(p * 0.3);
+                attrs.magicalDef = (int) Math.round(p * 0.12);
+                attrs.spirit = (int) Math.round(p * 0.06);
+                break;
+            case BOOTS:
+                attrs.maxHp = (int) Math.round(p * 0.18);
+                attrs.maxMp = (int) Math.round(p * 0.25);
+                attrs.magicalDef = (int) Math.round(p * 0.08);
+                attrs.debuffResist = 0.02f;
+                attrs.spirit = (int) Math.round(p * 0.04);
+                break;
+            default: break;
+        }
+    }
+
+    // ====================== 饰品属性（随机双属性） ======================
+
+    private static final List<String> ACCESSORY_STAT_POOL = Collections.unmodifiableList(Arrays.asList(
+        "strength", "agility", "intelligence", "spirit", "physique", "luck",
+        "maxHp", "maxMp", "physicalAtk", "magicalAtk",
+        "physicalDef", "magicalDef", "speed",
+        "physicalCritRate", "magicalCritRate", "dodgeRate", "hitRate", "debuffResist",
+        "damageReductionRate"
+    ));
+
+    private void applyAccessoryAttributes(AttributeSet attrs, double finalPower) {
+        List<String> pool = new ArrayList<>(ACCESSORY_STAT_POOL);
+        Collections.shuffle(pool, random);
+        String stat1 = pool.get(0);
+        String stat2 = pool.get(1);
+
+        applyAccessoryStat(attrs, stat1, finalPower);
+        applyAccessoryStat(attrs, stat2, finalPower);
+    }
+
+    private void applyAccessoryStat(AttributeSet attrs, String stat, double p) {
+        double ratio = 0.05 + random.nextDouble() * 0.07; // 0.05 ~ 0.12
+        switch (stat) {
+            case "strength":      attrs.strength = (int) Math.round(p * ratio); break;
+            case "agility":       attrs.agility = (int) Math.round(p * ratio); break;
+            case "intelligence":  attrs.intelligence = (int) Math.round(p * ratio); break;
+            case "spirit":        attrs.spirit = (int) Math.round(p * ratio); break;
+            case "physique":      attrs.physique = (int) Math.round(p * ratio); break;
+            case "luck":          attrs.luck = (int) Math.round(p * ratio); break;
+            case "maxHp":         attrs.maxHp = (int) Math.round(p * (0.2 + random.nextDouble() * 0.3)); break;
+            case "maxMp":         attrs.maxMp = (int) Math.round(p * (0.15 + random.nextDouble() * 0.25)); break;
+            case "physicalAtk":   attrs.physicalAtk = (int) Math.round(p * (0.15 + random.nextDouble() * 0.2)); break;
+            case "magicalAtk":    attrs.magicalAtk = (int) Math.round(p * (0.15 + random.nextDouble() * 0.2)); break;
+            case "physicalDef":   attrs.physicalDef = (int) Math.round(p * (0.05 + random.nextDouble() * 0.1)); break;
+            case "magicalDef":    attrs.magicalDef = (int) Math.round(p * (0.05 + random.nextDouble() * 0.1)); break;
+            case "speed":         attrs.speed = (int) Math.round(p * (0.03 + random.nextDouble() * 0.05)); break;
+            case "physicalCritRate":  attrs.physicalCritRate = 0.02f + random.nextFloat() * 0.03f; break;
+            case "magicalCritRate":   attrs.magicalCritRate = 0.02f + random.nextFloat() * 0.03f; break;
+            case "dodgeRate":         attrs.dodgeRate = 0.02f + random.nextFloat() * 0.03f; break;
+            case "hitRate":           attrs.hitRate = 0.02f + random.nextFloat() * 0.03f; break;
+            case "debuffResist":      attrs.debuffResist = 0.02f + random.nextFloat() * 0.03f; break;
+            case "damageReductionRate": attrs.damageReductionRate = 0.01f + random.nextFloat() * 0.02f; break;
+        }
+    }
+
+    // ====================== EQUIPMENT_ONLY 词缀应用 ======================
 
     private void applyEquipmentOnlyAffixes(EquipItem equip, List<BaseAffix> affixes) {
         if (equip == null || affixes == null || affixes.isEmpty()) {
@@ -207,8 +382,6 @@ public class EquipmentManager {
         base.debuffResist += modifiers.debuffResist;
         base.damageReductionRate += modifiers.damageReductionRate;
     }
-
-
 
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;
