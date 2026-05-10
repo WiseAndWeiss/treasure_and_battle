@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_treasure"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_battle_back"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_tab_idle"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="返回"
+            android:textColor="@color/tb_text_main"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="战斗（演示）"
+            android:textColor="@color/tb_gold"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="56dp"
+            android:layout_height="1dp" />
+    </LinearLayout>
+
+    <!-- 怪物区：5 槽 W 形 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1.15"
+        android:background="@drawable/bg_panel_treasure">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/battle_slot_0"
+                    layout="@layout/item_battle_monster_slot" />
+
+                <include
+                    android:id="@+id/battle_slot_1"
+                    layout="@layout/item_battle_monster_slot" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/battle_slot_2"
+                layout="@layout/item_battle_monster_slot" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/battle_slot_3"
+                    layout="@layout/item_battle_monster_slot" />
+
+                <include
+                    android:id="@+id/battle_slot_4"
+                    layout="@layout/item_battle_monster_slot" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 底部：操作 | 角色 | Buff -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- 左：战斗指令 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_panel_treasure"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/btn_battle_attack"
+                style="@style/TbBattleCommand"
+                android:text="攻击" />
+
+            <TextView
+                android:id="@+id/btn_battle_skill"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="技能" />
+
+            <TextView
+                android:id="@+id/btn_battle_item"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="道具" />
+
+            <TextView
+                android:id="@+id/btn_battle_escape"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="逃跑" />
+        </LinearLayout>
+
+        <!-- 中：角色状态 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1.15"
+            android:background="@drawable/bg_panel_treasure"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv_battle_player_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/tb_text_main"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="冒险者" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="生命"
+                android:textColor="@color/tb_text_sub"
+                android:textSize="11sp" />
+
+            <ProgressBar
+                android:id="@+id/pb_battle_player_hp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="80"
+                android:progressTint="@color/tb_battle" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="法力"
+                android:textColor="@color/tb_text_sub"
+                android:textSize="11sp" />
+
+            <ProgressBar
+                android:id="@+id/pb_battle_player_mp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="60"
+                android:progressTint="#FF3949AB" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="行动点"
+                android:textColor="@color/tb_text_sub"
+                android:textSize="11sp" />
+
+            <ProgressBar
+                android:id="@+id/pb_battle_player_ap"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="100"
+                android:progressTint="@color/tb_gold" />
+
+            <TextView
+                android:id="@+id/tv_battle_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:minLines="2"
+                android:textColor="@color/tb_text_sub"
+                android:textSize="11sp"
+                tools:text="提示" />
+        </LinearLayout>
+
+        <!-- 右：Buff 列表 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_panel_treasure"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="状态"
+                android:textColor="@color/tb_gold"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_battle_buffs"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="6dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingBottom="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
