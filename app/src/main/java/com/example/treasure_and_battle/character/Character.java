@@ -89,8 +89,8 @@ public class Character {
         this.baseMaxHp += 8;
         this.baseMaxMp += 4;
         this.expToNextLevel = expValueForLevel(this.level);
-        this.talentPoints += 1;
-        this.skillPoints += 2;
+        this.talentPoints += 2;
+        this.skillPoints += 1;
 
         growHpMpAfterMaxIncrease(oldMaxHp, oldMaxMp);
     }

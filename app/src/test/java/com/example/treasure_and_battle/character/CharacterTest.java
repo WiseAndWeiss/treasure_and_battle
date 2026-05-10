@@ -88,8 +88,8 @@ public class CharacterTest {
         character.gainExp(toNext);
         assertEquals(2, character.getLevel());
         assertTrue(character.getCurrentExp() < character.getExpToNextLevel());
-        assertEquals(1, character.getTalentPoints());
-        assertEquals(2, character.getSkillPoints());
+        assertEquals(2, character.getTalentPoints());
+        assertEquals(1, character.getSkillPoints());
     }
 
     @Test
