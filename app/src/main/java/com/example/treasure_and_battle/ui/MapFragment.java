@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.maps.AMap;
@@ -41,6 +40,8 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.manager.EventManager;
+import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 
@@ -82,6 +83,7 @@ public class MapFragment extends Fragment {
 
     private FrameLayout mCountdownOverlay;
     private TextView tvCountdown;
+    private TextView mCountdownNumber;
     private LatLng mBattleTriggerPosition;
     private boolean mIsProcessingNeutral;
 
@@ -468,52 +470,28 @@ public class MapFragment extends Fragment {
             @Override
             public void run() {
                 if (countdown > 0) {
-                    tvCountdown.setText("即将进入战斗\n" + countdown);
+                    mCountdownNumber.setText(String.valueOf(countdown));
                     countdown--;
                     mMainHandler.postDelayed(this, 1000);
                 } else {
                     mCountdownOverlay.setVisibility(View.GONE);
+                    mBattleCountdownRunnable = null;
                     mBattleTriggerPosition = null;
-                    Intent intent = new Intent(getActivity(), BattleActivity.class);
-                    startActivity(intent);
+                    openBattlePage();
                 }
             }
         };
         mMainHandler.post(mBattleCountdownRunnable);
     }
 
-    private void handleBenefitAction(EventConfig.EventSubItem sub) {
-        if (sub == null) return;
-        String key = sub.getKey();
-        if ("recovery".equals(key)) {
-            Toast.makeText(getContext(), "回复生命+80！", Toast.LENGTH_SHORT).show();
-        } else if ("training".equals(key)) {
-            Toast.makeText(getContext(), "力量+5！", Toast.LENGTH_SHORT).show();
-        } else if ("treasure".equals(key)) {
-            Toast.makeText(getContext(), "开启宝藏！获得金币、装备、材料和宝石", Toast.LENGTH_SHORT).show();
-        }
+    private void openBattlePage() {
+        Intent intent = new Intent(getActivity(), BattleActivity.class);
+        startActivity(intent);
     }
 
-    private void handleNeutralAction(EventConfig.EventSubItem sub) {
-        if (sub == null) return;
-        String key = sub.getKey();
-        if ("merchant".equals(key)) {
-            Toast.makeText(getContext(), "与商人交易！", Toast.LENGTH_SHORT).show();
-        } else if ("exploration".equals(key)) {
-            Toast.makeText(getContext(), "深入探险！", Toast.LENGTH_SHORT).show();
-        } else if ("traveler".equals(key)) {
-            Toast.makeText(getContext(), "帮助了迷路的旅人！获得补给品×3、金币×200，幸运值提升1小时", Toast.LENGTH_SHORT).show();
-        } else if ("scholar".equals(key)) {
-            Toast.makeText(getContext(), "消耗金币×500，天赋点/技能点已重置", Toast.LENGTH_SHORT).show();
-        } else if ("statue_blessing".equals(key)) {
-            Toast.makeText(getContext(), "接受雕像祝福！下3场战斗获得随机Buff", Toast.LENGTH_SHORT).show();
-        } else if ("monster_camp".equals(key)) {
-            Toast.makeText(getContext(), "偷袭成功！必定先手进入战斗", Toast.LENGTH_SHORT).show();
-        } else if ("cave_treasure".equals(key)) {
-            Toast.makeText(getContext(), "开启宝箱！小心怪物偷袭...", Toast.LENGTH_SHORT).show();
-        } else if ("equipment_reforge".equals(key)) {
-            Toast.makeText(getContext(), "装备词条重炼完成！", Toast.LENGTH_SHORT).show();
-        }
+    private void handleBenefitAction() {
+        Intent intent = new Intent(getActivity(), BenefitEventActivity.class);
+        startActivity(intent);
     }
 
     private void openNeutralEventPage(EventConfig.EventSubItem sub) {
@@ -576,16 +554,24 @@ public class MapFragment extends Fragment {
                     }
 
                     if ("BATTLE".equals(type) || (sub != null && sub.getKey().startsWith("battle_"))) {
+                        EventManager.EventCircle triggeredEc = mEventManager.getTriggeredEventCircle();
+                        Monster battleMonster = null;
+                        if (triggeredEc != null && triggeredEc.monster != null) {
+                            battleMonster = triggeredEc.monster;
+                        } else {
+                            battleMonster = MonsterManager.getInstance(getContext()).createRandomMonster();
+                        }
+                        mEventManager.setCurrentBattleMonster(battleMonster);
                         mEventManager.removeTriggeredEvents();
                         refreshEventIcons();
                         mBattleTriggerPosition = latLng;
                         Toast.makeText(getContext(), "即将进入战斗...", Toast.LENGTH_SHORT).show();
                         startBattleCountdown();
                     } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "") || "training".equals(sub != null ? sub.getKey() : "") || "treasure".equals(sub != null ? sub.getKey() : "")) {
-                        handleBenefitAction(sub);
+                        handleBenefitAction();
                         mEventManager.removeTriggeredEvents();
                         refreshEventIcons();
-                        Toast.makeText(getContext(), "已触发增益事件", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "增益事件，你可以在此回复生命、增强力量或打开宝箱", Toast.LENGTH_SHORT).show();
                     } else if ("NEUTRAL".equals(type)) {
                         mIsProcessingNeutral = true;
                         mEventManager.removeTriggeredEvents();
@@ -664,19 +650,35 @@ public class MapFragment extends Fragment {
         mCountdownOverlay.setFocusable(true);
         mCountdownOverlay.setVisibility(View.GONE);
 
-        tvCountdown = new TextView(requireContext());
-        tvCountdown.setTextSize(28);
-        tvCountdown.setTextColor(0xFFFFFFFF);
-        tvCountdown.setGravity(Gravity.CENTER);
-        tvCountdown.setBackgroundResource(R.drawable.bg_event_popup);
-        int pad = (int) (30 * getResources().getDisplayMetrics().density);
-        tvCountdown.setPadding(pad, pad, pad, pad);
+        LinearLayout card = new LinearLayout(requireContext());
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER);
+        card.setBackgroundResource(R.drawable.bg_event_popup);
+        int pad = (int) (24 * getResources().getDisplayMetrics().density);
+        card.setPadding(pad, pad, pad, pad);
 
-        FrameLayout.LayoutParams tvParams = new FrameLayout.LayoutParams(
+        tvCountdown = new TextView(requireContext());
+        tvCountdown.setTextSize(18);
+        tvCountdown.setTextColor(0xFF333333);
+        tvCountdown.setGravity(Gravity.CENTER);
+        tvCountdown.setText("即将进入战斗");
+        card.addView(tvCountdown);
+
+        TextView tvCountdownNum = new TextView(requireContext());
+        tvCountdownNum.setId(View.generateViewId());
+        tvCountdownNum.setTextSize(72);
+        tvCountdownNum.setTextColor(0xFFE53935);
+        tvCountdownNum.setGravity(Gravity.CENTER);
+        tvCountdownNum.setText("5");
+        card.addView(tvCountdownNum);
+        mCountdownNumber = tvCountdownNum;
+
+        FrameLayout.LayoutParams cardParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
-        tvParams.gravity = Gravity.CENTER;
-        mCountdownOverlay.addView(tvCountdown, tvParams);
+        cardParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        cardParams.topMargin = (int) (120 * getResources().getDisplayMetrics().density);
+        mCountdownOverlay.addView(card, cardParams);
         mMapView.addView(mCountdownOverlay);
     }
 
@@ -687,7 +689,7 @@ public class MapFragment extends Fragment {
         List<EventManager.EventCircle> circles = mEventManager.getEventCircleList();
         if (circles.isEmpty()) return;
 
-        int iconSize = (int) (18 * getResources().getDisplayMetrics().density);
+        int iconSize = (int) (36 * getResources().getDisplayMetrics().density);
 
         for (EventManager.EventCircle ec : circles) {
             int resId = getEventIconRes(ec.config.getType());
@@ -695,6 +697,7 @@ public class MapFragment extends Fragment {
 
             ImageView iv = new ImageView(requireContext());
             iv.setImageResource(resId);
+            iv.setColorFilter(getEventIconColor(ec.config.getType()), android.graphics.PorterDuff.Mode.SRC_IN);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(iconSize, iconSize);
 
             android.graphics.Point point = mAMap.getProjection().toScreenLocation(ec.position);
@@ -713,6 +716,16 @@ public class MapFragment extends Fragment {
             case "NEUTRAL":  return R.drawable.ic_event_neutral;
             case "UNKNOWN":  return R.drawable.ic_event_unknown;
             default:         return 0;
+        }
+    }
+
+    private int getEventIconColor(String type) {
+        switch (type) {
+            case "BATTLE":   return 0xFFC62828;
+            case "BENEFIT":  return 0xFF2E7D32;
+            case "NEUTRAL":  return 0xFFF0C020;
+            case "UNKNOWN":  return 0xFF455A64;
+            default:         return 0xFF888888;
         }
     }
 
@@ -757,6 +770,11 @@ public class MapFragment extends Fragment {
             tvEventDesc.setText("描述：???");
             tvEventReward.setText("奖励：???");
             tvEventRisk.setText("风险：???");
+        } else if ("BENEFIT".equals(item.getType())) {
+            tvEventName.setText("增益事件");
+            tvEventDesc.setText("描述：你可以在此回复生命、增强力量或打开宝箱");
+            tvEventReward.setText("奖励：生命恢复 / 力量提升 / 随机宝藏");
+            tvEventRisk.setText("风险：无");
         } else if (sub != null) {
             tvEventName.setText(sub.getName());
             tvEventDesc.setText("描述：" + sub.getDesc());

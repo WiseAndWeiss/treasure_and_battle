@@ -6,6 +6,7 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 import com.google.gson.Gson;
@@ -26,6 +27,7 @@ public class EventManager {
     private List<EventCircle> mEventCircleList = new ArrayList<>();
     private Random mRandom = new Random();
     private LatLng mCurrentLatLng;
+    private Monster mCurrentBattleMonster;
 
     public static class EventCircle {
         public Circle circle;
@@ -34,6 +36,7 @@ public class EventManager {
         public boolean isTriggered;
         public EventConfig.EventItem config;
         public EventConfig.EventSubItem selectedSubEvent;
+        public Monster monster;
 
         public EventCircle(Circle circle, LatLng position, EventConfig.EventItem config) {
             this.circle = circle;
@@ -42,6 +45,7 @@ public class EventManager {
             this.isTriggered = false;
             this.config = config;
             this.selectedSubEvent = null;
+            this.monster = null;
         }
     }
 
@@ -177,6 +181,9 @@ public class EventManager {
             mEventCircleList.add(new EventCircle(circle, finalPos, eventType));
             EventCircle ec = mEventCircleList.get(mEventCircleList.size() - 1);
             ec.selectedSubEvent = pickRandomSubEvent(eventType);
+            if ("BATTLE".equals(eventType.getType())) {
+                ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
             createdCount++;
         }
 
@@ -221,6 +228,62 @@ public class EventManager {
             if (d <= e.config.getTriggerDistance()) return e.config;
         }
         return null;
+    }
+
+    public boolean hasUnknownEvents() {
+        for (EventCircle ec : mEventCircleList) {
+            if ("UNKNOWN".equals(ec.config.getType())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String revealUnknownEvent() {
+        List<EventCircle> unknownCircles = new ArrayList<>();
+        for (EventCircle ec : mEventCircleList) {
+            if ("UNKNOWN".equals(ec.config.getType())) {
+                unknownCircles.add(ec);
+            }
+        }
+        if (unknownCircles.isEmpty()) {
+            return "当前地图上没有未知事件可揭示。";
+        }
+
+        EventCircle target = unknownCircles.get(mRandom.nextInt(unknownCircles.size()));
+        target.circle.remove();
+
+        EventConfig.EventItem eventTypes = findEventConfigByType(resolveUnknownType());
+        if (eventTypes == null) {
+            return "占卜出现误差，未能揭示事件。";
+        }
+
+        EventConfig.EventSubItem sub = pickRandomSubEvent(eventTypes);
+        target.config = eventTypes;
+        target.selectedSubEvent = sub;
+
+        target.circle = mAMap.addCircle(new CircleOptions()
+                .center(target.position)
+                .radius(eventTypes.getRadius())
+                .strokeColor(eventTypes.getStrokeColorInt())
+                .strokeWidth(4)
+                .fillColor(eventTypes.getFillColorInt()));
+
+        return "占卜成功！一个未知事件被揭示为：" + (sub != null ? sub.getName() : eventTypes.getType());
+    }
+
+    private EventConfig.EventItem findEventConfigByType(String type) {
+        for (EventConfig.EventItem item : mEventConfig.getEvents()) {
+            if (item.getType().equals(type)) return item;
+        }
+        return null;
+    }
+
+    private String resolveUnknownType() {
+        int roll = mRandom.nextInt(100);
+        if (roll < 70) return "BATTLE";
+        if (roll < 85) return "NEUTRAL";
+        return "BENEFIT";
     }
 
     /**
@@ -296,6 +359,16 @@ public class EventManager {
         return count;
     }
 
+    public EventCircle getTriggeredEventCircle() {
+        if (mCurrentLatLng == null) return null;
+        for (EventCircle e : mEventCircleList) {
+            if (e.isTriggered) continue;
+            double d = GeoUtils.calculateDistance(mCurrentLatLng, e.position);
+            if (d <= e.config.getTriggerDistance()) return e;
+        }
+        return null;
+    }
+
     public void removeEventCircle(EventCircle ec) {
         if (ec != null && mEventCircleList.remove(ec)) {
             ec.circle.remove();
@@ -328,6 +401,14 @@ public class EventManager {
             }
         }
         return count;
+    }
+
+    public void setCurrentBattleMonster(Monster monster) {
+        mCurrentBattleMonster = monster;
+    }
+
+    public Monster getCurrentBattleMonster() {
+        return mCurrentBattleMonster;
     }
 
     public List<EventCircle> getEventCircleList() {

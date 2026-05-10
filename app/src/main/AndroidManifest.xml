@@ -48,6 +48,10 @@
         <activity
             android:name=".ui.NeutralEventActivity"
             android:exported="false"/>
+
+        <activity
+            android:name=".ui.BenefitEventActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>

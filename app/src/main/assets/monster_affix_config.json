@@ -1119,7 +1119,7 @@
       "minValue": 0.1,
       "maxValue": 0.1,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1131,7 +1131,7 @@
       "minValue": 0.2,
       "maxValue": 0.2,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1143,7 +1143,7 @@
       "minValue": 0.3,
       "maxValue": 0.3,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1155,7 +1155,7 @@
       "minValue": 0.4,
       "maxValue": 0.4,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1167,7 +1167,7 @@
       "minValue": 0.5,
       "maxValue": 0.5,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1179,7 +1179,7 @@
       "minValue": 0.1,
       "maxValue": 0.1,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1191,7 +1191,7 @@
       "minValue": 0.2,
       "maxValue": 0.2,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1203,7 +1203,7 @@
       "minValue": 0.3,
       "maxValue": 0.3,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1215,7 +1215,7 @@
       "minValue": 0.4,
       "maxValue": 0.4,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {
@@ -1227,7 +1227,7 @@
       "minValue": 0.5,
       "maxValue": 0.5,
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT"
     },
     {

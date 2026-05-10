@@ -1,5 +1,6 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.model.item.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,6 @@ public class InventoryManager {
     }
 
     public boolean addItem(Item newItem) {
-        // 如果是可堆叠物品，先尝试堆叠
         if (newItem.canStack()) {
             for (Item item : items) {
                 if (item.getId().equals(newItem.getId()) && item.getCount() < item.getMaxStack()) {
@@ -36,20 +36,50 @@ public class InventoryManager {
                 }
             }
         }
-        
-        // 装入新格子
+
         if (items.size() < maxCapacity) {
             items.add(newItem);
             return true;
         }
-        return false; // 背包满了
+        return false;
     }
 
     public void removeItem(Item item) {
         items.remove(item);
     }
 
+    public void removeByIndex(int index) {
+        if (index >= 0 && index < items.size()) {
+            items.remove(index);
+        }
+    }
+
     public List<Item> getItems() {
         return items;
+    }
+
+    public Item getItemByIndex(int index) {
+        if (index >= 0 && index < items.size()) {
+            return items.get(index);
+        }
+        return null;
+    }
+
+    public List<EquipItem> getEquipItems() {
+        List<EquipItem> result = new ArrayList<>();
+        for (Item item : items) {
+            if (item instanceof EquipItem) {
+                result.add((EquipItem) item);
+            }
+        }
+        return result;
+    }
+
+    public int getItemIndex(Item item) {
+        return items.indexOf(item);
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 }

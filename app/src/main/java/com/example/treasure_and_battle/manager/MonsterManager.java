@@ -10,9 +10,11 @@ import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 
@@ -77,6 +79,13 @@ public class MonsterManager {
 
     public Monster createMonsterWithLevelScaling(int templateId, int playerLevel) {
         return createMonsterInternal(templateId, playerLevel, true);
+    }
+
+    public Monster createRandomMonster() {
+        if (templateMap.isEmpty()) return null;
+        List<Integer> ids = new ArrayList<>(templateMap.keySet());
+        int randomId = ids.get(new Random().nextInt(ids.size()));
+        return createMonsterByTemplateId(randomId);
     }
 
     private double calculateMonsterBasePower(int level) {

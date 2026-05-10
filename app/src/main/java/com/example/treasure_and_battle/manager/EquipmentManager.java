@@ -210,6 +210,13 @@ public class EquipmentManager {
 
 
 
+    private int resolveEquipIconRes(String equipId) {
+        if (equipId == null || equipId.isEmpty()) return 0;
+        switch (equipId) {
+            default: return 0;
+        }
+    }
+
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;
     }
