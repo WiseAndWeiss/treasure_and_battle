@@ -84,11 +84,17 @@ public class Character {
     }
 
     private void levelUp() {
+        Player before = generatePlayer();
+        int oldMaxHp = before.getFinalAttributes().maxHp;
+        int oldMaxMp = before.getFinalAttributes().maxMp;
+
         this.currentExp -= this.expToNextLevel;
         this.level++;
         this.expToNextLevel = expValueForLevel(this.level);
         this.talentPoints += 1;
         this.skillPoints += 2;
+
+        applyHpMpGrowthDelta(oldMaxHp, oldMaxMp);
     }
 
     private int expValueForLevel(int level) {
@@ -102,15 +108,32 @@ public class Character {
     public boolean allocateTalentPoint(String attributeName) {
         if (talentPoints <= 0) return false;
 
-        switch (attributeName.toUpperCase()) {
+        String key = attributeName.toUpperCase();
+        switch (key) {
+            case "STRENGTH":
+            case "AGILITY":
+            case "INTELLIGENCE":
+            case "SPIRIT":
+            case "PHYSIQUE":
+            case "LUCK":
+                break;
+            default:
+                return false;
+        }
+
+        Player before = generatePlayer();
+        int oldMaxHp = before.getFinalAttributes().maxHp;
+        int oldMaxMp = before.getFinalAttributes().maxMp;
+
+        switch (key) {
             case "STRENGTH":   allocatedStrength++;   talentPoints--; break;
             case "AGILITY":    allocatedAgility++;    talentPoints--; break;
             case "INTELLIGENCE": allocatedIntelligence++; talentPoints--; break;
             case "SPIRIT":     allocatedSpirit++;     talentPoints--; break;
             case "PHYSIQUE":   allocatedPhysique++;   talentPoints--; break;
             case "LUCK":       allocatedLuck++;       talentPoints--; break;
-            default: return false;
         }
+        applyHpMpGrowthDelta(oldMaxHp, oldMaxMp);
         return true;
     }
 
@@ -123,6 +146,11 @@ public class Character {
         allocatedSpirit = 0;
         allocatedPhysique = 0;
         allocatedLuck = 0;
+        Player p = generatePlayer();
+        int maxHp = p.getFinalAttributes().maxHp;
+        int maxMp = p.getFinalAttributes().maxMp;
+        currentHp = Math.min(currentHp, maxHp);
+        currentMp = Math.min(currentMp, maxMp);
     }
 
     // ========== 装备 ==========
@@ -170,7 +198,23 @@ public class Character {
         base.physique = allocatedPhysique;
         base.luck = allocatedLuck;
 
+        // 与 Player.initBaseAttributes 的 20/10 对齐：等级提升增加基石 HP/MP，否则升级不会反映到面板
+        int lv = Math.max(1, level);
+        base.maxHp = 20 + (lv - 1) * 8;
+        base.maxMp = 10 + (lv - 1) * 4;
+
         player.markAttributeCacheDirty();
+    }
+
+    /** 上限因等级或六维提高时，当前 HP/MP 增加对应差额（不超过新上限）。 */
+    private void applyHpMpGrowthDelta(int oldMaxHp, int oldMaxMp) {
+        Player after = generatePlayer();
+        int newMaxHp = after.getFinalAttributes().maxHp;
+        int newMaxMp = after.getFinalAttributes().maxMp;
+        int dHp = Math.max(0, newMaxHp - oldMaxHp);
+        int dMp = Math.max(0, newMaxMp - oldMaxMp);
+        currentHp = Math.min(newMaxHp, currentHp + dHp);
+        currentMp = Math.min(newMaxMp, currentMp + dMp);
     }
 
     private void injectSkills(Player player) {
@@ -214,6 +258,20 @@ public class Character {
     public int getGold() { return gold; }
     public void addGold(int amount) { this.gold += amount; }
     public boolean spendGold(int amount) { if (this.gold < amount) return false; this.gold -= amount; return true; }
+
+    /** 直接增加未分配天赋点（测试或奖励用）。 */
+    public void addTalentPoints(int amount) {
+        if (amount > 0) {
+            this.talentPoints += amount;
+        }
+    }
+
+    /** 直接增加未消耗技能点（测试或奖励用）。 */
+    public void addSkillPoints(int amount) {
+        if (amount > 0) {
+            this.skillPoints += amount;
+        }
+    }
     public int getCurrentHp() { return currentHp; }
     public void setCurrentHp(int hp) { this.currentHp = hp; }
     public int getCurrentMp() { return currentMp; }

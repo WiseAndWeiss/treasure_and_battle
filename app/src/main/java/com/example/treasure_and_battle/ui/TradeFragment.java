@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -39,9 +40,6 @@ public class TradeFragment extends Fragment {
 
     private static final int MERCHANT_COLUMNS = 4;
     private static final int MERCHANT_SLOT_COUNT = MERCHANT_COLUMNS * 2;
-
-    /** 交易界面内金币展示与结算（不写入 Character / 存档） */
-    private int tradeGold = 5000;
 
     private TextView tvGold;
     private TradeBagBottomController tradeBagBottom;
@@ -83,8 +81,9 @@ public class TradeFragment extends Fragment {
             return !infiniteStock && stockRemaining <= 0;
         }
 
+        /** 仅可堆叠商品才弹出购买数量；装备/宝石等 maxStack≤1 时直接购 1 个 */
         boolean canPickQuantity() {
-            return sample.canStack() && sample.getMaxStack() > 1;
+            return sample.canStack();
         }
 
         void consumeStock(int qty) {
@@ -113,8 +112,13 @@ public class TradeFragment extends Fragment {
         if (amount <= 0) {
             return;
         }
-        tradeGold += amount;
+        tradeCharacter().addGold(amount);
         refreshGoldLabel();
+    }
+
+    @NonNull
+    private Character tradeCharacter() {
+        return PlayerCharacterHolder.getOrCreate(requireContext());
     }
 
     @Nullable
@@ -182,9 +186,9 @@ public class TradeFragment extends Fragment {
         listings.clear();
         EquipmentManager em = EquipmentManager.getInstance(requireContext());
 
-        addEquipListing(em, 3001, 2, Rarity.COMMON, 2);
-        addEquipListing(em, 3002, 4, Rarity.COMMON, 2);
-        addEquipListing(em, 3003, 5, Rarity.UNCOMMON, 3);
+        addEquipListing(em, 3001, 2, Rarity.COMMON, 1);
+        addEquipListing(em, 3002, 4, Rarity.COMMON, 1);
+        addEquipListing(em, 3003, 5, Rarity.UNCOMMON, 1);
 
         addConsumableShop("shop_hp_s", "小型治疗药水", Rarity.COMMON, 15, 24,
                 true, true, "恢复少量生命值。", android.R.drawable.ic_menu_day, 60);
@@ -248,7 +252,10 @@ public class TradeFragment extends Fragment {
     }
 
     private void refreshGoldLabel() {
-        tvGold.setText("金币：" + tradeGold);
+        if (tvGold == null) {
+            return;
+        }
+        tvGold.setText("金币：" + tradeCharacter().getGold());
     }
 
     private void bindMerchantIcon(@Nullable ImageView imageView, int iconResId) {
@@ -267,7 +274,7 @@ public class TradeFragment extends Fragment {
         int maxByStock = listing.infiniteStock ? 999 : listing.stockRemaining;
         maxByStock = Math.min(maxByStock, 999);
         int unit = listing.unitBuyPrice;
-        int maxByGold = unit <= 0 ? maxByStock : tradeGold / unit;
+        int maxByGold = unit <= 0 ? maxByStock : tradeCharacter().getGold() / unit;
         int empty = tradeBagBottom != null ? tradeBagBottom.countEmptySlots() : 0;
         int maxByBag;
         if (!listing.sample.canStack()) {
@@ -338,7 +345,8 @@ public class TradeFragment extends Fragment {
             return;
         }
         int total = (int) totalLong;
-        if (tradeGold < total) {
+        Character ch = tradeCharacter();
+        if (ch.getGold() < total) {
             Toast.makeText(requireContext(), "金币不足", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -350,7 +358,10 @@ public class TradeFragment extends Fragment {
             Toast.makeText(requireContext(), "背包已满", Toast.LENGTH_SHORT).show();
             return;
         }
-        tradeGold -= total;
+        if (!ch.spendGold(total)) {
+            Toast.makeText(requireContext(), "金币不足", Toast.LENGTH_SHORT).show();
+            return;
+        }
         listing.consumeStock(qty);
         // 购买只改了共享网格，须立刻写回 InventoryManager；否则 Trade.onResume 的 reload 或切回背包会读到旧列表
         InventoryGridSync.flushSharedGridToManager();

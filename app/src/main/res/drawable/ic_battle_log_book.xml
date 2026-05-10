@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 简易书本轮廓（左页+右页+书脊） -->
+    <path
+        android:fillColor="#FFD4A574"
+        android:pathData="M6,3c-0.55,0 -1,0.45 -1,1v16c0,0.55 0.45,1 1,1h5V3H6zM13,3v18h5c0.55,0 1,-0.45 1,-1V4c0,-0.55 -0.45,-1 -1,-1h-5z" />
+    <path
+        android:fillColor="#FF8D6E63"
+        android:pathData="M11.5,3h1v18h-1z" />
+</vector>

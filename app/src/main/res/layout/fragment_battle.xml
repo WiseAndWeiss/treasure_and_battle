@@ -92,6 +92,21 @@
                     layout="@layout/item_battle_monster_slot" />
             </LinearLayout>
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_battle_log_book"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/battle_log_book_cd"
+            android:focusable="true"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_battle_log_book" />
     </FrameLayout>
 
     <!-- 底部：操作 | 角色 | Buff -->
@@ -104,6 +119,11 @@
         android:orientation="horizontal">
 
         <!-- 左：战斗指令 -->
+
+        <!-- 中：角色状态 -->
+
+        <!-- 右：Buff 列表 -->
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -137,7 +157,6 @@
                 android:text="逃跑" />
         </LinearLayout>
 
-        <!-- 中：角色状态 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -158,13 +177,30 @@
                 android:textStyle="bold"
                 tools:text="冒险者" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="生命"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="11sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="生命"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_battle_player_hp_val"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="80 / 100" />
+            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/pb_battle_player_hp"
@@ -176,13 +212,30 @@
                 android:progress="80"
                 android:progressTint="@color/tb_battle" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="法力"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="11sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="法力"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_battle_player_mp_val"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="40 / 50" />
+            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/pb_battle_player_mp"
@@ -194,13 +247,30 @@
                 android:progress="60"
                 android:progressTint="#FF3949AB" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="行动点"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="11sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="行动点"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_battle_player_ap_val"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="2 / 2" />
+            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/pb_battle_player_ap"
@@ -224,7 +294,6 @@
                 tools:text="提示" />
         </LinearLayout>
 
-        <!-- 右：Buff 列表 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
