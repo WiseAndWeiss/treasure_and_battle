@@ -22,7 +22,6 @@ import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.PlayerManager;
 import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.skill.SkillEffectParams;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
@@ -30,6 +29,7 @@ import com.example.treasure_and_battle.model.skill.SkillType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -204,8 +204,7 @@ public class SkillFragment extends Fragment {
         Profession profession = character.getProfession();
         String jobName = profession != null ? profession.getProfessionName() : "—";
 
-        Player preview = character.generatePlayer();
-        AttributeSet fa = preview.getFinalAttributes();
+        AttributeSet fa = AttributeUtils.calculateCharacterAttributes(character);
 
         String left = String.format(Locale.CHINA,
                 "职业：%s\n等级：%d\n名称：%s\n经验：%d / %d\n血量：%d / %d\n魔力：%d / %d\n金币：%d",
