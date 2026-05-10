@@ -12,6 +12,7 @@ import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,32 +32,27 @@ public class Character {
     private Profession profession;
     private ProfessionType professionType;
 
-    // ========== 等级与经验 ==========
     private int level;
     private int currentExp;
     private int expToNextLevel;
 
-    // ========== 资源 ==========
     private int talentPoints;
     private int skillPoints;
     private int gold;
 
-    // ========== HP/MP（跨战斗持久化） ==========
+    private int baseMaxHp = 20;
+    private int baseMaxMp = 10;
     private int currentHp;
     private int currentMp;
 
-    // ========== 装备 ==========
     private Map<EquipSlot, EquipItem> equippedItems = new HashMap<>();
 
-    // ========== 天赋分配 ==========
     private int allocatedStrength;
     private int allocatedAgility;
     private int allocatedIntelligence;
     private int allocatedSpirit;
     private int allocatedPhysique;
     private int allocatedLuck;
-
-    // ========== 构造 ==========
 
     public Character(int characterId, String name, ProfessionType professionType, Context context) {
         this.mContext = context;
@@ -70,8 +66,8 @@ public class Character {
         this.talentPoints = 0;
         this.skillPoints = 0;
         this.gold = 0;
-        this.currentHp = 20;
-        this.currentMp = 10;
+        this.currentHp = this.baseMaxHp;
+        this.currentMp = this.baseMaxMp;
     }
 
     // ========== 经验与升级 ==========
@@ -84,17 +80,19 @@ public class Character {
     }
 
     private void levelUp() {
-        Player before = generatePlayer();
-        int oldMaxHp = before.getFinalAttributes().maxHp;
-        int oldMaxMp = before.getFinalAttributes().maxMp;
+        AttributeSet before = AttributeUtils.calculateCharacterAttributes(this);
+        int oldMaxHp = before.maxHp;
+        int oldMaxMp = before.maxMp;
 
         this.currentExp -= this.expToNextLevel;
         this.level++;
+        this.baseMaxHp += 8;
+        this.baseMaxMp += 4;
         this.expToNextLevel = expValueForLevel(this.level);
         this.talentPoints += 1;
         this.skillPoints += 2;
 
-        applyHpMpGrowthDelta(oldMaxHp, oldMaxMp);
+        growHpMpAfterMaxIncrease(oldMaxHp, oldMaxMp);
     }
 
     private int expValueForLevel(int level) {
@@ -121,9 +119,9 @@ public class Character {
                 return false;
         }
 
-        Player before = generatePlayer();
-        int oldMaxHp = before.getFinalAttributes().maxHp;
-        int oldMaxMp = before.getFinalAttributes().maxMp;
+        AttributeSet before = AttributeUtils.calculateCharacterAttributes(this);
+        int oldMaxHp = before.maxHp;
+        int oldMaxMp = before.maxMp;
 
         switch (key) {
             case "STRENGTH":   allocatedStrength++;   talentPoints--; break;
@@ -133,7 +131,7 @@ public class Character {
             case "PHYSIQUE":   allocatedPhysique++;   talentPoints--; break;
             case "LUCK":       allocatedLuck++;       talentPoints--; break;
         }
-        applyHpMpGrowthDelta(oldMaxHp, oldMaxMp);
+        growHpMpAfterMaxIncrease(oldMaxHp, oldMaxMp);
         return true;
     }
 
@@ -146,11 +144,9 @@ public class Character {
         allocatedSpirit = 0;
         allocatedPhysique = 0;
         allocatedLuck = 0;
-        Player p = generatePlayer();
-        int maxHp = p.getFinalAttributes().maxHp;
-        int maxMp = p.getFinalAttributes().maxMp;
-        currentHp = Math.min(currentHp, maxHp);
-        currentMp = Math.min(currentMp, maxMp);
+        AttributeSet after = AttributeUtils.calculateCharacterAttributes(this);
+        currentHp = Math.min(currentHp, after.maxHp);
+        currentMp = Math.min(currentMp, after.maxMp);
     }
 
     // ========== 装备 ==========
@@ -197,20 +193,16 @@ public class Character {
         base.spirit = allocatedSpirit;
         base.physique = allocatedPhysique;
         base.luck = allocatedLuck;
-
-        // 与 Player.initBaseAttributes 的 20/10 对齐：等级提升增加基石 HP/MP，否则升级不会反映到面板
-        int lv = Math.max(1, level);
-        base.maxHp = 20 + (lv - 1) * 8;
-        base.maxMp = 10 + (lv - 1) * 4;
+        base.maxHp = this.baseMaxHp;
+        base.maxMp = this.baseMaxMp;
 
         player.markAttributeCacheDirty();
     }
 
-    /** 上限因等级或六维提高时，当前 HP/MP 增加对应差额（不超过新上限）。 */
-    private void applyHpMpGrowthDelta(int oldMaxHp, int oldMaxMp) {
-        Player after = generatePlayer();
-        int newMaxHp = after.getFinalAttributes().maxHp;
-        int newMaxMp = after.getFinalAttributes().maxMp;
+    private void growHpMpAfterMaxIncrease(int oldMaxHp, int oldMaxMp) {
+        AttributeSet after = AttributeUtils.calculateCharacterAttributes(this);
+        int newMaxHp = after.maxHp;
+        int newMaxMp = after.maxMp;
         int dHp = Math.max(0, newMaxHp - oldMaxHp);
         int dMp = Math.max(0, newMaxMp - oldMaxMp);
         currentHp = Math.min(newMaxHp, currentHp + dHp);
@@ -239,7 +231,6 @@ public class Character {
     public void syncFromPlayer(Player player) {
         this.currentHp = player.getCurrentHp();
         this.currentMp = player.getCurrentMp();
-        // 消耗品变化由 InventoryManager 单例自动反映
     }
 
     // ========== Getter ==========
@@ -258,15 +249,15 @@ public class Character {
     public int getGold() { return gold; }
     public void addGold(int amount) { this.gold += amount; }
     public boolean spendGold(int amount) { if (this.gold < amount) return false; this.gold -= amount; return true; }
+    public int getBaseMaxHp() { return baseMaxHp; }
+    public int getBaseMaxMp() { return baseMaxMp; }
 
-    /** 直接增加未分配天赋点（测试或奖励用）。 */
     public void addTalentPoints(int amount) {
         if (amount > 0) {
             this.talentPoints += amount;
         }
     }
 
-    /** 直接增加未消耗技能点（测试或奖励用）。 */
     public void addSkillPoints(int amount) {
         if (amount > 0) {
             this.skillPoints += amount;

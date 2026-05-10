@@ -7,6 +7,11 @@ import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.model.common.TriggerType;
+import com.example.treasure_and_battle.affix.BaseAffix;
+
+import java.util.Collection;
 
 public class AttributeUtils {
     // 单例属性快照，避免频繁计算
@@ -111,7 +116,127 @@ public class AttributeUtils {
 
         applyHardCaps(finalAttr);
 
-        return finalAttr;  // 返回计算结果
+        return finalAttr;
+    }
+
+    // ====================== 局外角色属性计算（不含战斗Buff/被动技能） ======================
+
+    public static AttributeSet calculateCharacterAttributes(Character character) {
+        if (character == null) {
+            return new AttributeSet();
+        }
+        AttributeSet base = buildCharacterBaseAttributes(character);
+        AttributeSet modifiers = new AttributeSet();
+
+        applyEquipmentBonusesFromCharacter(character, modifiers);
+
+        AttributeSet finalAttr = deriveFinalFromBase(base, modifiers);
+        applyHardCaps(finalAttr);
+        return finalAttr;
+    }
+
+    private static AttributeSet buildCharacterBaseAttributes(Character character) {
+        AttributeSet base = new AttributeSet();
+        base.strength = character.getAllocatedStrength();
+        base.agility = character.getAllocatedAgility();
+        base.intelligence = character.getAllocatedIntelligence();
+        base.spirit = character.getAllocatedSpirit();
+        base.physique = character.getAllocatedPhysique();
+        base.luck = character.getAllocatedLuck();
+
+        base.maxHp = character.getBaseMaxHp();
+        base.maxMp = character.getBaseMaxMp();
+        base.physicalAtk = 2;
+        base.physicalDef = 1;
+        base.magicalAtk = 2;
+        base.magicalDef = 1;
+        base.speed = 10;
+        base.maxActionPoints = 2;
+        base.hitRate = 0.9f;
+
+        return base;
+    }
+
+    private static void applyEquipmentBonusesFromCharacter(Character character, AttributeSet modifiers) {
+        Collection<EquipItem> items = character.getEquippedItems();
+        if (items == null) return;
+        for (EquipItem item : items) {
+            if (item == null) continue;
+            modifiers.add(item.getBaseAttributes());
+            if (item.getAffixes() != null) {
+                for (BaseAffix affix : item.getAffixes()) {
+                    if (affix.getTriggerType() == TriggerType.PERMANENT) {
+                        affix.applyAttributeBonus(modifiers);
+                    }
+                }
+            }
+            modifiers.add(item.getTotalGemBonuses());
+        }
+    }
+
+    private static AttributeSet deriveFinalFromBase(AttributeSet base, AttributeSet modifiers) {
+        AttributeSet finalAttr = new AttributeSet();
+        finalAttr.copyFrom(base);
+
+        finalAttr.strength = (int) (base.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
+        finalAttr.agility = (int) (base.agility * (1f + modifiers.percentAgility)) + modifiers.agility;
+        finalAttr.intelligence = (int) (base.intelligence * (1f + modifiers.percentIntelligence)) + modifiers.intelligence;
+        finalAttr.spirit = (int) (base.spirit * (1f + modifiers.percentSpirit)) + modifiers.spirit;
+        finalAttr.physique = (int) (base.physique * (1f + modifiers.percentPhysique)) + modifiers.physique;
+        finalAttr.luck = (int) (base.luck * (1f + modifiers.percentLuck)) + modifiers.luck;
+
+        int diffStrength = finalAttr.strength - base.strength;
+        int diffPhysique = finalAttr.physique - base.physique;
+        int diffIntelligence = finalAttr.intelligence - base.intelligence;
+        int diffSpirit = finalAttr.spirit - base.spirit;
+        int diffAgility = finalAttr.agility - base.agility;
+        int diffLuck = finalAttr.luck - base.luck;
+
+        int strForHpBase = Math.max(base.strength, 0);
+        int strForHpFinal = Math.max(finalAttr.strength, 0);
+
+        finalAttr.maxHp += diffPhysique * 2 + (strForHpFinal - strForHpBase);
+        finalAttr.maxMp += diffIntelligence * 2 + diffSpirit;
+        finalAttr.physicalAtk += diffStrength;
+        finalAttr.physicalDef += diffPhysique / 2;
+        finalAttr.magicalAtk += diffIntelligence;
+        finalAttr.magicalDef += diffSpirit / 2;
+        finalAttr.speed += diffAgility;
+
+        finalAttr.physicalCritRate += diffLuck * 0.002f;
+        finalAttr.physicalCritDmg += diffStrength * 0.005f;
+        finalAttr.magicalCritRate += diffLuck * 0.002f;
+        finalAttr.magicalCritDmg += diffIntelligence * 0.005f;
+        finalAttr.hitRate += diffAgility * 0.003f;
+        finalAttr.dodgeRate += diffAgility * 0.004f;
+        finalAttr.debuffResist += (diffSpirit + diffPhysique) * 0.004f;
+        finalAttr.mpCostReduction += diffSpirit * 0.005f;
+        finalAttr.lootRarityBonus += diffLuck;
+        finalAttr.goldBonus += diffLuck * 0.01f;
+        finalAttr.expBonus += diffLuck * 0.01f;
+
+        finalAttr.physicalAtk = Math.round(finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
+        finalAttr.magicalAtk = Math.round(finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
+        finalAttr.physicalDef = Math.round(finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
+        finalAttr.magicalDef = Math.round(finalAttr.magicalDef * (1f + modifiers.percentMagicalDef)) + modifiers.magicalDef;
+        finalAttr.speed = Math.round(finalAttr.speed * (1f + modifiers.percentSpeed)) + modifiers.speed;
+
+        finalAttr.maxHp = Math.round(finalAttr.maxHp * (1f + modifiers.percentMaxHp)) + modifiers.maxHp;
+        finalAttr.maxMp = Math.round(finalAttr.maxMp * (1f + modifiers.percentMaxMp)) + modifiers.maxMp;
+
+        finalAttr.physicalCritRate += modifiers.physicalCritRate;
+        finalAttr.physicalCritDmg += modifiers.physicalCritDmg;
+        finalAttr.magicalCritRate += modifiers.magicalCritRate;
+        finalAttr.magicalCritDmg += modifiers.magicalCritDmg;
+        finalAttr.hitRate += modifiers.hitRate;
+        finalAttr.dodgeRate += modifiers.dodgeRate;
+        finalAttr.debuffResist += modifiers.debuffResist;
+        finalAttr.mpCostReduction += modifiers.mpCostReduction;
+        finalAttr.lootRarityBonus += modifiers.lootRarityBonus;
+        finalAttr.goldBonus += modifiers.goldBonus;
+        finalAttr.expBonus += modifiers.expBonus;
+
+        return finalAttr;
     }
 
     private static void applyEntityAffixBonus(BattleEntity entity, AttributeSet modifiers) {
