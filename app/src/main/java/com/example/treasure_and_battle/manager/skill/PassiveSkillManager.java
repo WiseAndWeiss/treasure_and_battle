@@ -33,7 +33,7 @@ public class PassiveSkillManager {
 
     /**
      * 简单触发（单实体，无额外参数）
-     * BATTLE_START / BATTLE_END / ROUND_START / ROUND_END / DEATH / ON_SKILL_CAST
+     * BATTLE_START / BATTLE_END / ROUND_START / ROUND_END / DEATH / ON_SKILL_CAST / ON_CRIT
      */
     public void trigger(BattleEntity owner, BattleContext context, TriggerType type) {
         if (owner.getPassiveSkillList() == null || owner.getPassiveSkillList().isEmpty()) return;
@@ -48,6 +48,7 @@ public class PassiveSkillManager {
                     case ON_ROUND_END:     skill.onRoundEnd(owner, context); break;
                     case ON_DEATH:         skill.onDeath(owner, context); break;
                     case ON_SKILL_CAST:    skill.onUseSkill(owner, context); break;
+                    case ON_CRIT:          skill.onCrit(owner, context); break;
                     default: break;
                 }
             } catch (Exception e) {
@@ -59,7 +60,7 @@ public class PassiveSkillManager {
 
     /**
      * 双实体触发
-     * ON_ATTACK / ON_ATTACKED / ON_KILL
+     * ON_ATTACK / ON_ATTACKED / ON_KILL / ON_BEING_CRIT / ON_DODGE
      */
     public void trigger(BattleEntity owner, BattleEntity other, BattleContext context, TriggerType type) {
         if (owner.getPassiveSkillList() == null || owner.getPassiveSkillList().isEmpty()) return;
@@ -68,9 +69,11 @@ public class PassiveSkillManager {
             if (!skill.hasTriggerType(type)) continue;
             try {
                 switch (type) {
-                    case ON_ATTACK:   skill.onAttack(owner, other, context); break;
-                    case ON_ATTACKED: skill.onAttacked(owner, other, context); break;
-                    case ON_KILL:     skill.onKill(owner, other, context); break;
+                    case ON_ATTACK:      skill.onAttack(owner, other, context); break;
+                    case ON_ATTACKED:    skill.onAttacked(owner, other, context); break;
+                    case ON_KILL:        skill.onKill(owner, other, context); break;
+                    case ON_BEING_CRIT:  skill.onBeingCrit(owner, other, context); break;
+                    case ON_DODGE:       skill.onDodge(owner, other, context); break;
                     default: break;
                 }
             } catch (Exception e) {

@@ -76,7 +76,7 @@
       "simpleDesc": "挥舞兵刃卷起狂风般的斩击，席卷全场周遭所有敌人",
       "detailedDesc": "消耗自身所有行动点，每消耗1点行动点对所有敌方单位造成一次{x}%物理攻击伤害",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 1,
@@ -234,7 +234,7 @@
       "simpleDesc": "穷尽毕生杀伐之力，掀起无尽狂怒斩击，以血肉为薪，以利刃为器，撕裂眼前一切敌人",
       "detailedDesc": "消耗生命，对全体敌方造成{x}%物理攻击伤害，附加{y}层流血debuff与{z}%虚弱减益，持续{w}回合",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 3,
@@ -396,7 +396,7 @@
       "simpleDesc": "以自身气血为献祭唤醒极致的焚世烈火，席卷整片战场，穿透皮肉筋骨，倾洒于所有敌寇",
       "detailedDesc": "对全体敌人造成{x}%法术攻击伤害，附加{y}层燃烧与易伤效果",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 2,
@@ -423,7 +423,7 @@
       "simpleDesc": "召唤狂风席卷战场，撕扯敌方身躯造成法术损伤，并凝滞敌身攻势与视线",
       "detailedDesc": "对全体敌人造成{x}%法术伤害，附加2回合{y}%减速与{z}%致盲",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 1,
@@ -450,7 +450,7 @@
       "simpleDesc": "召引凛冽风雪肆虐全场，漫天冰雪裹挟刺骨寒意，稍有不慎血肉就可能遭受封冻",
       "detailedDesc": "对全体敌人造成{x}%法术伤害，目标有{y}%概率被冻结1回合",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 2,
@@ -662,7 +662,7 @@
       "simpleDesc": "漫天箭矢散射席卷全场，箭风卷起扬尘迷障，让身处其中的敌人目光受限、行动滞缓",
       "detailedDesc": "对所有敌人造成{x}%物理攻击伤害，附加2回合{y}%减速与{z}%致盲效果",
       "skillType": "ACTIVE",
-      "skillRangeType": "ALL_ENEMY",
+      "skillRangeType": "ALL_ENEMIES",
       "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
       "maxLevel": 5,
       "cooldown": 2,
@@ -762,6 +762,114 @@
         {"x": 115, "y": 20}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_PierceWeak"
+    },
+    {
+      "templateId": 110308,
+      "skillId": "lethal_continuous_shot",
+      "skillName": "致命连射",
+      "simpleDesc": "极致暴击连射秘术，一箭破敌要害便可接续无尽攻势，暴击不止、箭势不息，连环追猎直至敌寇殒命",
+      "detailedDesc": "对单体敌人造成{x}%物理攻击伤害，若本次攻击暴击则立刻再次释放该技能，最多触发5轮，直至敌人死亡或暴击判定失败",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 75},
+        {"x": 80},
+        {"x": 85},
+        {"x": 90},
+        {"x": 95}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_LethalContinuousShot"
+    },
+    {
+      "templateId": 110309,
+      "skillId": "shield_breaking_heavy_arrow",
+      "skillName": "破盾重箭",
+      "simpleDesc": "蓄力凝聚重矢，专破世间护体护盾，击碎屏障的瞬间撕裂敌体肌理，造成难以愈合的持续流血伤势",
+      "detailedDesc": "对单体敌人造成{x}%物理攻击伤害，目标拥有护盾时额外造成{y}%伤害，若本次攻击击碎目标护盾，附加{z}层流血buff",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SINGLE_ENEMY",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 20, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 22, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 90, "y": 30, "z": 2},
+        {"x": 95, "y": 35, "z": 2},
+        {"x": 100, "y": 40, "z": 3},
+        {"x": 105, "y": 45, "z": 3},
+        {"x": 110, "y": 50, "z": 4}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ShieldBreakingHeavyArrow"
+    },
+    {
+      "templateId": 110310,
+      "skillId": "wind_protect",
+      "skillName": "御风护体",
+      "simpleDesc": "凝聚风之护体屏障萦绕周身，再强的进攻也会被化解，并溅射惩戒群敌",
+      "detailedDesc": "下一次受到攻击时，免疫该次攻击全额伤害，并将该次伤害的{x}%溅射向全场所有敌人",
+      "skillType": "ACTIVE",
+      "skillRangeType": "SELF",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 16, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 18, "hpCost": 0},
+        {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 40},
+        {"x": 50},
+        {"x": 60},
+        {"x": 70},
+        {"x": 80}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_WindProtect"
+    },
+    {
+      "templateId": 110311,
+      "skillId": "thousand_arrows_chase",
+      "skillName": "逐敌千箭",
+      "simpleDesc": "箭随敌走，敌多箭繁，根据敌方存活数量打出多段群体伤害",
+      "detailedDesc": "对全体敌人造成n段{x}%物理攻击伤害，段数n等于场上存活敌人数量，最大段数不超过4段",
+      "skillType": "ACTIVE",
+      "skillRangeType": "ALL_ENEMIES",
+      "skillTriggerTypes": ["ACTIVE_SKILL_USED"],
+      "maxLevel": 5,
+      "cooldown": 2,
+      "costParamsList": [
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 25, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 28, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 28, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 30, "hpCost": 0}
+      ],
+      "effectParamsList": [
+        {"x": 35},
+        {"x": 40},
+        {"x": 45},
+        {"x": 50},
+        {"x": 55}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ThousandArrowsChase"
     },
     {
       "templateId": 210001,
@@ -993,6 +1101,111 @@
         {"x": 50}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.passive.mage.PassiveSkill_ReviveOnce"
+    },
+    {
+      "templateId": 2010301,
+      "skillId": "first_mover",
+      "skillName": "先机",
+      "simpleDesc": "猎手深谙战场先机之道，每一轮战局开启，身姿愈发轻盈迅捷，步步抢占节奏",
+      "detailedDesc": "每回合开始时，自身速度提升{x}%",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 2},
+        {"x": 3},
+        {"x": 4},
+        {"x": 5},
+        {"x": 7}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.ranger.PassiveSkill_FirstMover"
+    },
+    {
+      "templateId": 2010302,
+      "skillId": "agile_counter",
+      "skillName": "轻灵反击",
+      "simpleDesc": "身形如风似影，进退随心，深谙闪避攻防之道，每一次灵巧躲闪皆能寻敌破绽，瞬间反击制敌",
+      "detailedDesc": "战斗开始时，闪避率提升{x}%；每次成功闪避攻击时，对攻击者造成{y}%物理攻击伤害",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_BATTLE_START", "ON_DODGE"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 2, "y": 20},
+        {"x": 4, "y": 30},
+        {"x": 6, "y": 40},
+        {"x": 8, "y": 50},
+        {"x": 10, "y": 60}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.ranger.PassiveSkill_AgileCounter"
+    },
+    {
+      "templateId": 2010303,
+      "skillId": "attack_to_defend",
+      "skillName": "以攻为守",
+      "simpleDesc": "以凌厉攻势稳固自身态势，暴击破敌的震荡之间，自身抗性稳步攀升，愈战愈坚",
+      "detailedDesc": "每次造成暴击伤害时，提升自身{x}%物理防御与法术防御",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_CRIT"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 3},
+        {"x": 4},
+        {"x": 5},
+        {"x": 6},
+        {"x": 8}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.ranger.PassiveSkill_AttackToDefend"
+    },
+    {
+      "templateId": 2010304,
+      "skillId": "indomitable_will",
+      "skillName": "不屈之志",
+      "simpleDesc": "猎手的意志坚定，身陷异常桎梏而不屈，反而激发更强的战斗能力，攻势愈发狂暴致命",
+      "detailedDesc": "回合开始时，若自身持有减速/燃烧/中毒/流血/致盲/虚弱debuff，本回合提升{x}%物理攻击与{y}%暴击伤害",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 8, "y": 5},
+        {"x": 10, "y": 9},
+        {"x": 12, "y": 13},
+        {"x": 16, "y": 18},
+        {"x": 20, "y": 24}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.ranger.PassiveSkill_IndomitableWill"
+    },
+    {
+      "templateId": 2010305,
+      "skillId": "hunt_circuit",
+      "skillName": "巡回狩猎",
+      "simpleDesc": "猎手本能永续不息，每回合自动锁定场上生机最旺盛之敌，掠夺气血、滋养自身，鏖战不休",
+      "detailedDesc": "每回合开始时，对场上当前生命值比例最高的敌人造成{x}%物理攻击伤害，并将造成伤害的{y}%转化为自身生命值治疗",
+      "skillType": "PASSIVE",
+      "skillRangeType": "NONE",
+      "skillTriggerTypes": ["ON_ROUND_START"],
+      "maxLevel": 5,
+      "cooldown": 0,
+      "costParamsList": [],
+      "effectParamsList": [
+        {"x": 40, "y": 15},
+        {"x": 50, "y": 18},
+        {"x": 60, "y": 22},
+        {"x": 70, "y": 26},
+        {"x": 80, "y": 30}
+      ],
+      "skillClassName": "com.example.treasure_and_battle.skill.passive.ranger.PassiveSkill_HuntCircuit"
     }
   ]
 }

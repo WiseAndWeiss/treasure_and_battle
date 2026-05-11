@@ -152,4 +152,27 @@ public abstract class PassiveSkill extends Skill {
         // 子类重写以提供属性加成
     }
 
+    // ====================== 暴击/闪避事件 ======================
+
+    /**
+     * 造成暴击时触发
+     */
+    public void onCrit(BattleEntity owner, BattleContext context) {
+        // 子类重写
+    }
+
+    /**
+     * 受到暴击时触发
+     */
+    public void onBeingCrit(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        // 子类重写
+    }
+
+    /**
+     * 闪避攻击时触发
+     */
+    public void onDodge(BattleEntity owner, BattleEntity attacker, BattleContext context) {
+        // 子类重写
+    }
+
 }

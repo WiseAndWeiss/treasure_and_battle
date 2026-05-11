@@ -176,7 +176,7 @@ public class DamageManager {
         PassiveSkillManager.getInstance().trigger(attacker, ctx, TriggerType.ON_ATTACK_MISS);
         BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_ATTACK_MISS);
         AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_ATTACK_MISS);
-        PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_DODGE);
+        PassiveSkillManager.getInstance().trigger(target, attacker, ctx, TriggerType.ON_DODGE);
         BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_DODGE);
         AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_DODGE);
     }
@@ -187,7 +187,7 @@ public class DamageManager {
         PassiveSkillManager.getInstance().trigger(attacker, ctx, TriggerType.ON_CRIT);
         BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_CRIT);
         AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_CRIT);
-        PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_BEING_CRIT);
+        PassiveSkillManager.getInstance().trigger(target, attacker, ctx, TriggerType.ON_BEING_CRIT);
         BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_BEING_CRIT);
         AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_BEING_CRIT);
     }

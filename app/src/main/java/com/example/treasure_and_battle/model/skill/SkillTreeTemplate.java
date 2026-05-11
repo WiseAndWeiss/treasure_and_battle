@@ -56,7 +56,7 @@ public class SkillTreeTemplate {
         return skillIds;
     }
     public int getLayerUnlockNeededPoints(int layer) {
-        return unlockLayerNeededPoints.get(layer);
+        return unlockLayerNeededPoints.get(layer-1);
     }
     public int getLayerOfSkill(String skillId) {
         for (SkillNode skillNode : skillNodes)

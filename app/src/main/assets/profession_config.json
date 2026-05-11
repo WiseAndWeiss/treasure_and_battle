@@ -13,6 +13,13 @@
       "activeSkillTreeTemplates": "mage_active_tree",
       "passiveSkillTreeTemplates": "mage_passive_tree",
       "eventSkillTreeTemplates": "mage_event_tree"
+    },
+    {
+      "professionName": "游侠",
+      "professionType": "RANGER",
+      "activeSkillTreeTemplates": "ranger_active_tree",
+      "passiveSkillTreeTemplates": "ranger_passive_tree",
+      "eventSkillTreeTemplates": "ranger_event_tree"
     }
   ]
 }
