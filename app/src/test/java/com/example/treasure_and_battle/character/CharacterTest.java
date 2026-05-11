@@ -88,8 +88,46 @@ public class CharacterTest {
         character.gainExp(toNext);
         assertEquals(2, character.getLevel());
         assertTrue(character.getCurrentExp() < character.getExpToNextLevel());
-        assertEquals(1, character.getTalentPoints());
-        assertEquals(2, character.getSkillPoints());
+        assertEquals(2, character.getTalentPoints());
+        assertEquals(1, character.getSkillPoints());
+    }
+
+    @Test
+    public void testBaseMaxHpMpInitialValues() {
+        assertEquals(20, character.getBaseMaxHp());
+        assertEquals(10, character.getBaseMaxMp());
+    }
+
+    @Test
+    public void testLevelUpIncreasesBaseMaxHpMp() {
+        character.gainExp(character.getExpToNextLevel());
+        assertEquals(28, character.getBaseMaxHp());
+        assertEquals(14, character.getBaseMaxMp());
+    }
+
+    @Test
+    public void testLevelUpThreeTimesBaseMaxHpMp() {
+        character.gainExp(character.getExpToNextLevel());
+        character.gainExp(character.getExpToNextLevel());
+        character.gainExp(character.getExpToNextLevel());
+
+        assertEquals(4, character.getLevel());
+        assertEquals(20 + 3 * 8, character.getBaseMaxHp());
+        assertEquals(10 + 3 * 4, character.getBaseMaxMp());
+    }
+
+    @Test
+    public void testLevelUpGrowsCurrentHpMp() {
+        character.gainExp(character.getExpToNextLevel());
+        assertTrue("升级后 HP 应增长", character.getCurrentHp() > 20);
+        assertTrue("升级后 MP 应增长", character.getCurrentMp() > 10);
+    }
+
+    @Test
+    public void testLevelUpHpNotExceedNewMax() {
+        character.setCurrentHp(25);
+        character.gainExp(character.getExpToNextLevel());
+        assertTrue("HP 应 >= 进入值", character.getCurrentHp() >= 25);
     }
 
     @Test

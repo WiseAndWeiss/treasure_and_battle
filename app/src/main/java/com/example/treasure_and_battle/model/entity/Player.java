@@ -41,6 +41,16 @@ public class Player extends BattleEntity {
 
         base.maxHp = 20;
         base.maxMp = 10;
+        applyBaseCombatAttributes(base);
+
+        this.currentHp = base.maxHp;
+        this.currentMp = base.maxMp;
+        this.currentActionPoints = base.maxActionPoints;
+
+        markAttributeCacheDirty();
+    }
+
+    public static void applyBaseCombatAttributes(AttributeSet base) {
         base.physicalAtk = 2;
         base.physicalDef = 1;
         base.magicalAtk = 2;
@@ -48,12 +58,8 @@ public class Player extends BattleEntity {
         base.speed = 10;
         base.maxActionPoints = 2;
         base.hitRate = 0.9f;
-
-        this.currentHp = base.maxHp;
-        this.currentMp = base.maxMp;
-        this.currentActionPoints = base.maxActionPoints;
-
-        markAttributeCacheDirty();
+        base.goldBonus = 1.0f;
+        base.expBonus = 1.0f;
     }
 
     @Override

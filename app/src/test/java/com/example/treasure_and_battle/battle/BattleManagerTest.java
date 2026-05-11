@@ -530,9 +530,8 @@ public class BattleManagerTest {
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
-        boolean ok = invokeExecuteBattleAction(ctx, action);
+        battleManager.submitBattleAction(ctx, action);
 
-        assertTrue("道具执行应成功", ok);
         assertEquals("HP应增加", 80, testPlayer.getCurrentHp());
     }
 
@@ -551,7 +550,7 @@ public class BattleManagerTest {
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion_stack", "测试药水");
-        invokeExecuteBattleAction(ctx, action);
+        battleManager.submitBattleAction(ctx, action);
 
         assertEquals("堆叠道具使用后数量应为 2", 2, potion.getCount());
     }
@@ -570,7 +569,7 @@ public class BattleManagerTest {
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
-        invokeExecuteBattleAction(ctx, action);
+        battleManager.submitBattleAction(ctx, action);
 
         assertTrue("数量为1消耗后应从背包移除",
                 InventoryManager.getInstance().getBattleUsableConsumables().isEmpty());
@@ -578,20 +577,22 @@ public class BattleManagerTest {
 
     @Test
     public void testUseItem_NonPlayerFails() {
+        int monsterHpBefore = testMonster.getCurrentHp();
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testMonster, null, "any_id", "道具");
-        boolean ok = invokeExecuteBattleAction(ctx, action);
+        battleManager.submitBattleAction(ctx, action);
 
-        assertTrue("action 执行完成不应抛异常", ok);
+        assertEquals("怪物 HP 不应变化", monsterHpBefore, testMonster.getCurrentHp());
     }
 
     @Test
     public void testUseItem_NonExistentIdFails() {
+        int playerHpBefore = testPlayer.getCurrentHp();
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "nonexistent_item", "不存在");
-        boolean ok = invokeExecuteBattleAction(ctx, action);
+        battleManager.submitBattleAction(ctx, action);
 
-        assertTrue("执行应返回 true（内部处理失败）", ok);
+        assertEquals("HP 不应变化", playerHpBefore, testPlayer.getCurrentHp());
     }
 
     private ConsumableItem.Effect createHealEffect(float value) {
@@ -599,17 +600,6 @@ public class BattleManagerTest {
         e.value = value;
         e.valueType = "FLAT";
         return e;
-    }
-
-    private boolean invokeExecuteBattleAction(BattleContext ctx, BattleAction action) {
-        try {
-            java.lang.reflect.Method m = BattleManager.class.getDeclaredMethod(
-                    "executeBattleAction", BattleContext.class, BattleAction.class);
-            m.setAccessible(true);
-            return (boolean) m.invoke(battleManager, ctx, action);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     // ====================== 辅助方法 ======================
