@@ -1,5 +1,6 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.skill.SkillType;
 import com.example.treasure_and_battle.model.skill.SkillTreeTemplate;
 import com.example.treasure_and_battle.skill.SkillTree;

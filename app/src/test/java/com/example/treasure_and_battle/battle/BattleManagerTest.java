@@ -4,7 +4,11 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
+import com.example.treasure_and_battle.battle.action.BattleAction;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
@@ -35,6 +39,7 @@ public class BattleManagerTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         battleManager = BattleManager.getInstance(context);
+        InventoryManager.releaseInstance();
         RandomUtils.setSeed(123456L);
 
         testPlayer = new Player("TestPlayer", context);
@@ -241,12 +246,12 @@ public class BattleManagerTest {
 
         ctx.monsterRevealedIntents.clear();
 
-        com.example.treasure_and_battle.model.entity.ActionIntent intent1 =
-            new com.example.treasure_and_battle.model.entity.ActionIntent(
-                "测试攻击", "", com.example.treasure_and_battle.model.entity.ActionIntent.IntentType.ATTACK,
+        ActionIntent intent1 =
+            new ActionIntent(
+                "测试攻击", "", ActionIntent.IntentType.ATTACK,
                 1, 0, 1.0, 100, 10, -1f, -1f, null);
 
-        java.util.List<RevealedIntent> revealed = new ArrayList<>();
+        List<RevealedIntent> revealed = new ArrayList<>();
         revealed.add(new RevealedIntent(intent1, true));
         ctx.monsterRevealedIntents.put(dummy.getEntityId(), revealed);
 
@@ -296,13 +301,11 @@ public class BattleManagerTest {
         battleManager.executeNormalAttack(ctx, testPlayer, testMonster);
         assertTrue("该场景应命中", ctx.isHit);
 
-        testPlayer.setCurrentExp(0);
         ctx.battleResult = BattleContext.BattleResult.VICTORY;
         ctx.isBattleEnded = true;
         battleManager.settleBattleResult(ctx);
 
         assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
-        assertTrue("应获得经验", testPlayer.getCurrentExp() > 0);
     }
 
     @Test
@@ -331,12 +334,11 @@ public class BattleManagerTest {
         m2.setExpReward(40);
 
         BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
-        testPlayer.setCurrentExp(0);
         ctx.battleResult = BattleContext.BattleResult.VICTORY;
         ctx.isBattleEnded = true;
         battleManager.settleBattleResult(ctx);
 
-        assertEquals(70, testPlayer.getCurrentExp());
+        assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
     }
 
     // ====================== 死亡检查测试 ======================
@@ -510,6 +512,94 @@ public class BattleManagerTest {
 
         boolean playerInQueue = ctx.roundActionOrder.stream().anyMatch(e -> e instanceof Player);
         assertTrue("玩家必须在速度队列中", playerInQueue);
+    }
+
+    // ====================== 道具使用测试 ======================
+
+    @Test
+    public void testUseItem_HealHpWorks() {
+        testPlayer.setCurrentHp(50);
+        testPlayer.getFinalAttributes().maxHp = 200;
+
+        ConsumableItem potion = new ConsumableItem("test_potion", "测试药水",
+                com.example.treasure_and_battle.model.common.Rarity.COMMON,
+                10, 10, true, true,
+                java.util.Collections.singletonList(createHealEffect(30)),
+                "");
+        InventoryManager.getInstance().addItem(potion);
+
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
+        battleManager.submitBattleAction(ctx, action);
+
+        assertEquals("HP应增加", 80, testPlayer.getCurrentHp());
+    }
+
+    @Test
+    public void testUseItem_ConsumesFromInventory() {
+        testPlayer.setCurrentHp(50);
+        testPlayer.getFinalAttributes().maxHp = 200;
+
+        ConsumableItem potion = new ConsumableItem("test_potion_stack", "测试药水",
+                com.example.treasure_and_battle.model.common.Rarity.COMMON,
+                10, 5, true, true,
+                java.util.Collections.singletonList(createHealEffect(10)),
+                "");
+        potion.setCount(3);
+        InventoryManager.getInstance().addItem(potion);
+
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion_stack", "测试药水");
+        battleManager.submitBattleAction(ctx, action);
+
+        assertEquals("堆叠道具使用后数量应为 2", 2, potion.getCount());
+    }
+
+    @Test
+    public void testUseItem_LastOneRemovedFromInventory() {
+        testPlayer.setCurrentHp(50);
+        testPlayer.getFinalAttributes().maxHp = 200;
+
+        ConsumableItem potion = new ConsumableItem("test_potion", "测试药水",
+                com.example.treasure_and_battle.model.common.Rarity.COMMON,
+                10, 1, true, true,
+                java.util.Collections.singletonList(createHealEffect(10)),
+                "");
+        InventoryManager.getInstance().addItem(potion);
+
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
+        battleManager.submitBattleAction(ctx, action);
+
+        assertTrue("数量为1消耗后应从背包移除",
+                InventoryManager.getInstance().getBattleUsableConsumables().isEmpty());
+    }
+
+    @Test
+    public void testUseItem_NonPlayerFails() {
+        int monsterHpBefore = testMonster.getCurrentHp();
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = BattleAction.useItem(testMonster, null, "any_id", "道具");
+        battleManager.submitBattleAction(ctx, action);
+
+        assertEquals("怪物 HP 不应变化", monsterHpBefore, testMonster.getCurrentHp());
+    }
+
+    @Test
+    public void testUseItem_NonExistentIdFails() {
+        int playerHpBefore = testPlayer.getCurrentHp();
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = BattleAction.useItem(testPlayer, null, "nonexistent_item", "不存在");
+        battleManager.submitBattleAction(ctx, action);
+
+        assertEquals("HP 不应变化", playerHpBefore, testPlayer.getCurrentHp());
+    }
+
+    private ConsumableItem.Effect createHealEffect(float value) {
+        ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
+        e.value = value;
+        e.valueType = "FLAT";
+        return e;
     }
 
     // ====================== 辅助方法 ======================

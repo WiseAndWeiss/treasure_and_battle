@@ -2,7 +2,7 @@ package com.example.treasure_and_battle.skill;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 
 import org.junit.Before;

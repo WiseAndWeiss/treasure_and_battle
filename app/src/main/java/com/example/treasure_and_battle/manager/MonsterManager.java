@@ -1,8 +1,11 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
+
+import com.example.treasure_and_battle.manager.affix.MonsterAffixManager;
+import com.example.treasure_and_battle.manager.skill.MonsterSkillManager;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.entity.ActionIntent;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.MonsterTemplate;
 import com.example.treasure_and_battle.skill.Skill;

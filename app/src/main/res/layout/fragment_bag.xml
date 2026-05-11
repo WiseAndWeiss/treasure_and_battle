@@ -7,12 +7,13 @@
     android:background="@drawable/bg_screen_treasure">
 
     <!-- ====================== 1. 装备区（9个槽位，严格按RPG标准布局） ====================== -->
-
-    <!-- ====================== 2. 分页控制区（纯页码翻页，无任何分类） ====================== -->
     <LinearLayout
+        android:id="@+id/panel_bag_equipment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_panel_treasure"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:elevation="2dp"
         android:orientation="vertical"
         android:padding="16dp">
@@ -209,115 +210,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_panel_treasure"
-        android:elevation="2dp"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:id="@+id/btn_compact_bag"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:text="整理"
-            android:textColor="@color/tb_text_main"
-            android:textSize="13sp"
-            android:clickable="true"
-            android:focusable="true" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/btn_prev_page"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:gravity="center"
-                android:text="◀"
-                android:textColor="@color/tb_gold_deep"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true"/>
-
-            <TextView
-                android:id="@+id/tv_page_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="6dp"
-                android:gravity="center"
-                android:text="第1页 / 共5页"
-                android:textColor="@color/tb_text_main"
-                android:textSize="14sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tv_filter_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:gravity="center"
-                android:text="当前筛选：全部"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="12sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/btn_next_page"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:gravity="center"
-                android:text="▶"
-                android:textColor="@color/tb_gold_deep"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/btn_filter_slot"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="10dp"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:text="筛选"
-            android:textColor="@color/tb_text_main"
-            android:textSize="13sp"
-            android:clickable="true"
-            android:focusable="true" />
-
-    </RelativeLayout>
-
-    <!-- ====================== 3. 背包格子区（每页5x5=25格，无滚动） ====================== -->
-    <LinearLayout
-        android:id="@+id/grid_bag_container"
+    <!-- ====================== 2+3. 分页 + 背包格子（与交易页下半部分同布局） ====================== -->
+    <include
+        layout="@layout/include_bag_bottom_half"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_panel_treasure"
-        android:padding="8dp"
-        android:elevation="2dp"
-        android:orientation="vertical"/>
+        android:layout_weight="1" />
 
 </LinearLayout>

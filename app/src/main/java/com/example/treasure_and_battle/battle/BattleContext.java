@@ -1,8 +1,9 @@
 package com.example.treasure_and_battle.battle;
 
+import com.example.treasure_and_battle.battle.damage.DamageSource;
 import com.example.treasure_and_battle.battle.log.BattleLogEntry;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.model.entity.ActionIntent;
+import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -10,7 +11,6 @@ import com.example.treasure_and_battle.model.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +124,7 @@ public class BattleContext {
         this.playerParty = new ArrayList<>();
         this.playerParty.add(player);
         this.monsters = monsters == null ? new ArrayList<>() : monsters;
-        this.monster = this.monsters.isEmpty() ? null : this.monsters.get(0);
+        this.monster = firstNonNullMonster(this.monsters);
         this.surpriseAttacker = surpriseAttacker;
         this.isSurpriseAttack = (surpriseAttacker != SurpriseDirection.NONE);
         this.currentRound = 0;
@@ -133,6 +133,18 @@ public class BattleContext {
         this.roundActionOrder = new ArrayList<>();
         this.actionOrderIndex = 0;
         this.monsterRevealedIntents = new LinkedHashMap<>();
+    }
+
+    private static Monster firstNonNullMonster(List<Monster> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        for (Monster m : list) {
+            if (m != null) {
+                return m;
+            }
+        }
+        return null;
     }
 
     // ====================== 查询方法 ======================

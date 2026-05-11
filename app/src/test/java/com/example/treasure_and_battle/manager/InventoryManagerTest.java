@@ -1,8 +1,8 @@
 package com.example.treasure_and_battle.manager;
 
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.MaterialItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,22 +19,22 @@ public class InventoryManagerTest {
     @Before
     public void setUp() {
         inventory = InventoryManager.getInstance();
-        for (Item item : new java.util.ArrayList<>(inventory.getItems())) {
-            inventory.removeItem(item);
-        }
+        inventory.clearAllSlots();
     }
 
     @Test
     public void testGetItemsInitiallyEmpty() {
         assertNotNull(inventory.getItems());
-        assertEquals(0, inventory.getItems().size());
+        assertEquals(InventoryManager.BAG_GRID_SLOTS, inventory.getItems().size());
+        assertTrue(inventory.isCompletelyEmpty());
+        assertEquals(0, inventory.getOccupiedSlotCount());
     }
 
     @Test
     public void testAddItemSuccess() {
         MaterialItem item = createMaterial("mat_1", 1);
         assertTrue(inventory.addItem(item));
-        assertEquals(1, inventory.getItems().size());
+        assertEquals(1, inventory.getOccupiedSlotCount());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class InventoryManagerTest {
 
         assertTrue(inventory.addItem(item1));
         assertTrue(inventory.addItem(item2));
-        assertEquals(1, inventory.getItems().size());
+        assertEquals(1, inventory.getOccupiedSlotCount());
         assertEquals(8, inventory.getItems().get(0).getCount());
     }
 
@@ -55,7 +55,7 @@ public class InventoryManagerTest {
 
         assertTrue(inventory.addItem(item1));
         assertTrue(inventory.addItem(item2));
-        assertEquals(2, inventory.getItems().size());
+        assertEquals(2, inventory.getOccupiedSlotCount());
         assertEquals(99, inventory.getItems().get(0).getCount());
         assertEquals(6, inventory.getItems().get(1).getCount());
     }
@@ -67,7 +67,7 @@ public class InventoryManagerTest {
 
         assertTrue(inventory.addItem(item1));
         assertTrue(inventory.addItem(item2));
-        assertEquals(2, inventory.getItems().size());
+        assertEquals(2, inventory.getOccupiedSlotCount());
         assertEquals(99, inventory.getItems().get(0).getCount());
         assertEquals(6, inventory.getItems().get(1).getCount());
     }
@@ -76,7 +76,7 @@ public class InventoryManagerTest {
     public void testAddItemNonStackable() {
         inventory.addItem(createMaterial("mat_ns1", 5));
         inventory.addItem(createMaterial("mat_ns2", 3));
-        assertEquals(2, inventory.getItems().size());
+        assertEquals(2, inventory.getOccupiedSlotCount());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class InventoryManagerTest {
         inventory.addItem(createMaterial("mat_a", 50));
         inventory.addItem(createMaterial("mat_a", 40));
         inventory.addItem(createMaterial("mat_a", 20));
-        assertEquals(2, inventory.getItems().size());
+        assertEquals(2, inventory.getOccupiedSlotCount());
         assertEquals(99, inventory.getItems().get(0).getCount());
         assertEquals(11, inventory.getItems().get(1).getCount());
     }
@@ -93,48 +93,48 @@ public class InventoryManagerTest {
     public void testRemoveItem() {
         MaterialItem item = createMaterial("mat_del", 1);
         inventory.addItem(item);
-        assertEquals(1, inventory.getItems().size());
+        assertEquals(1, inventory.getOccupiedSlotCount());
 
         inventory.removeItem(item);
-        assertEquals(0, inventory.getItems().size());
+        assertEquals(0, inventory.getOccupiedSlotCount());
     }
 
     @Test
     public void testRemoveItemNonExistent() {
         MaterialItem item = createMaterial("mat_ghost", 1);
         inventory.removeItem(item);
-        assertEquals(0, inventory.getItems().size());
+        assertEquals(0, inventory.getOccupiedSlotCount());
     }
 
     @Test
     public void testAddItemUntilFull() {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < InventoryManager.BAG_GRID_SLOTS; i++) {
             MaterialItem item = new MaterialItem("mat_" + i, "材料" + i,
                     Rarity.COMMON, 5, 99, "来源");
             assertTrue(inventory.addItem(item));
         }
-        assertEquals(50, inventory.getItems().size());
+        assertEquals(InventoryManager.BAG_GRID_SLOTS, inventory.getOccupiedSlotCount());
 
         MaterialItem extra = createMaterial("mat_extra", 1);
         assertFalse(inventory.addItem(extra));
-        assertEquals(50, inventory.getItems().size());
+        assertEquals(InventoryManager.BAG_GRID_SLOTS, inventory.getOccupiedSlotCount());
     }
 
     @Test
-    public void testAddItemAtBoundary49() {
-        for (int i = 0; i < 49; i++) {
+    public void testAddItemAtLastSlot() {
+        for (int i = 0; i < InventoryManager.BAG_GRID_SLOTS - 1; i++) {
             inventory.addItem(new MaterialItem("slot_" + i, "材料" + i,
                     Rarity.COMMON, 5, 99, "来源"));
         }
-        assertTrue(inventory.addItem(createMaterial("slot_49", 1)));
-        assertEquals(50, inventory.getItems().size());
+        assertTrue(inventory.addItem(createMaterial("slot_last", 1)));
+        assertEquals(InventoryManager.BAG_GRID_SLOTS, inventory.getOccupiedSlotCount());
     }
 
     @Test
     public void testGetItemsReturnsList() {
         inventory.addItem(createMaterial("m1", 1));
         inventory.addItem(createMaterial("m2", 1));
-        assertEquals(2, inventory.getItems().size());
+        assertEquals(2, inventory.getOccupiedSlotCount());
         assertEquals("m1", inventory.getItems().get(0).getId());
         assertEquals("m2", inventory.getItems().get(1).getId());
     }

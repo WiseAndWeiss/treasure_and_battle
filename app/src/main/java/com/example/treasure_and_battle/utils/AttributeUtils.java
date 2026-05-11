@@ -1,77 +1,111 @@
 package com.example.treasure_and_battle.utils;
 
-import com.example.treasure_and_battle.model.common.TriggerType;
-
 import android.content.Context;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.manager.BuffManager;
-import com.example.treasure_and_battle.manager.EquipmentManager;
-import com.example.treasure_and_battle.manager.SkillManager;
+import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.model.common.TriggerType;
+import com.example.treasure_and_battle.affix.BaseAffix;
+
+import java.util.Collection;
 
 public class AttributeUtils {
-    // 单例属性快照，避免频繁计算
-    private static AttributeSet cachedFinalAttr = null;
-    private static long lastCacheTime = 0;
-    private static final long CACHE_DURATION = 100; // 100ms缓存，避免同一帧多次计算
 
-    // ====================== 【唯一入口】通用属性计算方法 ======================
     public static AttributeSet calculateFinalAttributes(BattleEntity entity, Context context) {
         AttributeSet modifiers = new AttributeSet();
-        modifiers.maxHp = 0;
-        modifiers.maxMp = 0;
-        modifiers.maxActionPoints = 0;
-        modifiers.physicalCritRate = 0f;
-        modifiers.magicalCritRate = 0f;
-        modifiers.physicalCritDmg = 0f;
-        modifiers.magicalCritDmg = 0f;
-        modifiers.hitRate = 0f;
-        modifiers.dodgeRate = 0f;
-        modifiers.debuffResist = 0f;
 
         if (entity instanceof Player) {
-            applyPlayerSpecificBonus((Player) entity, modifiers, context);      
+            applyPlayerEquipmentBonus((Player) entity, modifiers);
         } else if (entity instanceof Monster) {
-            applyMonsterSpecificBonus((Monster) entity, modifiers, context);    
+            applyEntityAffixBonus((Monster) entity, modifiers);
         }
 
         BuffManager.getInstance(context).applyAllBuffAttributeBonus(modifiers, entity);
 
-        // 应用被动技能的属性加成
         if (entity.getPassiveSkillList() != null) {
             for (com.example.treasure_and_battle.skill.passive.PassiveSkill passiveSkill : entity.getPassiveSkillList()) {
                 passiveSkill.applyAttributeBonus(modifiers);
             }
         }
 
-        // 开始计算最终属性
-        AttributeSet baseAttr = entity.getBaseAttributes();
-        AttributeSet finalAttr = new AttributeSet();  // 使用临时对象避免递归
-        finalAttr.copyFrom(baseAttr);
+        AttributeSet finalAttr = deriveFinalFromBase(entity.getBaseAttributes(), modifiers);
+        applyHardCaps(finalAttr);
+        return finalAttr;
+    }
 
-        // ------------------ 阶段 1: 计算最终六维属性 ------------------
-        finalAttr.strength = (int) (baseAttr.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
-        finalAttr.agility = (int) (baseAttr.agility * (1f + modifiers.percentAgility)) + modifiers.agility;
-        finalAttr.intelligence = (int) (baseAttr.intelligence * (1f + modifiers.percentIntelligence)) + modifiers.intelligence;
-        finalAttr.spirit = (int) (baseAttr.spirit * (1f + modifiers.percentSpirit)) + modifiers.spirit;
-        finalAttr.physique = (int) (baseAttr.physique * (1f + modifiers.percentPhysique)) + modifiers.physique;
-        finalAttr.luck = (int) (baseAttr.luck * (1f + modifiers.percentLuck)) + modifiers.luck;
+    public static AttributeSet calculateCharacterAttributes(Character character) {
+        if (character == null) {
+            return new AttributeSet();
+        }
+        AttributeSet base = buildCharacterBaseAttributes(character);
+        AttributeSet modifiers = new AttributeSet();
 
-        // ------------------ 阶段 2: 根据最新六维，产生新的“基石战斗属性” ------------------
-        int diffStrength = finalAttr.strength - baseAttr.strength;
-        int diffPhysique = finalAttr.physique - baseAttr.physique;
-        int diffIntelligence = finalAttr.intelligence - baseAttr.intelligence;  
-        int diffSpirit = finalAttr.spirit - baseAttr.spirit;
-        int diffAgility = finalAttr.agility - baseAttr.agility;
-        int diffLuck = finalAttr.luck - baseAttr.luck;
+        applyEquipmentBonusesFromCharacter(character, modifiers);
 
-        int strForHpBase = Math.max(baseAttr.strength, 0);
+        AttributeSet finalAttr = deriveFinalFromBase(base, modifiers);
+        applyHardCaps(finalAttr);
+        return finalAttr;
+    }
+
+    private static AttributeSet buildCharacterBaseAttributes(Character character) {
+        AttributeSet base = new AttributeSet();
+        base.strength = character.getAllocatedStrength();
+        base.agility = character.getAllocatedAgility();
+        base.intelligence = character.getAllocatedIntelligence();
+        base.spirit = character.getAllocatedSpirit();
+        base.physique = character.getAllocatedPhysique();
+        base.luck = character.getAllocatedLuck();
+
+        base.maxHp = character.getBaseMaxHp();
+        base.maxMp = character.getBaseMaxMp();
+        Player.applyBaseCombatAttributes(base);
+
+        return base;
+    }
+
+    private static void applyEquipmentBonusesFromCharacter(Character character, AttributeSet modifiers) {
+        Collection<EquipItem> items = character.getEquippedItems();
+        if (items == null) return;
+        for (EquipItem item : items) {
+            if (item == null) continue;
+            modifiers.add(item.getBaseAttributes());
+            if (item.getAffixes() != null) {
+                for (BaseAffix affix : item.getAffixes()) {
+                    if (affix.getTriggerType() == TriggerType.PERMANENT) {
+                        affix.applyAttributeBonus(modifiers);
+                    }
+                }
+            }
+            modifiers.add(item.getTotalGemBonuses());
+        }
+    }
+
+    static AttributeSet deriveFinalFromBase(AttributeSet base, AttributeSet modifiers) {
+        AttributeSet finalAttr = new AttributeSet();
+        finalAttr.copyFrom(base);
+
+        finalAttr.strength = (int) (base.strength * (1f + modifiers.percentStrength)) + modifiers.strength;
+        finalAttr.agility = (int) (base.agility * (1f + modifiers.percentAgility)) + modifiers.agility;
+        finalAttr.intelligence = (int) (base.intelligence * (1f + modifiers.percentIntelligence)) + modifiers.intelligence;
+        finalAttr.spirit = (int) (base.spirit * (1f + modifiers.percentSpirit)) + modifiers.spirit;
+        finalAttr.physique = (int) (base.physique * (1f + modifiers.percentPhysique)) + modifiers.physique;
+        finalAttr.luck = (int) (base.luck * (1f + modifiers.percentLuck)) + modifiers.luck;
+
+        int diffStrength = finalAttr.strength - base.strength;
+        int diffPhysique = finalAttr.physique - base.physique;
+        int diffIntelligence = finalAttr.intelligence - base.intelligence;
+        int diffSpirit = finalAttr.spirit - base.spirit;
+        int diffAgility = finalAttr.agility - base.agility;
+        int diffLuck = finalAttr.luck - base.luck;
+
+        int strForHpBase = Math.max(base.strength, 0);
         int strForHpFinal = Math.max(finalAttr.strength, 0);
 
-        finalAttr.maxHp += diffPhysique * 2 + (strForHpFinal - strForHpBase);   
+        finalAttr.maxHp += diffPhysique * 2 + (strForHpFinal - strForHpBase);
         finalAttr.maxMp += diffIntelligence * 2 + diffSpirit;
         finalAttr.physicalAtk += diffStrength;
         finalAttr.physicalDef += diffPhysique / 2;
@@ -91,7 +125,6 @@ public class AttributeUtils {
         finalAttr.goldBonus += diffLuck * 0.01f;
         finalAttr.expBonus += diffLuck * 0.01f;
 
-        // ------------------ 阶段 3: 计算同乘区百分比及固定数值加成 ------------------
         finalAttr.physicalAtk = Math.round(finalAttr.physicalAtk * (1f + modifiers.percentPhysicalAtk)) + modifiers.physicalAtk;
         finalAttr.magicalAtk = Math.round(finalAttr.magicalAtk * (1f + modifiers.percentMagicalAtk)) + modifiers.magicalAtk;
         finalAttr.physicalDef = Math.round(finalAttr.physicalDef * (1f + modifiers.percentPhysicalDef)) + modifiers.physicalDef;
@@ -113,32 +146,28 @@ public class AttributeUtils {
         finalAttr.goldBonus += modifiers.goldBonus;
         finalAttr.expBonus += modifiers.expBonus;
 
-        applyHardCaps(finalAttr);
-
-        return finalAttr;  // 返回计算结果
+        return finalAttr;
     }
 
-    // ====================== 玩家专属加成逻辑 ======================     
-    private static void applyPlayerSpecificBonus(Player player, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.model.item.EquipItem item : player.getEquippedItems()) {
+    private static void applyEntityAffixBonus(BattleEntity entity, AttributeSet modifiers) {
+        for (BaseAffix affix : entity.getEntityAffixList()) {
+            if (affix.getTriggerType() == TriggerType.PERMANENT) {
+                affix.applyAttributeBonus(modifiers);
+            }
+        }
+    }
+
+    private static void applyPlayerEquipmentBonus(Player player, AttributeSet modifiers) {
+        for (EquipItem item : player.getEquippedItems()) {
             modifiers.add(item.getBaseAttributes());
             if (item.getAffixes() != null) {
-                for (com.example.treasure_and_battle.affix.BaseAffix affix : item.getAffixes()) {
-                    if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
+                for (BaseAffix affix : item.getAffixes()) {
+                    if (affix.getTriggerType() == TriggerType.PERMANENT) {
                         affix.applyAttributeBonus(modifiers);
                     }
                 }
             }
             modifiers.add(item.getTotalGemBonuses());
-        }
-    }
-
-    // ====================== 怪物专属加成逻辑 ======================    
-    private static void applyMonsterSpecificBonus(Monster monster, AttributeSet modifiers, Context context) {
-        for (com.example.treasure_and_battle.affix.BaseAffix affix : monster.getEntityAffixList()) {
-            if (affix.getTriggerType() == com.example.treasure_and_battle.model.common.TriggerType.PERMANENT) {
-                affix.applyAttributeBonus(modifiers);
-            }
         }
     }
 
@@ -151,10 +180,6 @@ public class AttributeUtils {
         monster.setCurrentActionPoints(base.maxActionPoints);
     }
 
-    /**
-     * 六维驱动 + 职业系数：怪物基础属性计算入口
-     * 先用六维派生战斗属性，再乘以怪物职业系数（补偿无装备缺陷）
-     */
     public static void calculateMonsterBaseAttributesWithCoefficients(AttributeSet base,
             float hpMul, float atkMul, float defMul, float spdMul) {
         calculateDerivedAttributes(base);
@@ -201,4 +226,8 @@ public class AttributeUtils {
     public static void invalidateCache() {
         cachedFinalAttr = null;
     }
+
+    private static AttributeSet cachedFinalAttr = null;
+    private static long lastCacheTime = 0;
+    private static final long CACHE_DURATION = 100;
 }

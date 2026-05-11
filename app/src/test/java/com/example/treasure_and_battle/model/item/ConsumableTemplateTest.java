@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.model.item;
 
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableTemplate;
 import com.google.gson.Gson;
 
 import org.junit.Test;
@@ -20,7 +22,7 @@ public class ConsumableTemplateTest {
                 + "\"maxStack\":30,"
                 + "\"usableInBattle\":true,"
                 + "\"usableOutBattle\":true,"
-                + "\"effects\":[{\"type\":\"HEAL_HP\",\"value\":10,\"isPercent\":true}],"
+                + "\"effects\":[{\"type\":\"HEAL_HP\",\"value\":10,\"valueType\":\"PERCENTAGE\"}],"
                 + "\"description\":\"恢复10%最大生命值\""
                 + "}";
         Gson gson = new Gson();
@@ -71,7 +73,7 @@ public class ConsumableTemplateTest {
                 + "\"type\":\"DAMAGE\","
                 + "\"target\":\"ALL_ENEMIES\","
                 + "\"value\":50,"
-                + "\"isPercent\":true,"
+                + "\"valueType\":\"PERCENTAGE\","
                 + "\"debuffs\":[{\"buffTemplateId\":2001,\"stackRatio\":0.3}]"
                 + "}],"
                 + "\"description\":\"\""
@@ -104,7 +106,7 @@ public class ConsumableTemplateTest {
                 + "\"buffTemplateId\":1005,"
                 + "\"stacks\":20,"
                 + "\"duration\":1,"
-                + "\"isPercent\":true"
+                + "\"valueType\":\"PERCENTAGE\""
                 + "}]"
                 + "}],"
                 + "\"description\":\"buff道具\""

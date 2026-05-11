@@ -3,12 +3,12 @@ package com.example.treasure_and_battle.battle.action;
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.manager.BattleManager;
+import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
-import com.example.treasure_and_battle.manager.MonsterSkillManager;
+import com.example.treasure_and_battle.manager.skill.MonsterSkillManager;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
@@ -77,8 +77,7 @@ public class BattleActionExecutionTest {
     }
 
     private boolean invokeExecuteBattleAction(BattleContext ctx, BattleAction action) throws Exception {
-        Method m = BattleManager.class.getDeclaredMethod("executeBattleAction", BattleContext.class, BattleAction.class);
-        m.setAccessible(true);
+        Method m = BattleManager.class.getMethod("submitBattleAction", BattleContext.class, BattleAction.class);
         return (boolean) m.invoke(battleManager, ctx, action);
     }
 

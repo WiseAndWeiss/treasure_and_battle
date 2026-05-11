@@ -5,6 +5,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
+
 public class EquipCategoryTest {
 
     @Test

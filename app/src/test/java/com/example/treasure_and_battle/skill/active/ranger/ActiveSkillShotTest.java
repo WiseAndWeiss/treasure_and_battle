@@ -1,7 +1,6 @@
 package com.example.treasure_and_battle.skill.active.ranger;
 
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.SkillManager;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.active.ActiveSkillTestBase;
 

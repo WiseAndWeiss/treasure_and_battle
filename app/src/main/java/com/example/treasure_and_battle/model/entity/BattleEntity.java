@@ -3,11 +3,10 @@ package com.example.treasure_and_battle.model.entity;
 import android.content.Context;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.battle.DamageType;
+import com.example.treasure_and_battle.battle.damage.DamageType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
-import com.example.treasure_and_battle.skill.event.EventSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
@@ -202,6 +201,20 @@ public abstract class BattleEntity {
         this.entityAffixList = new ArrayList<>(affixList);
         markAttributeCacheDirty();
     }
+    public void addAffix(BaseAffix affix) {
+        if (affix != null) {
+            this.entityAffixList.add(affix);
+        }
+    }
+
+    // ====================== 主动技能管理 ======================
+
+    public void addActiveSkill(ActiveSkill skill) {
+        if (activeSkillList == null) {
+            activeSkillList = new ArrayList<>();
+        }
+        activeSkillList.add(skill);
+    }
 
     // ====================== 被动技能管理 ======================
 
@@ -223,7 +236,12 @@ public abstract class BattleEntity {
             passiveSkillList = new ArrayList<>();
         }
         passiveSkillList.add(passiveSkill);
-        markAttributeCacheDirty(); // 被动技能可能影响属性
+        markAttributeCacheDirty();
+    }
+
+    public void setPassiveSkillList(List<PassiveSkill> list) {
+        this.passiveSkillList = new ArrayList<>(list);
+        markAttributeCacheDirty();
     }
 
     /**

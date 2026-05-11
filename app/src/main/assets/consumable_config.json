@@ -1,4 +1,4 @@
-{
+﻿{
   "consumable_templates": [
     {
       "consumableId": "potion_hp_small",
@@ -12,7 +12,7 @@
         {
           "type": "HEAL_HP",
           "value": 10,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复10%最大生命值"
@@ -29,7 +29,7 @@
         {
           "type": "HEAL_HP",
           "value": 30,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复30%最大生命值"
@@ -46,7 +46,7 @@
         {
           "type": "HEAL_HP",
           "value": 60,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复60%最大生命值"
@@ -63,7 +63,7 @@
         {
           "type": "HEAL_HP",
           "value": 100,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复100%最大生命值"
@@ -80,7 +80,7 @@
         {
           "type": "HEAL_HP",
           "value": 100,
-          "isPercent": true,
+          "valueType": "PERCENTAGE",
           "shieldDuration": 3
         }
       ],
@@ -98,7 +98,7 @@
         {
           "type": "HEAL_MP",
           "value": 10,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复10%最大法力值"
@@ -115,7 +115,7 @@
         {
           "type": "HEAL_MP",
           "value": 30,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复30%最大法力值"
@@ -132,7 +132,7 @@
         {
           "type": "HEAL_MP",
           "value": 60,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复60%最大法力值"
@@ -149,7 +149,7 @@
         {
           "type": "HEAL_MP",
           "value": 100,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         }
       ],
       "description": "恢复100%最大法力值"
@@ -166,7 +166,7 @@
         {
           "type": "HEAL_MP",
           "value": 100,
-          "isPercent": true
+          "valueType": "PERCENTAGE"
         },
         {
           "type": "BUFF",
@@ -175,7 +175,7 @@
               "buffTemplateId": 1005,
               "stacks": 50,
               "duration": 1,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             }
           ]
         }
@@ -198,13 +198,13 @@
               "buffTemplateId": 2001,
               "stacks": 20,
               "duration": 5,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             },
             {
               "buffTemplateId": 2003,
               "stacks": 20,
               "duration": 5,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             }
           ]
         }
@@ -227,13 +227,13 @@
               "buffTemplateId": 2005,
               "stacks": 20,
               "duration": 5,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             },
             {
               "buffTemplateId": 2007,
               "stacks": 20,
               "duration": 5,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             }
           ]
         }
@@ -256,13 +256,13 @@
               "buffTemplateId": 1003,
               "stacks": 20,
               "duration": 5,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             },
             {
               "buffTemplateId": 2014,
               "stacks": 20,
               "duration": 5,
-              "isPercent": false
+              "valueType": "FLAT"
             }
           ]
         }
@@ -285,13 +285,13 @@
               "buffTemplateId": 2009,
               "stacks": 20,
               "duration": 5,
-              "isPercent": false
+              "valueType": "FLAT"
             },
             {
               "buffTemplateId": 2011,
               "stacks": 20,
               "duration": 5,
-              "isPercent": false
+              "valueType": "FLAT"
             }
           ]
         }
@@ -332,7 +332,7 @@
               "buffTemplateId": 2015,
               "stacks": 100,
               "duration": 1,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             }
           ]
         }
@@ -367,7 +367,7 @@
           "type": "DAMAGE",
           "target": "ALL_ENEMIES",
           "value": 50,
-          "isPercent": true,
+          "valueType": "PERCENTAGE",
           "debuffs": [
             {
               "buffTemplateId": 3002,
@@ -391,7 +391,7 @@
           "type": "DAMAGE",
           "target": "SINGLE_ENEMY",
           "value": 80,
-          "isPercent": true,
+          "valueType": "PERCENTAGE",
           "debuffs": [
             {
               "buffTemplateId": 3001,
@@ -515,38 +515,6 @@
       "description": "使用后刷新3个随机事件点"
     },
     {
-      "consumableId": "scroll_double_exp",
-      "name": "双倍经验卷轴",
-      "rarityId": 3,
-      "baseValue": 400,
-      "maxStack": 5,
-      "usableInBattle": false,
-      "usableOutBattle": true,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "DOUBLE_EXP"
-        }
-      ],
-      "description": "使用后60分钟内战斗经验翻倍"
-    },
-    {
-      "consumableId": "talisman_stealth",
-      "name": "潜行符",
-      "rarityId": 1,
-      "baseValue": 50,
-      "maxStack": 8,
-      "usableInBattle": false,
-      "usableOutBattle": true,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "STEALTH"
-        }
-      ],
-      "description": "60分钟内怪物事件不会自动触发战斗"
-    },
-    {
       "consumableId": "incense_monster",
       "name": "引怪香",
       "rarityId": 1,
@@ -594,34 +562,18 @@
               "buffTemplateId": 2001,
               "stacks": 100,
               "duration": 1,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             },
             {
               "buffTemplateId": 2003,
               "stacks": 100,
               "duration": 1,
-              "isPercent": true
+              "valueType": "PERCENTAGE"
             }
           ]
         }
       ],
       "description": "HP锁定为1，本回合攻击力提升200%"
-    },
-    {
-      "consumableId": "echo_stone",
-      "name": "回音石",
-      "rarityId": 2,
-      "baseValue": 150,
-      "maxStack": 5,
-      "usableInBattle": true,
-      "usableOutBattle": false,
-      "effects": [
-        {
-          "type": "UTILITY",
-          "utilityId": "ECHO_SKILL"
-        }
-      ],
-      "description": "复制上一轮怪物对自身使用的技能并施放(TODO)"
     }
   ]
 }

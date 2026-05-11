@@ -43,6 +43,32 @@
             android:textSize="12sp"
             android:textColor="@color/tb_text_sub"
             android:lineSpacingExtra="2dp"/>
+
+        <TextView
+            android:id="@+id/btn_open_trade"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tab_idle"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="交易（临时入口）"
+            android:textColor="@color/tb_text_main"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/btn_open_battle"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_tab_idle"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="战斗界面（演示）"
+            android:textColor="@color/tb_text_main"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <View

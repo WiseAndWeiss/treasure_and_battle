@@ -2,12 +2,12 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.ConsumableItem;
-import com.example.treasure_and_battle.model.item.EquipItem;
-import com.example.treasure_and_battle.model.item.GemItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.MaterialItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Before;
 import org.junit.Test;

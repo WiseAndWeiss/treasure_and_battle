@@ -3,11 +3,13 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.manager.battle.DropManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.MaterialItem;
+import com.example.treasure_and_battle.model.item.material.MaterialItem;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +39,7 @@ public class DropManagerTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         dropManager = DropManager.getInstance(context);
-        InventoryManager.getInstance().getItems().clear();
+        InventoryManager.getInstance().clearAllSlots();
     }
 
     // ====================== generateDrops ======================

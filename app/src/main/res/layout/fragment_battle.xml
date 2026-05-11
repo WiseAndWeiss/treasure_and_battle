@@ -1,498 +1,326 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_treasure"
     android:orientation="vertical"
-    android:background="#1A1A2E">
+    android:padding="8dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#16213E"
-        android:elevation="4dp">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tv_toolbar_title"
+            android:id="@+id/btn_battle_back"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="战斗遭遇"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_tab_idle"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:text="←"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp" />
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="返回"
+            android:textColor="@color/tb_text_main"
+            android:textSize="14sp" />
 
-    </RelativeLayout>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="战斗（演示）"
+            android:textColor="@color/tb_gold"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-    <ScrollView
+        <View
+            android:layout_width="56dp"
+            android:layout_height="1dp" />
+    </LinearLayout>
+
+    <!-- 怪物区：5 槽 W 形 -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_marginTop="6dp"
+        android:layout_weight="1.15"
+        android:background="@drawable/bg_panel_treasure">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:gravity="center"
-                    android:background="@drawable/bg_event_popup"
-                    android:layout_marginBottom="12dp">
+                <include
+                    android:id="@+id/battle_slot_0"
+                    layout="@layout/item_battle_monster_slot" />
 
-                    <TextView
-                        android:id="@+id/tv_monster_level"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lv.1"
-                        android:textColor="#666666"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                <include
+                    android:id="@+id/battle_slot_1"
+                    layout="@layout/item_battle_monster_slot" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/battle_slot_2"
+                layout="@layout/item_battle_monster_slot" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/battle_slot_3"
+                    layout="@layout/item_battle_monster_slot" />
+
+                <include
+                    android:id="@+id/battle_slot_4"
+                    layout="@layout/item_battle_monster_slot" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_battle_log_book"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/battle_log_book_cd"
+            android:focusable="true"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_battle_log_book" />
+    </FrameLayout>
+
+    <!-- 底部：操作 | 角色 | Buff -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- 左：战斗指令 -->
+
+        <!-- 中：角色状态 -->
+
+        <!-- 右：Buff 列表 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_panel_treasure"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/btn_battle_attack"
+                style="@style/TbBattleCommand"
+                android:text="攻击" />
+
+            <TextView
+                android:id="@+id/btn_battle_skill"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="技能" />
+
+            <TextView
+                android:id="@+id/btn_battle_item"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="道具" />
+
+            <TextView
+                android:id="@+id/btn_battle_escape"
+                style="@style/TbBattleCommand"
+                android:layout_marginTop="6dp"
+                android:text="逃跑" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1.15"
+            android:background="@drawable/bg_panel_treasure"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv_battle_player_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/tb_text_main"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="冒险者" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tv_monster_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="怪物名称"
-                    android:textColor="#333333"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:gravity="center" />
-
-                <TextView
-                    android:id="@+id/tv_monster_rarity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="普通"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:background="#888888"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:layout_marginTop="8dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginTop="12dp">
+                    android:text="生命"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="战斗属性"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:background="#FFF3F5"
-                        android:layout_marginEnd="6dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="生命值"
-                            android:textColor="#999999"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_hp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="100"
-                            android:textColor="#E53935"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:background="#FFF8E1"
-                        android:layout_marginStart="6dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="攻击力"
-                            android:textColor="#999999"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_atk"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="10"
-                            android:textColor="#F57C00"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:background="#E8F5E9"
-                        android:layout_marginEnd="6dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="防御力"
-                            android:textColor="#999999"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_def"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="5"
-                            android:textColor="#388E3C"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:background="#E3F2FD"
-                        android:layout_marginStart="6dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="速度"
-                            android:textColor="#999999"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_spd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="10"
-                            android:textColor="#1976D2"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginTop="12dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="六维属性"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="力量"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_strength"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#D32F2F"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="敏捷"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_agility"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#388E3C"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="智力"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_intelligence"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#1976D2"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="精神"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_spirit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#7B1FA2"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="体魄"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_physique"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#E64A19"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="幸运"
-                            android:textColor="#999999"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tv_luck"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#F9A825"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:layout_marginTop="12dp"
-                android:gravity="center">
-
-                <LinearLayout
+                    android:id="@+id/tv_battle_player_hp_val"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="80 / 100" />
+            </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="经验奖励"
-                        android:textColor="#999999"
-                        android:textSize="12sp" />
+            <ProgressBar
+                android:id="@+id/pb_battle_player_hp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="80"
+                android:progressTint="@color/tb_battle" />
 
-                    <TextView
-                        android:id="@+id/tv_exp_reward"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#1976D2"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="40dp"
-                    android:background="#E0E0E0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="法力"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_battle_player_mp_val"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="金币奖励"
-                        android:textColor="#999999"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tv_gold_reward"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#F57C00"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="40 / 50" />
             </LinearLayout>
 
+            <ProgressBar
+                android:id="@+id/pb_battle_player_mp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="60"
+                android:progressTint="#FF3949AB" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="行动点"
+                    android:textColor="@color/tb_text_sub"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_battle_player_ap_val"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="11sp"
+                    tools:text="2 / 2" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/pb_battle_player_ap"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="2dp"
+                android:max="100"
+                android:progress="100"
+                android:progressTint="@color/tb_gold" />
+
+            <TextView
+                android:id="@+id/tv_battle_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:minLines="2"
+                android:textColor="@color/tb_text_sub"
+                android:textSize="11sp"
+                tools:text="提示" />
         </LinearLayout>
-    </ScrollView>
 
-    <Button
-        android:id="@+id/btn_battle"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="进入战斗"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:background="#E53935"
-        android:layout_margin="16dp" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_panel_treasure"
+            android:orientation="vertical"
+            android:padding="8dp">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="状态"
+                android:textColor="@color/tb_gold"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_battle_buffs"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="6dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingBottom="4dp" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

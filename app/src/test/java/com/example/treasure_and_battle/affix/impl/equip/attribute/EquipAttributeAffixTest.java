@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.common.ValueType;
-import com.example.treasure_and_battle.model.item.EquipCategory;
+import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 
 import org.junit.Test;
 
