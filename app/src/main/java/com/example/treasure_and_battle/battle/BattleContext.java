@@ -124,7 +124,7 @@ public class BattleContext {
         this.playerParty = new ArrayList<>();
         this.playerParty.add(player);
         this.monsters = monsters == null ? new ArrayList<>() : monsters;
-        this.monster = this.monsters.isEmpty() ? null : this.monsters.get(0);
+        this.monster = firstNonNullMonster(this.monsters);
         this.surpriseAttacker = surpriseAttacker;
         this.isSurpriseAttack = (surpriseAttacker != SurpriseDirection.NONE);
         this.currentRound = 0;
@@ -133,6 +133,18 @@ public class BattleContext {
         this.roundActionOrder = new ArrayList<>();
         this.actionOrderIndex = 0;
         this.monsterRevealedIntents = new LinkedHashMap<>();
+    }
+
+    private static Monster firstNonNullMonster(List<Monster> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        for (Monster m : list) {
+            if (m != null) {
+                return m;
+            }
+        }
+        return null;
     }
 
     // ====================== 查询方法 ======================

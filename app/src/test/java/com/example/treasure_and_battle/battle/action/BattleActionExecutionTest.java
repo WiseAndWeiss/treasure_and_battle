@@ -77,8 +77,7 @@ public class BattleActionExecutionTest {
     }
 
     private boolean invokeExecuteBattleAction(BattleContext ctx, BattleAction action) throws Exception {
-        Method m = BattleManager.class.getDeclaredMethod("executeBattleAction", BattleContext.class, BattleAction.class);
-        m.setAccessible(true);
+        Method m = BattleManager.class.getMethod("submitBattleAction", BattleContext.class, BattleAction.class);
         return (boolean) m.invoke(battleManager, ctx, action);
     }
 

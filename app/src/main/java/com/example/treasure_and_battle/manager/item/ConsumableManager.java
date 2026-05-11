@@ -15,6 +15,7 @@ import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Buff
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.DebuffEntry;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Effect;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Target;
+import com.example.treasure_and_battle.model.common.ValueType;
 
 import java.util.List;
 
@@ -48,7 +49,8 @@ public class ConsumableManager {
     private static boolean heal(Player player, BattleContext ctx, ConsumableItem item,
                                  Effect e, Context context, boolean isHp) {
         int maxVal = isHp ? player.getFinalAttributes().maxHp : player.getFinalAttributes().maxMp;
-        int amount = e.isPercent ? (int)(maxVal * e.value / 100f) : (int)e.value;
+        boolean isPercent = ValueType.PERCENTAGE.name().equals(e.valueType);
+        int amount = isPercent ? (int)(maxVal * e.value / 100f) : (int)e.value;
         amount = Math.max(1, amount);
 
         if (isHp) player.healHp(amount); else player.healMp(amount);
@@ -74,7 +76,8 @@ public class ConsumableManager {
         if (ctx == null) return false;
         AttributeSet attr = player.getFinalAttributes();
         int baseAtk = Math.max(attr.physicalAtk, attr.magicalAtk);
-        int dmg = Math.max(1, e.isPercent ? (int)(baseAtk * e.value / 100f) : (int)e.value);
+        boolean isPercent = ValueType.PERCENTAGE.name().equals(e.valueType);
+        int dmg = Math.max(1, isPercent ? (int)(baseAtk * e.value / 100f) : (int)e.value);
 
         if (e.target == Target.ALL_ENEMIES) {
             for (Monster m : ctx.getAliveMonsters()) {

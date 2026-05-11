@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
 
@@ -52,9 +53,14 @@ public class SettingsFragment extends Fragment {
         View btnBattle = view.findViewById(R.id.btn_open_battle);
         btnBattle.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
+            // 先同步弹出 battle 返回栈，避免异步 pop 未完成时再次 add 导致无法进入或状态错乱
+            fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
+            FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
+            if (orphan != null) {
+                ft.remove(orphan);
+            }
+            ft.add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
                     .hide(this)
                     .addToBackStack("battle")
                     .commit();

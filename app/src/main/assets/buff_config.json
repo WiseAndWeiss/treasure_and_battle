@@ -370,7 +370,7 @@
       "refreshOnApply": true,
       "minValue": 0.01,
       "maxValue": 0.01,
-      "attributeType": "PHYSICAL_CRIT_DAMAGE",
+      "attributeType": "PHYSICAL_CRIT_DMG",
       "valueType": "FLAT",
       "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },
@@ -404,7 +404,7 @@
       "refreshOnApply": true,
       "minValue": 0.01,
       "maxValue": 0.01,
-      "attributeType": "MAGICAL_CRIT_DAMAGE",
+      "attributeType": "MAGICAL_CRIT_DMG",
       "valueType": "FLAT",
       "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },

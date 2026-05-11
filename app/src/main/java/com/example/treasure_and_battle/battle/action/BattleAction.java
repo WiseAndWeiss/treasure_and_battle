@@ -52,6 +52,11 @@ public class BattleAction {
         return new BattleAction(ActionType.SKILL, actor, target, apCost, mpCost, 0, powerMultiplier, skillId, displayName);
     }
 
+    public static BattleAction useItem(BattleEntity actor, BattleEntity target,
+                                       String consumableId, String displayName) {
+        return new BattleAction(ActionType.ITEM, actor, target, 0, 0, 0, 1.0, consumableId, displayName);
+    }
+
     public ActionType getType() { return type; }
     public BattleEntity getActor() { return actor; }
     public BattleEntity getTarget() { return target; }

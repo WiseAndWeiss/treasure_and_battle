@@ -2,21 +2,144 @@
   "equip_templates": [
     {
       "templateId": 3001,
-      "equipId": "equip_weapon_sword_iron",
-      "name": "铁剑",
-      "slot": "WEAPON"
+      "equipId": "equip_weapon_sword",
+      "name": "长剑",
+      "slot": "WEAPON",
+      "weaponType": "SWORD"
     },
     {
       "templateId": 3002,
-      "equipId": "equip_armor_chest_leather",
-      "name": "皮胸甲",
-      "slot": "CHEST"
+      "equipId": "equip_weapon_bow",
+      "name": "短弓",
+      "slot": "WEAPON",
+      "weaponType": "BOW"
     },
     {
       "templateId": 3003,
-      "equipId": "equip_accessory_ring_iron",
+      "equipId": "equip_weapon_staff",
+      "name": "法杖",
+      "slot": "WEAPON",
+      "weaponType": "STAFF"
+    },
+    {
+      "templateId": 3010,
+      "equipId": "equip_helmet_heavy_iron",
+      "name": "重型铁盔",
+      "slot": "HELMET",
+      "armorType": "HEAVY"
+    },
+    {
+      "templateId": 3011,
+      "equipId": "equip_helmet_light_leather",
+      "name": "轻皮帽",
+      "slot": "HELMET",
+      "armorType": "LIGHT"
+    },
+    {
+      "templateId": 3012,
+      "equipId": "equip_helmet_cloth_hood",
+      "name": "布兜帽",
+      "slot": "HELMET",
+      "armorType": "CLOTH"
+    },
+    {
+      "templateId": 3020,
+      "equipId": "equip_chest_heavy_iron",
+      "name": "重型铁胸甲",
+      "slot": "CHEST",
+      "armorType": "HEAVY"
+    },
+    {
+      "templateId": 3021,
+      "equipId": "equip_chest_light_leather",
+      "name": "轻皮甲",
+      "slot": "CHEST",
+      "armorType": "LIGHT"
+    },
+    {
+      "templateId": 3022,
+      "equipId": "equip_chest_cloth_robe",
+      "name": "布长袍",
+      "slot": "CHEST",
+      "armorType": "CLOTH"
+    },
+    {
+      "templateId": 3030,
+      "equipId": "equip_leggings_heavy_iron",
+      "name": "重型铁护腿",
+      "slot": "LEGGINGS",
+      "armorType": "HEAVY"
+    },
+    {
+      "templateId": 3031,
+      "equipId": "equip_leggings_light_leather",
+      "name": "轻皮护腿",
+      "slot": "LEGGINGS",
+      "armorType": "LIGHT"
+    },
+    {
+      "templateId": 3032,
+      "equipId": "equip_leggings_cloth_pants",
+      "name": "布长裤",
+      "slot": "LEGGINGS",
+      "armorType": "CLOTH"
+    },
+    {
+      "templateId": 3040,
+      "equipId": "equip_boots_heavy_iron",
+      "name": "重型铁靴",
+      "slot": "BOOTS",
+      "armorType": "HEAVY"
+    },
+    {
+      "templateId": 3041,
+      "equipId": "equip_boots_light_leather",
+      "name": "轻皮靴",
+      "slot": "BOOTS",
+      "armorType": "LIGHT"
+    },
+    {
+      "templateId": 3042,
+      "equipId": "equip_boots_cloth_sandals",
+      "name": "布便鞋",
+      "slot": "BOOTS",
+      "armorType": "CLOTH"
+    },
+    {
+      "templateId": 3050,
+      "equipId": "equip_necklace_amulet",
+      "name": "护身符",
+      "slot": "NECKLACE"
+    },
+    {
+      "templateId": 3051,
+      "equipId": "equip_necklace_pendant",
+      "name": "吊坠",
+      "slot": "NECKLACE"
+    },
+    {
+      "templateId": 3060,
+      "equipId": "equip_ring_iron",
       "name": "铁戒指",
       "slot": "RING"
+    },
+    {
+      "templateId": 3061,
+      "equipId": "equip_ring_gem",
+      "name": "宝石戒指",
+      "slot": "RING"
+    },
+    {
+      "templateId": 3070,
+      "equipId": "equip_bracelet_iron",
+      "name": "铁手镯",
+      "slot": "BRACELET"
+    },
+    {
+      "templateId": 3071,
+      "equipId": "equip_bracelet_band",
+      "name": "束带",
+      "slot": "BRACELET"
     }
   ]
 }
