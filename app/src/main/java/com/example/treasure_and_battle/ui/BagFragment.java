@@ -189,7 +189,7 @@ public class BagFragment extends Fragment {
     }
 
     private void loadEquippedFromCharacter() {
-        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
         if (ch == null) return;
         equippedItems.clear();
         for (EquipSlot slot : EquipSlot.values()) {
