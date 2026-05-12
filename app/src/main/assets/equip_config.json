@@ -2,280 +2,280 @@
   "equip_templates": [
     {
       "templateId": 1001,
-      "equipId": "equip_weapon_sword_red",
+      "equipId": "sword_red",
       "name": "赤铁剑",
       "slot": "WEAPON",
       "weaponType": "SWORD"
     },
     {
       "templateId": 1002,
-      "equipId": "equip_weapon_sword_blue",
+      "equipId": "sword_blue",
       "name": "碧玉剑",
       "slot": "WEAPON",
       "weaponType": "SWORD"
     },
     {
       "templateId": 1003,
-      "equipId": "equip_weapon_sword_green",
+      "equipId": "sword_green",
       "name": "翠木剑",
       "slot": "WEAPON",
       "weaponType": "SWORD"
     },
     {
       "templateId": 1004,
-      "equipId": "equip_weapon_sword_yellow",
+      "equipId": "sword_yellow",
       "name": "黑曜剑",
       "slot": "WEAPON",
       "weaponType": "SWORD"
     },
     {
       "templateId": 1005,
-      "equipId": "equip_weapon_sword_pink",
+      "equipId": "sword_pink",
       "name": "白骨剑",
       "slot": "WEAPON",
       "weaponType": "SWORD"
     },
     {
       "templateId": 2001,
-      "equipId": "equip_weapon_bow_red",
+      "equipId": "bow_red",
       "name": "赤铁弓",
       "slot": "WEAPON",
       "weaponType": "BOW"
     },
     {
       "templateId": 2002,
-      "equipId": "equip_weapon_bow_blue",
+      "equipId": "bow_blue",
       "name": "碧玉弓",
       "slot": "WEAPON",
       "weaponType": "BOW"
     },
     {
       "templateId": 2003,
-      "equipId": "equip_weapon_bow_green",
+      "equipId": "bow_green",
       "name": "翠木弓",
       "slot": "WEAPON",
       "weaponType": "BOW"
     },
     {
       "templateId": 2004,
-      "equipId": "equip_weapon_bow_yellow",
+      "equipId": "bow_yellow",
       "name": "黑曜弓",
       "slot": "WEAPON",
       "weaponType": "BOW"
     },
     {
       "templateId": 2005,
-      "equipId": "equip_weapon_bow_pink",
+      "equipId": "bow_pink",
       "name": "白骨弓",
       "slot": "WEAPON",
       "weaponType": "BOW"
     },
     {
       "templateId": 3001,
-      "equipId": "equip_weapon_staff_red",
+      "equipId": "staff_red",
       "name": "赤铁杖",
       "slot": "WEAPON",
       "weaponType": "STAFF"
     },
     {
       "templateId": 3002,
-      "equipId": "equip_weapon_staff_blue",
+      "equipId": "staff_blue",
       "name": "碧玉杖",
       "slot": "WEAPON",
       "weaponType": "STAFF"
     },
     {
       "templateId": 3003,
-      "equipId": "equip_weapon_staff_green",
+      "equipId": "staff_green",
       "name": "翠木杖",
       "slot": "WEAPON",
       "weaponType": "STAFF"
     },
     {
       "templateId": 3004,
-      "equipId": "equip_weapon_staff_yellow",
+      "equipId": "staff_yellow",
       "name": "黑曜杖",
       "slot": "WEAPON",
       "weaponType": "STAFF"
     },
     {
       "templateId": 3005,
-      "equipId": "equip_weapon_staff_pink",
+      "equipId": "staff_pink",
       "name": "白骨杖",
       "slot": "WEAPON",
       "weaponType": "STAFF"
     },
     {
       "templateId": 4001,
-      "equipId": "equip_helmet_heavy_red",
+      "equipId": "helmet_heavy",
       "name": "铁盔",
       "slot": "HELMET",
       "armorType": "HEAVY"
     },
     {
       "templateId": 4002,
-      "equipId": "equip_helmet_light_green",
+      "equipId": "helmet_light",
       "name": "头带",
       "slot": "HELMET",
       "armorType": "LIGHT"
     },
     {
       "templateId": 4003,
-      "equipId": "equip_helmet_cloth",
+      "equipId": "helmet_cloth",
       "name": "兜帽",
       "slot": "HELMET",
       "armorType": "CLOTH"
     },
     {
       "templateId": 5001,
-      "equipId": "equip_chest_heavy",
+      "equipId": "chestplate_heavy",
       "name": "铁胸甲",
       "slot": "CHEST",
       "armorType": "HEAVY"
     },
     {
       "templateId": 5002,
-      "equipId": "equip_chest_light",
+      "equipId": "chestplate_light",
       "name": "轻甲",
       "slot": "CHEST",
       "armorType": "LIGHT"
     },
     {
       "templateId": 5003,
-      "equipId": "equip_chest_cloth",
+      "equipId": "chestplate_cloth",
       "name": "长袍",
       "slot": "CHEST",
       "armorType": "CLOTH"
     },
     {
       "templateId": 6001,
-      "equipId": "equip_leggings_heavy",
+      "equipId": "leggings_heavy",
       "name": "铁护腿",
       "slot": "LEGGINGS",
       "armorType": "HEAVY"
     },
     {
       "templateId": 6002,
-      "equipId": "equip_leggings_light",
+      "equipId": "leggings_light",
       "name": "轻护腿",
       "slot": "LEGGINGS",
       "armorType": "LIGHT"
     },
     {
       "templateId": 6003,
-      "equipId": "equip_leggings_cloth",
+      "equipId": "leggings_cloth",
       "name": "长裤",
       "slot": "LEGGINGS",
       "armorType": "CLOTH"
     },
     {
       "templateId": 7001,
-      "equipId": "equip_boots_heavy",
+      "equipId": "boots_heavy",
       "name": "铁靴",
       "slot": "BOOTS",
       "armorType": "HEAVY"
     },
     {
       "templateId": 7002,
-      "equipId": "equip_boots_light",
+      "equipId": "boots_light",
       "name": "轻甲靴",
       "slot": "BOOTS",
       "armorType": "LIGHT"
     },
     {
       "templateId": 7003,
-      "equipId": "equip_boots_cloth",
+      "equipId": "boots_cloth",
       "name": "布鞋",
       "slot": "BOOTS",
       "armorType": "CLOTH"
     },
     {
       "templateId": 8001,
-      "equipId": "equip_necklace_red",
+      "equipId": "necklace_red",
       "name": "赤铁项链",
       "slot": "NECKLACE"
     },
     {
       "templateId": 8002,
-      "equipId": "equip_necklace_blue",
+      "equipId": "necklace_blue",
       "name": "碧玉项链",
       "slot": "NECKLACE"
     },
     {
       "templateId": 8003,
-      "equipId": "equip_necklace_green",
+      "equipId": "necklace_green",
       "name": "翠木项链",
       "slot": "NECKLACE"
     },
     {
       "templateId": 8004,
-      "equipId": "equip_necklace_yellow",
+      "equipId": "necklace_yellow",
       "name": "黑曜项链",
       "slot": "NECKLACE"
     },
     {
       "templateId": 8005,
-      "equipId": "equip_necklace_pink",
+      "equipId": "necklace_pink",
       "name": "白骨项链",
       "slot": "NECKLACE"
     },
     {
       "templateId": 9001,
-      "equipId": "equip_ring_red",
+      "equipId": "ring_red",
       "name": "赤铁戒指", 
       "slot": "RING"
     },
     {
       "templateId": 9002,
-      "equipId": "equip_ring_blue",
+      "equipId": "ring_blue",
       "name": "碧玉戒指", 
       "slot": "RING"
     },
     {
       "templateId": 9003,
-      "equipId": "equip_ring_green",
+      "equipId": "ring_green",
       "name": "翠木戒指", 
       "slot": "RING"
     },
     {
       "templateId": 9004,
-      "equipId": "equip_ring_yellow",
+      "equipId": "ring_yellow",
       "name": "黑曜戒指", 
       "slot": "RING"
     },
     {
       "templateId": 9005,
-      "equipId": "equip_ring_pink",
+      "equipId": "ring_pink",
       "name": "白骨戒指", 
       "slot": "RING"
     },
     {
       "templateId": 10001,
-      "equipId": "equip_bracelet_red",
+      "equipId": "bracelet_red",
       "name": "赤铁手镯", 
       "slot": "BRACELET"
     },
     {
       "templateId": 10002,
-      "equipId": "equip_bracelet_blue",
+      "equipId": "bracelet_blue",
       "name": "碧玉手镯", 
       "slot": "BRACELET"
     },
     {
       "templateId": 10003,
-      "equipId": "equip_bracelet_green",
+      "equipId": "bracelet_green",
       "name": "翠木手镯", 
       "slot": "BRACELET"
     },
     {
       "templateId": 10004,
-      "equipId": "equip_bracelet_yellow",
+      "equipId": "bracelet_yellow",
       "name": "黑曜手镯", 
       "slot": "BRACELET"
     },
     {
       "templateId": 10005,
-      "equipId": "equip_bracelet_pink",
+      "equipId": "bracelet_pink",
       "name": "白骨手镯", 
       "slot": "BRACELET"
     }
