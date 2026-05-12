@@ -1,5 +1,6 @@
 package com.example.treasure_and_battle.ui;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
@@ -33,10 +34,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.item.ConsumableManager;
+import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.ui.menu.ItemAction;
+import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,6 +117,8 @@ public class BagFragment extends Fragment {
     private float bagDragSavedGridElev;
     private float bagDragSavedRecyclerElev;
 
+    private ItemMenuProviderFactory menuProviderFactory;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bag, container, false);
@@ -142,6 +150,7 @@ public class BagFragment extends Fragment {
         bindEquipSlots(view);
 
         initDummyData();
+        initMenuProviderFactory();
         setupRecyclerView();
         setupPagination();
         setupDragAndDrop();
@@ -286,6 +295,67 @@ public class BagFragment extends Fragment {
 
     private void initDummyData() {
         allItems = InventoryGridSync.getSharedBagGrid(requireContext());
+    }
+
+    private int findItemIndex(Item item) {
+        if (item == null) return -1;
+        for (int i = 0; i < allItems.size(); i++) {
+            Item existing = allItems.get(i);
+            if (existing != null && existing.getId().equals(item.getId())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void initMenuProviderFactory() {
+        menuProviderFactory = new ItemMenuProviderFactory(
+                requireContext(),
+                item -> ItemDetailDialog.show(requireContext(), item),
+                item -> new AlertDialog.Builder(requireContext())
+                        .setTitle("确认丢弃")
+                        .setMessage("确定要丢弃 " + item.getName() + " 吗？")
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            int index = findItemIndex(item);
+                            if (index >= 0) {
+                                allItems.set(index, null);
+                            }
+                            adapter.notifyDataSetChanged();
+                            persistSharedBagGridToInventory();
+                            Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("取消", null)
+                        .show()
+        );
+        menuProviderFactory.registerEquipment(equipItem -> {
+            int bagIndex = findItemIndex(equipItem);
+            if (bagIndex >= 0) {
+                boolean equipped = autoEquipFromBag(bagIndex, equipItem);
+                if (equipped) {
+                    adapter.notifyDataSetChanged();
+                    persistSharedBagGridToInventory();
+                }
+            }
+        });
+        menuProviderFactory.registerConsumable(consumableItem -> {
+            Player player = PlayerCharacterHolder.getOrCreate(getContext()).generatePlayer();
+            boolean success = ConsumableManager.execute(player, null, consumableItem, getContext());
+            if (success) {
+                if (consumableItem.getCount() > 1) {
+                    consumableItem.setCount(consumableItem.getCount() - 1);
+                } else {
+                    int index = findItemIndex(consumableItem);
+                    if (index >= 0) {
+                        allItems.set(index, null);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                persistSharedBagGridToInventory();
+                Toast.makeText(getContext(), "已使用: " + consumableItem.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        menuProviderFactory.registerGem();
+        menuProviderFactory.registerMaterial();
     }
 
     private void setupRecyclerView() {
@@ -1238,6 +1308,40 @@ public class BagFragment extends Fragment {
         return null;
     }
 
+    private boolean autoEquipFromBag(int bagIndex, EquipItem equipItem) {
+        int targetSlotId = resolveAutoEquipSlotId(equipItem);
+        if (targetSlotId == -1) {
+            Toast.makeText(getContext(), "没有可用的装备槽位", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        EquipItem previousEquip = equippedItems.get(targetSlotId);
+        equippedItems.put(targetSlotId, equipItem);
+        syncCharacterEquip(equipItem);
+        updateEquipSlotView(targetSlotId, equipItem);
+        allItems.set(bagIndex, previousEquip);
+        Toast.makeText(getContext(), "已装备: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    private int resolveAutoEquipSlotId(EquipItem equipItem) {
+        EquipSlot slot = equipItem.getSlot();
+        if (slot == null) return -1;
+        if (slot == EquipSlot.WEAPON) return R.id.slot_weapon;
+        if (slot == EquipSlot.HELMET) return R.id.slot_helmet;
+        if (slot == EquipSlot.CHEST) return R.id.slot_chest;
+        if (slot == EquipSlot.LEGGINGS) return R.id.slot_leggings;
+        if (slot == EquipSlot.BOOTS) return R.id.slot_boots;
+        if (slot == EquipSlot.NECKLACE) return R.id.slot_necklace;
+        if (slot == EquipSlot.BRACELET) return R.id.slot_bracelet;
+        if (slot == EquipSlot.RING) {
+            if (!equippedItems.containsKey(R.id.slot_ring_left)) return R.id.slot_ring_left;
+            if (!equippedItems.containsKey(R.id.slot_ring_right)) return R.id.slot_ring_right;
+            return R.id.slot_ring_left;
+        }
+        return -1;
+    }
+
     private class BagAdapter extends RecyclerView.Adapter<BagAdapter.ViewHolder> {
         private int cellSizePx = ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -1337,75 +1441,26 @@ public class BagFragment extends Fragment {
         }
 
         private void showItemMenu(View view, int realPosition, Item item) {
+            List<ItemAction> actions = menuProviderFactory.getActions(item);
+            if (actions.isEmpty()) return;
+
             PopupMenu popupMenu = new PopupMenu(requireContext(), view);
-            popupMenu.getMenu().add(0, 1, 0, "查看描述");
-            if (item instanceof EquipItem) {
-                popupMenu.getMenu().add(0, 2, 0, "装备");
-            } else {
-                popupMenu.getMenu().add(0, 2, 0, "使用");
+            for (int i = 0; i < actions.size(); i++) {
+                ItemAction action = actions.get(i);
+                popupMenu.getMenu().add(0, i, i, action.getDisplayText());
             }
-            popupMenu.getMenu().add(0, 3, 0, "丢弃");
 
             popupMenu.setOnMenuItemClickListener(menuItem -> {
-                switch (menuItem.getItemId()) {
-                    case 1:
-                        ItemDetailDialog.show(requireContext(), item);
-                        break;
-                    case 2:
-                        if (item instanceof EquipItem) {
-                            boolean equipped = autoEquipFromBag(realPosition, (EquipItem) item);
-                            if (equipped) {
-                                adapter.notifyDataSetChanged();
-                                persistSharedBagGridToInventory();
-                            }
-                        } else {
-                            Toast.makeText(getContext(), "该物品不可装备", Toast.LENGTH_SHORT).show();
-                        }
-                        break;
-                    case 3:
-                        allItems.set(realPosition, null);
-                        adapter.notifyDataSetChanged();
-                        persistSharedBagGridToInventory();
-                        Toast.makeText(getContext(), "已丢弃" + item.getName(), Toast.LENGTH_SHORT).show();
-                        break;
+                int index = menuItem.getItemId();
+                if (index >= 0 && index < actions.size()) {
+                    ItemAction action = actions.get(index);
+                    if (action.enabled && action.action != null) {
+                        action.action.accept(item);
+                    }
                 }
                 return true;
             });
             popupMenu.show();
-        }
-
-        private boolean autoEquipFromBag(int bagIndex, EquipItem equipItem) {
-            int targetSlotId = resolveAutoEquipSlotId(equipItem);
-            if (targetSlotId == -1) {
-                Toast.makeText(getContext(), "没有可用的装备槽位", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            EquipItem previousEquip = equippedItems.get(targetSlotId);
-            equippedItems.put(targetSlotId, equipItem);
-            syncCharacterEquip(equipItem);
-            updateEquipSlotView(targetSlotId, equipItem);
-            allItems.set(bagIndex, previousEquip);
-            Toast.makeText(getContext(), "已装备: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
-        private int resolveAutoEquipSlotId(EquipItem equipItem) {
-            EquipSlot slot = equipItem.getSlot();
-            if (slot == null) return -1;
-            if (slot == EquipSlot.WEAPON) return R.id.slot_weapon;
-            if (slot == EquipSlot.HELMET) return R.id.slot_helmet;
-            if (slot == EquipSlot.CHEST) return R.id.slot_chest;
-            if (slot == EquipSlot.LEGGINGS) return R.id.slot_leggings;
-            if (slot == EquipSlot.BOOTS) return R.id.slot_boots;
-            if (slot == EquipSlot.NECKLACE) return R.id.slot_necklace;
-            if (slot == EquipSlot.BRACELET) return R.id.slot_bracelet;
-            if (slot == EquipSlot.RING) {
-                if (!equippedItems.containsKey(R.id.slot_ring_left)) return R.id.slot_ring_left;
-                if (!equippedItems.containsKey(R.id.slot_ring_right)) return R.id.slot_ring_right;
-                return R.id.slot_ring_left;
-            }
-            return -1;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
