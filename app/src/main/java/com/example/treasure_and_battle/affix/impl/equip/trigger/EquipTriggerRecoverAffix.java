@@ -97,7 +97,7 @@ public class EquipTriggerRecoverAffix extends BaseEquipAffix {
         if (damageToRecoverRatio > 0f) {
             return String.format(description, affixValue * 100f, damageToRecoverRatio * 100f);
         }
-        return String.format(description, affixValue * 100f, recoverValue);
+        return String.format(description, affixValue * 100f, (float) recoverValue);
     }
 }
 

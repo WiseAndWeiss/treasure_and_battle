@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
@@ -174,6 +175,44 @@ public class BagFragment extends Fragment {
         InventoryGridSync.reloadSharedGridFromManager();
         if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+        loadEquippedFromCharacter();
+    }
+
+    private void loadEquippedFromCharacter() {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return;
+        equippedItems.clear();
+        for (EquipSlot slot : EquipSlot.values()) {
+            int slotViewId = equipSlotToViewId(slot);
+            if (slotViewId != -1) {
+                updateEquipSlotView(slotViewId, null);
+            }
+        }
+        for (EquipItem item : ch.getEquippedItems()) {
+            if (item == null) continue;
+            int slotViewId = equipSlotToViewId(item.getSlot());
+            if (slotViewId == -1) continue;
+            if (item.getSlot() == EquipSlot.RING && equippedItems.containsKey(slotViewId)) {
+                slotViewId = R.id.slot_ring_right;
+            }
+            equippedItems.put(slotViewId, item);
+            updateEquipSlotView(slotViewId, item);
+        }
+    }
+
+    private int equipSlotToViewId(EquipSlot slot) {
+        if (slot == null) return -1;
+        switch (slot) {
+            case WEAPON:   return R.id.slot_weapon;
+            case HELMET:   return R.id.slot_helmet;
+            case CHEST:    return R.id.slot_chest;
+            case LEGGINGS: return R.id.slot_leggings;
+            case BOOTS:    return R.id.slot_boots;
+            case NECKLACE: return R.id.slot_necklace;
+            case BRACELET: return R.id.slot_bracelet;
+            case RING:     return R.id.slot_ring_left;
+            default:       return -1;
         }
     }
 
@@ -337,6 +376,7 @@ public class BagFragment extends Fragment {
 
                         allItems.set(realIndex, equipItem);
                         equippedItems.remove(slotId);
+                        syncCharacterUnequip(slotId);
                         updateEquipSlotView(slotId, null);
                         adapter.notifyDataSetChanged();
                         persistSharedBagGridToInventory();
@@ -960,6 +1000,7 @@ public class BagFragment extends Fragment {
 
         EquipItem previousEquip = equippedItems.get(targetSlotViewId);
         equippedItems.put(targetSlotViewId, draggedEquip);
+        syncCharacterEquip(draggedEquip);
         allItems.set(sourceIndex, previousEquip);
         updateEquipSlotView(targetSlotViewId, draggedEquip);
 
@@ -1104,6 +1145,7 @@ public class BagFragment extends Fragment {
             if (menuItem.getItemId() == 2) {
                 if (tryPutIntoBag(item)) {
                     equippedItems.remove(slotViewId);
+                    syncCharacterUnequip(slotViewId);
                     updateEquipSlotView(slotViewId, null);
                     adapter.notifyDataSetChanged();
                     persistSharedBagGridToInventory();
@@ -1115,6 +1157,7 @@ public class BagFragment extends Fragment {
             }
             if (menuItem.getItemId() == 3) {
                 equippedItems.remove(slotViewId);
+                syncCharacterUnequip(slotViewId);
                 updateEquipSlotView(slotViewId, null);
                 Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
                 return true;
@@ -1165,6 +1208,34 @@ public class BagFragment extends Fragment {
                 ((BitmapDrawable) d).setFilterBitmap(false);
             }
         }
+    }
+
+    private void syncCharacterEquip(EquipItem item) {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch != null && item != null) {
+            ch.equip(item);
+        }
+    }
+
+    private void syncCharacterUnequip(int slotViewId) {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return;
+        EquipSlot slot = viewIdToEquipSlot(slotViewId);
+        if (slot != null) {
+            ch.unequip(slot);
+        }
+    }
+
+    private static EquipSlot viewIdToEquipSlot(int slotViewId) {
+        if (slotViewId == R.id.slot_weapon)  return EquipSlot.WEAPON;
+        if (slotViewId == R.id.slot_helmet)  return EquipSlot.HELMET;
+        if (slotViewId == R.id.slot_chest)   return EquipSlot.CHEST;
+        if (slotViewId == R.id.slot_leggings) return EquipSlot.LEGGINGS;
+        if (slotViewId == R.id.slot_boots)   return EquipSlot.BOOTS;
+        if (slotViewId == R.id.slot_necklace) return EquipSlot.NECKLACE;
+        if (slotViewId == R.id.slot_bracelet) return EquipSlot.BRACELET;
+        if (slotViewId == R.id.slot_ring_left || slotViewId == R.id.slot_ring_right) return EquipSlot.RING;
+        return null;
     }
 
     private class BagAdapter extends RecyclerView.Adapter<BagAdapter.ViewHolder> {
@@ -1312,6 +1383,7 @@ public class BagFragment extends Fragment {
 
             EquipItem previousEquip = equippedItems.get(targetSlotId);
             equippedItems.put(targetSlotId, equipItem);
+            syncCharacterEquip(equipItem);
             updateEquipSlotView(targetSlotId, equipItem);
             allItems.set(bagIndex, previousEquip);
             Toast.makeText(getContext(), "已装备: " + equipItem.getName(), Toast.LENGTH_SHORT).show();

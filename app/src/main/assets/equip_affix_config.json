@@ -1,4 +1,4 @@
-{
+﻿{
   "affix_templates": [
     {
       "templateId": 1001,
@@ -183,7 +183,7 @@
     {
       "templateId": 1021,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
       "rarityId": 0,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -200,7 +200,7 @@
     {
       "templateId": 1022,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
       "rarityId": 1,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -217,7 +217,7 @@
     {
       "templateId": 1023,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
       "rarityId": 2,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -234,7 +234,7 @@
     {
       "templateId": 1024,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
       "rarityId": 3,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -251,7 +251,7 @@
     {
       "templateId": 1025,
       "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f% 层流血",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
       "rarityId": 4,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -268,7 +268,7 @@
     {
       "templateId": 2001,
       "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
       "rarityId": 0,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -284,7 +284,7 @@
     {
       "templateId": 2002,
       "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
       "rarityId": 1,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -300,7 +300,7 @@
     {
       "templateId": 2003,
       "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
       "rarityId": 2,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -316,7 +316,7 @@
     {
       "templateId": 2004,
       "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
       "rarityId": 3,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -332,7 +332,7 @@
     {
       "templateId": 2005,
       "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%生命值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
       "rarityId": 4,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -348,7 +348,7 @@
     {
       "templateId": 2011,
       "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
       "rarityId": 0,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -364,7 +364,7 @@
     {
       "templateId": 2012,
       "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
       "rarityId": 1,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -380,7 +380,7 @@
     {
       "templateId": 2013,
       "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
       "rarityId": 2,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -396,7 +396,7 @@
     {
       "templateId":2014,
       "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
       "rarityId": 3,
       "triggerType": "ON_HIT",
       "allowCategories": [
@@ -412,7 +412,7 @@
     {
       "templateId": 2015,
       "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%法力值",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
       "rarityId": 4,
       "triggerType": "ON_HIT",
       "allowCategories": [
