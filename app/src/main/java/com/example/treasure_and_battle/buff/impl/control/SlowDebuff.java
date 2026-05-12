@@ -27,8 +27,8 @@ public class SlowDebuff extends BaseBuff {
 
     @Override
     public void applyAttributeBonus(AttributeSet attributeSet) {
-        // 降低速度
-        attributeSet.speed *= (1.0f - speedReductionPercent / 100.0f);
+        // 降低速度百分比（注意：减速是通过修改percentSpeed字段实现的）
+        attributeSet.percentSpeed -= speedReductionPercent / 100.0f;
     }
 
     @Override

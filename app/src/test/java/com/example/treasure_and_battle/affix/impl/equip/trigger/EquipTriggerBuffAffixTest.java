@@ -44,7 +44,7 @@ public class EquipTriggerBuffAffixTest {
         EquipTriggerBuffAffix affix = new EquipTriggerBuffAffix(
                 301,
                 "灼附",
-                "有%.0f%%概率施加%d层",
+                "有%.0f%%概率施加%.0f层",
                 Rarity.RARE,
                 TriggerType.ON_HIT,
                 new EquipCategory[]{EquipCategory.WEAPON},

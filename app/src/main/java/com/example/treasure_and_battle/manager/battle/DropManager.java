@@ -1,6 +1,7 @@
 package com.example.treasure_and_battle.manager.battle;
 
 import android.content.Context;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
@@ -182,7 +183,8 @@ public class DropManager {
         if (ctx == null || ctx.pendingLoot == null || index < 0 || index >= ctx.pendingLoot.size())
             return null;
         Item item = ctx.pendingLoot.get(index);
-        if (InventoryManager.getInstance().addItem(item)) {
+        List<Item> bag = ctx.player.owner != null ? ctx.player.owner.getBagItems() : null;
+        if (bag != null && InventoryManager.addItem(bag, item)) {
             ctx.pendingLoot.remove(index);
             return item;
         }
@@ -193,10 +195,17 @@ public class DropManager {
         List<Item> unclaimed = new ArrayList<>();
         if (ctx == null || ctx.pendingLoot == null) return unclaimed;
 
+        List<Item> bag = ctx.player.owner != null ? ctx.player.owner.getBagItems() : null;
+        if (bag == null) {
+            unclaimed.addAll(ctx.pendingLoot);
+            ctx.pendingLoot.clear();
+            return unclaimed;
+        }
+
         Iterator<Item> it = ctx.pendingLoot.iterator();
         while (it.hasNext()) {
             Item item = it.next();
-            if (InventoryManager.getInstance().addItem(item)) {
+            if (InventoryManager.addItem(bag, item)) {
                 it.remove();
             } else {
                 unclaimed.add(item);

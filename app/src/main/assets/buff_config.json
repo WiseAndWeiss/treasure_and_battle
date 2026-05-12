@@ -582,6 +582,36 @@
       "maxValue": 1,
       "buffClass": "com.example.treasure_and_battle.buff.impl.periodic.ManaRegeneratingBuff",
       "valueType": "FLAT"
+    },
+    {
+      "templateId": 6001,
+      "buffName": "致盲",
+      "buffId": "debuff_blindness",
+      "descriptionFormat": "命中率降低%d%%",
+      "buffType": "DEBUFF",
+      "triggerType": "PERMANENT",
+      "isDispellable": true,
+      "defaultDuration": 2,
+      "maxStackCount": 100,
+      "refreshOnApply": true,
+      "minValue": 5.0,
+      "maxValue": 25.0,
+      "buffClass": "com.example.treasure_and_battle.buff.impl.control.BlindnessDebuff"
+    },
+    {
+      "templateId": 6002,
+      "buffName": "易伤",
+      "buffId": "debuff_vulnerability",
+      "descriptionFormat": "受到的伤害增加%d%%",
+      "buffType": "DEBUFF",
+      "triggerType": "ON_BEFORE_DAMAGE_TAKEN",
+      "isDispellable": true,
+      "defaultDuration": 3,
+      "maxStackCount": 100,
+      "refreshOnApply": true,
+      "minValue": 10.0,
+      "maxValue": 50.0,
+      "buffClass": "com.example.treasure_and_battle.buff.impl.damage.VulnerabilityDebuff"
     }
   ]
 }

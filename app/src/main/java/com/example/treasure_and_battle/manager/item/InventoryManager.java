@@ -2,55 +2,30 @@ package com.example.treasure_and_battle.manager.item;
 
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
-import java.util.Iterator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryManager {
-    /** 与 UI 背包总格数一致：5 页 × 5×5，见 InventoryGridSync.BAG_SLOT_COUNT */
-    public static final int BAG_GRID_SLOTS = 125;
 
-    private static InventoryManager instance;
-    private List<Item> items;
-    /** 最多占用的非空槽位数 */
-    private int maxCapacity = BAG_GRID_SLOTS;
+    public static final int BAG_SLOTS = 125;
 
-    private InventoryManager() {
-        items = new ArrayList<>(BAG_GRID_SLOTS);
-        for (int i = 0; i < BAG_GRID_SLOTS; i++) {
-            items.add(null);
+    private InventoryManager() {}
+
+    public static void initBag(List<Item> bag) {
+        bag.clear();
+        for (int i = 0; i < BAG_SLOTS; i++) {
+            bag.add(null);
         }
     }
 
-    public static InventoryManager getInstance() {
-        if (instance == null) {
-            instance = new InventoryManager();
-        }
-        return instance;
-    }
-
-    public static synchronized void releaseInstance() {
-        instance = null;
-    }  
-     
-    private int countOccupiedSlots() {
-        int n = 0;
-        for (Item item : items) {
-            if (item != null) {
-                n++;
-            }
-        }
-        return n;
-    }
-
-    public boolean addItem(Item newItem) {
+    public static boolean addItem(List<Item> bag, Item newItem) {
         if (newItem == null) {
-            throw new IllegalArgumentException("Cannot add null item to inventory");
+            return false;
         }
-      
+
         if (newItem.canStack()) {
-            for (Item item : items) {
+            for (Item item : bag) {
                 if (item == null) {
                     continue;
                 }
@@ -67,39 +42,30 @@ public class InventoryManager {
             }
         }
 
-        if (countOccupiedSlots() >= maxCapacity) {
-            return false;
-        }
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) == null) {
-                items.set(i, newItem);
+        for (int i = 0; i < bag.size(); i++) {
+            if (bag.get(i) == null) {
+                bag.set(i, newItem);
                 return true;
             }
         }
         return false;
     }
 
-    public void removeItem(Item item) {
+    public static void removeItem(List<Item> bag, Item item) {
         if (item == null) {
             return;
         }
-      
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) == item) {
-                items.set(i, null);
+        for (int i = 0; i < bag.size(); i++) {
+            if (bag.get(i) == item) {
+                bag.set(i, null);
                 return;
             }
         }
     }
 
-    /** 固定长度 {@link #BAG_GRID_SLOTS}，与背包格子一一对应，元素可为 null */
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public List<ConsumableItem> getBattleUsableConsumables() {
+    public static List<ConsumableItem> getBattleUsableConsumables(List<Item> bag) {
         List<ConsumableItem> result = new ArrayList<>();
-        for (Item item : items) {
+        for (Item item : bag) {
             if (item instanceof ConsumableItem) {
                 ConsumableItem c = (ConsumableItem) item;
                 if (c.isUsableInBattle() && c.getCount() > 0) {
@@ -110,24 +76,18 @@ public class InventoryManager {
         return result;
     }
 
-    public boolean consumeOne(String consumableId) {
-        // 参数校验
+    public static boolean consumeOne(List<Item> bag, String consumableId) {
         if (consumableId == null || consumableId.isEmpty()) {
             return false;
         }
-
-        // 用普通for循环遍历，保留索引信息
-        for (int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-            
-            // 先判断非空，再判断类型，最后判断ID
-            if (item != null 
-                && item instanceof ConsumableItem 
+        for (int i = 0; i < bag.size(); i++) {
+            Item item = bag.get(i);
+            if (item != null
+                && item instanceof ConsumableItem
                 && consumableId.equals(item.getId())) {
-                
+
                 if (item.getCount() <= 1) {
-                    // 正确做法：将对应槽位置空，保持列表长度和索引不变
-                    items.set(i, null);
+                    bag.set(i, null);
                 } else {
                     item.setCount(item.getCount() - 1);
                 }
@@ -136,9 +96,9 @@ public class InventoryManager {
         }
         return false;
     }
-      
-    public boolean isCompletelyEmpty() {
-        for (Item item : items) {
+
+    public static boolean isEmpty(List<Item> bag) {
+        for (Item item : bag) {
             if (item != null) {
                 return false;
             }
@@ -146,14 +106,19 @@ public class InventoryManager {
         return true;
     }
 
-    public int getOccupiedSlotCount() {
-        return countOccupiedSlots();
+    public static int countOccupied(List<Item> bag) {
+        int n = 0;
+        for (Item item : bag) {
+            if (item != null) {
+                n++;
+            }
+        }
+        return n;
     }
 
-    /** 测试或重置用：所有槽位置空 */
-    public void clearAllSlots() {
-        for (int i = 0; i < items.size(); i++) {
-            items.set(i, null);
+    public static void clearAll(List<Item> bag) {
+        for (int i = 0; i < bag.size(); i++) {
+            bag.set(i, null);
         }
     }
 }

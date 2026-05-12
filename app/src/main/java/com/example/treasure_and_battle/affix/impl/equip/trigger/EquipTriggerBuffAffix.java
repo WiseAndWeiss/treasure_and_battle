@@ -92,10 +92,9 @@ public class EquipTriggerBuffAffix extends BaseEquipAffix {
 
     @Override
     public String getDescription() {
-        // 如果配置了伤害转层数的比例，则在描述中动态展示当前的伤害转层数效果，否则展示固定层数
         if (damageToStackRatio > 0f) {
             return String.format(description, affixValue * 100, damageToStackRatio * 100);
         }
-        return String.format(description, affixValue * 100, applyStacks);
+        return String.format(description, affixValue * 100, (float) applyStacks);
     }
 }
