@@ -5,17 +5,14 @@ import android.content.Context;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
-import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.item.material.MaterialItem;
-import com.example.treasure_and_battle.ui.PlayerCharacterHolder;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class ItemMenuProviderFactory {
 
@@ -33,10 +30,8 @@ public class ItemMenuProviderFactory {
     }
 
     public void registerEquipment(Consumer<EquipItem> equipCallback) {
-        Predicate<EquipSlot> isSlotEquipped = slot ->
-                PlayerCharacterHolder.getOrCreate(context).getEquippedItem(slot) != null;
         providers.put(EquipItem.class,
-                new EquipmentMenuProvider(equipCallback, isSlotEquipped, viewCallback, discardCallback));
+                new EquipmentMenuProvider(equipCallback, viewCallback, discardCallback));
     }
 
     public void registerConsumable(Consumer<ConsumableItem> useCallback) {

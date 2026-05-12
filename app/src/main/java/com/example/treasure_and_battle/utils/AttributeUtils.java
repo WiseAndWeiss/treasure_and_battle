@@ -142,6 +142,7 @@ public class AttributeUtils {
         finalAttr.dodgeRate += modifiers.dodgeRate;
         finalAttr.debuffResist += modifiers.debuffResist;
         finalAttr.mpCostReduction += modifiers.mpCostReduction;
+        finalAttr.damageReductionRate += modifiers.damageReductionRate;
         finalAttr.lootRarityBonus += modifiers.lootRarityBonus;
         finalAttr.goldBonus += modifiers.goldBonus;
         finalAttr.expBonus += modifiers.expBonus;

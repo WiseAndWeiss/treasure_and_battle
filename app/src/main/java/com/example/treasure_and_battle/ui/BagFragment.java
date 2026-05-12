@@ -1226,10 +1226,19 @@ public class BagFragment extends Fragment {
                 return true;
             }
             if (menuItem.getItemId() == 3) {
-                equippedItems.remove(slotViewId);
-                syncCharacterUnequip(slotViewId);
-                updateEquipSlotView(slotViewId, null);
-                Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
+                String msg = item.getName() + "\n品质: " + item.getRarity().getDisplayName()
+                        + "\n数量: " + item.getCount();
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("确认丢弃")
+                        .setMessage(msg)
+                        .setPositiveButton("确认丢弃", (dialog, which) -> {
+                            equippedItems.remove(slotViewId);
+                            syncCharacterUnequip(slotViewId);
+                            updateEquipSlotView(slotViewId, null);
+                            Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
                 return true;
             }
             return false;
