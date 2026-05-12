@@ -42,6 +42,92 @@
       "skillNodes": [],
       "unlockLayerNeededPoints": [0],
       "maxLayer": 1
+    },
+    {
+      "templateId": 10201,
+      "skillTreeId": "mage_active_tree",
+      "skillTreeType": "ACTIVE",
+      "skillNodes": [
+        {"skillId": "spell", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "regulate_breath", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "fireball", "prerequisiteSkillIds": ["spell", "regulate_breath"], "layer": 1},
+        {"skillId": "concentrate_spirit", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "wind_howl", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "flame_surge", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "poison_infest", "prerequisiteSkillIds": ["fireball"], "layer": 1},
+        {"skillId": "bitter_medicine", "prerequisiteSkillIds": ["concentrate_spirit"], "layer": 2},
+        {"skillId": "blizzard_storm", "prerequisiteSkillIds": ["wind_howl"], "layer": 2},
+        {"skillId": "bone_burning_sky", "prerequisiteSkillIds": ["flame_surge"], "layer": 2},
+        {"skillId": "scrape_poison", "prerequisiteSkillIds": ["poison_infest"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 15],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10202,
+      "skillTreeId": "mage_passive_tree",
+      "skillTreeType": "PASSIVE",
+      "skillNodes": [
+        {"skillId": "purify", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "tough_guard", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "mana_fill", "prerequisiteSkillIds": ["purify", "tough_guard"], "layer": 1},
+        {"skillId": "glow_protect", "prerequisiteSkillIds": ["purify", "tough_guard"], "layer": 1},
+        {"skillId": "poison_symbiosis", "prerequisiteSkillIds": ["mana_fill"], "layer": 2},
+        {"skillId": "revive_once", "prerequisiteSkillIds": ["glow_protect"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 10],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10203,
+      "skillTreeId": "mage_event_tree",
+      "skillTreeType": "EVENT",
+      "skillNodes": [],
+      "unlockLayerNeededPoints": [0],
+      "maxLayer": 1
+    },
+    {
+      "templateId": 10301,
+      "skillTreeId": "ranger_active_tree",
+      "skillTreeType": "ACTIVE",
+      "skillNodes": [
+        {"skillId": "shot", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "see_through", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "three_phase_arrow", "prerequisiteSkillIds": ["shot", "see_through"], "layer": 1},
+        {"skillId": "dust_arrow_rain", "prerequisiteSkillIds": ["three_phase_arrow"], "layer": 1},
+        {"skillId": "wind_arrow", "prerequisiteSkillIds": ["three_phase_arrow"], "layer": 1},
+        {"skillId": "full_concentration", "prerequisiteSkillIds": ["three_phase_arrow"], "layer": 1},
+        {"skillId": "pierce_weak", "prerequisiteSkillIds": ["three_phase_arrow"], "layer": 1},
+        {"skillId": "thousand_arrows_chase", "prerequisiteSkillIds": ["dust_arrow_rain"], "layer": 2},
+        {"skillId": "wind_protect", "prerequisiteSkillIds": ["wind_arrow"], "layer": 2},
+        {"skillId": "lethal_continuous_shot", "prerequisiteSkillIds": ["full_concentration"], "layer": 2},
+        {"skillId": "shield_breaking_heavy_arrow", "prerequisiteSkillIds": ["pierce_weak"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 15],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10302,
+      "skillTreeId": "ranger_passive_tree",
+      "skillTreeType": "PASSIVE",
+      "skillNodes": [
+        {"skillId": "first_mover", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "tough_guard", "prerequisiteSkillIds": [], "layer": 0},
+        {"skillId": "agile_counter", "prerequisiteSkillIds": ["first_mover", "tough_guard"], "layer": 1},
+        {"skillId": "attack_to_defend", "prerequisiteSkillIds": ["first_mover", "tough_guard"], "layer": 1},
+        {"skillId": "hunt_circuit", "prerequisiteSkillIds": ["agile_counter"], "layer": 2},
+        {"skillId": "indomitable_will", "prerequisiteSkillIds": ["attack_to_defend"], "layer": 2}
+      ],
+      "unlockLayerNeededPoints": [0, 5, 10],
+      "maxLayer": 3
+    },
+    {
+      "templateId": 10303,
+      "skillTreeId": "ranger_event_tree",
+      "skillTreeType": "EVENT",
+      "skillNodes": [],
+      "unlockLayerNeededPoints": [0],
+      "maxLayer": 1
     }
   ]
 }

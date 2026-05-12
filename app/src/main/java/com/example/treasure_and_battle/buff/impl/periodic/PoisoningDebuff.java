@@ -54,4 +54,18 @@ public class PoisoningDebuff extends BaseBuff {
                     owner.getCurrentHp(), owner.getFinalAttributes().maxHp);
         }
     }
+
+    /**
+     * 中毒buff的特殊堆叠方法
+     * 由于中毒是唯一的，新添加的中毒应该叠加层数而不是创建新实例
+     */
+    public void stackPoisoning(int additionalStacks) {
+        if (additionalStacks > 0) {
+            this.stackCount += additionalStacks;
+            // 确保不超过最大层数限制
+            if (this.maxStackCount > 0 && this.stackCount > this.maxStackCount) {
+                this.stackCount = this.maxStackCount;
+            }
+        }
+    }
 }

@@ -117,6 +117,23 @@ public class BuffManager {
             return;
         }
 
+        // 特殊处理：燃烧debuff应该唯一，不同来源叠加层数
+        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
+            for (BaseBuff existingBuff : buffList) {
+                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
+                    // 叠加燃烧层数
+                    ((com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) existingBuff)
+                        .stackBurning(buff.getStackCount());
+                    entity.markAttributeCacheDirty();
+                    return;
+                }
+            }
+            // 没有现有燃烧debuff，直接添加
+            buffList.add(buff);
+            entity.markAttributeCacheDirty();
+            return;
+        }
+
         // 相同Buff尝试堆叠
         for (BaseBuff existingBuff : buffList) {
             if (existingBuff.getBuffId().equals(buff.getBuffId())) {

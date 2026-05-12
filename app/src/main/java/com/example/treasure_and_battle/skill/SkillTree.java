@@ -20,7 +20,7 @@ public class SkillTree {
         this.skillManager = skillManager;
         this.learnedSkills = new ArrayList<>();
         this.usedPoints = 0;
-        this.unlockedLayer = 0;
+        this.unlockedLayer = 1;
     }
 
     public List<String> getAllSkillIds() { return template.getAllSkillIds(); }
