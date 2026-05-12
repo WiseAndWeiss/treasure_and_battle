@@ -163,7 +163,7 @@ public class BattleActionExecutionTest {
         assertNotNull(charge);
         monster.addMonsterSkill("monster_charge", charge);
 
-        BattleAction skillAction = BattleAction.skillTodo(monster, player,
+        BattleAction skillAction = BattleAction.useSkill(monster, player,
                 "monster_charge", 1, 0, 1.0, "冲撞");
 
         boolean ok = invokeExecuteBattleAction(ctx, skillAction);
