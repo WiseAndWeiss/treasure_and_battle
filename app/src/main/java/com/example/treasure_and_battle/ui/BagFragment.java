@@ -1276,16 +1276,8 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
-        if (imageView == null) return;
-        imageView.setImageResource(iconResId);
-        Drawable d = imageView.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
-        }
+    private void bindBagItemIcon(@Nullable ImageView imageView, @Nullable Item item) {
+        GameAssetIcons.bindItem(requireContext(), imageView, item);
     }
 
     private void syncCharacterEquip(EquipItem item) {
