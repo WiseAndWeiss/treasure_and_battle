@@ -25,11 +25,13 @@ import static org.junit.Assert.assertFalse;
 @Config(sdk = 33, manifest = Config.NONE)
 public class EquipmentManagerTest {
 
-    // new config: SWORD=1001, BOW=2001, STAFF=3001
-    // HEAVY: helmet=4001, chest=5001, leggings=6001, boots=7001
-    // LIGHT: helmet=4002, chest=5002, leggings=6002, boots=7002
-    // CLOTH: helmet=4003, chest=5003, leggings=6003, boots=7003
-    // ACCESSORY: necklace=8001, ring=9001, bracelet=10001
+    // new config（以下为示例 templateId，非完整映射）:
+    // WEAPON examples: SWORD=1001, BOW=2001, STAFF=3001
+    // HEAVY examples: helmet=4001, chest=5001, leggings=6001, boots=7001
+    // LIGHT examples: helmet=4002, chest=5002, leggings=6002, boots=7002
+    // CLOTH examples: helmet=4003, chest=5003, leggings=6003, boots=7003
+    // ACCESSORY examples: necklace=8001, ring=9001, bracelet=10001
+    // Full templateId mappings/ranges should be verified against equip_config.json.
 
     private Context context;
     private EquipmentManager manager;
