@@ -165,7 +165,7 @@ public class TradeFragment extends Fragment {
 
     @Override
     public void onPause() {
-        InventoryGridSync.flushSharedGridToManager();
+        InventoryGridSync.flushSharedGridToManager(requireContext());
         super.onPause();
     }
 
@@ -351,7 +351,7 @@ public class TradeFragment extends Fragment {
         }
         listing.consumeStock(qty);
         // 购买只改了共享网格，须立刻写回 InventoryManager；否则 Trade.onResume 的 reload 或切回背包会读到旧列表
-        InventoryGridSync.flushSharedGridToManager();
+        InventoryGridSync.flushSharedGridToManager(requireContext());
         refreshGoldLabel();
         if (merchantAdapter != null) {
             merchantAdapter.notifyDataSetChanged();

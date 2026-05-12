@@ -6,6 +6,7 @@ import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.battle.action.BattleAction;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -13,6 +14,7 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import java.util.Arrays;
@@ -39,10 +41,11 @@ public class BattleManagerTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         battleManager = BattleManager.getInstance(context);
-        InventoryManager.releaseInstance();
+        // InventoryManager.releaseInstance() — removed (stateless)
         RandomUtils.setSeed(123456L);
 
         testPlayer = new Player("TestPlayer", context);
+        testPlayer.owner = new Character(0, "TestHero", ProfessionType.WARRIOR, context);
         AttributeSet playerAttr = testPlayer.getBaseAttributes();
         playerAttr.strength = 10;
         playerAttr.agility = 10;
@@ -526,7 +529,7 @@ public class BattleManagerTest {
                 10, 10, true, true,
                 java.util.Collections.singletonList(createHealEffect(30)),
                 "");
-        InventoryManager.getInstance().addItem(potion);
+        InventoryManager.addItem(testPlayer.owner.getBagItems(), potion);
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
@@ -546,7 +549,7 @@ public class BattleManagerTest {
                 java.util.Collections.singletonList(createHealEffect(10)),
                 "");
         potion.setCount(3);
-        InventoryManager.getInstance().addItem(potion);
+        InventoryManager.addItem(testPlayer.owner.getBagItems(), potion);
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion_stack", "测试药水");
@@ -565,14 +568,14 @@ public class BattleManagerTest {
                 10, 1, true, true,
                 java.util.Collections.singletonList(createHealEffect(10)),
                 "");
-        InventoryManager.getInstance().addItem(potion);
+        InventoryManager.addItem(testPlayer.owner.getBagItems(), potion);
 
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         BattleAction action = BattleAction.useItem(testPlayer, null, "test_potion", "测试药水");
         battleManager.submitBattleAction(ctx, action);
 
         assertTrue("数量为1消耗后应从背包移除",
-                InventoryManager.getInstance().getBattleUsableConsumables().isEmpty());
+                InventoryManager.getBattleUsableConsumables(testPlayer.owner.getBagItems()).isEmpty());
     }
 
     @Test
