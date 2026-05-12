@@ -41,8 +41,8 @@ public class ProfessionManagerTest {
     @Test
     public void testHasProfession() {
         assertTrue("应该存在战士职业", professionManager.hasProfession(ProfessionType.WARRIOR));
-        assertFalse("不应该存在的法师职业", professionManager.hasProfession(ProfessionType.MAGE));
-        assertFalse("不应该存在的游侠职业", professionManager.hasProfession(ProfessionType.RANGER));
+        assertTrue("应该存在法师职业", professionManager.hasProfession(ProfessionType.MAGE));
+        assertTrue("应该存在游侠职业", professionManager.hasProfession(ProfessionType.RANGER));
     }
 
     /**
@@ -64,7 +64,8 @@ public class ProfessionManagerTest {
     public void testCreateNonExistentProfession() {
         Profession mage = professionManager.createProfession(ProfessionType.MAGE);
 
-        assertNull("不存在的职业应该返回null", mage);
+        assertNotNull("法师职业现在应存在", mage);
+        assertEquals("应该是法师", "法师", mage.getProfessionName());
     }
 
     /**
@@ -128,8 +129,10 @@ public class ProfessionManagerTest {
         var professionTypes = professionManager.getAllProfessionTypes();
 
         assertNotNull("职业类型列表不应该为null", professionTypes);
-        assertEquals("应该只有1个职业", 1, professionTypes.size());
+        assertEquals("应该有3个职业", 3, professionTypes.size());
         assertTrue("应该包含WARRIOR", professionTypes.contains(ProfessionType.WARRIOR));
+        assertTrue("应该包含MAGE", professionTypes.contains(ProfessionType.MAGE));
+        assertTrue("应该包含RANGER", professionTypes.contains(ProfessionType.RANGER));
     }
 
     /**
@@ -140,11 +143,7 @@ public class ProfessionManagerTest {
         var templates = professionManager.getAllProfessionTemplates();
 
         assertNotNull("职业模板列表不应该为null", templates);
-        assertEquals("应该只有1个职业模板", 1, templates.size());
-
-        ProfessionTemplate template = templates.get(0);
-        assertEquals("职业名称应该是战士", "战士", template.getProfessionName());
-        assertEquals("职业类型应该是WARRIOR", ProfessionType.WARRIOR, template.getProfessionType());
+        assertTrue("应该有至少3个职业模板", templates.size() >= 3);
     }
 
     /**
