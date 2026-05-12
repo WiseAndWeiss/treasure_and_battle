@@ -9,6 +9,7 @@
         <item name="colorOnSecondary">@color/tb_panel</item>
         <item name="colorSurface">@color/tb_panel</item>
         <item name="colorOnSurface">@color/tb_text_main</item>
+        <item name="android:fontFamily">@font/zpix</item>
         <item name="android:windowBackground">@drawable/bg_screen_treasure</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:navigationBarColor">@color/tb_bg_dark</item>

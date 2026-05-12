@@ -1,7 +1,8 @@
 package com.example.treasure_and_battle.ui;
 
-import android.content.Intent;
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +23,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -66,6 +69,8 @@ public class MapFragment extends Fragment {
     private Runnable mBattleCountdownRunnable;
     private Runnable mDebugCountdownRunnable;
 
+    private static final int REQ_NEUTRAL_EVENT = 1002;
+
     private EventManager mEventManager;
 
     private View mEventPopup;
@@ -86,6 +91,10 @@ public class MapFragment extends Fragment {
     private TextView mCountdownNumber;
     private LatLng mBattleTriggerPosition;
     private boolean mIsProcessingNeutral;
+
+    private FrameLayout mCircleAnimOverlay;
+    private boolean mIsPlayingCircleAnim = false;
+    private Runnable mCircleAnimRunnable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,6 +117,7 @@ public class MapFragment extends Fragment {
         initDebugButton();
 
         initIconOverlay();
+        initCircleAnimOverlay();
         initCountdownOverlay();
         initEventPopup(inflater);
         initDebugPopup();
@@ -240,14 +250,25 @@ public class MapFragment extends Fragment {
         Button btnBattlePage = makeDebugButton("进入战斗页面", 0xFF4CAF50);
         btnBattlePage.setOnClickListener(b -> {
             hideDebugPopup();
-            startActivity(new Intent(getActivity(), BattleActivity.class));
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
+                    .hide(MapFragment.this)
+                    .addToBackStack("battle")
+                    .commit();
         });
         popupContent.addView(btnBattlePage);
 
         Button btnTradePage = makeDebugButton("进入商店页面", 0xFF4CAF50);
         btnTradePage.setOnClickListener(b -> {
             hideDebugPopup();
-            startActivity(new Intent(getActivity(), TradeActivity.class));
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                    .hide(MapFragment.this)
+                    .addToBackStack("trade")
+                    .commit();
         });
         popupContent.addView(btnTradePage);
 
@@ -485,8 +506,12 @@ public class MapFragment extends Fragment {
     }
 
     private void openBattlePage() {
-        Intent intent = new Intent(getActivity(), BattleActivity.class);
-        startActivity(intent);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
+                .hide(MapFragment.this)
+                .addToBackStack("battle")
+                .commit();
     }
 
     private void handleBenefitAction() {
@@ -502,7 +527,7 @@ public class MapFragment extends Fragment {
         intent.putExtra("event_desc", sub.getDesc());
         intent.putExtra("event_reward", sub.getReward());
         intent.putExtra("event_risk", sub.getRisk());
-        startActivity(intent);
+        startActivityForResult(intent, REQ_NEUTRAL_EVENT);
     }
 
     private void startLocation() {
@@ -529,56 +554,7 @@ public class MapFragment extends Fragment {
                 mEventManager.updateCurrentLatLng(latLng);
                 drawPerceptionCircle(latLng);
 
-                boolean inRange = mEventManager.checkEventInTriggerRange();
-                boolean countdownRunning = mBattleCountdownRunnable != null;
-
-                if (inRange && !countdownRunning && !mIsProcessingNeutral) {
-                    EventConfig.EventItem triggered = mEventManager.getTriggeredEvent();
-                    if (triggered == null) {
-                        if (isFirstLocate) {
-                            mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f));
-                            isFirstLocate = false;
-                            startTimedTasks();
-                        }
-                        return;
-                    }
-                    String type = triggered.getType();
-                    EventConfig.EventSubItem sub = mEventManager.getTriggeredSubEvent();
-
-                    if ("UNKNOWN".equals(type)) {
-                        sub = mEventManager.resolveUnknownEvent();
-                        if (sub != null) {
-                            Toast.makeText(getContext(), "揭开神秘面纱！原来是：" + sub.getName(), Toast.LENGTH_LONG).show();
-                            type = determineSubEventCategory(sub);
-                        }
-                    }
-
-                    if ("BATTLE".equals(type) || (sub != null && sub.getKey().startsWith("battle_"))) {
-                        EventManager.EventCircle triggeredEc = mEventManager.getTriggeredEventCircle();
-                        Monster battleMonster = null;
-                        if (triggeredEc != null && triggeredEc.monster != null) {
-                            battleMonster = triggeredEc.monster;
-                        } else {
-                            battleMonster = MonsterManager.getInstance(getContext()).createRandomMonster();
-                        }
-                        mEventManager.setCurrentBattleMonster(battleMonster);
-                        mEventManager.removeTriggeredEvents();
-                        refreshEventIcons();
-                        mBattleTriggerPosition = latLng;
-                        Toast.makeText(getContext(), "即将进入战斗...", Toast.LENGTH_SHORT).show();
-                        startBattleCountdown();
-                    } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "") || "training".equals(sub != null ? sub.getKey() : "") || "treasure".equals(sub != null ? sub.getKey() : "")) {
-                        handleBenefitAction();
-                        mEventManager.removeTriggeredEvents();
-                        refreshEventIcons();
-                        Toast.makeText(getContext(), "增益事件，你可以在此回复生命、增强力量或打开宝箱", Toast.LENGTH_SHORT).show();
-                    } else if ("NEUTRAL".equals(type)) {
-                        mIsProcessingNeutral = true;
-                        mEventManager.removeTriggeredEvents();
-                        refreshEventIcons();
-                        openNeutralEventPage(sub);
-                    }
-                } else if (!inRange && countdownRunning && mBattleTriggerPosition != null) {
+                if (mBattleCountdownRunnable != null && mBattleTriggerPosition != null) {
                     double distFromTrigger = GeoUtils.calculateDistance(latLng, mBattleTriggerPosition);
                     if (distFromTrigger > 20) {
                         mMainHandler.removeCallbacks(mBattleCountdownRunnable);
@@ -620,14 +596,67 @@ public class MapFragment extends Fragment {
         mAMap.setOnMapClickListener(latLng -> {
             hideEventPopup();
 
+            if (mBattleCountdownRunnable != null || mIsProcessingNeutral || mIsPlayingCircleAnim) return;
+
             for (EventManager.EventCircle eventCircle : mEventManager.getEventCircleList()) {
                 double d = GeoUtils.calculateDistance(latLng, eventCircle.position);
                 if (d <= eventCircle.config.getRadius()) {
-                    showEventPopup(eventCircle);
+                    LatLng currentPos = mEventManager.getCurrentLatLng();
+                    if (currentPos != null) {
+                        double distToPlayer = GeoUtils.calculateDistance(currentPos, eventCircle.position);
+                        if (distToPlayer <= eventCircle.config.getTriggerDistance()) {
+                            hideEventPopup();
+                            playCircleAnimation(eventCircle);
+                        } else {
+                            showEventPopup(eventCircle);
+                        }
+                    } else {
+                        showEventPopup(eventCircle);
+                    }
                     break;
                 }
             }
         });
+    }
+
+    private void processClickedEvent(EventManager.EventCircle ec) {
+        String type = ec.config.getType();
+        EventConfig.EventSubItem sub = ec.selectedSubEvent;
+
+        if ("UNKNOWN".equals(type)) {
+            sub = mEventManager.resolveUnknownEvent();
+            if (sub != null) {
+                Toast.makeText(getContext(), "揭开神秘面纱！原来是：" + sub.getName(), Toast.LENGTH_LONG).show();
+                type = determineSubEventCategory(sub);
+            }
+        }
+
+        if ("BATTLE".equals(type) || (sub != null && sub.getKey().startsWith("battle_"))) {
+            Monster battleMonster;
+            if (ec.monster != null) {
+                battleMonster = ec.monster;
+            } else {
+                battleMonster = MonsterManager.getInstance(getContext()).createRandomMonster();
+            }
+            mEventManager.setCurrentBattleMonster(battleMonster);
+            mEventManager.removeEventCircle(ec);
+            refreshEventIcons();
+            mBattleTriggerPosition = mEventManager.getCurrentLatLng();
+            Toast.makeText(getContext(), "即将进入战斗...", Toast.LENGTH_SHORT).show();
+            startBattleCountdown();
+        } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "")
+                || "training".equals(sub != null ? sub.getKey() : "")
+                || "treasure".equals(sub != null ? sub.getKey() : "")) {
+            handleBenefitAction();
+            mEventManager.removeEventCircle(ec);
+            refreshEventIcons();
+            Toast.makeText(getContext(), "增益事件，你可以在此回复生命、增强力量或打开宝箱", Toast.LENGTH_SHORT).show();
+        } else if ("NEUTRAL".equals(type)) {
+            mIsProcessingNeutral = true;
+            mEventManager.removeEventCircle(ec);
+            refreshEventIcons();
+            openNeutralEventPage(sub);
+        }
     }
 
     private void initIconOverlay() {
@@ -638,6 +667,56 @@ public class MapFragment extends Fragment {
         mIconOverlay.setClickable(false);
         mIconOverlay.setFocusable(false);
         mMapView.addView(mIconOverlay);
+    }
+
+    private void initCircleAnimOverlay() {
+        mCircleAnimOverlay = new FrameLayout(requireContext());
+        mCircleAnimOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        mCircleAnimOverlay.setClickable(false);
+        mCircleAnimOverlay.setFocusable(false);
+        mMapView.addView(mCircleAnimOverlay);
+    }
+
+    private void playCircleAnimation(EventManager.EventCircle ec) {
+        mIsPlayingCircleAnim = true;
+        mCircleAnimOverlay.removeAllViews();
+
+        android.graphics.Point point = mAMap.getProjection().toScreenLocation(ec.position);
+        int animSize = (int) (72 * getResources().getDisplayMetrics().density);
+        int color = getEventIconColor(ec.config.getType());
+
+        int[] frameResIds = {
+                R.drawable.circle_1, R.drawable.circle_2, R.drawable.circle_3,
+                R.drawable.circle_4, R.drawable.circle_5
+        };
+
+        ImageView circleIv = new ImageView(requireContext());
+        circleIv.setImageResource(frameResIds[0]);
+        circleIv.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(animSize, animSize);
+        params.leftMargin = point.x - animSize / 2;
+        params.topMargin = point.y - animSize / 2;
+        mCircleAnimOverlay.addView(circleIv, params);
+
+        final int[] frameIndex = {0};
+        mCircleAnimRunnable = new Runnable() {
+            @Override
+            public void run() {
+                frameIndex[0]++;
+                if (frameIndex[0] < frameResIds.length) {
+                    circleIv.setImageResource(frameResIds[frameIndex[0]]);
+                    mMainHandler.postDelayed(this, 120);
+                } else {
+                    mCircleAnimOverlay.removeAllViews();
+                    mIsPlayingCircleAnim = false;
+                    mCircleAnimRunnable = null;
+                    processClickedEvent(ec);
+                }
+            }
+        };
+        mMainHandler.postDelayed(mCircleAnimRunnable, 120);
     }
 
     private void initCountdownOverlay() {
@@ -847,6 +926,14 @@ public class MapFragment extends Fragment {
             mDebugCountdownRunnable = null;
             btnDebug.setText("调试功能");
         }
+        if (mCircleAnimRunnable != null) {
+            mMainHandler.removeCallbacks(mCircleAnimRunnable);
+            mCircleAnimRunnable = null;
+            mIsPlayingCircleAnim = false;
+        }
+        if (mCircleAnimOverlay != null) {
+            mCircleAnimOverlay.removeAllViews();
+        }
         if (mCountdownOverlay != null) {
             mCountdownOverlay.setVisibility(View.GONE);
         }
@@ -863,6 +950,9 @@ public class MapFragment extends Fragment {
         mEventManager.clearAllEvents();
         mIconOverlay.removeAllViews();
         mEventIcons.clear();
+        if (mCircleAnimOverlay != null) {
+            mCircleAnimOverlay.removeAllViews();
+        }
         mMainHandler.removeCallbacksAndMessages(null);
         hideEventPopup();
         hideDebugPopup();
@@ -873,6 +963,20 @@ public class MapFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             new Handler(Looper.getMainLooper()).postDelayed(this::startLocation, 300);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null && data.hasExtra("open_trade")) {
+            FragmentManager fm = requireActivity().getSupportFragmentManager();
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                    .hide(MapFragment.this)
+                    .addToBackStack("trade")
+                    .commit();
         }
     }
 }

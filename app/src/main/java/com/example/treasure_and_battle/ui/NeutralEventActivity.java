@@ -21,11 +21,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
-import com.example.treasure_and_battle.manager.EquipAffixManager;
-import com.example.treasure_and_battle.manager.EquipmentManager;
+import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.EventManager;
-import com.example.treasure_and_battle.manager.InventoryManager;
-import com.example.treasure_and_battle.model.item.EquipItem;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;
@@ -78,7 +79,9 @@ public class NeutralEventActivity extends AppCompatActivity {
         switch (eventKey) {
             case "merchant":
                 btnAction1 = addActionButton("进入商店交易", 0xFF2196F3, v -> {
-                    startActivity(new Intent(this, TradeActivity.class));
+                    Intent result = new Intent();
+                    result.putExtra("open_trade", true);
+                    setResult(RESULT_OK, result);
                     finish();
                 });
                 btnAction2 = addActionButton("拒绝交易", 0xFF888888, v -> {
@@ -269,7 +272,7 @@ public class NeutralEventActivity extends AppCompatActivity {
 
     private void showEquipmentSelectionDialog() {
         InventoryManager inv = InventoryManager.getInstance();
-        if (inv.isEmpty()) {
+        if (inv.isCompletelyEmpty()) {
             EquipmentManager em = EquipmentManager.getInstance(this);
             inv.addItem(em.generateRandomEquip(5, Rarity.COMMON));
             inv.addItem(em.generateRandomEquip(8, Rarity.UNCOMMON));
@@ -277,7 +280,12 @@ public class NeutralEventActivity extends AppCompatActivity {
             inv.addItem(em.generateRandomEquip(20, Rarity.EPIC));
         }
 
-        final List<EquipItem> equipItems = inv.getEquipItems();
+        final List<EquipItem> equipItems = new ArrayList<>();
+        for (Item item : inv.getItems()) {
+            if (item instanceof EquipItem) {
+                equipItems.add((EquipItem) item);
+            }
+        }
         if (equipItems.isEmpty()) {
             showResult("你的背包中没有可重炼的装备。");
             return;
