@@ -6,6 +6,7 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
+import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.profession.ProfessionManager;
 import com.example.treasure_and_battle.profession.ProfessionType;
@@ -54,6 +55,9 @@ public class Character {
     private int allocatedPhysique;
     private int allocatedLuck;
 
+    /** 背包：125 格固定槽位，与 InventoryGridSync.BAG_SLOT_COUNT 一致 */
+    private final List<Item> bagItems = new ArrayList<Item>(125);
+
     public Character(int characterId, String name, ProfessionType professionType, Context context) {
         this.mContext = context;
         this.characterId = characterId;
@@ -68,6 +72,10 @@ public class Character {
         this.gold = 0;
         this.currentHp = this.baseMaxHp;
         this.currentMp = this.baseMaxMp;
+
+        for (int i = 0; i < 125; i++) {
+            bagItems.add(null);
+        }
     }
 
     // ========== 经验与升级 ==========
@@ -195,6 +203,7 @@ public class Character {
         base.luck = allocatedLuck;
         base.maxHp = this.baseMaxHp;
         base.maxMp = this.baseMaxMp;
+        Player.computeFullBaseCombatAttributes(base);
 
         player.markAttributeCacheDirty();
     }
@@ -273,4 +282,7 @@ public class Character {
     public int getAllocatedSpirit() { return allocatedSpirit; }
     public int getAllocatedPhysique() { return allocatedPhysique; }
     public int getAllocatedLuck() { return allocatedLuck; }
+
+    /** 背包：125 格固定槽位列表 */
+    public List<Item> getBagItems() { return bagItems; }
 }

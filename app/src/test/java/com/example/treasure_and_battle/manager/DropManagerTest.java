@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.battle.DropManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -10,6 +11,7 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.material.MaterialItem;
+import com.example.treasure_and_battle.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +36,14 @@ public class DropManagerTest {
 
     private Context context;
     private DropManager dropManager;
+    private List<Item> bag;
 
     @Before
     public void setUp() {
         context = RuntimeEnvironment.application;
         dropManager = DropManager.getInstance(context);
-        InventoryManager.getInstance().clearAllSlots();
+        bag = new ArrayList<>();
+        InventoryManager.initBag(bag);
     }
 
     // ====================== generateDrops ======================
@@ -53,7 +57,7 @@ public class DropManagerTest {
 
     @Test
     public void testGenerateDropsNullMonsters() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, (List<Monster>) null, false);
         List<Item> drops = dropManager.generateDrops(ctx);
         assertNotNull(drops);
@@ -61,7 +65,7 @@ public class DropManagerTest {
 
     @Test
     public void testGenerateDropsEmptyMonsters() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         List<Item> drops = dropManager.generateDrops(ctx);
         assertNotNull(drops);
@@ -69,7 +73,7 @@ public class DropManagerTest {
 
     @Test
     public void testGenerateDropsWithMonster() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         Monster m = new Monster("m1", "测试怪物", 5, Rarity.COMMON,
                 0, 0, 0, 0, 0, 0,
                 30, 10, 1.0f, 1.0f, 1.0f, 1.0f, context);
@@ -83,7 +87,7 @@ public class DropManagerTest {
 
     @Test
     public void testGenerateDropsMonsterWithoutTemplate() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         Monster m = new Monster("m2", "无模板怪物", 5, Rarity.COMMON,
                 0, 0, 0, 0, 0, 0,
                 30, 10, 1.0f, 1.0f, 1.0f, 1.0f, context);
@@ -101,7 +105,7 @@ public class DropManagerTest {
     public void testClaimDropValid() {
         MaterialItem item = new MaterialItem("mat_1", "材料",
                 Rarity.COMMON, 5, 99, "来源");
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>(Arrays.asList(item));
 
@@ -113,7 +117,7 @@ public class DropManagerTest {
 
     @Test
     public void testClaimDropInvalidIndex() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>();
 
@@ -136,7 +140,7 @@ public class DropManagerTest {
         MaterialItem item2 = new MaterialItem("mat_b", "B",
                 Rarity.COMMON, 5, 99, "来源");
 
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>(Arrays.asList(item1, item2));
 
@@ -148,9 +152,8 @@ public class DropManagerTest {
 
     @Test
     public void testClaimAllPartialFailure() {
-        InventoryManager inv = InventoryManager.getInstance();
         for (int i = 0; i < 50; i++) {
-            inv.addItem(new MaterialItem("fill_" + i, "填充",
+            InventoryManager.addItem(bag, new MaterialItem("fill_" + i, "填充",
                     Rarity.COMMON, 5, 99, "来源"));
         }
 
@@ -159,7 +162,7 @@ public class DropManagerTest {
         MaterialItem item2 = new MaterialItem("test_2", "测试2",
                 Rarity.COMMON, 5, 99, "来源");
 
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>(Arrays.asList(item1, item2));
 
@@ -177,7 +180,7 @@ public class DropManagerTest {
 
     @Test
     public void testClaimAllEmptyPending() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>();
 
@@ -190,7 +193,7 @@ public class DropManagerTest {
 
     @Test
     public void testPickTypeByWeightNonNullMonster() {
-        Player player = new Player("p", context);
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         Monster m = new Monster("m3", "测试怪物", 10, Rarity.UNCOMMON,
                 0, 0, 0, 0, 0, 0,
                 60, 25, 1.5f, 1.25f, 1.5f, 1.0f, context);

@@ -325,8 +325,12 @@ public class BattleManager {
         try {
             skill.applyCastCost(caster);
             skill.onCast(caster, targets, this);
-            context.addLog(LogType.ACTION, "【%s】[%s] 对目标施放了 [%s]",
-                caster.getClass().getSimpleName(), caster.getName(), skill.getSkillName());
+            context.addLog(LogType.ACTION, "[%s] 释放了 [%s]",
+                    caster.getName(), skill.getSkillName());
+        } catch (Exception e) {
+            context.addLog(LogType.SYSTEM, "[%s] 释放技能 [%s] 失败: %s",
+                    caster.getName(), skill.getSkillName(), e.getMessage());
+            e.printStackTrace();
         } finally {
             this.currentBattleContext = null;
         }
@@ -511,7 +515,7 @@ public class BattleManager {
                         intent.getApCost(), intent.getMpCost(), 0,
                         intent.getPowerMultiplier(), null, intent.getName());
             case SKILL:
-                return BattleAction.skillTodo(actor, ctx.player,
+                return BattleAction.useSkill(actor, ctx.player,
                         intent.getActionRefId(), intent.getApCost(), intent.getMpCost(),
                         intent.getPowerMultiplier(), intent.getName());
             case ESCAPE:
@@ -570,19 +574,7 @@ public class BattleManager {
                     if (skill != null && skill.isCooldownReady()) {
                         List<BattleEntity> targets =
                                 SkillTargetResolver.resolve(skill.getSkillRangeType(), actor, ctx);
-                        try {
-                            this.currentBattleContext = ctx;
-                            skill.applyCastCost(actor);
-                            skill.onCast(actor, targets, this);
-                            ctx.addLog(LogType.ACTION, "[%s] 释放了 [%s]",
-                                    actor.getName(), skill.getSkillName());
-                        } catch (Exception e) {
-                            ctx.addLog(LogType.SYSTEM, "[%s] 释放技能 [%s] 失败: %s",
-                                    actor.getName(), skill.getSkillName(), e.getMessage());
-                            e.printStackTrace();
-                        } finally {
-                            this.currentBattleContext = null;
-                        }
+                        executeSkill(actor, skill, targets, ctx);
                     } else {
                         ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（技能未就绪或不存在）",
                                 actor.getName(), action.getDisplayName());
@@ -609,7 +601,7 @@ public class BattleManager {
             return;
         }
 
-        ConsumableItem item = findConsumableInInventory(consumableId);
+        ConsumableItem item = findConsumableInInventory(ctx, consumableId);
         if (item == null) {
             ctx.addLog(LogType.SYSTEM, "[%s] 使用道具失败：[%s] 不存在或已用尽",
                     actor.getName(), action.getDisplayName());
@@ -622,12 +614,15 @@ public class BattleManager {
             return;
         }
 
-        InventoryManager.getInstance().consumeOne(consumableId);
+        InventoryManager.consumeOne(ctx.player.owner.getBagItems(), consumableId);
         ctx.addLog(LogType.ACTION, "[%s] 使用了 [%s]", actor.getName(), item.getName());
     }
 
-    private ConsumableItem findConsumableInInventory(String consumableId) {
-        for (ConsumableItem c : InventoryManager.getInstance().getBattleUsableConsumables()) {
+    private ConsumableItem findConsumableInInventory(BattleContext ctx, String consumableId) {
+        List<Item> bag = ctx != null && ctx.player != null && ctx.player.owner != null
+                ? ctx.player.owner.getBagItems() : null;
+        if (bag == null) return null;
+        for (ConsumableItem c : InventoryManager.getBattleUsableConsumables(bag)) {
             if (c.getId().equals(consumableId)) {
                 return c;
             }
