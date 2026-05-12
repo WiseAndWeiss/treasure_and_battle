@@ -62,7 +62,7 @@ public class AttributeUtils {
 
         base.maxHp = character.getBaseMaxHp();
         base.maxMp = character.getBaseMaxMp();
-        Player.applyBaseCombatAttributes(base);
+        Player.computeFullBaseCombatAttributes(base);
 
         return base;
     }

@@ -195,6 +195,7 @@ public class Character {
         base.luck = allocatedLuck;
         base.maxHp = this.baseMaxHp;
         base.maxMp = this.baseMaxMp;
+        Player.computeFullBaseCombatAttributes(base);
 
         player.markAttributeCacheDirty();
     }
