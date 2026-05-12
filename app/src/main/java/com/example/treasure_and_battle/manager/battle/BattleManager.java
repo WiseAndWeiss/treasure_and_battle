@@ -601,7 +601,7 @@ public class BattleManager {
             return;
         }
 
-        ConsumableItem item = findConsumableInInventory(consumableId);
+        ConsumableItem item = findConsumableInInventory(ctx, consumableId);
         if (item == null) {
             ctx.addLog(LogType.SYSTEM, "[%s] 使用道具失败：[%s] 不存在或已用尽",
                     actor.getName(), action.getDisplayName());
@@ -614,12 +614,15 @@ public class BattleManager {
             return;
         }
 
-        InventoryManager.getInstance().consumeOne(consumableId);
+        InventoryManager.consumeOne(ctx.player.owner.getBagItems(), consumableId);
         ctx.addLog(LogType.ACTION, "[%s] 使用了 [%s]", actor.getName(), item.getName());
     }
 
-    private ConsumableItem findConsumableInInventory(String consumableId) {
-        for (ConsumableItem c : InventoryManager.getInstance().getBattleUsableConsumables()) {
+    private ConsumableItem findConsumableInInventory(BattleContext ctx, String consumableId) {
+        List<Item> bag = ctx != null && ctx.player != null && ctx.player.owner != null
+                ? ctx.player.owner.getBagItems() : null;
+        if (bag == null) return null;
+        for (ConsumableItem c : InventoryManager.getBattleUsableConsumables(bag)) {
             if (c.getId().equals(consumableId)) {
                 return c;
             }

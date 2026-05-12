@@ -32,6 +32,7 @@ import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -219,7 +220,7 @@ public class BattleFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        InventoryGridSync.reloadSharedGridFromManager();
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
     }
 
     /**
@@ -323,7 +324,7 @@ public class BattleFragment extends Fragment {
                     dialogList.remove(item);
                 }
             }
-            InventoryGridSync.flushSharedGridToManager();
+            InventoryGridSync.flushSharedGridToManager(requireContext());
             return;
         }
     }
@@ -637,7 +638,7 @@ public class BattleFragment extends Fragment {
         clearPending();
         setHint("");
 
-        InventoryGridSync.reloadSharedGridFromManager();
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
         List<ConsumableItem> usable = collectUsableBattleConsumables();
         if (usable.isEmpty()) {
             Toast.makeText(requireContext(), "背包中没有可在战斗中使用的道具", Toast.LENGTH_SHORT).show();
@@ -878,27 +879,18 @@ public class BattleFragment extends Fragment {
         if (items == null || items.isEmpty()) {
             return 0;
         }
-        InventoryGridSync.reloadSharedGridFromManager();
-        List<Item> grid = InventoryGridSync.getSharedBagGrid(requireContext());
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        List<Item> bag = ch.getBagItems();
         int placed = 0;
         for (Item it : items) {
             if (it == null) {
                 continue;
             }
-            int empty = -1;
-            for (int i = 0; i < grid.size(); i++) {
-                if (grid.get(i) == null) {
-                    empty = i;
-                    break;
-                }
+            if (InventoryManager.addItem(bag, it)) {
+                placed++;
             }
-            if (empty < 0) {
-                break;
-            }
-            grid.set(empty, it);
-            placed++;
         }
-        InventoryGridSync.flushSharedGridToManager();
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
         return placed;
     }
 

@@ -166,13 +166,13 @@ public class BagFragment extends Fragment {
 
     @Override
     public void onPause() {
-        InventoryGridSync.flushSharedGridToManager();
+        InventoryGridSync.flushSharedGridToManager(requireContext());
         super.onPause();
     }
 
     /** 从 InventoryManager 拉取列表到共享网格并刷新显示 */
     private void refreshBagFromInventory() {
-        InventoryGridSync.reloadSharedGridFromManager();
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -218,7 +218,7 @@ public class BagFragment extends Fragment {
 
     /** 将当前网格顺序写回 InventoryManager（交换格子、整理、装备移动等之后调用） */
     private void persistSharedBagGridToInventory() {
-        InventoryGridSync.flushSharedGridToManager();
+        InventoryGridSync.flushSharedGridToManager(requireContext());
     }
 
     private void applyBagDragLayering(boolean dragging) {
