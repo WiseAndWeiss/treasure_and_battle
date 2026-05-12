@@ -1,12 +1,17 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,8 +51,8 @@ public class SkillFragment extends Fragment {
     private SkillAdapter adapter;
     private boolean compactMode;
 
-    private TextView tvStatsLeft;
-    private TextView tvStatsRight;
+    private LinearLayout layoutStatsLeft;
+    private LinearLayout layoutStatsRight;
     private TextView tvRemainingTalent;
     private TextView tvRemainingSkillPoints;
 
@@ -80,8 +85,8 @@ public class SkillFragment extends Fragment {
         rvSkills = view.findViewById(R.id.rv_skills);
         compactMode = getResources().getConfiguration().smallestScreenWidthDp < 380;
 
-        tvStatsLeft = view.findViewById(R.id.tv_stats_content);
-        tvStatsRight = view.findViewById(R.id.tv_stats_content_right);
+        layoutStatsLeft = view.findViewById(R.id.layout_stats_left);
+        layoutStatsRight = view.findViewById(R.id.layout_stats_right);
         tvRemainingTalent = view.findViewById(R.id.tv_remaining_points);
         tvRemainingSkillPoints = view.findViewById(R.id.tv_remaining_skill_points);
 
@@ -199,7 +204,7 @@ public class SkillFragment extends Fragment {
     }
 
     private void refreshCharacterPanels() {
-        if (character == null || tvStatsLeft == null) {
+        if (character == null || layoutStatsLeft == null || layoutStatsRight == null) {
             return;
         }
         Profession profession = character.getProfession();
@@ -207,30 +212,37 @@ public class SkillFragment extends Fragment {
 
         AttributeSet fa = AttributeUtils.calculateCharacterAttributes(character);
 
-        String left = String.format(Locale.CHINA,
-                "职业：%s\n等级：%d\n名称：%s\n经验：%d / %d\n血量：%d / %d\n魔力：%d / %d\n金币：%d",
-                jobName,
-                character.getLevel(),
-                character.getName(),
-                character.getCurrentExp(),
-                character.getExpToNextLevel(),
-                character.getCurrentHp(),
-                fa.maxHp,
-                character.getCurrentMp(),
-                fa.maxMp,
-                character.getGold());
-        tvStatsLeft.setText(left);
+        layoutStatsLeft.removeAllViews();
+        layoutStatsRight.removeAllViews();
 
-        String right = String.format(Locale.CHINA,
-                "物攻：%d\n魔攻：%d\n物防：%d\n魔防：%d\n速度：%d\n暴击：%s\n闪避：%s",
-                fa.physicalAtk,
-                fa.magicalAtk,
-                fa.physicalDef,
-                fa.magicalDef,
-                fa.speed,
-                percentLabel(fa.physicalCritRate),
-                percentLabel(fa.dodgeRate));
-        tvStatsRight.setText(right);
+        addStatRow(layoutStatsLeft, "职业", jobName, R.color.tb_gold);
+        addStatRow(layoutStatsLeft, "等级", String.valueOf(character.getLevel()), R.color.tb_text_main);
+        addStatRow(layoutStatsLeft, "名称", character.getName(), R.color.tb_text_main);
+        addStatRow(layoutStatsLeft, "血量",
+                character.getCurrentHp() + " / " + fa.maxHp, R.color.tb_battle);
+        addStatRow(layoutStatsLeft, "魔力",
+                character.getCurrentMp() + " / " + fa.maxMp, R.color.tb_battle);
+        addStatRow(layoutStatsLeft, "金币", String.valueOf(character.getGold()), R.color.tb_gold);
+        addSeparator(layoutStatsLeft, "非战斗属性");
+        addStatRow(layoutStatsLeft, "金币加成", percent1d(fa.goldBonus), R.color.tb_gold);
+        addStatRow(layoutStatsLeft, "经验加成", percent1d(fa.expBonus), R.color.tb_text_main);
+        addStatRow(layoutStatsLeft, "掉落加成", "+" + (int) fa.lootRarityBonus, R.color.tb_text_main);
+        addStatRow(layoutStatsLeft, "蓝耗减免", percent0d(fa.mpCostReduction), R.color.tb_text_main);
+        addStatRow(layoutStatsLeft, "减伤", percent1d(fa.damageReductionRate), R.color.tb_battle);
+        addStatRow(layoutStatsLeft, "速度", String.valueOf(fa.speed), R.color.tb_text_main);
+
+        addSeparator(layoutStatsRight, "战斗属性");
+        addStatRow(layoutStatsRight, "物攻", String.valueOf(fa.physicalAtk), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "魔攻", String.valueOf(fa.magicalAtk), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "物防", String.valueOf(fa.physicalDef), R.color.tb_text_main);
+        addStatRow(layoutStatsRight, "魔防", String.valueOf(fa.magicalDef), R.color.tb_text_main);
+        addStatRow(layoutStatsRight, "物理暴击率", percent1d(fa.physicalCritRate), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "魔法暴击率", percent1d(fa.magicalCritRate), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "物理暴伤", percent1d(fa.physicalCritDmg), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "魔法暴伤", percent1d(fa.magicalCritDmg), R.color.tb_battle);
+        addStatRow(layoutStatsRight, "命中率", percent1d(fa.hitRate), R.color.tb_text_main);
+        addStatRow(layoutStatsRight, "闪避率", percent1d(fa.dodgeRate), R.color.tb_text_main);
+        addStatRow(layoutStatsRight, "异常抵抗", percent0d(fa.debuffResist), R.color.tb_text_main);
 
         PlayerManager pm = PlayerManager.getInstance(requireContext());
         if (tvTalentStr != null) {
@@ -247,6 +259,47 @@ public class SkillFragment extends Fragment {
         if (tvRemainingSkillPoints != null) {
             tvRemainingSkillPoints.setText("剩余技能点: " + character.getSkillPoints());
         }
+    }
+
+    private void addStatRow(LinearLayout parent, String label, String value, int valueColorRes) {
+        if (parent == null) return;
+        TextView row = new TextView(requireContext());
+        row.setTextSize(TypedValue.COMPLEX_UNIT_SP, compactMode ? 11f : 13f);
+        row.setText(label + "：");
+        row.append(applyColor(value, valueColorRes));
+        row.setLineSpacing(dpToPx(2), 1f);
+        parent.addView(row);
+    }
+
+    private CharSequence applyColor(String text, int colorRes) {
+        int color = ContextCompat.getColor(requireContext(), colorRes);
+        android.text.SpannableString ss = new android.text.SpannableString(text);
+        ss.setSpan(new android.text.style.ForegroundColorSpan(color), 0, text.length(), 0);
+        return ss;
+    }
+
+    private void addSeparator(LinearLayout parent, String title) {
+        if (parent == null) return;
+        View sep = new View(requireContext());
+        sep.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dpToPx(1)));
+        sep.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tb_divider));
+        parent.addView(sep);
+
+        TextView label = new TextView(requireContext());
+        label.setText(title);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, compactMode ? 10f : 12f);
+        label.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_gold));
+        label.setGravity(Gravity.CENTER);
+        parent.addView(label);
+    }
+
+    private static String percent0d(float rate01) {
+        return String.format(Locale.CHINA, "%.0f%%", rate01 * 100f);
+    }
+
+    private static String percent1d(float rate01) {
+        return String.format(Locale.CHINA, "%.1f%%", rate01 * 100f);
     }
 
     private static String percentLabel(float rate01) {

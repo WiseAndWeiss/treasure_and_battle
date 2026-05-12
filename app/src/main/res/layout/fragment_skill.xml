@@ -20,114 +20,132 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:overScrollMode="ifContentScrolls"
-            android:scrollbars="vertical">
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="角色属性"
+                android:textColor="@color/tb_gold"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="6dp"
+                android:background="@color/tb_divider" />
+
+            <!-- Debug 构建下由 SkillFragment 设为可见：快速加经验/天赋点/技能点 -->
+            <LinearLayout
+                android:id="@+id/row_skill_debug_grant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/btn_debug_gain_exp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="+5000经验"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/btn_debug_gain_talent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="+20天赋点"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/btn_debug_gain_skill"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="+20技能点"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="11sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="6dp"
-                    android:text="角色属性"
-                    android:textColor="@color/tb_gold"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                <ScrollView
+                    android:id="@+id/scroll_stats_left"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:scrollbars="none"
+                    android:fadingEdgeLength="0dp"
+                    android:overScrollMode="ifContentScrolls">
+
+                    <LinearLayout
+                        android:id="@+id/layout_stats_left"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingEnd="4dp" />
+                </ScrollView>
 
                 <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
                     android:background="@color/tb_divider" />
 
-                <!-- Debug 构建下由 SkillFragment 设为可见：快速加经验/天赋点/技能点 -->
-                <LinearLayout
-                    android:id="@+id/row_skill_debug_grant"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="6dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                <ScrollView
+                    android:id="@+id/scroll_stats_right"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:scrollbars="none"
+                    android:fadingEdgeLength="0dp"
+                    android:overScrollMode="ifContentScrolls">
 
-                    <TextView
-                        android:id="@+id/btn_debug_gain_exp"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:id="@+id/layout_stats_right"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="?selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center"
-                        android:padding="6dp"
-                        android:text="+5000经验"
-                        android:textColor="@color/tb_battle"
-                        android:textSize="11sp" />
+                        android:orientation="vertical"
+                        android:paddingStart="4dp" />
+                </ScrollView>
 
-                    <TextView
-                        android:id="@+id/btn_debug_gain_talent"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="?selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center"
-                        android:padding="6dp"
-                        android:text="+20天赋点"
-                        android:textColor="@color/tb_battle"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/btn_debug_gain_skill"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="?selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center"
-                        android:padding="6dp"
-                        android:text="+20技能点"
-                        android:textColor="@color/tb_battle"
-                        android:textSize="11sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tv_stats_content"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:lineSpacingExtra="2dp"
-                        android:text="职业：未定\n等级：1\n名称：玩家\n血量：100/100\n魔力：50/50"
-                        android:textColor="@color/tb_text_main"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tv_stats_content_right"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:lineSpacingExtra="2dp"
-                        android:text="物攻：15\n魔攻：10\n物防：5\n魔防：5\n速度：10\n暴击：0%\n闪避：0%"
-                        android:textColor="@color/tb_text_main"
-                        android:textSize="13sp" />
-                </LinearLayout>
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
