@@ -263,6 +263,71 @@ public class CharacterTest {
         assertNull(character.unequip(EquipSlot.WEAPON));
     }
 
+    // ====================== 天赋→战斗属性 ======================
+
+    @Test
+    public void testTalentStrengthIncreasesPhysicalAttack() {
+        character.gainExp(character.getExpToNextLevel());
+        character.allocateTalentPoint("STRENGTH");
+
+        Player player = character.generatePlayer();
+        int baseAtk = player.getFinalAttributes().physicalAtk;
+        assertTrue("力量+1 后物攻应 > 2（基础2 + 力量1）", baseAtk >= 3);
+    }
+
+    @Test
+    public void testTalentIntelligenceIncreasesMagicalAttack() {
+        character.gainExp(character.getExpToNextLevel());
+        character.allocateTalentPoint("INTELLIGENCE");
+
+        Player player = character.generatePlayer();
+        assertTrue("智力+1 后魔攻应 > 2", player.getFinalAttributes().magicalAtk >= 3);
+    }
+
+    @Test
+    public void testTalentPhysiqueIncreasesMaxHp() {
+        character.gainExp(character.getExpToNextLevel());
+        character.allocateTalentPoint("PHYSIQUE");
+
+        Player player = character.generatePlayer();
+        int maxHp = player.getFinalAttributes().maxHp;
+        assertTrue("体魄+1 后 maxHp 应 > 28（基础28 + 体魄2）", maxHp > 28);
+    }
+
+    @Test
+    public void testTalentAgilityIncreasesSpeed() {
+        character.gainExp(character.getExpToNextLevel());
+        character.allocateTalentPoint("AGILITY");
+
+        Player player = character.generatePlayer();
+        assertTrue("敏捷+1 后速度应 > 10", player.getFinalAttributes().speed >= 11);
+    }
+
+    @Test
+    public void testEquipmentIncreasedPhysicalAttack() {
+        EquipItem sword = new EquipItem("sword_1", "铁剑", Rarity.COMMON, 50, 1, EquipSlot.WEAPON);
+        sword.getBaseAttributes().physicalAtk = 30;
+        character.equip(sword);
+
+        Player player = character.generatePlayer();
+        int atk = player.getFinalAttributes().physicalAtk;
+        assertTrue("装备 +30 物攻，最终应 >= 32（基础2 + 装备30）", atk >= 32);
+    }
+
+    @Test
+    public void testTalentPlusEquipmentStackCorrectly() {
+        character.gainExp(character.getExpToNextLevel());
+        assertTrue(character.allocateTalentPoint("STRENGTH"));
+
+        EquipItem sword = new EquipItem("sword_1", "铁剑", Rarity.COMMON, 50, 1, EquipSlot.WEAPON);
+        sword.getBaseAttributes().physicalAtk = 30;
+        character.equip(sword);
+
+        Player player = character.generatePlayer();
+        int atk = player.getFinalAttributes().physicalAtk;
+        assertTrue("基础2 + 力量1 + 装备30 = 33，实际=" + atk, atk >= 33);
+    }
+
     // ====================== 生成战斗实体 ======================
 
     @Test

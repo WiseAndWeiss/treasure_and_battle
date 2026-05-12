@@ -2,4 +2,9 @@
     <string name="app_name">treasure_and_battle</string>
     <string name="item_detail_close">关闭</string>
     <string name="battle_log_book_cd">战斗记录</string>
+    <string name="title_game">宝藏与战斗</string>
+    <string name="subtitle_game">在地图上展开你的冒险之旅</string>
+    <string name="btn_start_game">开始游戏</string>
+    <string name="btn_select_save">选择存档</string>
+    <string name="btn_book">百科图鉴</string>
 </resources>

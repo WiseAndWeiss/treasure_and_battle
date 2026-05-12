@@ -120,7 +120,7 @@ public final class TradeBagBottomController {
 
     /** 从 {@link InventoryManager} 刷新网格显示（与背包页共用数据时调用） */
     public void reloadFromInventory() {
-        InventoryGridSync.reloadSharedGridFromManager();
+        InventoryGridSync.reloadSharedGridFromManager(host.requireContext());
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -873,14 +873,14 @@ public final class TradeBagBottomController {
                     case 2:
                         SellItemDialog.show(host.requireActivity(), allItems, realPosition, item,
                                 () -> {
-                                    InventoryGridSync.flushSharedGridToManager();
+                                    InventoryGridSync.flushSharedGridToManager(host.requireContext());
                                     adapter.notifyDataSetChanged();
                                 },
                                 host::addGoldFromSell);
                         break;
                     case 3:
                         allItems.set(realPosition, null);
-                        InventoryGridSync.flushSharedGridToManager();
+                        InventoryGridSync.flushSharedGridToManager(host.requireContext());
                         adapter.notifyDataSetChanged();
                         Toast.makeText(host.getContext(), "已丢弃" + item.getName(), Toast.LENGTH_SHORT).show();
                         break;

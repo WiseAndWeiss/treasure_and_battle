@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -13,7 +14,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
 
-// 设置界面：音效、音量、存档、账号、关于
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
@@ -22,23 +22,22 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        // 获取 SharedPreference 实例
         sharedPrefs = requireContext().getSharedPreferences("GameSettings", Context.MODE_PRIVATE);
 
-        // 初始化控件
         SwitchCompat switchMapPoi = view.findViewById(R.id.switch_show_map_poi);
-
-        // 读取当前保存的状态（默认隐藏，这样地图最开始就是纯粹的）
         boolean isShowPoi = sharedPrefs.getBoolean("showMapPoi", false);
         switchMapPoi.setChecked(isShowPoi);
-
-        // 监听开关的变化并保存
         switchMapPoi.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putBoolean("showMapPoi", isChecked);
-            editor.apply();
+            sharedPrefs.edit().putBoolean("showMapPoi", isChecked).apply();
         });
 
+        SwitchCompat switchDebug = view.findViewById(R.id.switch_debug);
+        boolean isDebug = sharedPrefs.getBoolean("debugMode", false);
+        switchDebug.setChecked(isDebug);
+        switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
+        });
+        
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();

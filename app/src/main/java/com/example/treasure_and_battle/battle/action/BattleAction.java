@@ -4,7 +4,7 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
 
 /**
  * 统一战斗动作抽象：玩家与怪物共用。
- * 当前仅落地 ATTACK / SKILL(TODO) / ITEM(TODO) / ESCAPE。
+ * 支持 ATTACK / SKILL / ITEM / ESCAPE。
  */
 public class BattleAction {
 
@@ -47,7 +47,7 @@ public class BattleAction {
         return new BattleAction(ActionType.ESCAPE, actor, target, 1, 0, 0, 1.0, null, "逃跑");
     }
 
-    public static BattleAction skillTodo(BattleEntity actor, BattleEntity target,
+    public static BattleAction useSkill(BattleEntity actor, BattleEntity target,
                                          String skillId, int apCost, int mpCost, double powerMultiplier, String displayName) {
         return new BattleAction(ActionType.SKILL, actor, target, apCost, mpCost, 0, powerMultiplier, skillId, displayName);
     }

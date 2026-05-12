@@ -62,6 +62,29 @@ public class Player extends BattleEntity {
         base.expBonus = 1.0f;
     }
 
+    public static void computeFullBaseCombatAttributes(AttributeSet base) {
+        base.physicalAtk = 2 + base.strength;
+        base.physicalDef = 1 + base.physique / 2;
+        base.magicalAtk = 2 + base.intelligence;
+        base.magicalDef = 1 + base.spirit / 2;
+        base.speed = 10 + base.agility;
+        base.maxActionPoints = 2;
+        base.hitRate = 0.9f + base.agility * 0.003f;
+        base.physicalCritRate = base.luck * 0.002f;
+        base.physicalCritDmg = 2.0f + base.strength * 0.005f;
+        base.magicalCritRate = base.luck * 0.002f;
+        base.magicalCritDmg = 2.0f + base.intelligence * 0.005f;
+        base.dodgeRate = base.agility * 0.004f;
+        base.debuffResist = (base.spirit + base.physique) * 0.004f;
+        base.mpCostReduction = base.spirit * 0.005f;
+        base.lootRarityBonus = base.luck;
+        base.goldBonus = 1.0f + base.luck * 0.01f;
+        base.expBonus = 1.0f + base.luck * 0.01f;
+
+        base.maxHp = base.maxHp + base.physique * 2 + Math.max(base.strength, 0);
+        base.maxMp = base.maxMp + base.intelligence * 2 + base.spirit;
+    }
+
     @Override
     protected void recalculateFinalAttributes() {
         this.finalAttributes.copyFrom(this.baseAttributes);
