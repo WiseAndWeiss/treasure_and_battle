@@ -1,7 +1,7 @@
 {
   "gem_templates": [
     {
-      "gemId": "ruby_普通",
+      "gemId": "ruby_common",
       "name": "普通红宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "gemId": "ruby_稀有",
+      "gemId": "ruby_uncommon",
       "name": "稀有红宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "gemId": "ruby_罕见",
+      "gemId": "ruby_rare",
       "name": "罕见红宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "gemId": "ruby_史诗",
+      "gemId": "ruby_epic",
       "name": "史诗红宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "gemId": "ruby_传说",
+      "gemId": "ruby_legendary",
       "name": "传说红宝石",
       "rarityId": 4,
       "baseValue": 2000,
@@ -126,7 +126,7 @@
       ]
     },
     {
-      "gemId": "emerald_普通",
+      "gemId": "emerald_common",
       "name": "普通绿宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -151,7 +151,7 @@
       ]
     },
     {
-      "gemId": "emerald_稀有",
+      "gemId": "emerald_uncommon",
       "name": "稀有绿宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -176,7 +176,7 @@
       ]
     },
     {
-      "gemId": "emerald_罕见",
+      "gemId": "emerald_rare",
       "name": "罕见绿宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "gemId": "emerald_史诗",
+      "gemId": "emerald_epic",
       "name": "史诗绿宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -226,7 +226,7 @@
       ]
     },
     {
-      "gemId": "emerald_传说",
+      "gemId": "emerald_legendary",
       "name": "传说绿宝石",
       "rarityId": 4,
       "baseValue": 2000,
@@ -251,7 +251,7 @@
       ]
     },
     {
-      "gemId": "sapphire_普通",
+      "gemId": "sapphire_common",
       "name": "普通蓝宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -276,7 +276,7 @@
       ]
     },
     {
-      "gemId": "sapphire_稀有",
+      "gemId": "sapphire_uncommon",
       "name": "稀有蓝宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -301,7 +301,7 @@
       ]
     },
     {
-      "gemId": "sapphire_罕见",
+      "gemId": "sapphire_rare",
       "name": "罕见蓝宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -326,7 +326,7 @@
       ]
     },
     {
-      "gemId": "sapphire_史诗",
+      "gemId": "sapphire_epic",
       "name": "史诗蓝宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -351,7 +351,7 @@
       ]
     },
     {
-      "gemId": "sapphire_传说",
+      "gemId": "sapphire_legendary",
       "name": "传说蓝宝石",
       "rarityId": 4,
       "baseValue": 2000,
@@ -376,7 +376,7 @@
       ]
     },
     {
-      "gemId": "topaz_普通",
+      "gemId": "topaz_common",
       "name": "普通黄宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -401,7 +401,7 @@
       ]
     },
     {
-      "gemId": "topaz_稀有",
+      "gemId": "topaz_uncommon",
       "name": "稀有黄宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -426,7 +426,7 @@
       ]
     },
     {
-      "gemId": "topaz_罕见",
+      "gemId": "topaz_rare",
       "name": "罕见黄宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -451,7 +451,7 @@
       ]
     },
     {
-      "gemId": "topaz_史诗",
+      "gemId": "topaz_epic",
       "name": "史诗黄宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -476,7 +476,7 @@
       ]
     },
     {
-      "gemId": "topaz_传说",
+      "gemId": "topaz_legendary",
       "name": "传说黄宝石",
       "rarityId": 4,
       "baseValue": 2000,
@@ -501,7 +501,7 @@
       ]
     },
     {
-      "gemId": "amethyst_普通",
+      "gemId": "amethyst_common",
       "name": "普通紫宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -526,7 +526,7 @@
       ]
     },
     {
-      "gemId": "amethyst_稀有",
+      "gemId": "amethyst_uncommon",
       "name": "稀有紫宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -551,7 +551,7 @@
       ]
     },
     {
-      "gemId": "amethyst_罕见",
+      "gemId": "amethyst_rare",
       "name": "罕见紫宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -576,7 +576,7 @@
       ]
     },
     {
-      "gemId": "amethyst_史诗",
+      "gemId": "amethyst_epic",
       "name": "史诗紫宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -601,7 +601,7 @@
       ]
     },
     {
-      "gemId": "amethyst_传说",
+      "gemId": "amethyst_legendary",
       "name": "传说紫宝石",
       "rarityId": 4,
       "baseValue": 2000,
@@ -626,7 +626,7 @@
       ]
     },
     {
-      "gemId": "pink_普通",
+      "gemId": "pink_common",
       "name": "普通粉宝石",
       "rarityId": 0,
       "baseValue": 50,
@@ -655,7 +655,7 @@
       ]
     },
     {
-      "gemId": "pink_稀有",
+      "gemId": "pink_uncommon",
       "name": "稀有粉宝石",
       "rarityId": 1,
       "baseValue": 120,
@@ -684,7 +684,7 @@
       ]
     },
     {
-      "gemId": "pink_罕见",
+      "gemId": "pink_rare",
       "name": "罕见粉宝石",
       "rarityId": 2,
       "baseValue": 300,
@@ -713,7 +713,7 @@
       ]
     },
     {
-      "gemId": "pink_史诗",
+      "gemId": "pink_epic",
       "name": "史诗粉宝石",
       "rarityId": 3,
       "baseValue": 750,
@@ -742,7 +742,7 @@
       ]
     },
     {
-      "gemId": "pink_传说",
+      "gemId": "pink_legendary",
       "name": "传说粉宝石",
       "rarityId": 4,
       "baseValue": 2000,

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_slot_treasure_stroke"
+    android:padding="1dp">
+
+    <RelativeLayout
+        android:id="@+id/bg_item_color"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_slot_treasure_fill"
+        android:paddingStart="3dp"
+        android:paddingEnd="3dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="3dp">
+
+        <TextView
+            android:id="@+id/tv_item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="0dp"
+            android:ellipsize="end"
+            android:gravity="center_horizontal|bottom"
+            android:maxLines="2"
+            android:minLines="1"
+            android:text="Item"
+            android:textColor="@color/tb_text_main"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/tv_item_name"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="2dp">
+
+            <ImageView
+                android:id="@+id/iv_item_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="4dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_menu_gallery" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_item_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="Lv.1"
+            android:textColor="@color/tb_slot_level_text"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            android:shadowColor="#B3000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="3.5" />
+
+    </RelativeLayout>
+</FrameLayout>

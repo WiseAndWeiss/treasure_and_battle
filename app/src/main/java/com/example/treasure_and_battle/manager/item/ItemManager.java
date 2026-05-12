@@ -234,6 +234,14 @@ public class ItemManager {
         return gemTemplates.get(gemId);
     }
 
+    public List<GemTemplate> getAllGemTemplates() {
+        return new ArrayList<>(gemTemplates.values());
+    }
+
+    public List<ConsumableTemplate> getAllConsumableTemplates() {
+        return new ArrayList<>(consumableTemplates.values());
+    }
+
     // ====================== 按稀有度随机选取 ======================
 
     public ConsumableItem getRandomConsumableByRarity(Rarity rarity) {
