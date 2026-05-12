@@ -5,9 +5,11 @@ import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.utils.AttributeUtils;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 玩家战斗实体
@@ -18,6 +20,8 @@ public class Player extends BattleEntity {
     public com.example.treasure_and_battle.character.Character owner;
 
     private Map<EquipSlot, EquipItem> equippedItems = new HashMap<>();
+    private EquipItem leftRing;
+    private EquipItem rightRing;
 
     // ====================== 构造 ======================
 
@@ -99,25 +103,48 @@ public class Player extends BattleEntity {
 
     public EquipItem equip(EquipItem item) {
         if (item == null) return null;
+        if (item.getSlot() == EquipSlot.RING) {
+            EquipItem old = leftRing != null ? leftRing : rightRing;
+            if (leftRing == null) {
+                leftRing = item;
+            } else if (rightRing == null) {
+                rightRing = item;
+            } else {
+                leftRing = item;
+            }
+            markAttributeCacheDirty();
+            return old;
+        }
         EquipItem old = equippedItems.put(item.getSlot(), item);
         markAttributeCacheDirty();
         return old;
     }
 
     public EquipItem unequip(EquipSlot slot) {
-        EquipItem removed = equippedItems.remove(slot);
-        if (removed != null) {
-            markAttributeCacheDirty();
+        if (slot == EquipSlot.RING) {
+            EquipItem removed = leftRing;
+            leftRing = null;
+            if (removed != null) markAttributeCacheDirty();
+            return removed;
         }
+        EquipItem removed = equippedItems.remove(slot);
+        if (removed != null) markAttributeCacheDirty();
         return removed;
     }
 
     public EquipItem getEquippedItem(EquipSlot slot) {
+        if (slot == EquipSlot.RING) return leftRing;
         return equippedItems.get(slot);
     }
 
+    public EquipItem getLeftRing() { return leftRing; }
+    public EquipItem getRightRing() { return rightRing; }
+
     public Collection<EquipItem> getEquippedItems() {
-        return equippedItems.values();
+        List<EquipItem> all = new ArrayList<>(equippedItems.values());
+        if (leftRing != null) all.add(leftRing);
+        if (rightRing != null) all.add(rightRing);
+        return all;
     }
 
     public void copyEquipmentFrom(Map<EquipSlot, EquipItem> source) {
@@ -125,6 +152,12 @@ public class Player extends BattleEntity {
         if (source != null) {
             this.equippedItems.putAll(source);
         }
+        markAttributeCacheDirty();
+    }
+
+    public void copyRingsFrom(EquipItem sourceLeft, EquipItem sourceRight) {
+        this.leftRing = sourceLeft;
+        this.rightRing = sourceRight;
         markAttributeCacheDirty();
     }
 }
