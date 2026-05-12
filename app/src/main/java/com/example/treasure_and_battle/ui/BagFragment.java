@@ -4,8 +4,6 @@ import android.content.ClipData;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.DragEvent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +30,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
@@ -871,7 +870,7 @@ public class BagFragment extends Fragment {
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem.getIconResId());
+                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
@@ -1078,7 +1077,7 @@ public class BagFragment extends Fragment {
         }
         if (icon != null) {
             icon.setVisibility(View.VISIBLE);
-            bindBagItemIcon(icon, equipItem.getIconResId());
+            bindBagItemIcon(icon, equipItem);
         }
         if (level != null) {
             level.setVisibility(View.VISIBLE);
@@ -1155,16 +1154,11 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
-        if (imageView == null) return;
-        imageView.setImageResource(iconResId);
-        Drawable d = imageView.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
+    private void bindBagItemIcon(@Nullable ImageView imageView, @Nullable Item item) {
+        if (imageView == null || item == null) {
+            return;
         }
+        GameAssetIcons.bindItem(requireContext(), imageView, item);
     }
 
     private class BagAdapter extends RecyclerView.Adapter<BagAdapter.ViewHolder> {
@@ -1239,7 +1233,7 @@ public class BagFragment extends Fragment {
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
-                bindBagItemIcon(holder.ivItemIcon, item.getIconResId());
+                bindBagItemIcon(holder.ivItemIcon, item);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
                 bindBagStackCountBadge(holder.tvBagStackCount, item);
