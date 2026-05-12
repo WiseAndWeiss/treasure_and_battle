@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.EventManager;
@@ -217,7 +218,8 @@ public class NeutralEventActivity extends AppCompatActivity {
                     Rarity rarity = rarities[(int) (Math.random() * rarities.length)];
                     EquipItem equip = em.generateRandomEquip((int) (5 + Math.random() * 21), rarity);
                     if (equip != null) {
-                        InventoryManager.getInstance().addItem(equip);
+                        Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                        InventoryManager.addItem(ch.getBagItems(), equip);
                         showResult("🎁 打开盲盒！\n\n获得装备：\n" + equip.getName()
                                 + "\n品质：" + equip.getRarity().getDisplayName());
                     } else {
@@ -271,17 +273,18 @@ public class NeutralEventActivity extends AppCompatActivity {
     }
 
     private void showEquipmentSelectionDialog() {
-        InventoryManager inv = InventoryManager.getInstance();
-        if (inv.isCompletelyEmpty()) {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+        if (InventoryManager.isEmpty(bag)) {
             EquipmentManager em = EquipmentManager.getInstance(this);
-            inv.addItem(em.generateRandomEquip(5, Rarity.COMMON));
-            inv.addItem(em.generateRandomEquip(8, Rarity.UNCOMMON));
-            inv.addItem(em.generateRandomEquip(12, Rarity.RARE));
-            inv.addItem(em.generateRandomEquip(20, Rarity.EPIC));
+            InventoryManager.addItem(bag, em.generateRandomEquip(5, Rarity.COMMON));
+            InventoryManager.addItem(bag, em.generateRandomEquip(8, Rarity.UNCOMMON));
+            InventoryManager.addItem(bag, em.generateRandomEquip(12, Rarity.RARE));
+            InventoryManager.addItem(bag, em.generateRandomEquip(20, Rarity.EPIC));
         }
 
         final List<EquipItem> equipItems = new ArrayList<>();
-        for (Item item : inv.getItems()) {
+        for (Item item : bag) {
             if (item instanceof EquipItem) {
                 equipItems.add((EquipItem) item);
             }
