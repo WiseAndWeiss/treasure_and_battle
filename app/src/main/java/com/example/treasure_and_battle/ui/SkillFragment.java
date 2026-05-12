@@ -35,6 +35,7 @@ import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.example.treasure_and_battle.utils.AttributeUtils;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -593,6 +594,8 @@ public class SkillFragment extends Fragment {
             holder.tvDesc.setText(item.desc);
             holder.tvLevel.setText(item.levelDisplay);
             holder.applyCompactStyle(compactMode);
+            GameAssetIcons.bindSkill(host.requireContext(), holder.ivSkillIcon, item.skillId,
+                    android.R.drawable.ic_menu_gallery);
 
             float alpha = item.canPressAction ? 1f : 0.38f;
             holder.btnAdd.setAlpha(alpha);
@@ -630,12 +633,14 @@ public class SkillFragment extends Fragment {
         }
 
         static class SkillViewHolder extends RecyclerView.ViewHolder {
+            ImageView ivSkillIcon;
             TextView tvName, tvDesc, tvLevel;
             ImageView btnAdd;
             private boolean compactApplied = false;
 
             SkillViewHolder(View itemView) {
                 super(itemView);
+                ivSkillIcon = itemView.findViewById(R.id.iv_skill_icon);
                 tvName = itemView.findViewById(R.id.tv_skill_name);
                 tvDesc = itemView.findViewById(R.id.tv_skill_desc);
                 tvLevel = itemView.findViewById(R.id.tv_skill_level);

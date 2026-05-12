@@ -5,7 +5,6 @@ import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttribute
 import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.model.affix.EquipAffixScope;
 
-import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.equip.ArmorType;
@@ -98,10 +97,6 @@ public class EquipmentManager {
         }
 
         EquipItem equip = new EquipItem(template.getEquipId(), template.getName(), rarity, level * 10, level, slot);
-        int iconRes = resolveEquipIconRes(template.getEquipId());
-        if (iconRes != 0) {
-            equip.setIconResId(iconRes);
-        }
 
         double basePower = calculateBasePower(level);
         double multiplier = getRarityMultiplier(rarity);
@@ -385,16 +380,5 @@ public class EquipmentManager {
 
     private static class EquipConfigWrapper {
         List<EquipTemplate> equip_templates;
-    }
-
-    private int resolveEquipIconRes(String equipId) {
-        if (equipId == null || equipId.trim().isEmpty()) {
-            return 0;
-        }
-        try {
-            return context.getResources().getIdentifier("ic_equip_" + equipId, "drawable", context.getPackageName());
-        } catch (Exception e) {
-            return 0;
-        }
     }
 }

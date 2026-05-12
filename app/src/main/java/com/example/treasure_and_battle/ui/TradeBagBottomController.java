@@ -3,8 +3,6 @@ package com.example.treasure_and_battle.ui;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
@@ -26,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
@@ -639,7 +638,7 @@ public final class TradeBagBottomController {
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem.getIconResId());
+                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
@@ -734,16 +733,11 @@ public final class TradeBagBottomController {
     }
 
     /** 物品格图标：关闭双线性过滤，像素风图标更清晰。 */
-    private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
-        if (imageView == null) return;
-        imageView.setImageResource(iconResId);
-        Drawable d = imageView.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
+    private void bindBagItemIcon(@Nullable ImageView imageView, @Nullable Item item) {
+        if (imageView == null || item == null) {
+            return;
         }
+        GameAssetIcons.bindItem(host.requireContext(), imageView, item);
     }
 
     private static void bindBagStackCountBadge(@Nullable TextView tv, @Nullable Item item) {
@@ -833,7 +827,7 @@ public final class TradeBagBottomController {
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
-                bindBagItemIcon(holder.ivItemIcon, item.getIconResId());
+                bindBagItemIcon(holder.ivItemIcon, item);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
                 bindBagStackCountBadge(holder.tvBagStackCount, item);

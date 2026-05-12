@@ -5,8 +5,6 @@ import android.content.ClipData;
 import android.graphics.Canvas;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.DragEvent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +34,7 @@ import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.model.entity.Player;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -981,7 +980,7 @@ public class BagFragment extends Fragment {
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
-                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem.getIconResId());
+                                bindBagItemIcon(holeHolder.ivItemIcon, holeItem);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                                 holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
@@ -1189,7 +1188,7 @@ public class BagFragment extends Fragment {
         }
         if (icon != null) {
             icon.setVisibility(View.VISIBLE);
-            bindBagItemIcon(icon, equipItem.getIconResId());
+            bindBagItemIcon(icon, equipItem);
         }
         if (level != null) {
             level.setVisibility(View.VISIBLE);
@@ -1423,7 +1422,7 @@ public class BagFragment extends Fragment {
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
-                bindBagItemIcon(holder.ivItemIcon, item.getIconResId());
+                bindBagItemIcon(holder.ivItemIcon, item);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
                 holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
                 bindBagStackCountBadge(holder.tvBagStackCount, item);

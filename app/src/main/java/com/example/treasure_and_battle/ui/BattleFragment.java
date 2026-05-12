@@ -1,7 +1,5 @@
 package com.example.treasure_and_battle.ui;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.battle.action.BattleAction;
@@ -401,7 +400,7 @@ public class BattleFragment extends Fragment {
             root.setAlpha(1f);
             root.setClickable(true);
             slotIcons[i].setVisibility(View.VISIBLE);
-            bindIcon(slotIcons[i], iconRes);
+            GameAssetIcons.bindMonster(requireContext(), slotIcons[i], m.getEntityId(), iconRes);
             slotNames[i].setText(m.getName());
             int maxHp = Math.max(1, m.getFinalAttributes().maxHp);
             slotHps[i].setMax(maxHp);
@@ -415,7 +414,7 @@ public class BattleFragment extends Fragment {
             root.setAlpha(0.45f);
             root.setClickable(false);
             slotIcons[i].setVisibility(View.VISIBLE);
-            bindIcon(slotIcons[i], iconRes);
+            GameAssetIcons.bindMonster(requireContext(), slotIcons[i], m.getEntityId(), iconRes);
             slotNames[i].setText("已击倒");
             int maxHpDead = Math.max(1, m.getFinalAttributes().maxHp);
             slotHps[i].setMax(maxHpDead);
@@ -479,20 +478,6 @@ public class BattleFragment extends Fragment {
             }
         }
         return R.drawable.ic_map;
-    }
-
-    private static void bindIcon(@Nullable ImageView iv, int resId) {
-        if (iv == null) {
-            return;
-        }
-        iv.setImageResource(resId);
-        Drawable d = iv.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
-        }
     }
 
     private void setHint(String s) {
@@ -1122,7 +1107,7 @@ public class BattleFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull Vh h, int position) {
             ConsumableItem it = items.get(position);
-            bindIcon(h.icon, it.getIconResId());
+            GameAssetIcons.bindItem(h.itemView.getContext(), h.icon, it);
             h.name.setText(it.getName());
             h.count.setText("×" + it.getCount());
             h.itemView.setOnClickListener(v -> {

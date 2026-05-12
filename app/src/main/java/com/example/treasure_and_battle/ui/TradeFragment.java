@@ -2,8 +2,6 @@ package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -258,18 +257,6 @@ public class TradeFragment extends Fragment {
         tvGold.setText("金币：" + tradeCharacter().getGold());
     }
 
-    private void bindMerchantIcon(@Nullable ImageView imageView, int iconResId) {
-        if (imageView == null) return;
-        imageView.setImageResource(iconResId);
-        Drawable d = imageView.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
-        }
-    }
-
     private int computeMaxPurchasableQty(@NonNull MerchantListing listing) {
         int maxByStock = listing.infiniteStock ? 999 : listing.stockRemaining;
         maxByStock = Math.min(maxByStock, 999);
@@ -457,7 +444,7 @@ public class TradeFragment extends Fragment {
             }
 
             h.name.setText(item.getName());
-            bindMerchantIcon(h.icon, item.getIconResId());
+            GameAssetIcons.bindItem(requireContext(), h.icon, item);
             h.bg.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
             if (item.getRarity() != null) {
                 h.bg.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
