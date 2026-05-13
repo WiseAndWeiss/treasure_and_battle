@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,8 +41,10 @@ import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
+import com.example.treasure_and_battle.utils.TachieManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +121,12 @@ public class BagFragment extends Fragment {
 
     private ItemMenuProviderFactory menuProviderFactory;
 
+    private ImageView ivTachie;
+    private TextView tvTachieName;
+    private TextView tvTachieLevel;
+    private ProgressBar pbTachieExp;
+    private TextView tvTachieExpText;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bag, container, false);
@@ -147,6 +156,12 @@ public class BagFragment extends Fragment {
         bagCellSizePx = dpToPx(68);
 
         bindEquipSlots(view);
+
+        ivTachie = view.findViewById(R.id.iv_tachie);
+        tvTachieName = view.findViewById(R.id.tv_tachie_name);
+        tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
+        pbTachieExp = view.findViewById(R.id.pb_tachie_exp);
+        tvTachieExpText = view.findViewById(R.id.tv_tachie_exp_text);
 
         initDummyData();
         initMenuProviderFactory();
@@ -185,6 +200,38 @@ public class BagFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
         loadEquippedFromCharacter();
+        refreshTachiePanel();
+    }
+
+    private void refreshTachiePanel() {
+        if (ivTachie == null) return;
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        if (ch == null) return;
+
+        ProfessionType pt = ch.getProfessionType();
+        TachieManager.bind(requireContext(), ivTachie, pt, android.R.drawable.ic_menu_gallery);
+
+        if (tvTachieName != null) tvTachieName.setText(ch.getName());
+        if (tvTachieLevel != null) tvTachieLevel.setText("Lv." + ch.getLevel());
+
+        int curExp = ch.getCurrentExp();
+        int maxExp = ch.getExpToNextLevel();
+        if (pbTachieExp != null) {
+            pbTachieExp.setMax(maxExp > 0 ? maxExp : 100);
+            pbTachieExp.setProgress(curExp);
+        }
+        if (tvTachieExpText != null) {
+            tvTachieExpText.setText(curExp + "/" + maxExp);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (ivTachie != null) {
+            ivTachie.setImageDrawable(null);
+        }
+        TachieManager.recycle();
     }
 
     private void loadEquippedFromCharacter() {

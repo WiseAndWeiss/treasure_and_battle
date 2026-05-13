@@ -6,7 +6,9 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.example.treasure_and_battle.utils.TachieManager;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.battle.action.BattleAction;
@@ -32,6 +35,7 @@ import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -41,6 +45,7 @@ import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -98,6 +103,11 @@ public class BattleFragment extends Fragment {
     private BattleManager battleManager;
     private BattleContext battleContext;
     private Player player;
+
+    private ImageView ivBattleTachie;
+    private TextView btnEndTurn;
+    private boolean endTurnCooldown;
+    private BottomSheetDialog statsSheet;
 
     private PendingMode pendingMode = PendingMode.NONE;
     private ActiveSkill pendingActiveSkill;
@@ -167,6 +177,18 @@ public class BattleFragment extends Fragment {
 
         view.findViewById(R.id.btn_battle_log_book).setOnClickListener(v -> showBattleLogDialog());
 
+        ivBattleTachie = view.findViewById(R.id.iv_battle_tachie);
+        if (ivBattleTachie != null && player != null && player.owner != null) {
+            TachieManager.bind(requireContext(), ivBattleTachie,
+                    player.owner.getProfessionType(), android.R.drawable.ic_menu_gallery);
+            ivBattleTachie.setOnClickListener(v -> onTachieClick());
+        }
+
+        btnEndTurn = view.findViewById(R.id.btn_end_turn);
+        if (btnEndTurn != null) {
+            btnEndTurn.setOnClickListener(v -> onEndTurnClicked());
+        }
+
         view.findViewById(R.id.btn_battle_back).setOnClickListener(v -> onBackPressed());
         view.findViewById(R.id.btn_battle_attack).setOnClickListener(v -> onAttackCommand());
         view.findViewById(R.id.btn_battle_skill).setOnClickListener(v -> onSkillCommand());
@@ -201,12 +223,6 @@ public class BattleFragment extends Fragment {
             }
             finishBattleAndExit();
         });
-    }
-
-    @Override
-    public void onDestroyView() {
-        mainHandler.removeCallbacksAndMessages(null);
-        super.onDestroyView();
     }
 
     private void onBackPressed() {
@@ -770,14 +786,8 @@ public class BattleFragment extends Fragment {
         return true;
     }
 
-    /** 玩家行动后刷新 UI；若行动点耗尽则按速度条继续由 {@link BattleManager#onPlayerTurnFullySpent} 推进。 */
+    /** 玩家行动后刷新 UI；需要玩家主动点击"结束回合"来推进。 */
     private void afterPlayerActionUi() {
-        refreshBattleUi();
-        if (battleContext.isBattleEnded) {
-            finishBattleAndExit();
-            return;
-        }
-        battleManager.onPlayerTurnFullySpent(battleContext);
         refreshBattleUi();
         if (battleContext.isBattleEnded) {
             finishBattleAndExit();
@@ -788,6 +798,123 @@ public class BattleFragment extends Fragment {
         refreshBuffLinesFromPlayer();
         bindPlayerPanel();
         bindAllMonsterSlots();
+        updateEndTurnButton();
+    }
+
+    private void updateEndTurnButton() {
+        if (btnEndTurn == null) return;
+        boolean isPlayerTurn = battleContext != null
+                && !battleContext.isBattleEnded
+                && battleContext.isPlayerTurn;
+        btnEndTurn.setEnabled(isPlayerTurn && !endTurnCooldown);
+    }
+
+    private void onEndTurnClicked() {
+        if (endTurnCooldown || battleContext == null || battleContext.isBattleEnded) return;
+        if (!battleContext.isPlayerTurn) return;
+        endTurnCooldown = true;
+        btnEndTurn.setEnabled(false);
+        battleManager.onPlayerTurnFullySpent(battleContext);
+        mainHandler.postDelayed(() -> {
+            endTurnCooldown = false;
+            refreshBattleUi();
+            if (battleContext.isBattleEnded) {
+                finishBattleAndExit();
+            }
+        }, 300);
+    }
+
+    private void onTachieClick() {
+        if (player == null) return;
+        if (statsSheet != null && statsSheet.isShowing()) return;
+
+        ScaleAnimation anim = new ScaleAnimation(
+                1.0f, 1.05f, 1.0f, 1.05f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f);
+        anim.setDuration(150);
+        anim.setRepeatCount(1);
+        anim.setRepeatMode(ScaleAnimation.REVERSE);
+        ivBattleTachie.startAnimation(anim);
+
+        View sheetView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_battle_stats, null, false);
+        populateStatsSheet(sheetView);
+
+        statsSheet = new BottomSheetDialog(requireContext());
+        statsSheet.setContentView(sheetView);
+        statsSheet.setCanceledOnTouchOutside(true);
+        statsSheet.show();
+    }
+
+    private void populateStatsSheet(View root) {
+        if (player == null) return;
+        AttributeSet fa = player.getFinalAttributes();
+
+        LinearLayout baseContainer = root.findViewById(R.id.layout_stats_base);
+        if (baseContainer != null) {
+            addStatRow(baseContainer, "物理攻击", String.valueOf(fa.physicalAtk));
+            addStatRow(baseContainer, "魔法攻击", String.valueOf(fa.magicalAtk));
+            addStatRow(baseContainer, "物理防御", String.valueOf(fa.physicalDef));
+            addStatRow(baseContainer, "魔法防御", String.valueOf(fa.magicalDef));
+            addStatRow(baseContainer, "速度", String.valueOf(fa.speed));
+            addStatRow(baseContainer, "暴击率",
+                    String.format(java.util.Locale.CHINA, "%.1f%%", fa.physicalCritRate * 100f));
+        }
+
+        LinearLayout buffContainer = root.findViewById(R.id.layout_stats_buffs);
+        if (buffContainer != null) {
+            List<BaseBuff> buffs = player.getActiveBuffList();
+            if (buffs != null && !buffs.isEmpty()) {
+                for (BaseBuff b : buffs) {
+                    String text = b.getBuffName() + " x" + b.getStackCount()
+                            + " · 剩" + b.getRemainingDuration() + "回合";
+                    addStatRow(buffContainer, text, "");
+                }
+            } else {
+                addStatRow(buffContainer, "无Buff", "");
+            }
+        }
+
+        LinearLayout equipContainer = root.findViewById(R.id.layout_stats_equip);
+        if (equipContainer != null && player.owner != null) {
+            for (com.example.treasure_and_battle.model.item.equip.EquipItem eq
+                    : player.owner.getEquippedItems()) {
+                if (eq == null) continue;
+                String text = eq.getName() + " Lv." + eq.getLevel();
+                addStatRowGreen(equipContainer, text, "");
+            }
+        }
+    }
+
+    private void addStatRow(LinearLayout parent, String label, String value) {
+        TextView row = new TextView(requireContext());
+        row.setTextSize(13);
+        row.setTextColor(0xFFFFFFFF);
+        row.setText(label + (value.isEmpty() ? "" : "：" + value));
+        row.setPadding(0, 4, 0, 4);
+        parent.addView(row);
+    }
+
+    private void addStatRowGreen(LinearLayout parent, String label, String value) {
+        TextView row = new TextView(requireContext());
+        row.setTextSize(13);
+        row.setTextColor(0xFF4CAF50);
+        row.setText(label + (value.isEmpty() ? "" : "：" + value));
+        row.setPadding(0, 4, 0, 4);
+        parent.addView(row);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mainHandler.removeCallbacksAndMessages(null);
+        if (ivBattleTachie != null) {
+            ivBattleTachie.setImageDrawable(null);
+        }
+        if (statsSheet != null && statsSheet.isShowing()) {
+            statsSheet.dismiss();
+        }
     }
 
     private void tryAdvanceIfPlayerOutOfAp() {
