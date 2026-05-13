@@ -24,7 +24,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.EntryActivity"
+            android:name="com.example.treasure_and_battle.ui.EntryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,19 +33,19 @@
         </activity>
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.example.treasure_and_battle.ui.MainActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.NeutralEventActivity"
+            android:name="com.example.treasure_and_battle.ui.NeutralEventActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".ui.BenefitEventActivity"
+            android:name="com.example.treasure_and_battle.ui.BenefitEventActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".ui.EncyclopediaActivity"
+            android:name="com.example.treasure_and_battle.ui.EncyclopediaActivity"
             android:exported="false"/>
     </application>
 

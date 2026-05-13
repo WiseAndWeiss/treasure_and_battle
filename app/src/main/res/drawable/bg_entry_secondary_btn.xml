@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="12dp" />
-    <solid android:color="@android:color/transparent" />
-    <stroke
-        android:width="2dp"
-        android:color="@color/tb_gold_deep" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    <item>
+        <com.example.treasure_and_battle.drawable.TreasureStyleDrawable xmlns:app="http://schemas.android.com/apk/res-auto"
+            app:treasureVariant="slot_stroke" />
+    </item>
+</layer-list>

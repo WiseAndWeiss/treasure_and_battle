@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.character.Character;
@@ -448,12 +449,14 @@ public class NeutralEventActivity extends AppCompatActivity {
             } else {
                 holder.ivIcon.setImageResource(android.R.drawable.ic_menu_gallery);
             }
-            int rarityColor = equip.getRarity().getColor();
+            holder.bgColor.setBackgroundTintList(null);
             android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
             if (bg != null) {
-                bg.setTint(rarityColor);
-                bg.setAlpha(40);
+                bg.clearColorFilter();
             }
+            Integer borderArgb = equip.getRarity() != null ? equip.getRarity().getColor() : null;
+            holder.itemView.setForeground(
+                    TreasureStyleDrawable.newSlotStrokeOverlay(holder.itemView.getContext(), borderArgb));
             holder.itemView.setOnClickListener(v -> listener.onClick(equip));
         }
 

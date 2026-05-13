@@ -169,7 +169,7 @@
                 android:id="@+id/cv_battle_tachie"
                 android:layout_width="128dp"
                 android:layout_height="192dp"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="0dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:layout_constraintTop_toTopOf="parent"
