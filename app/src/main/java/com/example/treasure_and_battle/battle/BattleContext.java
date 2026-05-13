@@ -92,6 +92,12 @@ public class BattleContext {
     /** 战斗胜利后生成的掉落物列表，玩家可选择逐件拿取或全部拿取 */
     public List<Item> pendingLoot = new ArrayList<>();
 
+    // ====================== 战斗奖励结算值 ======================
+    /** 本次战斗获得的金币（settleBattleResult 后写入） */
+    public int rewardGold;
+    /** 本次战斗获得的经验（settleBattleResult 后写入） */
+    public int rewardExp;
+
     // ====================== 战斗日志 ======================
     public List<BattleLogEntry> battleLogs = new ArrayList<>();
 

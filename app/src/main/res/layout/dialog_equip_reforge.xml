@@ -16,7 +16,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
-        android:background="@drawable/bg_slot_treasure_stroke"
+        android:background="@drawable/bg_slot_treasure_fill"
+        android:foreground="@drawable/bg_slot_treasure_stroke"
         android:padding="8dp"
         android:scaleType="fitCenter"
         android:src="@android:drawable/ic_menu_gallery" />

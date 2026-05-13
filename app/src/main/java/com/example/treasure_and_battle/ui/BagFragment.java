@@ -3,7 +3,6 @@ package com.example.treasure_and_battle.ui;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.graphics.Canvas;
-import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.view.DragEvent;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -40,8 +41,10 @@ import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
+import com.example.treasure_and_battle.utils.TachieManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +121,12 @@ public class BagFragment extends Fragment {
 
     private ItemMenuProviderFactory menuProviderFactory;
 
+    private ImageView ivTachie;
+    private TextView tvTachieName;
+    private TextView tvTachieLevel;
+    private ProgressBar pbTachieExp;
+    private TextView tvTachieExpText;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bag, container, false);
@@ -147,6 +156,12 @@ public class BagFragment extends Fragment {
         bagCellSizePx = dpToPx(68);
 
         bindEquipSlots(view);
+
+        ivTachie = view.findViewById(R.id.iv_tachie);
+        tvTachieName = view.findViewById(R.id.tv_tachie_name);
+        tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
+        pbTachieExp = view.findViewById(R.id.pb_tachie_exp);
+        tvTachieExpText = view.findViewById(R.id.tv_tachie_exp_text);
 
         initDummyData();
         initMenuProviderFactory();
@@ -185,6 +200,38 @@ public class BagFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
         loadEquippedFromCharacter();
+        refreshTachiePanel();
+    }
+
+    private void refreshTachiePanel() {
+        if (ivTachie == null) return;
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        if (ch == null) return;
+
+        ProfessionType pt = ch.getProfessionType();
+        TachieManager.bind(requireContext(), ivTachie, pt, android.R.drawable.ic_menu_gallery);
+
+        if (tvTachieName != null) tvTachieName.setText(ch.getName());
+        if (tvTachieLevel != null) tvTachieLevel.setText("Lv." + ch.getLevel());
+
+        int curExp = ch.getCurrentExp();
+        int maxExp = ch.getExpToNextLevel();
+        if (pbTachieExp != null) {
+            pbTachieExp.setMax(maxExp > 0 ? maxExp : 100);
+            pbTachieExp.setProgress(curExp);
+        }
+        if (tvTachieExpText != null) {
+            tvTachieExpText.setText(curExp + "/" + maxExp);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (ivTachie != null) {
+            ivTachie.setImageDrawable(null);
+        }
+        TachieManager.recycle();
     }
 
     private void loadEquippedFromCharacter() {
@@ -983,16 +1030,16 @@ public class BagFragment extends Fragment {
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
                                 holeHolder.ivItemIcon.setVisibility(View.INVISIBLE);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                                holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                                        ContextCompat.getColor(requireContext(), R.color.tb_slot_empty)
-                                ));
+                                holeHolder.bgItemColor.setBackgroundTintList(null);
+                                bindBagGridCellFrame(holeView, null);
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
                                 bindBagItemIcon(holeHolder.ivItemIcon, holeItem);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                                holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
+                                holeHolder.bgItemColor.setBackgroundTintList(null);
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
+                                bindBagGridCellFrame(holeView, holeItem);
 
                                 if (holeItem instanceof EquipItem) {
                                     holeHolder.tvItemLevel.setVisibility(View.VISIBLE);
@@ -1160,7 +1207,8 @@ public class BagFragment extends Fragment {
     }
 
     private void applyEquipSlotPlaceholder(LinearLayout slotLayout, String text) {
-        slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure);
+        slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
+        slotLayout.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(requireContext(), null));
         slotLayout.setPadding(0, 0, 0, 0);
         slotLayout.removeAllViews();
         TextView placeholder = new TextView(requireContext());
@@ -1176,7 +1224,9 @@ public class BagFragment extends Fragment {
     }
 
     private void applyEquipSlotItemView(LinearLayout slotLayout, EquipItem equipItem) {
-        slotLayout.setBackgroundResource(R.drawable.bg_slot_treasure_stroke);
+        slotLayout.setBackgroundResource(android.R.color.transparent);
+        Integer borderArgb = equipItem.getRarity() != null ? equipItem.getRarity().getColor() : null;
+        slotLayout.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(requireContext(), borderArgb));
         int inset = dpToPx(1);
         slotLayout.setPadding(inset, inset, inset, inset);
         slotLayout.removeAllViews();
@@ -1193,7 +1243,7 @@ public class BagFragment extends Fragment {
 
         if (bg != null) {
             bg.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-            bg.setBackgroundTintList(ColorStateList.valueOf(equipItem.getRarity().getColor()));
+            bg.setBackgroundTintList(null);
         }
         if (icon != null) {
             icon.setVisibility(View.VISIBLE);
@@ -1263,6 +1313,14 @@ public class BagFragment extends Fragment {
             }
         }
         return false;
+    }
+
+    private void bindBagGridCellFrame(@NonNull View cellFrameRoot, @Nullable Item item) {
+        Integer borderArgb = null;
+        if (item != null && item.getRarity() != null) {
+            borderArgb = item.getRarity().getColor();
+        }
+        cellFrameRoot.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(requireContext(), borderArgb));
     }
 
     private int dpToPx(int dp) {
@@ -1424,16 +1482,16 @@ public class BagFragment extends Fragment {
                 bindBagStackCountBadge(holder.tvBagStackCount, null);
                 holder.ivItemIcon.setVisibility(View.INVISIBLE);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), R.color.tb_slot_empty)
-                ));
+                holder.bgItemColor.setBackgroundTintList(null);
+                bindBagGridCellFrame(holder.itemView, null);
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
                 bindBagItemIcon(holder.ivItemIcon, item);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
+                holder.bgItemColor.setBackgroundTintList(null);
                 bindBagStackCountBadge(holder.tvBagStackCount, item);
+                bindBagGridCellFrame(holder.itemView, item);
 
                 if (item instanceof EquipItem) {
                     EquipItem eq = (EquipItem) item;

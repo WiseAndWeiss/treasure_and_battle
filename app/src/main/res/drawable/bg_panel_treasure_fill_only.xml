@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.treasure_and_battle.drawable.TreasureStyleDrawable xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:treasureVariant="entry_primary" />
+    app:treasureVariant="panel_fill" />

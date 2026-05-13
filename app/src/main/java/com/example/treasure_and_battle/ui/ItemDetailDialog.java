@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 
 import com.example.treasure_and_battle.R;
@@ -44,6 +45,12 @@ public final class ItemDetailDialog {
         TextView body = root.findViewById(R.id.tv_detail_body);
         ImageView icon = root.findViewById(R.id.iv_detail_icon);
         title.setText(item.getName());
+        Rarity rarity = item.getRarity();
+        if (rarity != null) {
+            title.setTextColor(rarity.getColor());
+        } else {
+            title.setTextColor(ContextCompat.getColor(context, R.color.tb_gold_deep));
+        }
         body.setText(HtmlCompat.fromHtml(buildDetailHtml(item), HtmlCompat.FROM_HTML_MODE_LEGACY));
 
         if (icon != null) {
