@@ -44,7 +44,6 @@ import java.util.Locale;
 public class SkillFragment extends Fragment {
 
     private TextView tabPassive;
-    private TextView tabEvent;
     private TextView tabActive;
 
     private RecyclerView rvSkills;
@@ -80,7 +79,6 @@ public class SkillFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_skill, container, false);
 
         tabPassive = view.findViewById(R.id.tab_passive);
-        tabEvent = view.findViewById(R.id.tab_event);
         tabActive = view.findViewById(R.id.tab_active);
         rvSkills = view.findViewById(R.id.rv_skills);
         compactMode = getResources().getConfiguration().smallestScreenWidthDp < 380;
@@ -103,8 +101,7 @@ public class SkillFragment extends Fragment {
         applyResponsiveUi(view);
 
         tabPassive.setOnClickListener(v -> selectTab(0));
-        tabEvent.setOnClickListener(v -> selectTab(1));
-        tabActive.setOnClickListener(v -> selectTab(2));
+        tabActive.setOnClickListener(v -> selectTab(1));
 
         PlayerManager pm = PlayerManager.getInstance(requireContext());
         view.findViewById(R.id.btn_add_str).setOnClickListener(v -> tryAllocateTalent(pm, "STRENGTH"));
@@ -244,14 +241,13 @@ public class SkillFragment extends Fragment {
         addStatRow(layoutStatsRight, "闪避率", percent1d(fa.dodgeRate), R.color.tb_text_main);
         addStatRow(layoutStatsRight, "异常抵抗", percent0d(fa.debuffResist), R.color.tb_text_main);
 
-        PlayerManager pm = PlayerManager.getInstance(requireContext());
         if (tvTalentStr != null) {
-            tvTalentStr.setText("力量 " + pm.getAllocatedStat(character, "STRENGTH"));
-            tvTalentAgi.setText("敏捷 " + pm.getAllocatedStat(character, "AGILITY"));
-            tvTalentInt.setText("智力 " + pm.getAllocatedStat(character, "INTELLIGENCE"));
-            tvTalentSpr.setText("精神 " + pm.getAllocatedStat(character, "SPIRIT"));
-            tvTalentPhy.setText("体魄 " + pm.getAllocatedStat(character, "PHYSIQUE"));
-            tvTalentLuc.setText("幸运 " + pm.getAllocatedStat(character, "LUCK"));
+            tvTalentStr.setText("力量 " + fa.strength);
+            tvTalentAgi.setText("敏捷 " + fa.agility);
+            tvTalentInt.setText("智力 " + fa.intelligence);
+            tvTalentSpr.setText("精神 " + fa.spirit);
+            tvTalentPhy.setText("体魄 " + fa.physique);
+            tvTalentLuc.setText("幸运 " + fa.luck);
         }
         if (tvRemainingTalent != null) {
             tvRemainingTalent.setText("剩余天赋点: " + character.getTalentPoints());
@@ -311,7 +307,6 @@ public class SkillFragment extends Fragment {
             return;
         }
         setTextSizeSp(tabPassive, 13f);
-        setTextSizeSp(tabEvent, 13f);
         setTextSizeSp(tabActive, 13f);
 
         TextView tvRemainingSkill = root.findViewById(R.id.tv_remaining_skill_points);
@@ -339,13 +334,10 @@ public class SkillFragment extends Fragment {
     private void selectTab(int index) {
         currentTabIndex = index;
         resetTabStyle(tabPassive);
-        resetTabStyle(tabEvent);
         resetTabStyle(tabActive);
 
         if (index == 0) {
             highlightTab(tabPassive);
-        } else if (index == 1) {
-            highlightTab(tabEvent);
         } else {
             highlightTab(tabActive);
         }
@@ -373,9 +365,6 @@ public class SkillFragment extends Fragment {
         if (currentTabIndex == 0) {
             tree = profession.getPassiveSkillTree();
             categoryLabel = "被动";
-        } else if (currentTabIndex == 1) {
-            tree = profession.getEventSkillTree();
-            categoryLabel = "事件";
         } else {
             tree = profession.getActiveSkillTree();
             categoryLabel = "主动";

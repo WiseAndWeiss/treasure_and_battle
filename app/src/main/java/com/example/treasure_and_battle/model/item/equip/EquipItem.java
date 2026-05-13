@@ -14,6 +14,7 @@ public class EquipItem extends Item {
     private int level;
     private EquipSlot slot;
     private AttributeSet baseAttributes;
+    private AttributeSet rawBaseAttributes;
     private AttributeSet finalAttributes;
     private List<BaseAffix> affixes;
     private int maxSockets;
@@ -33,6 +34,8 @@ public class EquipItem extends Item {
     public int getLevel() { return level; }
     public EquipSlot getSlot() { return slot; }
     public AttributeSet getBaseAttributes() { return baseAttributes; }
+    public AttributeSet getRawBaseAttributes() { return rawBaseAttributes != null ? rawBaseAttributes : baseAttributes; }
+    public void snapshotRawBaseAttributes() { this.rawBaseAttributes = baseAttributes.clone(); }
     public int getMaxSockets() { return maxSockets; }
     public List<GemItem> getSocketedGems() { return socketedGems; }
     public List<BaseAffix> getAffixes() { return affixes; }
