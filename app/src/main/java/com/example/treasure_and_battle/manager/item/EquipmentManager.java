@@ -121,6 +121,7 @@ public class EquipmentManager {
                 break;
         }
 
+        equip.snapshotRawBaseAttributes();
         List<BaseAffix> baseAffixes = new ArrayList<>(EquipAffixManager.getInstance(context).generateAffixForEquipment(equip));
         applyEquipmentOnlyAffixes(equip, baseAffixes);
         equip.setAffixes(baseAffixes);

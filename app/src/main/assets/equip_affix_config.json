@@ -1478,7 +1478,7 @@
       "maxValue": 0.03,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1494,7 +1494,7 @@
       "maxValue": 0.05,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1510,7 +1510,7 @@
       "maxValue": 0.07,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1526,7 +1526,7 @@
       "maxValue": 0.09,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1542,7 +1542,7 @@
       "maxValue": 0.10,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1558,7 +1558,7 @@
       "maxValue": 0.03,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1574,7 +1574,7 @@
       "maxValue": 0.05,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1590,7 +1590,7 @@
       "maxValue": 0.07,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1606,7 +1606,7 @@
       "maxValue": 0.09,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1622,7 +1622,7 @@
       "maxValue": 0.10,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1638,7 +1638,7 @@
       "maxValue": 0.10,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1654,7 +1654,7 @@
       "maxValue": 0.15,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1670,7 +1670,7 @@
       "maxValue": 0.20,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1686,7 +1686,7 @@
       "maxValue": 0.25,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1702,7 +1702,7 @@
       "maxValue": 0.30,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1718,7 +1718,7 @@
       "maxValue": 0.10,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1734,7 +1734,7 @@
       "maxValue": 0.15,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1750,7 +1750,7 @@
       "maxValue": 0.20,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1766,7 +1766,7 @@
       "maxValue": 0.25,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGET",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
@@ -1782,7 +1782,7 @@
       "maxValue": 0.30,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "FLAT",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {
