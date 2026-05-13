@@ -49,32 +49,55 @@
         android:layout_height="0dp"
         android:layout_marginTop="6dp"
         android:layout_weight="1.5"
-        android:background="@drawable/bg_panel_treasure">
+        android:background="@drawable/bg_panel_treasure"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
+        <!-- 恢复 center_vertical，让怪物整体居中分布，上下都有内容 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
             android:orientation="vertical"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
+            android:paddingTop="0dp"
+            android:paddingBottom="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:gravity="center"
+                android:layout_marginTop="-12dp"
+                android:layout_marginBottom="20dp"
                 android:orientation="horizontal">
-                <include android:id="@+id/battle_slot_0" layout="@layout/item_battle_monster_slot" />
-                <include android:id="@+id/battle_slot_1" layout="@layout/item_battle_monster_slot" />
+
+                <include
+                    android:id="@+id/battle_slot_0"
+                    layout="@layout/item_battle_monster_slot" />
+
+                <include
+                    android:id="@+id/battle_slot_1"
+                    layout="@layout/item_battle_monster_slot" />
             </LinearLayout>
 
-            <include android:id="@+id/battle_slot_2" layout="@layout/item_battle_monster_slot" />
+            <include
+                android:id="@+id/battle_slot_2"
+                layout="@layout/item_battle_monster_slot"
+                android:layout_marginBottom="200dp"
+                />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="-12dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
                 <include android:id="@+id/battle_slot_3" layout="@layout/item_battle_monster_slot" />
                 <include android:id="@+id/battle_slot_4" layout="@layout/item_battle_monster_slot" />
             </LinearLayout>
@@ -157,11 +180,12 @@
                     android:id="@+id/iv_battle_tachie"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:background="?attr/selectableItemBackground"
-                    android:contentDescription="@string/item_detail_close" />
+                    android:clickable="true"
+                    android:contentDescription="@string/item_detail_close"
+                    android:focusable="true"
+                    android:scaleType="centerCrop"
+                    tools:srcCompat="@tools:sample/avatars[6]" />
             </androidx.cardview.widget.CardView>
 
             <TextView
