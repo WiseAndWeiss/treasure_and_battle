@@ -1,4 +1,4 @@
-{
+﻿{
   "affix_templates": [
     {
       "templateId": 1001,
@@ -1468,7 +1468,7 @@
     {
       "templateId": 5101,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "rarityId": 0,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1484,7 +1484,7 @@
     {
       "templateId": 5102,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1500,7 +1500,7 @@
     {
       "templateId": 5103,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "rarityId": 2,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1516,7 +1516,7 @@
     {
       "templateId": 5104,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "rarityId": 3,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1532,7 +1532,7 @@
     {
       "templateId": 5105,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "rarityId": 4,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1548,7 +1548,7 @@
     {
       "templateId": 5111,
       "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.2f",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
       "rarityId": 0,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1564,7 +1564,7 @@
     {
       "templateId": 5112,
       "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.2f",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1580,7 +1580,7 @@
     {
       "templateId": 5113,
       "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.2f",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
       "rarityId": 2,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1596,7 +1596,7 @@
     {
       "templateId": 5114,
       "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.2f",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
       "rarityId": 3,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1612,7 +1612,7 @@
     {
       "templateId": 5115,
       "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.2f",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
       "rarityId": 4,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1628,7 +1628,7 @@
     {
       "templateId": 5121,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "rarityId": 0,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1644,7 +1644,7 @@
     {
       "templateId": 5122,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1660,7 +1660,7 @@
     {
       "templateId": 5123,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "rarityId": 2,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1676,7 +1676,7 @@
     {
       "templateId": 5124,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "rarityId": 3,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1692,7 +1692,7 @@
     {
       "templateId": 5125,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "rarityId": 4,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1708,7 +1708,7 @@
     {
       "templateId": 5131,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "rarityId": 0,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1724,7 +1724,7 @@
     {
       "templateId": 5132,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "rarityId": 1,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1740,7 +1740,7 @@
     {
       "templateId": 5133,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "rarityId": 2,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1756,7 +1756,7 @@
     {
       "templateId": 5134,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "rarityId": 3,
       "triggerType": "PERMANENT",
       "allowCategories": [
@@ -1772,7 +1772,7 @@
     {
       "templateId": 5135,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "rarityId": 4,
       "triggerType": "PERMANENT",
       "allowCategories": [
