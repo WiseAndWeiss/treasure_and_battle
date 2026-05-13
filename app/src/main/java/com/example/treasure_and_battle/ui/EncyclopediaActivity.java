@@ -173,12 +173,12 @@ public class EncyclopediaActivity extends AppCompatActivity {
                 GemTemplate gem = (GemTemplate) obj;
                 name = gem.getName();
                 rarityId = gem.getRarityId();
-                assetPath = "gem/" + gem.getGemId() + ".png";
+                assetPath = "icons/gem/" + gem.getGemId() + ".png";
             } else {
                 ConsumableTemplate potion = (ConsumableTemplate) obj;
                 name = potion.getName();
                 rarityId = potion.getRarityId();
-                assetPath = "consumable/" + potion.getConsumableId() + ".png";
+                assetPath = "icons/consumable/" + potion.getConsumableId() + ".png";
             }
 
             Rarity rarity = Rarity.fromId(rarityId);

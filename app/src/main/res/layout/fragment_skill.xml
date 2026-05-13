@@ -400,21 +400,6 @@
                     android:background="@android:color/transparent" />
 
                 <TextView
-                    android:id="@+id/tab_event"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="事件"
-                    android:textColor="@color/tb_text_sub"
-                    android:textSize="15sp" />
-
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/transparent" />
-
-                <TextView
                     android:id="@+id/tab_active"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

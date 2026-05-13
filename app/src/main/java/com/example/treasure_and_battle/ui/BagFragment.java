@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,8 +41,10 @@ import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
+import com.example.treasure_and_battle.utils.TachieManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +121,12 @@ public class BagFragment extends Fragment {
 
     private ItemMenuProviderFactory menuProviderFactory;
 
+    private ImageView ivTachie;
+    private TextView tvTachieName;
+    private TextView tvTachieLevel;
+    private ProgressBar pbTachieExp;
+    private TextView tvTachieExpText;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bag, container, false);
@@ -147,6 +156,12 @@ public class BagFragment extends Fragment {
         bagCellSizePx = dpToPx(68);
 
         bindEquipSlots(view);
+
+        ivTachie = view.findViewById(R.id.iv_tachie);
+        tvTachieName = view.findViewById(R.id.tv_tachie_name);
+        tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
+        pbTachieExp = view.findViewById(R.id.pb_tachie_exp);
+        tvTachieExpText = view.findViewById(R.id.tv_tachie_exp_text);
 
         initDummyData();
         initMenuProviderFactory();
@@ -185,6 +200,38 @@ public class BagFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
         loadEquippedFromCharacter();
+        refreshTachiePanel();
+    }
+
+    private void refreshTachiePanel() {
+        if (ivTachie == null) return;
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        if (ch == null) return;
+
+        ProfessionType pt = ch.getProfessionType();
+        TachieManager.bind(requireContext(), ivTachie, pt, android.R.drawable.ic_menu_gallery);
+
+        if (tvTachieName != null) tvTachieName.setText(ch.getName());
+        if (tvTachieLevel != null) tvTachieLevel.setText("Lv." + ch.getLevel());
+
+        int curExp = ch.getCurrentExp();
+        int maxExp = ch.getExpToNextLevel();
+        if (pbTachieExp != null) {
+            pbTachieExp.setMax(maxExp > 0 ? maxExp : 100);
+            pbTachieExp.setProgress(curExp);
+        }
+        if (tvTachieExpText != null) {
+            tvTachieExpText.setText(curExp + "/" + maxExp);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (ivTachie != null) {
+            ivTachie.setImageDrawable(null);
+        }
+        TachieManager.recycle();
     }
 
     private void loadEquippedFromCharacter() {
@@ -197,15 +244,24 @@ public class BagFragment extends Fragment {
                 updateEquipSlotView(slotViewId, null);
             }
         }
+        updateEquipSlotView(R.id.slot_ring_right, null);
         for (EquipItem item : ch.getEquippedItems()) {
             if (item == null) continue;
+            if (item.getSlot() == EquipSlot.RING) continue;
             int slotViewId = equipSlotToViewId(item.getSlot());
             if (slotViewId == -1) continue;
-            if (item.getSlot() == EquipSlot.RING && equippedItems.containsKey(slotViewId)) {
-                slotViewId = R.id.slot_ring_right;
-            }
             equippedItems.put(slotViewId, item);
             updateEquipSlotView(slotViewId, item);
+        }
+        EquipItem leftRing = ch.getLeftRing();
+        if (leftRing != null) {
+            equippedItems.put(R.id.slot_ring_left, leftRing);
+            updateEquipSlotView(R.id.slot_ring_left, leftRing);
+        }
+        EquipItem rightRing = ch.getRightRing();
+        if (rightRing != null) {
+            equippedItems.put(R.id.slot_ring_right, rightRing);
+            updateEquipSlotView(R.id.slot_ring_right, rightRing);
         }
     }
 
@@ -1069,7 +1125,7 @@ public class BagFragment extends Fragment {
 
         EquipItem previousEquip = equippedItems.get(targetSlotViewId);
         equippedItems.put(targetSlotViewId, draggedEquip);
-        syncCharacterEquip(draggedEquip);
+        syncCharacterEquip(targetSlotViewId, draggedEquip);
         allItems.set(sourceIndex, previousEquip);
         updateEquipSlotView(targetSlotViewId, draggedEquip);
 
@@ -1276,21 +1332,16 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void bindBagItemIcon(@Nullable ImageView imageView, int iconResId) {
-        if (imageView == null) return;
-        imageView.setImageResource(iconResId);
-        Drawable d = imageView.getDrawable();
-        if (d != null) {
-            d.mutate();
-            if (d instanceof BitmapDrawable) {
-                ((BitmapDrawable) d).setFilterBitmap(false);
-            }
-        }
+    private void bindBagItemIcon(@Nullable ImageView imageView, @Nullable Item item) {
+        GameAssetIcons.bindItem(requireContext(), imageView, item);
     }
 
-    private void syncCharacterEquip(EquipItem item) {
+    private void syncCharacterEquip(int slotViewId, EquipItem item) {
         Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-        if (ch != null && item != null) {
+        if (ch == null || item == null) return;
+        if (item.getSlot() == EquipSlot.RING) {
+            ch.equipRing(item, slotViewId == R.id.slot_ring_left);
+        } else {
             ch.equip(item);
         }
     }
@@ -1298,9 +1349,13 @@ public class BagFragment extends Fragment {
     private void syncCharacterUnequip(int slotViewId) {
         Character ch = PlayerCharacterHolder.getOrCreate(getContext());
         if (ch == null) return;
-        EquipSlot slot = viewIdToEquipSlot(slotViewId);
-        if (slot != null) {
-            ch.unequip(slot);
+        if (slotViewId == R.id.slot_ring_left) {
+            ch.unequipRing(true);
+        } else if (slotViewId == R.id.slot_ring_right) {
+            ch.unequipRing(false);
+        } else {
+            EquipSlot slot = viewIdToEquipSlot(slotViewId);
+            if (slot != null) ch.unequip(slot);
         }
     }
 
@@ -1325,7 +1380,7 @@ public class BagFragment extends Fragment {
 
         EquipItem previousEquip = equippedItems.get(targetSlotId);
         equippedItems.put(targetSlotId, equipItem);
-        syncCharacterEquip(equipItem);
+        syncCharacterEquip(targetSlotId, equipItem);
         updateEquipSlotView(targetSlotId, equipItem);
         allItems.set(bagIndex, previousEquip);
         Toast.makeText(getContext(), "已装备: " + equipItem.getName(), Toast.LENGTH_SHORT).show();

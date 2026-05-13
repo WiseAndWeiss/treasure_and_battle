@@ -47,6 +47,8 @@ public class Character {
     private int currentMp;
 
     private Map<EquipSlot, EquipItem> equippedItems = new HashMap<>();
+    private EquipItem leftRing;
+    private EquipItem rightRing;
 
     private int allocatedStrength;
     private int allocatedAgility;
@@ -161,19 +163,63 @@ public class Character {
 
     public EquipItem equip(EquipItem item) {
         if (item == null) return null;
+        if (item.getSlot() == EquipSlot.RING) {
+            EquipItem old = leftRing != null ? leftRing : rightRing;
+            if (leftRing == null) {
+                leftRing = item;
+            } else if (rightRing == null) {
+                rightRing = item;
+            } else {
+                leftRing = item;
+            }
+            return old;
+        }
         return equippedItems.put(item.getSlot(), item);
     }
 
+    public void equipRing(EquipItem item, boolean left) {
+        if (item == null || item.getSlot() != EquipSlot.RING) return;
+        if (left) {
+            leftRing = item;
+        } else {
+            rightRing = item;
+        }
+    }
+
     public EquipItem unequip(EquipSlot slot) {
+        if (slot == EquipSlot.RING) {
+            EquipItem removed = leftRing;
+            leftRing = null;
+            return removed;
+        }
         return equippedItems.remove(slot);
     }
 
+    public EquipItem unequipRing(boolean left) {
+        EquipItem removed;
+        if (left) {
+            removed = leftRing;
+            leftRing = null;
+        } else {
+            removed = rightRing;
+            rightRing = null;
+        }
+        return removed;
+    }
+
     public EquipItem getEquippedItem(EquipSlot slot) {
+        if (slot == EquipSlot.RING) return leftRing;
         return equippedItems.get(slot);
     }
 
+    public EquipItem getLeftRing() { return leftRing; }
+    public EquipItem getRightRing() { return rightRing; }
+
     public Collection<EquipItem> getEquippedItems() {
-        return equippedItems.values();
+        List<EquipItem> all = new ArrayList<>(equippedItems.values());
+        if (leftRing != null) all.add(leftRing);
+        if (rightRing != null) all.add(rightRing);
+        return all;
     }
 
     // ========== 生成战斗实体 ==========
@@ -184,6 +230,7 @@ public class Character {
 
         injectBaseAttributes(player);
         player.copyEquipmentFrom(this.equippedItems);
+        player.copyRingsFrom(leftRing, rightRing);
         player.setLevel(level);
         player.setCurrentHp(Math.min(currentHp, player.getFinalAttributes().maxHp));
         player.setCurrentMp(Math.min(currentMp, player.getFinalAttributes().maxMp));
