@@ -214,7 +214,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
                 <!-- 敏捷 -->
@@ -238,7 +238,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
                 <!-- 智力 -->
@@ -262,7 +262,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
                 <!-- 精神 -->
@@ -286,7 +286,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
                 <!-- 体魄 -->
@@ -310,7 +310,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
                 <!-- 幸运 -->
@@ -334,7 +334,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_add" />
+                        android:src="@drawable/upgrade_1" />
                 </LinearLayout>
 
             </GridLayout>

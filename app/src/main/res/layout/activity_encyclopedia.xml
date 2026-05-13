@@ -39,42 +39,25 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_tabs"
+    <HorizontalScrollView
+        android:id="@+id/hsv_tabs"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:orientation="horizontal"
         android:background="@color/tb_bg_dark"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:scrollbars="none"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:paddingBottom="4dp"
-        android:gravity="center">
+        android:fillViewport="false">
 
-        <Button
-            android:id="@+id/btn_tab_gem"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:text="宝石"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/tb_panel"
-            android:background="@drawable/bg_entry_primary_btn"
-            android:layout_marginEnd="8dp" />
+        <LinearLayout
+            android:id="@+id/ll_tab_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical" />
 
-        <Button
-            android:id="@+id/btn_tab_potion"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:text="药水"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/tb_text_main"
-            android:background="@drawable/bg_entry_secondary_btn"
-            android:layout_marginStart="8dp" />
-
-    </LinearLayout>
+    </HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_items"

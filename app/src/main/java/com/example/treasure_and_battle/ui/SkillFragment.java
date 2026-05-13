@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -501,7 +503,8 @@ public class SkillFragment extends Fragment {
         }
         tv.setBackgroundResource(R.drawable.bg_tab_idle);
         tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_sub));
-        tv.setTypeface(null, android.graphics.Typeface.NORMAL);
+        Typeface zpix = ResourcesCompat.getFont(requireContext(), R.font.zpix);
+        tv.setTypeface(zpix, Typeface.NORMAL);
     }
 
     private void highlightTab(TextView tv) {
@@ -510,7 +513,8 @@ public class SkillFragment extends Fragment {
         }
         tv.setBackgroundResource(R.drawable.bg_tab_active);
         tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_bg_dark));
-        tv.setTypeface(null, android.graphics.Typeface.BOLD);
+        Typeface zpix = ResourcesCompat.getFont(requireContext(), R.font.zpix);
+        tv.setTypeface(zpix, Typeface.BOLD);
     }
 
     // ================== 列表数据 ==================

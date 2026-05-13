@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_bottom_nav_treasure"
         android:elevation="6dp"
-        app:itemIconTint="@drawable/bottom_nav_icon_tint"
+        app:itemIconTint="@null"
         app:itemTextColor="@drawable/bottom_nav_text_tint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu"/>

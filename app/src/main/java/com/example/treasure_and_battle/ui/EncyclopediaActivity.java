@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,25 +22,36 @@ import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableTemplate;
 import com.example.treasure_and_battle.model.item.gem.GemTemplate;
+import com.example.treasure_and_battle.model.item.material.MaterialTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class EncyclopediaActivity extends AppCompatActivity {
 
+    private static final int CATEGORY_GEM = 0;
+    private static final int CATEGORY_POTION = 1;
+    private static final int CATEGORY_CONSUMABLE = 2;
+    private static final int CATEGORY_MATERIAL = 3;
+
+    private static final String[] TAB_LABELS = {"宝石", "药水", "消耗品", "材料"};
+
     private RecyclerView rvItems;
-    private Button btnTabGem;
-    private Button btnTabPotion;
+    private LinearLayout llTabContainer;
     private EncyclopediaAdapter adapter;
 
     private List<GemTemplate> gemList;
     private List<ConsumableTemplate> potionList;
+    private List<ConsumableTemplate> consumableList;
+    private List<MaterialTemplate> materialList;
 
-    private boolean showingGem = true;
+    private int currentCategory = -1;
+    private List<Button> tabButtons = new ArrayList<>();
     private Map<String, Bitmap> imageCache = new HashMap<>();
 
     @Override
@@ -50,34 +62,100 @@ public class EncyclopediaActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
 
-        btnTabGem = findViewById(R.id.btn_tab_gem);
-        btnTabPotion = findViewById(R.id.btn_tab_potion);
+        llTabContainer = findViewById(R.id.ll_tab_container);
         rvItems = findViewById(R.id.rv_items);
 
         loadData();
+        createTabs();
 
         rvItems.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new EncyclopediaAdapter();
         rvItems.setAdapter(adapter);
 
-        btnTabGem.setOnClickListener(v -> switchToGem());
-        btnTabPotion.setOnClickListener(v -> switchToPotion());
-
-        adapter.setData(gemList, true);
+        switchToCategory(CATEGORY_GEM);
     }
 
     private void loadData() {
         ItemManager im = ItemManager.getInstance(this);
 
         gemList = im.getAllGemTemplates();
+        Collections.sort(gemList, (a, b) -> Integer.compare(b.getRarityId(), a.getRarityId()));
 
         List<ConsumableTemplate> allConsumables = im.getAllConsumableTemplates();
         potionList = new ArrayList<>();
+        consumableList = new ArrayList<>();
         for (ConsumableTemplate ct : allConsumables) {
             String id = ct.getConsumableId();
             if (id.startsWith("potion_") || id.equals("antidote") || id.equals("crystal_mana")) {
                 potionList.add(ct);
+            } else {
+                consumableList.add(ct);
             }
+        }
+        Collections.sort(potionList, (a, b) -> Integer.compare(b.getRarityId(), a.getRarityId()));
+        Collections.sort(consumableList, (a, b) -> Integer.compare(b.getRarityId(), a.getRarityId()));
+
+        materialList = im.getAllMaterialTemplates();
+        Collections.sort(materialList, (a, b) -> Integer.compare(b.getRarityId(), a.getRarityId()));
+    }
+
+    private void createTabs() {
+        tabButtons.clear();
+        llTabContainer.removeAllViews();
+
+        int paddingH = (int) (12 * getResources().getDisplayMetrics().density);
+        int paddingV = (int) (4 * getResources().getDisplayMetrics().density);
+        int marginH = (int) (6 * getResources().getDisplayMetrics().density);
+
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            Button btn = new Button(this);
+            btn.setText(TAB_LABELS[i]);
+            btn.setTextSize(14);
+            btn.setAllCaps(false);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    (int) (40 * getResources().getDisplayMetrics().density));
+            params.setMargins(marginH, 0, marginH, 0);
+            btn.setLayoutParams(params);
+            btn.setPadding(paddingH, paddingV, paddingH, paddingV);
+
+            int categoryIndex = i;
+            btn.setOnClickListener(v -> switchToCategory(categoryIndex));
+
+            tabButtons.add(btn);
+            llTabContainer.addView(btn);
+        }
+    }
+
+    private void switchToCategory(int category) {
+        if (currentCategory == category) return;
+        currentCategory = category;
+
+        for (int i = 0; i < tabButtons.size(); i++) {
+            Button btn = tabButtons.get(i);
+            if (i == category) {
+                btn.setTextColor(getColor(R.color.tb_panel));
+                btn.setBackgroundResource(R.drawable.bg_entry_primary_btn);
+            } else {
+                btn.setTextColor(getColor(R.color.tb_panel_soft));
+                btn.setBackgroundResource(R.drawable.bg_entry_secondary_btn);
+            }
+        }
+
+        switch (category) {
+            case CATEGORY_GEM:
+                adapter.setData(gemList, category);
+                break;
+            case CATEGORY_POTION:
+                adapter.setData(potionList, category);
+                break;
+            case CATEGORY_CONSUMABLE:
+                adapter.setData(consumableList, category);
+                break;
+            case CATEGORY_MATERIAL:
+                adapter.setData(materialList, category);
+                break;
         }
     }
 
@@ -90,26 +168,6 @@ public class EncyclopediaActivity extends AppCompatActivity {
             }
         }
         imageCache.clear();
-    }
-
-    private void switchToGem() {
-        if (showingGem) return;
-        showingGem = true;
-        btnTabGem.setTextColor(getColor(R.color.tb_panel));
-        btnTabGem.setBackgroundResource(R.drawable.bg_entry_primary_btn);
-        btnTabPotion.setTextColor(getColor(R.color.tb_text_main));
-        btnTabPotion.setBackgroundResource(R.drawable.bg_entry_secondary_btn);
-        adapter.setData(gemList, true);
-    }
-
-    private void switchToPotion() {
-        if (!showingGem) return;
-        showingGem = false;
-        btnTabPotion.setTextColor(getColor(R.color.tb_panel));
-        btnTabPotion.setBackgroundResource(R.drawable.bg_entry_primary_btn);
-        btnTabGem.setTextColor(getColor(R.color.tb_text_main));
-        btnTabGem.setBackgroundResource(R.drawable.bg_entry_secondary_btn);
-        adapter.setData(potionList, false);
     }
 
     private Bitmap loadFromAssets(String path) {
@@ -140,11 +198,11 @@ public class EncyclopediaActivity extends AppCompatActivity {
     private class EncyclopediaAdapter extends RecyclerView.Adapter<EncyclopediaAdapter.ViewHolder> {
 
         private List<?> items;
-        private boolean isGem;
+        private int category;
 
-        void setData(List<?> items, boolean isGem) {
+        void setData(List<?> items, int category) {
             this.items = items;
-            this.isGem = isGem;
+            this.category = category;
             notifyDataSetChanged();
         }
 
@@ -169,16 +227,31 @@ public class EncyclopediaActivity extends AppCompatActivity {
             int rarityId;
             String assetPath;
 
-            if (isGem) {
-                GemTemplate gem = (GemTemplate) obj;
-                name = gem.getName();
-                rarityId = gem.getRarityId();
-                assetPath = "icons/gem/" + gem.getGemId() + ".png";
-            } else {
-                ConsumableTemplate potion = (ConsumableTemplate) obj;
-                name = potion.getName();
-                rarityId = potion.getRarityId();
-                assetPath = "icons/consumable/" + potion.getConsumableId() + ".png";
+            switch (category) {
+                case CATEGORY_GEM: {
+                    GemTemplate gem = (GemTemplate) obj;
+                    name = gem.getName();
+                    rarityId = gem.getRarityId();
+                    assetPath = "icons/gem/" + gem.getGemId() + ".png";
+                    break;
+                }
+                case CATEGORY_POTION:
+                case CATEGORY_CONSUMABLE: {
+                    ConsumableTemplate ct = (ConsumableTemplate) obj;
+                    name = ct.getName();
+                    rarityId = ct.getRarityId();
+                    assetPath = "icons/consumable/" + ct.getConsumableId() + ".png";
+                    break;
+                }
+                case CATEGORY_MATERIAL: {
+                    MaterialTemplate mt = (MaterialTemplate) obj;
+                    name = mt.getName();
+                    rarityId = mt.getRarityId();
+                    assetPath = "icons/material/" + mt.getMaterialId() + ".png";
+                    break;
+                }
+                default:
+                    return;
             }
 
             Rarity rarity = Rarity.fromId(rarityId);
