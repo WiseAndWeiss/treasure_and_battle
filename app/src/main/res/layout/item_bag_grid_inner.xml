@@ -4,47 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_slot_treasure_fill"
-    android:paddingStart="3dp"
-    android:paddingEnd="3dp"
-    android:paddingTop="2dp"
-    android:paddingBottom="3dp">
+    android:padding="4dp">
 
-    <TextView
-        android:id="@+id/tv_item_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="0dp"
-        android:ellipsize="end"
-        android:gravity="center_horizontal|bottom"
-        android:letterSpacing="0.02"
-        android:lineSpacingMultiplier="1.06"
-        android:maxLines="2"
-        android:minLines="1"
-        android:text="Item"
-        android:textColor="@color/tb_text_main"
-        android:textSize="10sp"
-        android:textStyle="bold" />
-
-    <FrameLayout
+    <ImageView
+        android:id="@+id/iv_item_icon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/tv_item_name"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="2dp">
-
-        <ImageView
-            android:id="@+id/iv_item_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="4dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter"
-            android:src="@android:drawable/ic_menu_gallery" />
-    </FrameLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:adjustViewBounds="true"
+        android:contentDescription="@null"
+        android:padding="2dp"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/ic_menu_gallery" />
 
     <TextView
         android:id="@+id/tv_item_level"
@@ -77,5 +51,13 @@
         android:textSize="12sp"
         android:textStyle="bold"
         android:visibility="gone" />
+
+    <!-- 保留 id 供 BagFragment / Trade 绑定与 setText，界面不再展示名称 -->
+    <TextView
+        android:id="@+id/tv_item_name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:text="" />
 
 </RelativeLayout>

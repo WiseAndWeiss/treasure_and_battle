@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TreasureStyleDrawable">
+        <attr name="treasureVariant" format="enum">
+            <enum name="panel" value="0" />
+            <enum name="slot" value="1" />
+            <enum name="slot_stroke" value="2" />
+            <enum name="slot_fill" value="3" />
+            <enum name="tab_active" value="4" />
+            <enum name="tab_idle" value="5" />
+            <enum name="screen" value="6" />
+            <enum name="bottom_nav" value="7" />
+            <enum name="panel_fill" value="8" />
+            <enum name="panel_stroke" value="9" />
+            <enum name="screen_fill" value="10" />
+            <enum name="entry_primary" value="11" />
+        </attr>
+    </declare-styleable>
+</resources>

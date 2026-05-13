@@ -1,7 +1,6 @@
 package com.example.treasure_and_battle.ui;
 
 import android.graphics.Canvas;
-import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,12 +17,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
@@ -632,16 +631,16 @@ public final class TradeBagBottomController {
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, null);
                                 holeHolder.ivItemIcon.setVisibility(View.INVISIBLE);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                                holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                                        ContextCompat.getColor(host.requireContext(), R.color.tb_slot_empty)
-                                ));
+                                holeHolder.bgItemColor.setBackgroundTintList(null);
+                                bindBagGridCellFrame(holeView, null);
                             } else {
                                 holeHolder.tvItemName.setText(holeItem.getName());
                                 holeHolder.ivItemIcon.setVisibility(View.VISIBLE);
                                 bindBagItemIcon(holeHolder.ivItemIcon, holeItem);
                                 holeHolder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                                holeHolder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(holeItem.getRarity().getColor()));
+                                holeHolder.bgItemColor.setBackgroundTintList(null);
                                 bindBagStackCountBadge(holeHolder.tvBagStackCount, holeItem);
+                                bindBagGridCellFrame(holeView, holeItem);
 
                                 if (holeItem instanceof EquipItem) {
                                     holeHolder.tvItemLevel.setVisibility(View.VISIBLE);
@@ -722,6 +721,14 @@ public final class TradeBagBottomController {
             }
         }
         return -1;
+    }
+
+    private void bindBagGridCellFrame(@NonNull View cellFrameRoot, @Nullable Item item) {
+        Integer borderArgb = null;
+        if (item != null && item.getRarity() != null) {
+            borderArgb = item.getRarity().getColor();
+        }
+        cellFrameRoot.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(host.requireContext(), borderArgb));
     }
 
     private int dpToPx(int dp) {
@@ -821,16 +828,16 @@ public final class TradeBagBottomController {
                 bindBagStackCountBadge(holder.tvBagStackCount, null);
                 holder.ivItemIcon.setVisibility(View.INVISIBLE);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(host.requireContext(), R.color.tb_slot_empty)
-                ));
+                holder.bgItemColor.setBackgroundTintList(null);
+                bindBagGridCellFrame(holder.itemView, null);
             } else {
                 holder.tvItemName.setText(item.getName());
                 holder.ivItemIcon.setVisibility(View.VISIBLE);
                 bindBagItemIcon(holder.ivItemIcon, item);
                 holder.bgItemColor.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-                holder.bgItemColor.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
+                holder.bgItemColor.setBackgroundTintList(null);
                 bindBagStackCountBadge(holder.tvBagStackCount, item);
+                bindBagGridCellFrame(holder.itemView, item);
 
                 if (item instanceof EquipItem) {
                     EquipItem eq = (EquipItem) item;

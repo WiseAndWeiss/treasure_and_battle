@@ -1,11 +1,11 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
@@ -446,11 +447,10 @@ public class TradeFragment extends Fragment {
             h.name.setText(item.getName());
             GameAssetIcons.bindItem(requireContext(), h.icon, item);
             h.bg.setBackgroundResource(R.drawable.bg_slot_treasure_fill);
-            if (item.getRarity() != null) {
-                h.bg.setBackgroundTintList(ColorStateList.valueOf(item.getRarity().getColor()));
-            } else {
-                h.bg.setBackgroundTintList(null);
-            }
+            h.bg.setBackgroundTintList(null);
+            Integer borderArgb = item.getRarity() != null ? item.getRarity().getColor() : null;
+            h.merchantSlotSquare.setForeground(
+                    TreasureStyleDrawable.newSlotStrokeOverlay(requireContext(), borderArgb));
 
             String stackBadge = listing.stackBadgeTextForCell();
             if (stackBadge == null) {
@@ -471,6 +471,7 @@ public class TradeFragment extends Fragment {
         }
 
         class Vh extends RecyclerView.ViewHolder {
+            final FrameLayout merchantSlotSquare;
             final RelativeLayout bg;
             final ImageView icon;
             final TextView name;
@@ -480,6 +481,7 @@ public class TradeFragment extends Fragment {
 
             Vh(@NonNull View itemView) {
                 super(itemView);
+                merchantSlotSquare = itemView.findViewById(R.id.merchant_slot_square);
                 bg = itemView.findViewById(R.id.bg_item_color);
                 icon = itemView.findViewById(R.id.iv_item_icon);
                 name = itemView.findViewById(R.id.tv_item_name);
