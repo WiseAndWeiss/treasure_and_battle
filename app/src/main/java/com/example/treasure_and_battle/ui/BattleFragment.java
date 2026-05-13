@@ -92,9 +92,12 @@ public class BattleFragment extends Fragment {
         void onPick(ActiveSkill skill);
     }
 
-    private static final int[] MONSTER_TEMPLATE_IDS = {1001};
-    private static final int[] MONSTER_SLOT_INDEX = {2};
+    private static final int[] MONSTER_TEMPLATE_IDS = {1001, 4005, 4004, 2002};
+    private static final int[] MONSTER_SLOT_INDEX = {1, 2, 3, 4};
     private static final int[] MONSTER_ICONS = {
+            R.drawable.ic_map,
+            R.drawable.ic_map,
+            R.drawable.ic_map,
             R.drawable.ic_map
     };
 
