@@ -681,6 +681,8 @@ public class BattleManager {
         if (ctx.battleResult == BattleContext.BattleResult.VICTORY) {
             int finalExp = RewardCalculator.calculateExp(ctx.player, ctx.monsters);
             int finalGold = RewardCalculator.calculateGold(ctx.player, ctx.monsters);
+            ctx.rewardGold = finalGold;
+            ctx.rewardExp = finalExp;
             if (ctx.player.owner != null) {
                 ctx.player.owner.gainExp(finalExp);
                 ctx.player.owner.addGold(finalGold);

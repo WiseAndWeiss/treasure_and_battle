@@ -65,17 +65,17 @@ public final class InventoryGridSync {
         List<Item> bag = ch.getBagItems();
 
         EquipmentManager em = EquipmentManager.getInstance(context);
-        addEquipOrLog(bag, em.generateEquip(1001, 5, Rarity.UNCOMMON));
-        addEquipOrLog(bag, em.generateEquip(2001, 5, Rarity.UNCOMMON));
-        addEquipOrLog(bag, em.generateEquip(4001, 5, Rarity.COMMON));
-        addEquipOrLog(bag, em.generateEquip(5001, 5, Rarity.COMMON));
-        addEquipOrLog(bag, em.generateEquip(6001, 5, Rarity.COMMON));
-        addEquipOrLog(bag, em.generateEquip(7001, 5, Rarity.COMMON));
+        addEquipOrLog(bag, em.generateEquip(1001, 5, Rarity.LEGENDARY));
+        addEquipOrLog(bag, em.generateEquip(2001, 5, Rarity.LEGENDARY));
+        addEquipOrLog(bag, em.generateEquip(4001, 5, Rarity.LEGENDARY));
+        addEquipOrLog(bag, em.generateEquip(5001, 5, Rarity.LEGENDARY));
+        addEquipOrLog(bag, em.generateEquip(6001, 5, Rarity.LEGENDARY));
+        addEquipOrLog(bag, em.generateEquip(7001, 5, Rarity.LEGENDARY));
         addEquipOrLog(bag, em.generateEquip(8001, 5, Rarity.RARE));
         addEquipOrLog(bag, em.generateEquip(10001, 5, Rarity.UNCOMMON));
         EquipItem ring = em.generateEquip(9001, 8, Rarity.EPIC);
         if (ring != null) InventoryManager.addItem(bag, ring);
-        EquipItem ring2 = em.generateEquip(9002, 8, Rarity.RARE);
+        EquipItem ring2 = em.generateEquip(9002, 8, Rarity.LEGENDARY);
         if (ring2 != null) InventoryManager.addItem(bag, ring2);
 
         ItemManager im = ItemManager.getInstance(context);

@@ -1,27 +1,36 @@
 package com.example.treasure_and_battle.ui;
 
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.example.treasure_and_battle.utils.LruBitmapCache;
 import com.example.treasure_and_battle.utils.TachieManager;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
@@ -40,7 +49,9 @@ import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
@@ -48,6 +59,8 @@ import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,8 +105,8 @@ public class BattleFragment extends Fragment {
         void onPick(ActiveSkill skill);
     }
 
-    private static final int[] MONSTER_TEMPLATE_IDS = {1001, 4005, 4004, 2002};
-    private static final int[] MONSTER_SLOT_INDEX = {1, 2, 3, 4};
+    private static final int[] MONSTER_TEMPLATE_IDS = {1001, 2002};
+    private static final int[] MONSTER_SLOT_INDEX = {1, 2};
     private static final int[] MONSTER_ICONS = {
             R.drawable.ic_map,
             R.drawable.ic_map,
@@ -136,6 +149,15 @@ public class BattleFragment extends Fragment {
     private TextView[] slotIntents = new TextView[5];
 
     private BuffListAdapter buffAdapter;
+
+    private AlertDialog lootDialog;
+    private View lootContentRoot;
+    private List<Item> lootItems = new ArrayList<>();
+    private int lootCurrentPage;
+    private int lootMaxPage;
+    private static final int LOOT_PAGE_SIZE = 8;
+    private static final int LOOT_ITEMS_PER_ROW = 4;
+    private GestureDetector lootGestureDetector;
 
     /** 本次进入是否为继续暂存战斗（用于恢复时补跑速度条上未完成的怪物回合）。 */
     private boolean openedWithResume;
@@ -526,7 +548,7 @@ public class BattleFragment extends Fragment {
         Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
         Profession prof = ch.getProfession();
         if (prof == null) {
-            Toast.makeText(getContext(), "职业数据异常", Toast.LENGTH_SHORT).show();
+            showFloatMsg("职业数据异常");
             return;
         }
 
@@ -543,7 +565,7 @@ public class BattleFragment extends Fragment {
         }
 
         if (skills.isEmpty()) {
-            Toast.makeText(getContext(), "没有已学习的主动技能", Toast.LENGTH_SHORT).show();
+            showFloatMsg("没有已学习的主动技能");
             return;
         }
 
@@ -615,19 +637,19 @@ public class BattleFragment extends Fragment {
             return;
         }
         if (!skill.canCast(player)) {
-            Toast.makeText(getContext(), "无法释放（冷却/行动点/魔法/生命不足）", Toast.LENGTH_SHORT).show();
+            showFloatMsg("无法释放（冷却/行动点/魔法/生命不足）");
             return;
         }
         try {
             List<BattleEntity> targets =
                     SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
             if (targets.isEmpty() && skill.getSkillRangeType() != SkillRangeType.NONE) {
-                Toast.makeText(getContext(), "没有可选目标", Toast.LENGTH_SHORT).show();
+                showFloatMsg("没有可选目标");
                 return;
             }
             battleManager.executeSkill(player, skill, targets, battleContext);
         } catch (Exception e) {
-            Toast.makeText(getContext(), "技能释放失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            showFloatMsg("技能释放失败: " + e.getMessage());
             return;
         }
 
@@ -645,7 +667,7 @@ public class BattleFragment extends Fragment {
         InventoryGridSync.reloadSharedGridFromManager(requireContext());
         List<ConsumableItem> usable = collectUsableBattleConsumables();
         if (usable.isEmpty()) {
-            Toast.makeText(requireContext(), "背包中没有可在战斗中使用的道具", Toast.LENGTH_SHORT).show();
+            showFloatMsg("背包中没有可在战斗中使用的道具");
             return;
         }
 
@@ -655,7 +677,7 @@ public class BattleFragment extends Fragment {
         final ItemPickerAdapter[] adapterHolder = new ItemPickerAdapter[1];
         adapterHolder[0] = new ItemPickerAdapter(usable, item -> {
             if (!player.consumeActionPoints(1)) {
-                Toast.makeText(getContext(), "行动点不足，无法使用道具", Toast.LENGTH_SHORT).show();
+                showFloatMsg("行动点不足，无法使用道具");
                 return;
             }
             boolean hasEffects = item.getEffects() != null && !item.getEffects().isEmpty();
@@ -668,7 +690,7 @@ public class BattleFragment extends Fragment {
             }
             if (!ok) {
                 player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
-                Toast.makeText(getContext(), "无法使用该道具", Toast.LENGTH_SHORT).show();
+                showFloatMsg("无法使用该道具");
                 return;
             }
             consumeOneFromBag(item, usable);
@@ -676,7 +698,7 @@ public class BattleFragment extends Fragment {
                 adapterHolder[0].notifyDataSetChanged();
             }
             afterPlayerActionUi();
-            Toast.makeText(getContext(), "已使用：" + item.getName(), Toast.LENGTH_SHORT).show();
+            showFloatMsg("已使用：" + item.getName());
         });
         rv.setAdapter(adapterHolder[0]);
 
@@ -703,14 +725,12 @@ public class BattleFragment extends Fragment {
                 player.owner.syncFromPlayer(player);
             }
             BattleSessionHolder.clear();
-            Toast.makeText(getContext(),
-                    escaped ? "逃跑成功" : "战斗结束",
-                    Toast.LENGTH_SHORT).show();
+            showFloatMsg(escaped ? "逃跑成功" : "战斗结束");
             requireActivity().getSupportFragmentManager().popBackStackImmediate();
             return;
         }
         if (!escaped) {
-            Toast.makeText(getContext(), "逃跑失败，遭到追击", Toast.LENGTH_SHORT).show();
+            showFloatMsg("逃跑失败，遭到追击");
             if (battleContext.isBattleEnded) {
                 finishBattleAndExit();
             } else {
@@ -727,7 +747,7 @@ public class BattleFragment extends Fragment {
 
         if (pendingMode == PendingMode.PICK_SINGLE_ATTACK) {
             if (!isSlotAliveMonster(index) || m == null) {
-                Toast.makeText(getContext(), "该位置没有可攻击目标", Toast.LENGTH_SHORT).show();
+                showFloatMsg("该位置没有可攻击目标");
                 return;
             }
             refreshTargetMarkers();
@@ -737,7 +757,7 @@ public class BattleFragment extends Fragment {
                 clearPending();
                 setHint("");
                 refreshTargetMarkers();
-                Toast.makeText(getContext(), "无法普攻（资源不足）", Toast.LENGTH_SHORT).show();
+                showFloatMsg("无法普攻（资源不足）");
                 return;
             }
             battleManager.checkDeath(battleContext);
@@ -755,7 +775,8 @@ public class BattleFragment extends Fragment {
 
         if (pendingMode == PendingMode.PICK_SINGLE_SKILL && pendingActiveSkill != null) {
             if (!isSlotAliveMonster(index) || m == null) {
-                Toast.makeText(getContext(), "该位置没有可攻击目标", Toast.LENGTH_SHORT).show();
+                showFloatMsg("该位置没有可攻击目标");
+
                 return;
             }
             refreshTargetMarkers();
@@ -783,7 +804,7 @@ public class BattleFragment extends Fragment {
             return false;
         }
         if (battleContext.isBattleEnded) {
-            Toast.makeText(getContext(), "战斗已结束", Toast.LENGTH_SHORT).show();
+            showFloatMsg("战斗已结束");
             return false;
         }
         return true;
@@ -918,6 +939,22 @@ public class BattleFragment extends Fragment {
         if (statsSheet != null && statsSheet.isShowing()) {
             statsSheet.dismiss();
         }
+        dismissLootPanel();
+    }
+
+    private void dismissLootPanel() {
+        if (lootDialog != null && lootDialog.isShowing()) {
+            lootDialog.dismiss();
+        }
+        lootDialog = null;
+        lootContentRoot = null;
+        lootItems.clear();
+        lootGestureDetector = null;
+    }
+
+    private void showFloatMsg(String text) {
+        if (!isAdded() || getActivity() == null) return;
+        FloatMsgOverlay.show(getActivity(), text);
     }
 
     private void tryAdvanceIfPlayerOutOfAp() {
@@ -939,6 +976,23 @@ public class BattleFragment extends Fragment {
             return;
         }
         battleManager.settleBattleResult(battleContext);
+
+        if (battleContext.battleResult == BattleContext.BattleResult.DEFEAT) {
+            if (player != null && player.owner != null) {
+                player.owner.syncFromPlayer(player);
+            }
+            BattleSessionHolder.clear();
+            showFloatMsg(summarizeResult());
+            new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                    .setTitle("战斗失败")
+                    .setMessage("战斗失败！")
+                    .setCancelable(false)
+                    .setPositiveButton("确定", (d, w) ->
+                            requireActivity().getSupportFragmentManager().popBackStackImmediate())
+                    .show();
+            return;
+        }
+
         List<Item> lootCopy = new ArrayList<>();
         if (battleContext.battleResult == BattleContext.BattleResult.VICTORY && battleContext.pendingLoot != null) {
             lootCopy.addAll(battleContext.pendingLoot);
@@ -948,46 +1002,332 @@ public class BattleFragment extends Fragment {
             player.owner.syncFromPlayer(player);
         }
         BattleSessionHolder.clear();
+
+        int finalGold = battleContext.rewardGold;
+        int finalExp = battleContext.rewardExp;
         String msg = summarizeResult();
         if (lootCopy.isEmpty()) {
-            if (getContext() != null) {
-                Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
-            }
+            showFloatMsg(msg);
             requireActivity().getSupportFragmentManager().popBackStackImmediate();
             return;
         }
-        showLootPickupDialog(lootCopy, msg);
+        showLootPanel(lootCopy, msg, finalGold, finalExp);
     }
 
-    private void showLootPickupDialog(List<Item> loot, String summaryMsg) {
-        String[] names = new String[loot.size()];
-        for (int i = 0; i < loot.size(); i++) {
-            Item it = loot.get(i);
-            names[i] = it != null ? it.getName() : "?";
-        }
-        boolean[] checked = new boolean[loot.size()];
-        Arrays.fill(checked, true);
+    private void showLootPanel(List<Item> loot, String summaryMsg, int rewardGold, int rewardExp) {
+        if (!isAdded()) return;
 
-        new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                .setTitle("战利品")
-                .setMessage(summaryMsg + "\n\n勾选要放入背包的物品（空位不足时优先放入前面的选中项）")
-                .setMultiChoiceItems(names, checked, (d, which, isChecked) -> checked[which] = isChecked)
-                .setPositiveButton("将所选放入背包", (d, which) -> {
-                    List<Item> take = new ArrayList<>();
-                    for (int i = 0; i < checked.length; i++) {
-                        if (checked[i] && loot.get(i) != null) {
-                            take.add(loot.get(i));
-                        }
+        lootItems.clear();
+        lootItems.addAll(loot);
+        lootCurrentPage = 0;
+        lootMaxPage = (lootItems.size() + LOOT_PAGE_SIZE - 1) / LOOT_PAGE_SIZE;
+
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_battle_loot, null, false);
+        lootContentRoot = content;
+
+        TextView tvSummary = content.findViewById(R.id.tv_loot_summary);
+        tvSummary.setText(summaryMsg);
+
+        LinearLayout rewardRow = content.findViewById(R.id.loot_reward_row);
+        TextView tvGold = content.findViewById(R.id.tv_loot_gold);
+        TextView tvExp = content.findViewById(R.id.tv_loot_exp);
+        if (tvGold != null) tvGold.setText("获得金币：" + rewardGold);
+        if (tvExp != null) tvExp.setText("获得经验：" + rewardExp);
+        if (rewardRow != null) rewardRow.setVisibility(View.VISIBLE);
+
+        LinearLayout layoutPager = content.findViewById(R.id.layout_loot_pager);
+        TextView btnPrev = content.findViewById(R.id.btn_loot_prev_page);
+        TextView btnNext = content.findViewById(R.id.btn_loot_next_page);
+
+        if (lootMaxPage > 1) {
+            layoutPager.setVisibility(View.VISIBLE);
+            btnPrev.setOnClickListener(v -> {
+                if (lootCurrentPage > 0) {
+                    lootCurrentPage--;
+                    renderLootPage();
+                }
+            });
+            btnNext.setOnClickListener(v -> {
+                if (lootCurrentPage < lootMaxPage - 1) {
+                    lootCurrentPage++;
+                    renderLootPage();
+                }
+            });
+        }
+
+        content.findViewById(R.id.btn_loot_claim_all).setOnClickListener(v -> onLootClaimAll());
+        content.findViewById(R.id.btn_loot_leave).setOnClickListener(v -> onLootLeave());
+
+        lootGestureDetector = new GestureDetector(requireContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                    if (velocityX < -800 && lootCurrentPage < lootMaxPage - 1) {
+                        lootCurrentPage++;
+                        renderLootPage();
+                        return true;
+                    } else if (velocityX > 800 && lootCurrentPage > 0) {
+                        lootCurrentPage--;
+                        renderLootPage();
+                        return true;
                     }
-                    int placed = addSelectedItemsToBag(take);
-                    Toast.makeText(requireContext(),
-                            "已放入 " + placed + " 件" + (placed < take.size() ? "（背包已满）" : ""),
-                            Toast.LENGTH_LONG).show();
-                    requireActivity().getSupportFragmentManager().popBackStackImmediate();
-                })
-                .setNegativeButton("都不要", (d, which) ->
-                        requireActivity().getSupportFragmentManager().popBackStackImmediate())
-                .show();
+                }
+                return false;
+            }
+        });
+
+        renderLootPage();
+
+        lootDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(content)
+                .setCancelable(false)
+                .create();
+
+        lootDialog.show();
+    }
+
+    private void renderLootPage() {
+        if (lootContentRoot == null) return;
+
+        LinearLayout gridContainer = lootContentRoot.findViewById(R.id.grid_loot_container);
+        if (gridContainer == null) return;
+        gridContainer.removeAllViews();
+
+        int start = lootCurrentPage * LOOT_PAGE_SIZE;
+        int end = Math.min(start + LOOT_PAGE_SIZE, lootItems.size());
+        int count = end - start;
+        int rows = (count + LOOT_ITEMS_PER_ROW - 1) / LOOT_ITEMS_PER_ROW;
+
+        float density = requireContext().getResources().getDisplayMetrics().density;
+        int cellSizePx = (int) (68 * density);
+        int itemSpacingPx = (int) (10 * density);
+        int rowSpacingPx = (int) (16 * density);
+
+        for (int row = 0; row < rows; row++) {
+            LinearLayout rowLayout = new LinearLayout(requireContext());
+            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+            rowLayout.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+            if (row > 0) {
+                LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                rowLp.topMargin = rowSpacingPx;
+                rowLayout.setLayoutParams(rowLp);
+            }
+
+            for (int col = 0; col < LOOT_ITEMS_PER_ROW; col++) {
+                int idx = row * LOOT_ITEMS_PER_ROW + col;
+                if (idx >= count) break;
+
+                View cell = LayoutInflater.from(requireContext()).inflate(R.layout.item_bag_grid, rowLayout, false);
+                LinearLayout.LayoutParams cellLp = new LinearLayout.LayoutParams(cellSizePx, cellSizePx);
+                if (col > 0) {
+                    cellLp.leftMargin = itemSpacingPx;
+                }
+                cell.setLayoutParams(cellLp);
+                bindLootCell(cell, lootItems.get(start + idx), start + idx);
+                rowLayout.addView(cell);
+            }
+
+            gridContainer.addView(rowLayout);
+        }
+
+        View gridContainerView = lootContentRoot.findViewById(R.id.grid_loot_container);
+        if (gridContainerView != null) {
+            gridContainerView.setOnTouchListener((v, event) -> {
+                if (lootGestureDetector != null) {
+                    lootGestureDetector.onTouchEvent(event);
+                }
+                return false;
+            });
+        }
+
+        TextView tvPageInfo = lootContentRoot.findViewById(R.id.tv_page_info);
+        if (tvPageInfo != null && lootMaxPage > 1) {
+            tvPageInfo.setText("第 " + (lootCurrentPage + 1) + " / " + lootMaxPage + " 页");
+        }
+
+        TextView btnPrev = lootContentRoot.findViewById(R.id.btn_loot_prev_page);
+        TextView btnNext = lootContentRoot.findViewById(R.id.btn_loot_next_page);
+        if (btnPrev != null) btnPrev.setEnabled(lootCurrentPage > 0);
+        if (btnNext != null) btnNext.setEnabled(lootCurrentPage < lootMaxPage - 1);
+
+        updateLootLeaveButton();
+    }
+
+    private void bindLootCell(View cell, Item item, int globalIndex) {
+        RelativeLayout bg = cell.findViewById(R.id.bg_item_color);
+        ImageView icon = cell.findViewById(R.id.iv_item_icon);
+        TextView level = cell.findViewById(R.id.tv_item_level);
+        TextView name = cell.findViewById(R.id.tv_item_name);
+        TextView stackCount = cell.findViewById(R.id.tv_bag_stack_count);
+
+        if (bg != null) {
+            bg.setBackgroundTintList(item.getRarity() != null
+                    ? android.content.res.ColorStateList.valueOf(item.getRarity().getColor())
+                    : android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(requireContext(), R.color.tb_slot_empty)));
+        }
+        if (icon != null) {
+            icon.setVisibility(View.VISIBLE);
+            bindLootItemIcon(icon, item);
+        }
+        if (name != null) {
+            name.setText(item.getName());
+        }
+        if (level != null) {
+            if (item instanceof EquipItem) {
+                level.setVisibility(View.VISIBLE);
+                level.setText("Lv." + ((EquipItem) item).getLevel());
+            } else {
+                level.setVisibility(View.GONE);
+            }
+        }
+        if (stackCount != null) {
+            if (item.getMaxStack() > 1 && item.getCount() > 1) {
+                stackCount.setVisibility(View.VISIBLE);
+                stackCount.setText("\u00d7" + item.getCount());
+            } else {
+                stackCount.setVisibility(View.GONE);
+            }
+        }
+
+        cell.setOnClickListener(v -> onLootItemClick(globalIndex));
+    }
+
+    private void bindLootItemIcon(ImageView imageView, Item item) {
+        if (item == null) return;
+
+        String folder = folderForItemType(item.getType());
+        if (folder == null) {
+            GameAssetIcons.bindItem(requireContext(), imageView, item);
+            return;
+        }
+        String path = GameAssetIcons.assetPath(folder, item.getId());
+        if (path == null) {
+            GameAssetIcons.bindItem(requireContext(), imageView, item);
+            return;
+        }
+
+        Bitmap cached = LruBitmapCache.getInstance().get(path);
+        if (cached != null && !cached.isRecycled()) {
+            imageView.setImageBitmap(cached);
+            return;
+        }
+
+        try (InputStream is = requireContext().getAssets().open(path)) {
+            Bitmap bmp = BitmapFactory.decodeStream(is);
+            if (bmp != null) {
+                LruBitmapCache.getInstance().put(path, bmp);
+                Bitmap cachedAgain = LruBitmapCache.getInstance().get(path);
+                imageView.setImageBitmap(cachedAgain != null ? cachedAgain : bmp);
+                return;
+            }
+        } catch (IOException ignored) {
+        }
+
+        GameAssetIcons.bindItem(requireContext(), imageView, item);
+    }
+
+    private static String folderForItemType(ItemType type) {
+        if (type == null) return null;
+        switch (type) {
+            case MATERIAL: return GameAssetIcons.FOLDER_MATERIAL;
+            case CONSUMABLE: return GameAssetIcons.FOLDER_CONSUMABLE;
+            case GEM: return GameAssetIcons.FOLDER_GEM;
+            case EQUIPMENT: return GameAssetIcons.FOLDER_EQUIP;
+            default: return null;
+        }
+    }
+
+    private void onLootItemClick(int globalIndex) {
+        if (globalIndex < 0 || globalIndex >= lootItems.size()) return;
+        Item item = lootItems.get(globalIndex);
+        if (item == null) return;
+
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        List<Item> bag = ch.getBagItems();
+        if (InventoryManager.addItem(bag, item)) {
+            InventoryGridSync.reloadSharedGridFromManager(requireContext());
+            lootItems.remove(globalIndex);
+            lootMaxPage = (lootItems.size() + LOOT_PAGE_SIZE - 1) / LOOT_PAGE_SIZE;
+            if (lootCurrentPage >= lootMaxPage && lootMaxPage > 0) {
+                lootCurrentPage = lootMaxPage - 1;
+            }
+            if (lootItems.isEmpty()) {
+                dismissLootPanel();
+                requireActivity().getSupportFragmentManager().popBackStackImmediate();
+                return;
+            }
+            renderLootPage();
+        } else {
+            showFloatMsg("背包已满");
+        }
+    }
+
+    private void onLootClaimAll() {
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        List<Item> bag = ch.getBagItems();
+        int claimed = 0;
+        int total = lootItems.size();
+
+        int i = lootCurrentPage * LOOT_PAGE_SIZE;
+        while (i < lootItems.size()) {
+            Item item = lootItems.get(i);
+            if (item != null && InventoryManager.addItem(bag, item)) {
+                lootItems.remove(i);
+                claimed++;
+            } else {
+                break;
+            }
+        }
+
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
+
+        if (claimed > 0) {
+            lootMaxPage = (lootItems.size() + LOOT_PAGE_SIZE - 1) / LOOT_PAGE_SIZE;
+            if (lootCurrentPage >= lootMaxPage && lootMaxPage > 0) {
+                lootCurrentPage = lootMaxPage - 1;
+            }
+        }
+
+        if (lootItems.isEmpty()) {
+            showFloatMsg("已领取 " + claimed + " / " + total + " 件");
+            dismissLootPanel();
+            requireActivity().getSupportFragmentManager().popBackStackImmediate();
+            return;
+        }
+
+        if (claimed < total) {
+            showFloatMsg("背包已满，已领取 " + claimed + " / " + total + " 件");
+        }
+
+        renderLootPage();
+    }
+
+    private void onLootLeave() {
+        int remaining = lootItems.size();
+        if (remaining > 0) {
+            new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                    .setTitle("未领取掉落物")
+                    .setMessage("还有 " + remaining + " 件掉落物未领取，确定要离开？未领取的道具将永久消失。")
+                    .setPositiveButton("确定", (d, w) -> {
+                        dismissLootPanel();
+                        requireActivity().getSupportFragmentManager().popBackStackImmediate();
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+        } else {
+            dismissLootPanel();
+            requireActivity().getSupportFragmentManager().popBackStackImmediate();
+        }
+    }
+
+    private void updateLootLeaveButton() {
+        if (lootContentRoot == null) return;
+        TextView btnLeave = lootContentRoot.findViewById(R.id.btn_loot_leave);
+        if (btnLeave == null) return;
+        int remaining = lootItems.size();
+        btnLeave.setText(remaining > 0 ? "离开（剩余" + remaining + "件）" : "离开");
     }
 
     private int addSelectedItemsToBag(List<Item> items) {
@@ -1069,7 +1409,7 @@ public class BattleFragment extends Fragment {
 
     private void showBattleLogDialog() {
         if (battleContext == null) {
-            Toast.makeText(requireContext(), "战斗未初始化", Toast.LENGTH_SHORT).show();
+            showFloatMsg("战斗未初始化");
             return;
         }
         List<BattleLogEntry> src = battleContext.battleLogs;
