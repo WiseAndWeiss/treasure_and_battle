@@ -86,7 +86,6 @@
             <include
                 android:id="@+id/battle_slot_2"
                 layout="@layout/item_battle_monster_slot"
-                android:layout_marginBottom="200dp"
                 />
 
             <LinearLayout
