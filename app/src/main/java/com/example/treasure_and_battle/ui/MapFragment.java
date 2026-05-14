@@ -969,14 +969,24 @@ public class MapFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null && data.hasExtra("open_trade")) {
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
-                    .hide(MapFragment.this)
-                    .addToBackStack("trade")
-                    .commit();
+        if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("open_trade")) {
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                fm.beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                        .hide(MapFragment.this)
+                        .addToBackStack("trade")
+                        .commit();
+            } else if (data.hasExtra("open_battle")) {
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                fm.beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
+                        .hide(MapFragment.this)
+                        .addToBackStack("battle")
+                        .commit();
+            }
         }
     }
 }
