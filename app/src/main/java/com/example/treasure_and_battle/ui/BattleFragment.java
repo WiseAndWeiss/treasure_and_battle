@@ -143,6 +143,7 @@ public class BattleFragment extends Fragment {
     private final List<BuffLine> buffLines = new ArrayList<>();
 
     private TextView tvHint;
+
     private TextView tvPlayerName;
     private TextView tvPlayerHpVal;
     private TextView tvPlayerMpVal;
@@ -192,7 +193,6 @@ public class BattleFragment extends Fragment {
         battleManager.setMonsterActListener(this::onMonsterWillActInUi);
         initBattleSession();
 
-        tvHint = view.findViewById(R.id.tv_battle_hint);
         tvPlayerName = view.findViewById(R.id.tv_battle_player_name);
         tvPlayerHpVal = view.findViewById(R.id.tv_battle_player_hp_val);
         tvPlayerMpVal = view.findViewById(R.id.tv_battle_player_mp_val);
@@ -201,6 +201,7 @@ public class BattleFragment extends Fragment {
         pbMp = view.findViewById(R.id.pb_battle_player_mp);
         pbAp = view.findViewById(R.id.pb_battle_player_ap);
         rvBuffs = view.findViewById(R.id.rv_battle_buffs);
+        tvHint = view.findViewById(R.id.tv_battle_hint);
 
         int[] slotIds = {
                 R.id.battle_slot_0, R.id.battle_slot_1, R.id.battle_slot_2,
@@ -670,7 +671,36 @@ public class BattleFragment extends Fragment {
     }
 
     private void setHint(String s) {
-        tvHint.setText(s);
+        if (tvHint == null) {
+            return;
+        }
+        if (s == null || s.trim().isEmpty()) {
+            tvHint.setText("");
+            tvHint.setVisibility(View.INVISIBLE);
+            return;
+        }
+        tvHint.setText(s.trim());
+        tvHint.setVisibility(View.VISIBLE);
+    }
+
+    private void showBuffDetailDialog(@NonNull String title, @NonNull String detail) {
+        if (!isAdded()) {
+            return;
+        }
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_battle_buff_detail, null, false);
+        TextView tTitle = content.findViewById(R.id.tv_battle_buff_detail_title);
+        TextView tBody = content.findViewById(R.id.tv_battle_buff_detail_body);
+        tTitle.setText(title);
+        tBody.setText(detail);
+        AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(content)
+                .create();
+        d.setCanceledOnTouchOutside(true);
+        content.findViewById(R.id.btn_battle_buff_detail_ok).setOnClickListener(v -> d.dismiss());
+        d.show();
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private void clearPending() {
@@ -680,6 +710,7 @@ public class BattleFragment extends Fragment {
         selectedTargetIndex = -1;
         hideConfirmCancelButtons();
         refreshTargetMarkers();
+        setHint("");
     }
 
     private void showConfirmCancelButtons() {
@@ -735,7 +766,6 @@ public class BattleFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                .setTitle("选择技能")
                 .setView(content)
                 .setNegativeButton("取消", null)
                 .create();
@@ -757,6 +787,9 @@ public class BattleFragment extends Fragment {
         });
         rv.setAdapter(adapter);
         dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private static String formatSkillCostLine(ActiveSkill skill) {
@@ -841,11 +874,13 @@ public class BattleFragment extends Fragment {
         rv.setAdapter(adapterHolder[0]);
 
         itemUseDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                .setTitle("道具")
                 .setView(content)
                 .setNegativeButton("关闭", (d, w) -> itemUseDialog = null)
                 .create();
         itemUseDialog.show();
+        if (itemUseDialog.getWindow() != null) {
+            itemUseDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private void onEscape() {
@@ -1385,6 +1420,9 @@ public class BattleFragment extends Fragment {
         statsSheet.setContentView(sheetView);
         statsSheet.setCanceledOnTouchOutside(true);
         statsSheet.show();
+        if (statsSheet.getWindow() != null) {
+            statsSheet.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private void populateStatsSheet(View root) {
@@ -1502,13 +1540,21 @@ public class BattleFragment extends Fragment {
             }
             BattleSessionHolder.clear();
             showFloatMsg(summarizeResult());
-            new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                    .setTitle("战斗失败")
-                    .setMessage("战斗失败！")
+            View defeatRoot = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+            TextView defeatTitle = defeatRoot.findViewById(R.id.tv_treasure_alert_title);
+            TextView defeatMsg = defeatRoot.findViewById(R.id.tv_treasure_alert_message);
+            defeatTitle.setText("战斗失败");
+            defeatMsg.setText("战斗失败！");
+            AlertDialog defeatDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                    .setView(defeatRoot)
                     .setCancelable(false)
                     .setPositiveButton("确定", (d, w) ->
                             requireActivity().getSupportFragmentManager().popBackStackImmediate())
-                    .show();
+                    .create();
+            defeatDlg.show();
+            if (defeatDlg.getWindow() != null) {
+                defeatDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            }
             return;
         }
 
@@ -1603,6 +1649,9 @@ public class BattleFragment extends Fragment {
                 .create();
 
         lootDialog.show();
+        if (lootDialog.getWindow() != null) {
+            lootDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private void renderLootPage() {
@@ -1660,7 +1709,7 @@ public class BattleFragment extends Fragment {
             });
         }
 
-        TextView tvPageInfo = lootContentRoot.findViewById(R.id.tv_page_info);
+        TextView tvPageInfo = lootContentRoot.findViewById(R.id.tv_loot_page_info);
         if (tvPageInfo != null && lootMaxPage > 1) {
             tvPageInfo.setText("第 " + (lootCurrentPage + 1) + " / " + lootMaxPage + " 页");
         }
@@ -1826,15 +1875,23 @@ public class BattleFragment extends Fragment {
     private void onLootLeave() {
         int remaining = lootItems.size();
         if (remaining > 0) {
-            new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                    .setTitle("未领取掉落物")
-                    .setMessage("还有 " + remaining + " 件掉落物未领取，确定要离开？未领取的道具将永久消失。")
+            View leaveRoot = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+            TextView leaveTitle = leaveRoot.findViewById(R.id.tv_treasure_alert_title);
+            TextView leaveMsg = leaveRoot.findViewById(R.id.tv_treasure_alert_message);
+            leaveTitle.setText("未领取掉落物");
+            leaveMsg.setText("还有 " + remaining + " 件掉落物未领取，确定要离开？未领取的道具将永久消失。");
+            AlertDialog leaveDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                    .setView(leaveRoot)
                     .setPositiveButton("确定", (d, w) -> {
                         dismissLootPanel();
                         requireActivity().getSupportFragmentManager().popBackStackImmediate();
                     })
                     .setNegativeButton("取消", null)
-                    .show();
+                    .create();
+            leaveDlg.show();
+            if (leaveDlg.getWindow() != null) {
+                leaveDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            }
         } else {
             dismissLootPanel();
             requireActivity().getSupportFragmentManager().popBackStackImmediate();
@@ -2021,11 +2078,14 @@ public class BattleFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(new BattleLogListAdapter(forDisplay));
 
-        new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                .setTitle("战斗记录")
+        AlertDialog logDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
                 .setPositiveButton("关闭", null)
-                .show();
+                .create();
+        logDlg.show();
+        if (logDlg.getWindow() != null) {
+            logDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private void refreshTargetMarkers() {
@@ -2089,6 +2149,10 @@ public class BattleFragment extends Fragment {
                 if (listener != null && canCast) {
                     listener.onPick(skill);
                 }
+            });
+            h.itemView.setOnLongClickListener(v -> {
+                SkillDetailDialog.show(v.getContext(), SkillDetailDialog.fromActiveSkill(skill));
+                return true;
             });
         }
 
@@ -2158,12 +2222,9 @@ public class BattleFragment extends Fragment {
         public void onBindViewHolder(@NonNull Vh h, int position) {
             BuffLine line = buffLines.get(position);
             h.tv.setText(line.title);
-            h.itemView.setOnClickListener(v ->
-                    new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                            .setTitle(line.title)
-                            .setMessage(line.detail)
-                            .setPositiveButton("知道了", null)
-                            .show());
+            View.OnClickListener openBuff = v -> showBuffDetailDialog(line.title, line.detail);
+            h.itemView.setOnClickListener(openBuff);
+            h.tv.setOnClickListener(openBuff);
         }
 
         @Override

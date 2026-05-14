@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.ui;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.DragEvent;
@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -43,6 +44,7 @@ import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.example.treasure_and_battle.utils.TachieManager;
 
 import java.util.ArrayList;
@@ -366,20 +368,29 @@ public class BagFragment extends Fragment {
         menuProviderFactory = new ItemMenuProviderFactory(
                 requireContext(),
                 item -> ItemDetailDialog.show(requireContext(), item),
-                item -> new AlertDialog.Builder(requireContext())
-                        .setTitle("确认丢弃")
-                        .setMessage("确定要丢弃 " + item.getName() + " 吗？")
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            int index = findItemIndex(item);
-                            if (index >= 0) {
-                                allItems.set(index, null);
-                            }
-                            adapter.notifyDataSetChanged();
-                            persistSharedBagGridToInventory();
-                            showFloatMsg("已丢弃: " + item.getName());
-                        })
-                        .setNegativeButton("取消", null)
-                        .show()
+                item -> {
+                    View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                    ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
+                    ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(
+                            "确定要丢弃 " + item.getName() + " 吗？");
+                    AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                            .setView(content)
+                            .setPositiveButton("确定", (dialog, which) -> {
+                                int index = findItemIndex(item);
+                                if (index >= 0) {
+                                    allItems.set(index, null);
+                                }
+                                adapter.notifyDataSetChanged();
+                                persistSharedBagGridToInventory();
+                                showFloatMsg("已丢弃: " + item.getName());
+                            })
+                            .setNegativeButton("取消", null)
+                            .create();
+                    d.show();
+                    if (d.getWindow() != null) {
+                        d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                    }
+                }
         );
         menuProviderFactory.registerEquipment(equipItem -> {
             int bagIndex = findItemIndex(equipItem);
@@ -1285,9 +1296,11 @@ public class BagFragment extends Fragment {
             if (menuItem.getItemId() == 3) {
                 String msg = item.getName() + "\n品质: " + item.getRarity().getDisplayName()
                         + "\n数量: " + item.getCount();
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("确认丢弃")
-                        .setMessage(msg)
+                View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
+                ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(msg);
+                AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                        .setView(content)
                         .setPositiveButton("确认丢弃", (dialog, which) -> {
                             equippedItems.remove(slotViewId);
                             syncCharacterUnequip(slotViewId);
@@ -1295,7 +1308,11 @@ public class BagFragment extends Fragment {
                             showFloatMsg("已丢弃: " + item.getName());
                         })
                         .setNegativeButton("取消", null)
-                        .show();
+                        .create();
+                d.show();
+                if (d.getWindow() != null) {
+                    d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                }
                 return true;
             }
             return false;

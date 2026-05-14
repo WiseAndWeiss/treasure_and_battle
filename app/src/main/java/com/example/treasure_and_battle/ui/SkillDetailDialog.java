@@ -11,6 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.model.skill.SkillEffectParams;
+import com.example.treasure_and_battle.model.skill.SkillRangeType;
+import com.example.treasure_and_battle.model.skill.SkillTemplate;
+import com.example.treasure_and_battle.model.skill.SkillType;
+import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
@@ -56,6 +61,34 @@ public final class SkillDetailDialog {
             this.effectNext = effectNext;
             this.fullDescription = fullDescription;
         }
+    }
+
+    /**
+     * 战斗中从已学习的 {@link ActiveSkill} 构建详情（与技能页占位符规则一致）。
+     */
+    @NonNull
+    public static Detail fromActiveSkill(@NonNull ActiveSkill skill) {
+        SkillTemplate t = skill.getTemplate();
+        int lv = skill.getLevel();
+        int max = skill.getMaxLevel();
+        String levelDisplay = lv + "/" + max;
+        String tags = buildTagsFromTemplate(t);
+        String cooldown = t.getCooldown() <= 0 ? "无" : t.getCooldown() + " 回合";
+        String castRange = rangeLabelFromTemplate(t.getSkillRangeType());
+        String effectCurrent = formatEffectBlockFromTemplate(t, lv);
+        String effectNext = lv >= max ? null : formatEffectBlockFromTemplate(t, lv + 1);
+        String fullDesc = t.getSimpleDesc() != null ? t.getSimpleDesc() : "";
+        return new Detail(
+                t.getSkillName(),
+                "主动",
+                tags,
+                levelDisplay,
+                0,
+                cooldown,
+                castRange,
+                effectCurrent,
+                effectNext,
+                fullDesc);
     }
 
     public static void show(@NonNull Context context, @Nullable Detail detail) {
@@ -124,5 +157,54 @@ public final class SkillDetailDialog {
         if (s == null) return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
+    }
+
+    private static String buildTagsFromTemplate(@NonNull SkillTemplate template) {
+        SkillType type = template.getSkillType();
+        String typePart = type == SkillType.ACTIVE ? "主动" : type == SkillType.PASSIVE ? "被动" : "事件";
+        String triggerPart = "—";
+        if (template.getSkillTriggerTypes() != null && !template.getSkillTriggerTypes().isEmpty()) {
+            triggerPart = String.valueOf(template.getSkillTriggerTypes().get(0));
+        }
+        return typePart + " · " + triggerPart;
+    }
+
+    private static String rangeLabelFromTemplate(@Nullable SkillRangeType r) {
+        if (r == null) {
+            return "—";
+        }
+        switch (r) {
+            case SINGLE_ENEMY:
+                return "单体敌方";
+            case ALL_ENEMIES:
+                return "全体敌方";
+            case SELF:
+                return "自身";
+            case ALL_ALLIES:
+                return "全体友方";
+            case NONE:
+            default:
+                return "无目标";
+        }
+    }
+
+    private static String formatEffectBlockFromTemplate(@NonNull SkillTemplate template, int level) {
+        if (level <= 0) {
+            return "（未学习）";
+        }
+        SkillEffectParams p = template.getEffectParamsWithLevel(level);
+        String raw = template.getDetailedDesc() != null ? template.getDetailedDesc() : template.getSimpleDesc();
+        return applyEffectPlaceholders(raw, p);
+    }
+
+    private static String applyEffectPlaceholders(@Nullable String templateText, @NonNull SkillEffectParams p) {
+        if (templateText == null) {
+            return "";
+        }
+        return templateText
+                .replace("{x}", String.valueOf(p.x))
+                .replace("{y}", String.valueOf(p.y))
+                .replace("{z}", String.valueOf(p.z))
+                .replace("{w}", String.valueOf(p.w));
     }
 }

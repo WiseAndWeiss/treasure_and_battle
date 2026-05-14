@@ -1,8 +1,10 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -52,14 +54,22 @@ public final class SellItemDialog {
         if (!needsQuantityPicker) {
             int qty = item.getCount();
             int pay = unit * qty;
+            View simpleRoot = LayoutInflater.from(context).inflate(R.layout.dialog_treasure_alert, null, false);
+            TextView st = simpleRoot.findViewById(R.id.tv_treasure_alert_title);
+            TextView sm = simpleRoot.findViewById(R.id.tv_treasure_alert_message);
+            st.setText("出售");
+            sm.setText("以 " + pay + " 金币出售「" + item.getName() + "」？");
             MaterialAlertDialogBuilder simple = new MaterialAlertDialogBuilder(
                     context, R.style.ThemeOverlay_Tb_ItemDetailDialog);
-            simple.setTitle("出售");
-            simple.setMessage("以 " + pay + " 金币出售「" + item.getName() + "」？");
+            simple.setView(simpleRoot);
             simple.setNegativeButton("取消", null);
             simple.setPositiveButton("出售", (d, w) ->
                     trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned));
-            simple.show();
+            AlertDialog simpleDlg = simple.create();
+            simpleDlg.show();
+            if (simpleDlg.getWindow() != null) {
+                simpleDlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            }
             return;
         }
 
