@@ -102,17 +102,6 @@ public class NeutralEventActivity extends AppCompatActivity {
                 });
                 break;
 
-            case "exploration":
-                btnAction1 = addActionButton("深入探险", 0xFFE53935, v -> {
-                    showResult("你鼓起勇气深入洞穴...\n（探险系统后续开发）");
-                    switchToForwardButton();
-                });
-                btnAction2 = addActionButton("谨慎离开", 0xFF888888, v -> {
-                    showResult("你选择了安全离开，放弃了可能存在的宝藏。");
-                    switchToForwardButton();
-                });
-                break;
-
             case "traveler":
                 btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
                     showResult("你帮助了迷路的旅人！\n\n✅ 获得补给品 ×3\n✅ 获得金币 ×200\n✅ 幸运值提升，持续1小时");
@@ -136,10 +125,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                 break;
 
             case "statue_blessing":
-                btnAction1 = addActionButton("接受雕像祝福", 0xFFFFC107, v -> {
-                    showResult("雕像散发金色光芒...\n\n✅ 下3场战斗开始时获得随机Buff：\n  · 攻击力 +10%\n  · 防御力 +10%\n  · 最大生命 +15%");
-                    switchToForwardButton();
-                });
+                btnAction1 = addActionButton("接受雕像祝福", 0xFFFFC107, v -> showGemUpgradeDialog());
                 btnAction2 = addActionButton("绕道离开", 0xFF888888, v -> {
                     showResult("你绕过了雕像，没有接受祝福。");
                     switchToForwardButton();
@@ -458,6 +444,67 @@ public class NeutralEventActivity extends AppCompatActivity {
         gridDialog.show();
     }
 
+    private void showGemUpgradeDialog() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+
+        final List<GemItem> gemItems = new ArrayList<>();
+        for (Item item : bag) {
+            if (item instanceof GemItem) {
+                GemItem gem = (GemItem) item;
+                if (gem.getRarity().getId() < 4) {
+                    gemItems.add(gem);
+                }
+            }
+        }
+        if (gemItems.isEmpty()) {
+            showResult("你的背包中没有可升级的宝石。\n（传说品质宝石已无法继续升级）");
+            switchToForwardButton();
+            return;
+        }
+
+        final Dialog gridDialog = new Dialog(this);
+        gridDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        View gridView = LayoutInflater.from(this).inflate(R.layout.dialog_gem_grid, null);
+        RecyclerView rv = gridView.findViewById(R.id.rv_gem_grid);
+        gridView.findViewById(R.id.btn_grid_close).setOnClickListener(v -> gridDialog.dismiss());
+
+        rv.setLayoutManager(new GridLayoutManager(this, 2));
+        rv.setAdapter(new GemGridAdapter(gemItems, gem -> {
+            gridDialog.dismiss();
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                int currentRarityId = gem.getRarity().getId();
+                Rarity nextRarity = Rarity.fromId(currentRarityId + 1);
+                String upgradedGemId = gem.getGemType().toLowerCase() + "_"
+                        + nextRarity.name().toLowerCase();
+
+                GemItem upgraded = ItemManager.getInstance(NeutralEventActivity.this)
+                        .createGem(upgradedGemId);
+                if (upgraded == null) {
+                    showResult("宝石升级失败：无法找到对应模板。");
+                    switchToForwardButton();
+                    return;
+                }
+
+                InventoryManager.removeItem(bag, gem);
+                InventoryManager.addItem(bag, upgraded);
+
+                String resultText = "雕像散发出耀眼的金色光芒...\n\n✅ "
+                        + gem.getName() + "（" + gem.getRarity().getDisplayName()
+                        + "）已升级为\n" + upgraded.getName() + "（"
+                        + upgraded.getRarity().getDisplayName() + "）！";
+                showResult(resultText);
+                switchToForwardButton();
+            });
+        }));
+
+        gridDialog.setContentView(gridView);
+        gridDialog.setCancelable(true);
+        gridDialog.setCanceledOnTouchOutside(true);
+        gridDialog.show();
+    }
+
     private void showReforgeDialog(EquipItem equip) {
         final EquipItem targetEquip = equip;
         Dialog reforgeDialog = new Dialog(this);
@@ -613,6 +660,62 @@ public class NeutralEventActivity extends AppCompatActivity {
                 bgColor = v.findViewById(R.id.bg_item_color);
                 tvName = v.findViewById(R.id.tv_item_name);
                 tvLevel = v.findViewById(R.id.tv_item_level);
+                ivIcon = v.findViewById(R.id.iv_item_icon);
+            }
+        }
+    }
+
+    private static class GemGridAdapter extends RecyclerView.Adapter<GemGridAdapter.VH> {
+        private final List<GemItem> items;
+        private final OnGemClickListener listener;
+
+        interface OnGemClickListener {
+            void onClick(GemItem item);
+        }
+
+        GemGridAdapter(List<GemItem> items, OnGemClickListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
+
+        @Override
+        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_gem_select, parent, false);
+            return new VH(v);
+        }
+
+        @Override
+        public void onBindViewHolder(VH holder, int position) {
+            GemItem gem = items.get(position);
+            holder.tvRarity.setText(gem.getRarity().getDisplayName());
+            holder.tvRarity.setTextColor(gem.getRarity().getColor());
+            GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, gem);
+            holder.bgColor.setBackgroundTintList(null);
+            android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
+            if (bg != null) {
+                bg.clearColorFilter();
+            }
+            Integer borderArgb = gem.getRarity() != null ? gem.getRarity().getColor() : null;
+            holder.itemView.setForeground(
+                    TreasureStyleDrawable.newSlotStrokeOverlay(holder.itemView.getContext(), borderArgb));
+            holder.itemView.setOnClickListener(v -> listener.onClick(gem));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        static class VH extends RecyclerView.ViewHolder {
+            View bgColor;
+            TextView tvRarity;
+            ImageView ivIcon;
+
+            VH(View v) {
+                super(v);
+                bgColor = v.findViewById(R.id.bg_item_color);
+                tvRarity = v.findViewById(R.id.tv_item_rarity);
                 ivIcon = v.findViewById(R.id.iv_item_icon);
             }
         }

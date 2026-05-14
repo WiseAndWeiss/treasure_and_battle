@@ -875,7 +875,7 @@ public class MapFragment extends Fragment {
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
         if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key)) return "BENEFIT";
-        if ("merchant".equals(key) || "exploration".equals(key) || "traveler".equals(key)
+        if ("merchant".equals(key) || "traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
                 || "equipment_reforge".equals(key)) return "NEUTRAL";
