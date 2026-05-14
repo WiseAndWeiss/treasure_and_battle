@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -248,7 +247,7 @@ public final class TradeBagBottomController {
         btnCompactBag.setOnClickListener(v -> {
             compactAllItemsForward();
             adapter.notifyDataSetChanged();
-            Toast.makeText(host.getContext(), "已向前整理背包", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已向前整理背包");
         });
         btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
@@ -371,9 +370,9 @@ public final class TradeBagBottomController {
         updateFilterButtonText();
         adapter.notifyDataSetChanged();
         if (slot == null) {
-            Toast.makeText(host.getContext(), "已取消筛选", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已取消筛选");
         } else {
-            Toast.makeText(host.getContext(), "已筛选: " + getSlotLabel(slot), Toast.LENGTH_SHORT).show();
+            showFloatMsg("已筛选: " + getSlotLabel(slot));
         }
     }
 
@@ -883,7 +882,7 @@ public final class TradeBagBottomController {
                         allItems.set(realPosition, null);
                         InventoryGridSync.flushSharedGridToManager(host.requireContext());
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(host.getContext(), "已丢弃" + item.getName(), Toast.LENGTH_SHORT).show();
+                        showFloatMsg("已丢弃" + item.getName());
                         break;
                 }
                 return true;
@@ -907,5 +906,9 @@ public final class TradeBagBottomController {
                 tvBagStackCount = itemView.findViewById(R.id.tv_bag_stack_count);
             }
         }
+    }
+
+    private void showFloatMsg(String text) {
+        FloatMsgOverlay.showFloatMsg(host.getContext(), text);
     }
 }

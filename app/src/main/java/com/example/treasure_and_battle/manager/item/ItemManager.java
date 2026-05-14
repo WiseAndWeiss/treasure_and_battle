@@ -242,6 +242,10 @@ public class ItemManager {
         return new ArrayList<>(consumableTemplates.values());
     }
 
+    public List<MaterialTemplate> getAllMaterialTemplates() {
+        return new ArrayList<>(materialTemplates.values());
+    }
+
     // ====================== 按稀有度随机选取 ======================
 
     public ConsumableItem getRandomConsumableByRarity(Rarity rarity) {

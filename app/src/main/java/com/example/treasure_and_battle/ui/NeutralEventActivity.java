@@ -27,8 +27,11 @@ import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.EventManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
 
 import java.util.ArrayList;
@@ -214,18 +217,45 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "mystery_box":
                 btnAction1 = addActionButton("购买盲盒（200金币）", 0xFFFF9800, v -> {
+                    ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
                     EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
                     Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC};
                     Rarity rarity = rarities[(int) (Math.random() * rarities.length)];
-                    EquipItem equip = em.generateRandomEquip((int) (5 + Math.random() * 21), rarity);
-                    if (equip != null) {
-                        Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
-                        InventoryManager.addItem(ch.getBagItems(), equip);
-                        showResult("🎁 打开盲盒！\n\n获得装备：\n" + equip.getName()
-                                + "\n品质：" + equip.getRarity().getDisplayName());
+                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+
+                    int roll = (int) (Math.random() * 3);
+                    StringBuilder sb = new StringBuilder("🎁 打开盲盒！\n\n");
+
+                    if (roll == 0) {
+                        EquipItem equip = em.generateRandomEquip((int) (5 + Math.random() * 21), rarity);
+                        if (equip != null) {
+                            InventoryManager.addItem(ch.getBagItems(), equip);
+                            sb.append("获得装备：").append(equip.getName())
+                                    .append("\n品质：").append(equip.getRarity().getDisplayName());
+                        } else {
+                            sb.append("盲盒是空的...你被骗了！200金币打水漂。");
+                        }
+                    } else if (roll == 1) {
+                        ConsumableItem consumable = im.getRandomConsumableByRarity(rarity);
+                        if (consumable != null) {
+                            InventoryManager.addItem(ch.getBagItems(), consumable);
+                            sb.append("获得药水：").append(consumable.getName())
+                                    .append("\n品质：").append(consumable.getRarity().getDisplayName());
+                        } else {
+                            sb.append("盲盒是空的...你被骗了！200金币打水漂。");
+                        }
                     } else {
-                        showResult("盲盒是空的...你被骗了！200金币打水漂。");
+                        GemItem gem = im.getRandomGemByRarity(rarity);
+                        if (gem != null) {
+                            InventoryManager.addItem(ch.getBagItems(), gem);
+                            sb.append("获得宝石：").append(gem.getName())
+                                    .append("\n品质：").append(gem.getRarity().getDisplayName());
+                        } else {
+                            sb.append("盲盒是空的...你被骗了！200金币打水漂。");
+                        }
                     }
+
+                    showResult(sb.toString());
                     switchToForwardButton();
                 });
                 btnAction2 = addActionButton("不相信盲盒", 0xFF888888, v -> {

@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -197,9 +196,9 @@ public class MapFragment extends Fragment {
             if (pos != null) {
                 int removed = mEventManager.removeEventsAtPosition(pos, 100);
                 refreshEventIcons();
-                Toast.makeText(getContext(), "已清除附近事件：" + removed + " 个", Toast.LENGTH_SHORT).show();
+                showFloatMsg("已清除附近事件：" + removed + " 个");
             } else {
-                Toast.makeText(getContext(), "当前无定位，无法清除", Toast.LENGTH_SHORT).show();
+                showFloatMsg("当前无定位，无法清除");
             }
         });
         popupContent.addView(btnClear);
@@ -397,14 +396,14 @@ public class MapFragment extends Fragment {
         mEventManager.addDebugEvent(ec);
         refreshEventIcons();
 
-        Toast.makeText(getContext(), "已在当前位置生成：" + sub.getName(), Toast.LENGTH_SHORT).show();
+        showFloatMsg("已在当前位置生成：" + sub.getName());
     }
 
     private void generateSpecificEvent(EventConfig.EventItem target, EventConfig.EventSubItem sub) {
         if (target == null) return;
         LatLng pos = mEventManager.getCurrentLatLng();
         if (pos == null) {
-            Toast.makeText(getContext(), "当前无定位，无法生成", Toast.LENGTH_SHORT).show();
+            showFloatMsg("当前无定位，无法生成");
             return;
         }
 
@@ -421,7 +420,7 @@ public class MapFragment extends Fragment {
         refreshEventIcons();
 
         String name = sub != null ? sub.getName() : "未知事件";
-        Toast.makeText(getContext(), "已在当前位置生成：" + name, Toast.LENGTH_SHORT).show();
+        showFloatMsg("已在当前位置生成：" + name);
     }
 
     private void initMapSetting() {
@@ -461,7 +460,7 @@ public class MapFragment extends Fragment {
             if (isDetached()) return;
             int count = mEventManager.generateRandomEvents();
             if (count > 0) {
-                Toast.makeText(getContext(), "生成事件：" + count, Toast.LENGTH_SHORT).show();
+                showFloatMsg("生成事件：" + count);
                 refreshEventIcons();
             }
             mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getGlobalConfig().getGenerateInterval());
@@ -563,7 +562,7 @@ public class MapFragment extends Fragment {
                         if (mCountdownOverlay != null) {
                             mCountdownOverlay.setVisibility(View.GONE);
                         }
-                        Toast.makeText(getContext(), "已离开战斗范围", Toast.LENGTH_SHORT).show();
+                        showFloatMsg("已离开战斗范围");
                     }
                 }
 
@@ -626,7 +625,7 @@ public class MapFragment extends Fragment {
         if ("UNKNOWN".equals(type)) {
             sub = mEventManager.resolveUnknownEvent();
             if (sub != null) {
-                Toast.makeText(getContext(), "揭开神秘面纱！原来是：" + sub.getName(), Toast.LENGTH_LONG).show();
+                showFloatMsg("揭开神秘面纱！原来是：" + sub.getName());
                 type = determineSubEventCategory(sub);
             }
         }
@@ -642,7 +641,7 @@ public class MapFragment extends Fragment {
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
             mBattleTriggerPosition = mEventManager.getCurrentLatLng();
-            Toast.makeText(getContext(), "即将进入战斗...", Toast.LENGTH_SHORT).show();
+            showFloatMsg("即将进入战斗...");
             startBattleCountdown();
         } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "")
                 || "training".equals(sub != null ? sub.getKey() : "")
@@ -650,7 +649,7 @@ public class MapFragment extends Fragment {
             handleBenefitAction();
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
-            Toast.makeText(getContext(), "增益事件，你可以在此回复生命、增强力量或打开宝箱", Toast.LENGTH_SHORT).show();
+            showFloatMsg("增益事件，你可以在此回复生命、增强力量或打开宝箱");
         } else if ("NEUTRAL".equals(type)) {
             mIsProcessingNeutral = true;
             mEventManager.removeEventCircle(ec);
@@ -707,7 +706,7 @@ public class MapFragment extends Fragment {
                 frameIndex[0]++;
                 if (frameIndex[0] < frameResIds.length) {
                     circleIv.setImageResource(frameResIds[frameIndex[0]]);
-                    mMainHandler.postDelayed(this, 120);
+                    mMainHandler.postDelayed(this, 60);
                 } else {
                     mCircleAnimOverlay.removeAllViews();
                     mIsPlayingCircleAnim = false;
@@ -716,7 +715,7 @@ public class MapFragment extends Fragment {
                 }
             }
         };
-        mMainHandler.postDelayed(mCircleAnimRunnable, 120);
+        mMainHandler.postDelayed(mCircleAnimRunnable, 60);
     }
 
     private void initCountdownOverlay() {
@@ -978,5 +977,10 @@ public class MapFragment extends Fragment {
                     .addToBackStack("trade")
                     .commit();
         }
+    }
+
+    private void showFloatMsg(String text) {
+        if (!isAdded() || getActivity() == null) return;
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 }

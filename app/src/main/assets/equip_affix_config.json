@@ -1,4 +1,4 @@
-﻿{
+{
   "affix_templates": [
     {
       "templateId": 1001,
@@ -1766,7 +1766,7 @@
       "maxValue": 0.25,
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGET",
+      "valueType": "PERCENTAGE",
       "affixScope": "EQUIPMENT_ONLY"
     },
     {

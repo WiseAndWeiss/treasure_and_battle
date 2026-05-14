@@ -5,7 +5,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,13 +38,13 @@ public final class SellItemDialog {
             return;
         }
         if (bagSlots.get(bagIndex) != item) {
-            Toast.makeText(context, "物品已变化，请重试", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "物品已变化，请重试");
             return;
         }
 
         int unit = unitSellPrice(item);
         if (unit <= 0) {
-            Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "该物品无法出售");
             return;
         }
 
@@ -137,16 +136,16 @@ public final class SellItemDialog {
         }
         Item item = bagSlots.get(bagIndex);
         if (item != expectedItem) {
-            Toast.makeText(context, "物品已变化", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "物品已变化");
             return false;
         }
         if (qty <= 0 || qty > item.getCount()) {
-            Toast.makeText(context, "数量无效", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "数量无效");
             return false;
         }
         int unit = unitSellPrice(item);
         if (unit <= 0) {
-            Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "该物品无法出售");
             return false;
         }
         int pay = unit * qty;
@@ -158,7 +157,7 @@ public final class SellItemDialog {
         if (onGoldEarned != null) {
             onGoldEarned.accept(pay);
         }
-        Toast.makeText(context, "已出售，获得 " + pay + " 金币", Toast.LENGTH_SHORT).show();
+        FloatMsgOverlay.showFloatMsg(context, "已出售，获得 " + pay + " 金币");
         if (onSold != null) {
             onSold.run();
         }

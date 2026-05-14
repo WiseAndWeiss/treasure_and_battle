@@ -9,7 +9,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -317,37 +316,37 @@ public class TradeFragment extends Fragment {
 
     private void tryPurchaseWithQuantity(@NonNull MerchantListing listing, int qty) {
         if (listing.isSoldOut()) {
-            Toast.makeText(requireContext(), "已售罄", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已售罄");
             return;
         }
         if (qty <= 0) {
             return;
         }
         if (!listing.infiniteStock && qty > listing.stockRemaining) {
-            Toast.makeText(requireContext(), "库存不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("库存不足");
             return;
         }
         long totalLong = (long) listing.unitBuyPrice * qty;
         if (totalLong > Integer.MAX_VALUE) {
-            Toast.makeText(requireContext(), "数量过多", Toast.LENGTH_SHORT).show();
+            showFloatMsg("数量过多");
             return;
         }
         int total = (int) totalLong;
         Character ch = tradeCharacter();
         if (ch.getGold() < total) {
-            Toast.makeText(requireContext(), "金币不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("金币不足");
             return;
         }
         if (!wouldFitInBag(listing, qty)) {
-            Toast.makeText(requireContext(), "背包空位不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("背包空位不足");
             return;
         }
         if (!placePurchasedItems(listing, qty)) {
-            Toast.makeText(requireContext(), "背包已满", Toast.LENGTH_SHORT).show();
+            showFloatMsg("背包已满");
             return;
         }
         if (!ch.spendGold(total)) {
-            Toast.makeText(requireContext(), "金币不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("金币不足");
             return;
         }
         listing.consumeStock(qty);
@@ -357,12 +356,12 @@ public class TradeFragment extends Fragment {
         if (merchantAdapter != null) {
             merchantAdapter.notifyDataSetChanged();
         }
-        Toast.makeText(requireContext(), "已购买 ×" + qty + "（合计 " + total + " 金）", Toast.LENGTH_SHORT).show();
+        showFloatMsg("已购买 ×" + qty + "（合计 " + total + " 金）");
     }
 
     private void promptPurchase(@NonNull MerchantListing listing) {
         if (listing.isSoldOut()) {
-            Toast.makeText(requireContext(), "已售罄", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已售罄");
             return;
         }
         if (!listing.canPickQuantity()) {
@@ -371,7 +370,7 @@ public class TradeFragment extends Fragment {
         }
         int maxQ = computeMaxPurchasableQty(listing);
         if (maxQ <= 0) {
-            Toast.makeText(requireContext(), "金币不足或背包空位不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("金币不足或背包空位不足");
             return;
         }
         showBuyQuantityDialog(listing, maxQ);
@@ -494,7 +493,7 @@ public class TradeFragment extends Fragment {
 
     private void showMerchantItemMenu(View anchor, MerchantListing listing) {
         if (listing.isSoldOut()) {
-            Toast.makeText(requireContext(), "已售罄", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已售罄");
             return;
         }
         PopupMenu menu = new PopupMenu(requireContext(), anchor);
@@ -512,5 +511,10 @@ public class TradeFragment extends Fragment {
             return false;
         });
         menu.show();
+    }
+
+    private void showFloatMsg(String text) {
+        if (!isAdded() || getActivity() == null) return;
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 }
