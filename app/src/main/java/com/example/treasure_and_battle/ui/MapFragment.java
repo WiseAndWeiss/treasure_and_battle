@@ -707,7 +707,7 @@ public class MapFragment extends Fragment {
                 frameIndex[0]++;
                 if (frameIndex[0] < frameResIds.length) {
                     circleIv.setImageResource(frameResIds[frameIndex[0]]);
-                    mMainHandler.postDelayed(this, 120);
+                    mMainHandler.postDelayed(this, 60);
                 } else {
                     mCircleAnimOverlay.removeAllViews();
                     mIsPlayingCircleAnim = false;
@@ -716,7 +716,7 @@ public class MapFragment extends Fragment {
                 }
             }
         };
-        mMainHandler.postDelayed(mCircleAnimRunnable, 120);
+        mMainHandler.postDelayed(mCircleAnimRunnable, 60);
     }
 
     private void initCountdownOverlay() {
