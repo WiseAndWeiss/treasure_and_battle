@@ -30,6 +30,7 @@ import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -53,6 +54,10 @@ public class NeutralEventActivity extends AppCompatActivity {
     private String[] caveItemDesc = new String[2];
     private transient Item caveItem1;
     private transient Item caveItem2;
+
+    private int travelerRequiredRarityId;
+    private ItemType travelerRequiredType;
+    private String travelerRequestDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +108,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                 break;
 
             case "traveler":
-                btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
-                    showResult("你帮助了迷路的旅人！\n\n✅ 获得补给品 ×3\n✅ 获得金币 ×200\n✅ 幸运值提升，持续1小时");
-                    switchToForwardButton();
-                });
-                btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
-                    showResult("你匆匆走过，没有理会旅人求助的目光。");
-                    switchToForwardButton();
-                });
+                buildTravelerActions();
                 break;
 
             case "scholar":
@@ -401,6 +399,63 @@ public class NeutralEventActivity extends AppCompatActivity {
             showResult(sb.toString());
             switchToForwardButton();
         });
+    }
+
+    private void buildTravelerActions() {
+        llActionArea.removeAllViews();
+
+        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC};
+        Rarity reqRarity = rarities[(int) (Math.random() * rarities.length)];
+        travelerRequiredRarityId = reqRarity.getId();
+
+        ItemType[] types = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
+        travelerRequiredType = types[(int) (Math.random() * types.length)];
+
+        String typeName;
+        switch (travelerRequiredType) {
+            case EQUIPMENT: typeName = "装备"; break;
+            case CONSUMABLE: typeName = "药水"; break;
+            case GEM: typeName = "宝石"; break;
+            default: typeName = "物品"; break;
+        }
+
+        travelerRequestDesc = "一件" + reqRarity.getDisplayName() + "品质的" + typeName;
+
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+        Item match = findMatchingItem(bag, travelerRequiredRarityId, travelerRequiredType);
+
+        if (match != null) {
+            btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
+                InventoryManager.removeItem(bag, match);
+                int goldReward = 50 + (travelerRequiredRarityId + 1) * 50
+                        + (int) (Math.random() * ((travelerRequiredRarityId + 1) * 100 + 1));
+                ch.addGold(goldReward);
+
+                String resultText = "你慷慨地赠送了" + match.getName()
+                        + "，旅人感激不尽！\n\n✅ 获得金币 ×" + goldReward;
+                showResult(resultText);
+                switchToForwardButton();
+            });
+            btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
+                showResult("你匆匆走过，没有理会旅人求助的目光。");
+                switchToForwardButton();
+            });
+        } else {
+            btnAction1 = addActionButton("很可惜，你无法帮助他", 0xFF888888, v -> {
+                showResult("你的背包中没有" + travelerRequestDesc + "，旅人失望地离开了。");
+                switchToForwardButton();
+            });
+        }
+    }
+
+    private Item findMatchingItem(List<Item> bag, int minRarityId, ItemType type) {
+        for (Item item : bag) {
+            if (item.getType() == type && item.getRarity().getId() >= minRarityId) {
+                return item;
+            }
+        }
+        return null;
     }
 
     private void showEquipmentSelectionDialog() {
