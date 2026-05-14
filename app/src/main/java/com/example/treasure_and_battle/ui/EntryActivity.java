@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,7 +37,7 @@ public class EntryActivity extends AppCompatActivity {
         });
 
         btnSelectSave.setOnClickListener(v ->
-                Toast.makeText(this, "功能开发中", Toast.LENGTH_SHORT).show());
+                FloatMsgOverlay.showFloatMsg(this, "功能开发中"));
 
         btnEncyclopedia.setOnClickListener(v ->
                 startActivity(new Intent(this, EncyclopediaActivity.class)));

@@ -1,9 +1,9 @@
 package com.example.treasure_and_battle.ui;
 
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,22 +13,24 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.ScaleAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.utils.LruBitmapCache;
 import com.example.treasure_and_battle.utils.TachieManager;
@@ -45,6 +47,7 @@ import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -159,6 +162,12 @@ public class BattleFragment extends Fragment {
     private static final int LOOT_ITEMS_PER_ROW = 4;
     private GestureDetector lootGestureDetector;
 
+    private DamageNumberOverlay damageNumberOverlay;
+    private FrameLayout monsterArea;
+    private DamageNumberOverlay tachieDamageOverlay;
+    private AlertDialog itemUseDialog;
+    private boolean playerInputLocked;
+
     /** 本次进入是否为继续暂存战斗（用于恢复时补跑速度条上未完成的怪物回合）。 */
     private boolean openedWithResume;
 
@@ -171,6 +180,7 @@ public class BattleFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         battleManager = BattleManager.getInstance(requireContext());
+        battleManager.setMonsterActListener(this::onMonsterWillActInUi);
         initBattleSession();
 
         tvHint = view.findViewById(R.id.tv_battle_hint);
@@ -224,6 +234,11 @@ public class BattleFragment extends Fragment {
         buffAdapter = new BuffListAdapter();
         rvBuffs.setAdapter(buffAdapter);
 
+        monsterArea = view.findViewById(R.id.monster_area);
+        damageNumberOverlay = new DamageNumberOverlay(monsterArea);
+        FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
+        tachieDamageOverlay = new DamageNumberOverlay(decor);
+
         refreshBuffLinesFromPlayer();
         bindPlayerPanel();
         bindAllMonsterSlots();
@@ -233,12 +248,125 @@ public class BattleFragment extends Fragment {
         if (openedWithResume && battleContext != null && !battleContext.isBattleEnded) {
             battleManager.runMonsterTurnsUntilPlayerTurn(battleContext);
             refreshBattleUi();
+        } else if (battleContext != null && !battleContext.isBattleEnded) {
+            playerInputLocked = true;
+            showBattleStartBanner(() -> {
+                if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                    playerInputLocked = false;
+                    return;
+                }
+                showRoundBanner(1, () -> {
+                    if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                        playerInputLocked = false;
+                        return;
+                    }
+                    playerInputLocked = false;
+                    beginSteppedBattleExecution();
+                });
+            });
         }
 
-        // 不得在 onViewCreated 同步路径里立刻 pop：会导致 Fragment 事务重入/状态错乱，多次进出战斗易闪退
         if (battleContext != null && battleContext.isBattleEnded) {
             scheduleFinishBattleAfterViewReady(view);
         }
+    }
+
+    private void showBattleStartBanner(Runnable onDone) {
+        if (monsterArea == null) {
+            onDone.run();
+            return;
+        }
+        float density = monsterArea.getResources().getDisplayMetrics().density;
+        int pad = (int) (12 * density);
+        int bannerH = (int) (48 * density);
+
+        TextView banner = new TextView(monsterArea.getContext());
+        banner.setText("战斗开始");
+        banner.setTextColor(0xFFFFFFFF);
+        banner.setTextSize(20);
+        banner.setGravity(android.view.Gravity.CENTER);
+        banner.setBackgroundColor(0xDD000000);
+        banner.setPadding(pad, pad, pad, pad);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, bannerH);
+        params.gravity = android.view.Gravity.CENTER;
+        banner.setLayoutParams(params);
+        banner.setAlpha(0f);
+
+        monsterArea.addView(banner);
+
+        android.animation.ObjectAnimator fadeIn = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 0f, 1f);
+        fadeIn.setDuration(200);
+        fadeIn.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                mainHandler.postDelayed(() -> {
+                    android.animation.ObjectAnimator fadeOut = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 1f, 0f);
+                    fadeOut.setDuration(600);
+                    fadeOut.addListener(new android.animation.AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation) {
+                            if (banner.getParent() != null) {
+                                ((ViewGroup) banner.getParent()).removeView(banner);
+                            }
+                            onDone.run();
+                        }
+                    });
+                    fadeOut.start();
+                }, 1200);
+            }
+        });
+        fadeIn.start();
+    }
+
+    private void showRoundBanner(int round, Runnable onDone) {
+        if (monsterArea == null) {
+            onDone.run();
+            return;
+        }
+        float density = monsterArea.getResources().getDisplayMetrics().density;
+        int pad = (int) (12 * density);
+        int bannerH = (int) (48 * density);
+
+        TextView banner = new TextView(monsterArea.getContext());
+        banner.setText("第" + round + "回合开始");
+        banner.setTextColor(0xFFFFFFFF);
+        banner.setTextSize(20);
+        banner.setGravity(android.view.Gravity.CENTER);
+        banner.setBackgroundColor(0xDD000000);
+        banner.setPadding(pad, pad, pad, pad);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, bannerH);
+        params.gravity = android.view.Gravity.CENTER;
+        banner.setLayoutParams(params);
+        banner.setAlpha(0f);
+
+        monsterArea.addView(banner);
+
+        android.animation.ObjectAnimator fadeIn = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 0f, 1f);
+        fadeIn.setDuration(200);
+        fadeIn.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                mainHandler.postDelayed(() -> {
+                    android.animation.ObjectAnimator fadeOut = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 1f, 0f);
+                    fadeOut.setDuration(600);
+                    fadeOut.addListener(new android.animation.AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation) {
+                            if (banner.getParent() != null) {
+                                ((ViewGroup) banner.getParent()).removeView(banner);
+                            }
+                            onDone.run();
+                        }
+                    });
+                    fadeOut.start();
+                }, 1000);
+            }
+        });
+        fadeIn.start();
     }
 
     private void scheduleFinishBattleAfterViewReady(@NonNull View root) {
@@ -298,7 +426,8 @@ public class BattleFragment extends Fragment {
             }
         }
 
-        battleContext = battleManager.bootstrapBattleForUi(player, monsters, BattleContext.SurpriseDirection.NONE);
+        battleContext = battleManager.bootstrapBattleForUi(player, monsters,
+                BattleContext.SurpriseDirection.NONE, false);
         BattleSessionHolder.setSuspended(battleContext);
     }
 
@@ -640,6 +769,7 @@ public class BattleFragment extends Fragment {
             showFloatMsg("无法释放（冷却/行动点/魔法/生命不足）");
             return;
         }
+        int hpBefore = player.getCurrentHp();
         try {
             List<BattleEntity> targets =
                     SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
@@ -651,6 +781,12 @@ public class BattleFragment extends Fragment {
         } catch (Exception e) {
             showFloatMsg("技能释放失败: " + e.getMessage());
             return;
+        }
+        int hpAfter = player.getCurrentHp();
+        if (hpAfter > hpBefore) {
+            showPlayerHealOnTachie(hpAfter - hpBefore);
+        } else if (hpAfter < hpBefore) {
+            showPlayerDamageOnTachie(hpBefore - hpAfter);
         }
 
         battleManager.checkDeath(battleContext);
@@ -680,6 +816,7 @@ public class BattleFragment extends Fragment {
                 showFloatMsg("行动点不足，无法使用道具");
                 return;
             }
+            int hpBefore = player.getCurrentHp();
             boolean hasEffects = item.getEffects() != null && !item.getEffects().isEmpty();
             boolean ok;
             if (hasEffects) {
@@ -688,25 +825,34 @@ public class BattleFragment extends Fragment {
                 applyFallbackBattleConsumable(item);
                 ok = true;
             }
+            int hpAfter = player.getCurrentHp();
             if (!ok) {
                 player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
                 showFloatMsg("无法使用该道具");
                 return;
+            }
+            if (hpAfter > hpBefore) {
+                showPlayerHealOnTachie(hpAfter - hpBefore);
             }
             consumeOneFromBag(item, usable);
             if (adapterHolder[0] != null) {
                 adapterHolder[0].notifyDataSetChanged();
             }
             afterPlayerActionUi();
+            if (itemUseDialog != null && itemUseDialog.isShowing()) {
+                itemUseDialog.dismiss();
+                itemUseDialog = null;
+            }
             showFloatMsg("已使用：" + item.getName());
         });
         rv.setAdapter(adapterHolder[0]);
 
-        new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+        itemUseDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setTitle("道具")
                 .setView(content)
-                .setNegativeButton("关闭", null)
-                .show();
+                .setNegativeButton("关闭", (d, w) -> itemUseDialog = null)
+                .create();
+        itemUseDialog.show();
     }
 
     private void onEscape() {
@@ -807,14 +953,59 @@ public class BattleFragment extends Fragment {
             showFloatMsg("战斗已结束");
             return false;
         }
+        if (playerInputLocked) {
+            return false;
+        }
         return true;
     }
 
     /** 玩家行动后刷新 UI；需要玩家主动点击"结束回合"来推进。 */
     private void afterPlayerActionUi() {
-        refreshBattleUi();
-        if (battleContext.isBattleEnded) {
-            finishBattleAndExit();
+        animatePlayerAttack(() -> {
+            showDamageForPlayerAction();
+            refreshBattleUi();
+            if (battleContext.isBattleEnded) {
+                finishBattleAndExit();
+            }
+        });
+    }
+
+    private void animatePlayerAttack(Runnable onDone) {
+        if (ivBattleTachie == null) {
+            onDone.run();
+            return;
+        }
+        float density = ivBattleTachie.getResources().getDisplayMetrics().density;
+        float upOffset = 24f * density;
+
+        android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(
+                ivBattleTachie, "translationY", 0f, -upOffset);
+        up.setDuration(250);
+        up.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
+                        ivBattleTachie, "translationY", -upOffset, 0f);
+                down.setDuration(250);
+                down.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        onDone.run();
+                    }
+                });
+                down.start();
+            }
+        });
+        up.start();
+    }
+
+    private void showDamageForPlayerAction() {
+        if (battleContext == null || damageNumberOverlay == null) return;
+        if (!battleContext.isHit || battleContext.finalDamage <= 0) return;
+
+        BattleEntity target = battleContext.currentTarget;
+        if (target instanceof Monster) {
+            showPlayerDamageOnMonster((Monster) target, battleContext.finalDamage);
         }
     }
 
@@ -827,25 +1018,210 @@ public class BattleFragment extends Fragment {
 
     private void updateEndTurnButton() {
         if (btnEndTurn == null) return;
-        boolean isPlayerTurn = battleContext != null
+        boolean canAct = battleContext != null
                 && !battleContext.isBattleEnded
-                && battleContext.isPlayerTurn;
-        btnEndTurn.setEnabled(isPlayerTurn && !endTurnCooldown);
+                && !playerInputLocked;
+        btnEndTurn.setEnabled(canAct && !endTurnCooldown);
     }
 
     private void onEndTurnClicked() {
         if (endTurnCooldown || battleContext == null || battleContext.isBattleEnded) return;
-        if (!battleContext.isPlayerTurn) return;
+        if (playerInputLocked) return;
         endTurnCooldown = true;
         btnEndTurn.setEnabled(false);
-        battleManager.onPlayerTurnFullySpent(battleContext);
-        mainHandler.postDelayed(() -> {
-            endTurnCooldown = false;
+        battleContext.actionOrderIndex++;
+        runMonsterTurnsStepped();
+    }
+
+    private void beginSteppedBattleExecution() {
+        if (battleContext == null || battleContext.isBattleEnded) {
             refreshBattleUi();
-            if (battleContext.isBattleEnded) {
-                finishBattleAndExit();
+            if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
+            return;
+        }
+        refreshBattleUi();
+        if (playerInputLocked) {
+            playerInputLocked = false;
+            refreshBattleUi();
+        }
+        runMonsterTurnsSteppedInternal(false);
+    }
+
+    private void runMonsterTurnsStepped() {
+        runMonsterTurnsSteppedInternal(true);
+    }
+
+    private void runMonsterTurnsSteppedInternal(boolean isEndTurn) {
+        if (battleContext == null) {
+            if (isEndTurn) endTurnCooldown = false;
+            return;
+        }
+        if (battleContext.isBattleEnded) {
+            if (isEndTurn) endTurnCooldown = false;
+            refreshBattleUi();
+            finishBattleAndExit();
+            return;
+        }
+        int roundBefore = battleContext.currentRound;
+        battleContext.resetDamageData();
+        Monster m = battleManager.stepOneMonsterAction(battleContext);
+        int roundAfter = battleContext.currentRound;
+        final boolean playerDead = battleContext.isBattleEnded;
+
+        if (roundAfter != roundBefore && !battleContext.isBattleEnded) {
+            if (isEndTurn) endTurnCooldown = false;
+            if (m != null) {
+                int slotIdx = findMonsterSlotIndex(m);
+                animateMonsterAttack(m, slotIdx, () -> {
+                    showDamageForLastAction();
+                    refreshBattleUi();
+                    playerInputLocked = true;
+                    showRoundBanner(roundAfter, () -> {
+                        if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                            playerInputLocked = false;
+                            if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
+                            return;
+                        }
+                        playerInputLocked = false;
+                        refreshBattleUi();
+                        runMonsterTurnsStepped();
+                    });
+                });
+            } else {
+                playerInputLocked = true;
+                refreshBattleUi();
+                showRoundBanner(roundAfter, () -> {
+                    if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                        playerInputLocked = false;
+                        if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
+                        return;
+                    }
+                    playerInputLocked = false;
+                    refreshBattleUi();
+                });
             }
-        }, 300);
+            return;
+        }
+
+        if (m == null) {
+            if (isEndTurn) endTurnCooldown = false;
+            refreshBattleUi();
+            if (battleContext.isBattleEnded) finishBattleAndExit();
+            return;
+        }
+        int slotIdx = findMonsterSlotIndex(m);
+        animateMonsterAttack(m, slotIdx, () -> {
+            showDamageForLastAction();
+            refreshBattleUi();
+            if (playerDead) {
+                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                return;
+            }
+            if (battleContext.isBattleEnded) {
+                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                return;
+            }
+            mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
+        });
+    }
+
+    private void animateMonsterAttack(Monster m, int slotIdx, Runnable onDone) {
+        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) {
+            onDone.run();
+            return;
+        }
+        View slot = slotRoots[slotIdx];
+        float density = slot.getResources().getDisplayMetrics().density;
+        float downOffset = 24f * density;
+
+        android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(slot, "translationY", 0f, downOffset);
+        down.setDuration(250);
+        down.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(slot, "translationY", downOffset, 0f);
+                up.setDuration(250);
+                up.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        onDone.run();
+                    }
+                });
+                up.start();
+            }
+        });
+        down.start();
+    }
+
+    private void onMonsterWillActInUi(Monster monster) {
+    }
+
+    private int findMonsterSlotIndex(Monster m) {
+        for (int i = 0; i < 5; i++) {
+            Monster slotM = monsterAtSlot(i);
+            if (slotM != null && slotM == m) return i;
+        }
+        return -1;
+    }
+
+    private void showDamageForLastAction() {
+        if (battleContext == null || damageNumberOverlay == null || monsterArea == null) return;
+        if (!battleContext.isHit || battleContext.finalDamage <= 0) return;
+
+        BattleEntity target = battleContext.currentTarget;
+        if (target instanceof Monster) {
+            int slotIdx = findMonsterSlotIndex((Monster) target);
+            if (slotIdx >= 0 && slotIdx < slotRoots.length && slotRoots[slotIdx] != null) {
+                View slot = slotRoots[slotIdx];
+                int[] loc = new int[2];
+                slot.getLocationOnScreen(loc);
+                int[] parentLoc = new int[2];
+                monsterArea.getLocationOnScreen(parentLoc);
+                int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
+                int cy = loc[1] - parentLoc[1];
+                damageNumberOverlay.showDamage(cx, cy, battleContext.finalDamage);
+            }
+        } else if (target instanceof Player && ivBattleTachie != null) {
+            showPlayerDamageOnTachie(battleContext.finalDamage);
+        }
+    }
+
+    private void showPlayerDamageOnTachie(int damage) {
+        if (tachieDamageOverlay == null || ivBattleTachie == null || damage <= 0) return;
+        FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
+        int[] loc = new int[2];
+        ivBattleTachie.getLocationOnScreen(loc);
+        int[] parentLoc = new int[2];
+        decor.getLocationOnScreen(parentLoc);
+        int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
+        int cy = loc[1] - parentLoc[1];
+        tachieDamageOverlay.showDamage(cx, cy, damage);
+    }
+
+    public void showPlayerHealOnTachie(int healAmount) {
+        if (tachieDamageOverlay == null || ivBattleTachie == null || healAmount <= 0) return;
+        FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
+        int[] loc = new int[2];
+        ivBattleTachie.getLocationOnScreen(loc);
+        int[] parentLoc = new int[2];
+        decor.getLocationOnScreen(parentLoc);
+        int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
+        int cy = loc[1] - parentLoc[1];
+        tachieDamageOverlay.showHeal(cx, cy, healAmount);
+    }
+
+    private void showPlayerDamageOnMonster(Monster m, int damage) {
+        if (damageNumberOverlay == null || monsterArea == null || damage <= 0) return;
+        int slotIdx = findMonsterSlotIndex(m);
+        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) return;
+        View slot = slotRoots[slotIdx];
+        int[] loc = new int[2];
+        slot.getLocationOnScreen(loc);
+        int[] parentLoc = new int[2];
+        monsterArea.getLocationOnScreen(parentLoc);
+        int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
+        int cy = loc[1] - parentLoc[1];
+        damageNumberOverlay.showDamage(cx, cy, damage);
     }
 
     private void onTachieClick() {
@@ -939,6 +1315,9 @@ public class BattleFragment extends Fragment {
         if (statsSheet != null && statsSheet.isShowing()) {
             statsSheet.dismiss();
         }
+        if (battleManager != null) {
+            battleManager.setMonsterActListener(null);
+        }
         dismissLootPanel();
     }
 
@@ -954,7 +1333,7 @@ public class BattleFragment extends Fragment {
 
     private void showFloatMsg(String text) {
         if (!isAdded() || getActivity() == null) return;
-        FloatMsgOverlay.show(getActivity(), text);
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 
     private void tryAdvanceIfPlayerOutOfAp() {
@@ -1350,45 +1729,126 @@ public class BattleFragment extends Fragment {
     }
 
     private void showMonsterInspectDialog(@NonNull Monster m) {
-        StringBuilder msg = new StringBuilder();
+        View root = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_item_detail, null, false);
+        TextView title = root.findViewById(R.id.tv_detail_title);
+        TextView body = root.findViewById(R.id.tv_detail_body);
+        ImageView icon = root.findViewById(R.id.iv_detail_icon);
+
+        title.setText(m.getName());
+        Rarity rarity = m.getRarity();
+        if (rarity != null) {
+            title.setTextColor(rarity.getColor());
+        } else {
+            title.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_gold_deep));
+        }
+
+        body.setText(HtmlCompat.fromHtml(buildMonsterDetailHtml(m), HtmlCompat.FROM_HTML_MODE_LEGACY));
+
+        if (icon != null) {
+            GameAssetIcons.bindMonster(requireContext(), icon, m.getEntityId(), R.drawable.ic_map);
+            icon.setVisibility(View.VISIBLE);
+        }
+
+        MaterialAlertDialogBuilder builder =
+                new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog);
+        builder.setView(root);
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        View close = root.findViewById(R.id.btn_detail_close);
+        close.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+    }
+
+    private String buildMonsterDetailHtml(@NonNull Monster m) {
+        StringBuilder sb = new StringBuilder();
+
+        Rarity rarity = m.getRarity();
+        appendHtmlLine(sb, "等级", "Lv." + m.getLevel());
+        appendHtmlLine(sb, "品质", rarity != null ? rarity.getDisplayName() : "?");
+        AttributeSet attr = m.getFinalAttributes();
+        if (attr != null) {
+            sb.append("<b>【基础属性】</b><br>");
+            appendStatIfNonZero(sb, "生命上限", attr.maxHp);
+            appendStatIfNonZero(sb, "法力上限", attr.maxMp);
+            appendStatIfNonZero(sb, "物理攻击", attr.physicalAtk);
+            appendStatIfNonZero(sb, "魔法攻击", attr.magicalAtk);
+            appendStatIfNonZero(sb, "物理防御", attr.physicalDef);
+            appendStatIfNonZero(sb, "魔法防御", attr.magicalDef);
+            appendStatIfNonZero(sb, "速度", attr.speed);
+            appendFloatStatIfNonZero(sb, "物理暴击率", attr.physicalCritRate);
+            appendFloatStatIfNonZero(sb, "闪避率", attr.dodgeRate);
+        }
+
+        List<BaseAffix> affixes = m.getEntityAffixList();
+        if (affixes != null && !affixes.isEmpty()) {
+            sb.append("<b>【词缀】</b><br>");
+            for (BaseAffix affix : affixes) {
+                if (affix == null) continue;
+                String desc = affix.getDescription();
+                if (desc == null || desc.isEmpty()) continue;
+                String colorHex = colorToHex(affix.getRarity() != null
+                        ? affix.getRarity().getColor() : 0xFF888888);
+                sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
+                sb.append(android.text.TextUtils.htmlEncode(desc)).append("<br>");
+            }
+        }
+
+        List<BaseBuff> buffs = m.getActiveBuffList();
+        sb.append("<b>【Buff】</b><br>");
+        if (buffs == null || buffs.isEmpty()) {
+            sb.append("无<br>");
+        } else {
+            for (BaseBuff b : buffs) {
+                if (b == null) continue;
+                int dur = b.getRemainingDuration();
+                sb.append("· ").append(b.getBuffName())
+                        .append(" 层").append(b.getStackCount())
+                        .append(" 剩").append(dur).append("回合<br>");
+            }
+        }
+
         if (battleContext != null && battleContext.monsterRevealedIntents != null) {
             List<RevealedIntent> revealed = battleContext.monsterRevealedIntents.get(m.getEntityId());
-            msg.append("【意图】\n");
+            sb.append("<b>【意图】</b><br>");
             if (revealed == null || revealed.isEmpty()) {
-                msg.append("本轮暂无揭示意图。\n");
+                sb.append("本轮暂无揭示意图。<br>");
             } else {
                 for (RevealedIntent ri : revealed) {
-                    if (ri == null) {
-                        continue;
-                    }
+                    if (ri == null) continue;
                     if (ri.seenThrough && ri.intent != null) {
                         ActionIntent in = ri.intent;
-                        msg.append(String.format("· %s（%s） AP%d MP%d\n",
+                        sb.append(String.format("· %s（%s） AP%d MP%d<br>",
                                 in.getName(), in.getType().name(), in.getApCost(), in.getMpCost()));
                     } else {
-                        msg.append("· （未看破）\n");
+                        sb.append("· （未看破）<br>");
                     }
                 }
             }
         }
-        msg.append("\n【Buff】\n");
-        if (m.getActiveBuffList() == null || m.getActiveBuffList().isEmpty()) {
-            msg.append("无");
-        } else {
-            for (BaseBuff b : m.getActiveBuffList()) {
-                if (b == null) {
-                    continue;
-                }
-                int dur = b.getRemainingDuration();
-                msg.append(String.format("· %s 层%d 剩%d回合\n",
-                        b.getBuffName(), b.getStackCount(), dur));
-            }
-        }
-        new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
-                .setTitle(m.getName())
-                .setMessage(msg.toString().trim())
-                .setPositiveButton("关闭", null)
-                .show();
+
+        return sb.toString();
+    }
+
+    private static void appendHtmlLine(StringBuilder sb, String label, String value) {
+        if (value == null || value.isEmpty()) return;
+        sb.append("<b>").append(label).append("：</b>").append(value).append("<br>");
+    }
+
+    private static void appendStatIfNonZero(StringBuilder sb, String label, int v) {
+        if (v != 0) sb.append(label).append("：").append(v).append("<br>");
+    }
+
+    private static void appendFloatStatIfNonZero(StringBuilder sb, String label, float v) {
+        if (Math.abs(v) > 0.0001f) sb.append(label).append("：").append(String.format("%.1f%%", v * 100f)).append("<br>");
+    }
+
+    private static String colorToHex(int color) {
+        return String.format("#%06X", 0xFFFFFF & color);
     }
 
     private String summarizeResult() {

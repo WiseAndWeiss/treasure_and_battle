@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -167,7 +166,7 @@ public class SkillFragment extends Fragment {
         character.gainExp(exp);
         refreshCharacterPanels();
         reloadSkillsForCurrentTab();
-        Toast.makeText(getContext(), "已获得 " + exp + " 经验", Toast.LENGTH_SHORT).show();
+        showFloatMsg("已获得 " + exp + " 经验");
     }
 
     private void grantDebugTalentPoints(int amount) {
@@ -176,7 +175,7 @@ public class SkillFragment extends Fragment {
         }
         character.addTalentPoints(amount);
         refreshCharacterPanels();
-        Toast.makeText(getContext(), "已获得 " + amount + " 天赋点", Toast.LENGTH_SHORT).show();
+        showFloatMsg("已获得 " + amount + " 天赋点");
     }
 
     private void grantDebugSkillPoints(int amount) {
@@ -186,7 +185,7 @@ public class SkillFragment extends Fragment {
         character.addSkillPoints(amount);
         refreshCharacterPanels();
         reloadSkillsForCurrentTab();
-        Toast.makeText(getContext(), "已获得 " + amount + " 技能点", Toast.LENGTH_SHORT).show();
+        showFloatMsg("已获得 " + amount + " 技能点");
     }
 
     private void tryAllocateTalent(PlayerManager pm, String attributeName) {
@@ -194,7 +193,7 @@ public class SkillFragment extends Fragment {
             return;
         }
         if (!pm.allocateTalentPoint(character, attributeName)) {
-            Toast.makeText(getContext(), "天赋点不足或分配失败", Toast.LENGTH_SHORT).show();
+            showFloatMsg("天赋点不足或分配失败");
             return;
         }
         refreshCharacterPanels();
@@ -427,21 +426,21 @@ public class SkillFragment extends Fragment {
             return;
         }
         if (character.getSkillPoints() <= 0) {
-            Toast.makeText(getContext(), "技能点不足", Toast.LENGTH_SHORT).show();
+            showFloatMsg("技能点不足");
             return;
         }
         if (!profession.canLevelUpSkill(row.skillId)) {
-            Toast.makeText(getContext(), "当前无法学习或升级该技能", Toast.LENGTH_SHORT).show();
+            showFloatMsg("当前无法学习或升级该技能");
             return;
         }
         if (!profession.levelUpSkill(row.skillId)) {
-            Toast.makeText(getContext(), "升级失败", Toast.LENGTH_SHORT).show();
+            showFloatMsg("升级失败");
             return;
         }
         if (!SkillUiBridge.trySpendOneSkillPoint(character)) {
-            Toast.makeText(getContext(), "技能点扣减异常，请重进游戏", Toast.LENGTH_SHORT).show();
+            showFloatMsg("技能点扣减异常，请重进游戏");
         }
-        Toast.makeText(getContext(), "已升级：" + row.name, Toast.LENGTH_SHORT).show();
+        showFloatMsg("已升级：" + row.name);
         refreshCharacterPanels();
         reloadSkillsForCurrentTab();
     }
@@ -609,7 +608,7 @@ public class SkillFragment extends Fragment {
             holder.itemView.setOnClickListener(clickDetail);
             holder.btnAdd.setOnClickListener(v -> {
                 if (!item.canPressAction) {
-                    Toast.makeText(v.getContext(), "技能点不足或已达上限/未满足前置", Toast.LENGTH_SHORT).show();
+                    host.showFloatMsg("技能点不足或已达上限/未满足前置");
                     return;
                 }
                 host.onSkillUpgradeClicked(item);
@@ -669,5 +668,10 @@ public class SkillFragment extends Fragment {
                 compactApplied = true;
             }
         }
+    }
+
+    private void showFloatMsg(String text) {
+        if (!isAdded() || getActivity() == null) return;
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 }
