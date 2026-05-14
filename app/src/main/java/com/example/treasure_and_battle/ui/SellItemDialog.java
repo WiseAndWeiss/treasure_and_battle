@@ -1,11 +1,12 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,13 +40,13 @@ public final class SellItemDialog {
             return;
         }
         if (bagSlots.get(bagIndex) != item) {
-            Toast.makeText(context, "物品已变化，请重试", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "物品已变化，请重试");
             return;
         }
 
         int unit = unitSellPrice(item);
         if (unit <= 0) {
-            Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "该物品无法出售");
             return;
         }
 
@@ -53,14 +54,22 @@ public final class SellItemDialog {
         if (!needsQuantityPicker) {
             int qty = item.getCount();
             int pay = unit * qty;
+            View simpleRoot = LayoutInflater.from(context).inflate(R.layout.dialog_treasure_alert, null, false);
+            TextView st = simpleRoot.findViewById(R.id.tv_treasure_alert_title);
+            TextView sm = simpleRoot.findViewById(R.id.tv_treasure_alert_message);
+            st.setText("出售");
+            sm.setText("以 " + pay + " 金币出售「" + item.getName() + "」？");
             MaterialAlertDialogBuilder simple = new MaterialAlertDialogBuilder(
                     context, R.style.ThemeOverlay_Tb_ItemDetailDialog);
-            simple.setTitle("出售");
-            simple.setMessage("以 " + pay + " 金币出售「" + item.getName() + "」？");
+            simple.setView(simpleRoot);
             simple.setNegativeButton("取消", null);
             simple.setPositiveButton("出售", (d, w) ->
                     trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned));
-            simple.show();
+            AlertDialog simpleDlg = simple.create();
+            simpleDlg.show();
+            if (simpleDlg.getWindow() != null) {
+                simpleDlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            }
             return;
         }
 
@@ -137,16 +146,16 @@ public final class SellItemDialog {
         }
         Item item = bagSlots.get(bagIndex);
         if (item != expectedItem) {
-            Toast.makeText(context, "物品已变化", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "物品已变化");
             return false;
         }
         if (qty <= 0 || qty > item.getCount()) {
-            Toast.makeText(context, "数量无效", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "数量无效");
             return false;
         }
         int unit = unitSellPrice(item);
         if (unit <= 0) {
-            Toast.makeText(context, "该物品无法出售", Toast.LENGTH_SHORT).show();
+            FloatMsgOverlay.showFloatMsg(context, "该物品无法出售");
             return false;
         }
         int pay = unit * qty;
@@ -158,7 +167,7 @@ public final class SellItemDialog {
         if (onGoldEarned != null) {
             onGoldEarned.accept(pay);
         }
-        Toast.makeText(context, "已出售，获得 " + pay + " 金币", Toast.LENGTH_SHORT).show();
+        FloatMsgOverlay.showFloatMsg(context, "已出售，获得 " + pay + " 金币");
         if (onSold != null) {
             onSold.run();
         }

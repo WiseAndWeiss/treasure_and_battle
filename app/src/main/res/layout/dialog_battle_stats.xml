@@ -3,8 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_panel_treasure"
-    android:padding="16dp">
+    android:background="@drawable/bg_panel_treasure_fill_only"
+    android:foreground="@drawable/bg_panel_treasure_stroke_only"
+    android:padding="19dp">
 
     <TextView
         android:layout_width="match_parent"

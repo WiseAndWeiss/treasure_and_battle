@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tv_battle_buff_row"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_tab_idle"
-    android:ellipsize="end"
-    android:maxLines="2"
-    android:paddingHorizontal="8dp"
-    android:paddingVertical="8dp"
-    android:textColor="@color/tb_text_main"
-    android:textSize="12sp" />
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/bg_panel_treasure_fill_only"
+    android:foreground="@drawable/bg_panel_treasure_stroke_only"
+    android:padding="3dp">
+
+    <TextView
+        android:id="@+id/tv_battle_buff_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:paddingHorizontal="11dp"
+        android:paddingVertical="11dp"
+        android:textColor="@color/tb_text_main"
+        android:textSize="12sp" />
+</FrameLayout>

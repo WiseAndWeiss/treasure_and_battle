@@ -2,6 +2,8 @@ package com.example.treasure_and_battle.manager.battle;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import com.example.treasure_and_battle.battle.RewardCalculator;
 import com.example.treasure_and_battle.battle.action.BattleAction;
 import com.example.treasure_and_battle.battle.BattleContext;
@@ -41,6 +43,17 @@ public class BattleManager {
     private Context context;
     private BattleContext currentBattleContext;
 
+    public interface MonsterActListener {
+        void onMonsterWillAct(Monster monster);
+    }
+
+    @Nullable
+    private MonsterActListener monsterActListener;
+
+    public void setMonsterActListener(@Nullable MonsterActListener listener) {
+        this.monsterActListener = listener;
+    }
+
     private BattleManager(Context context) {
         this.context = context.getApplicationContext();
     }
@@ -72,11 +85,22 @@ public class BattleManager {
      * {@link #onPlayerTurnFullySpent(BattleContext)} 继续。
      */
     public BattleContext bootstrapBattleForUi(Player player, List<Monster> monsters, SurpriseDirection surpriseAttacker) {
+        return bootstrapBattleForUi(player, monsters, surpriseAttacker, true);
+    }
+
+    /**
+     * 与 {@link #bootstrapBattleForUi} 相同，但 runMonsters=false 时跳过怪物预先行动，
+     * 用于战斗开始横幅场景：横幅结束后再由 UI 逐步驱动怪物行动。
+     */
+    public BattleContext bootstrapBattleForUi(Player player, List<Monster> monsters,
+                                              SurpriseDirection surpriseAttacker, boolean runMonsters) {
         BattleContext ctx = createAndInitBattle(player, monsters, surpriseAttacker);
         if (!beginRoundForUi(ctx)) {
             return ctx;
         }
-        runMonsterTurnsUntilPlayerTurn(ctx);
+        if (runMonsters) {
+            runMonsterTurnsUntilPlayerTurn(ctx);
+        }
         return ctx;
     }
 
@@ -161,7 +185,11 @@ public class BattleManager {
                 return;
             }
 
-            monsterActionPhaseFor(ctx, (Monster) actor);
+            Monster actingMonster = (Monster) actor;
+            if (monsterActListener != null) {
+                monsterActListener.onMonsterWillAct(actingMonster);
+            }
+            monsterActionPhaseFor(ctx, actingMonster);
             ctx.actionOrderIndex++;
             checkDeath(ctx);
         }
@@ -177,6 +205,54 @@ public class BattleManager {
         }
         ctx.actionOrderIndex++;
         runMonsterTurnsUntilPlayerTurn(ctx);
+    }
+
+    /**
+     * UI 驱动模式：执行速度条上当前怪物的行动，返回执行结果。
+     * @return 当前在行动的怪物，或 null 表示轮到玩家 / 战斗结束。
+     */
+    @Nullable
+    public Monster stepOneMonsterAction(BattleContext ctx) {
+        if (ctx == null || ctx.isBattleEnded) return null;
+
+        if (ctx.roundActionOrder == null) {
+            ctx.roundActionOrder = new ArrayList<>();
+        }
+
+        if (ctx.actionOrderIndex >= ctx.roundActionOrder.size()) {
+            onRoundEnd(ctx);
+            if (ctx.isBattleEnded) return null;
+            if (!beginRoundForUi(ctx)) return null;
+        }
+
+        BattleEntity actor = ctx.roundActionOrder.get(ctx.actionOrderIndex);
+        if (actor.isDead()) {
+            ctx.actionOrderIndex++;
+            return stepOneMonsterAction(ctx);
+        }
+
+        ctx.currentActor = actor;
+        ctx.currentTarget = ctx.getPrimaryMonsterTarget();
+        if (ctx.currentTarget == null) {
+            ctx.currentTarget = ctx.player;
+        }
+
+        ctx.addLog(LogType.ROUND_INFO, "轮到 [%s] 行动", actor.getName());
+
+        if (actor instanceof Player) {
+            ctx.currentActionPoints = ctx.player.getCurrentActionPoints();
+            ctx.addLog(LogType.ROUND_INFO, "玩家回合，行动点: %d", ctx.currentActionPoints);
+            return null;
+        }
+
+        Monster actingMonster = (Monster) actor;
+        if (monsterActListener != null) {
+            monsterActListener.onMonsterWillAct(actingMonster);
+        }
+        monsterActionPhaseFor(ctx, actingMonster);
+        ctx.actionOrderIndex++;
+        checkDeath(ctx);
+        return actingMonster;
     }
 
     // ====================== 2. 战斗主循环（全自动，含玩家自动普攻） ======================

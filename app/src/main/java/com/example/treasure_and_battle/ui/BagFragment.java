@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.ui;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.DragEvent;
@@ -19,10 +19,10 @@ import android.widget.ProgressBar;
 import androidx.appcompat.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -44,6 +44,7 @@ import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.example.treasure_and_battle.utils.TachieManager;
 
 import java.util.ArrayList;
@@ -367,20 +368,29 @@ public class BagFragment extends Fragment {
         menuProviderFactory = new ItemMenuProviderFactory(
                 requireContext(),
                 item -> ItemDetailDialog.show(requireContext(), item),
-                item -> new AlertDialog.Builder(requireContext())
-                        .setTitle("确认丢弃")
-                        .setMessage("确定要丢弃 " + item.getName() + " 吗？")
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            int index = findItemIndex(item);
-                            if (index >= 0) {
-                                allItems.set(index, null);
-                            }
-                            adapter.notifyDataSetChanged();
-                            persistSharedBagGridToInventory();
-                            Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("取消", null)
-                        .show()
+                item -> {
+                    View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                    ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
+                    ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(
+                            "确定要丢弃 " + item.getName() + " 吗？");
+                    AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                            .setView(content)
+                            .setPositiveButton("确定", (dialog, which) -> {
+                                int index = findItemIndex(item);
+                                if (index >= 0) {
+                                    allItems.set(index, null);
+                                }
+                                adapter.notifyDataSetChanged();
+                                persistSharedBagGridToInventory();
+                                showFloatMsg("已丢弃: " + item.getName());
+                            })
+                            .setNegativeButton("取消", null)
+                            .create();
+                    d.show();
+                    if (d.getWindow() != null) {
+                        d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                    }
+                }
         );
         menuProviderFactory.registerEquipment(equipItem -> {
             int bagIndex = findItemIndex(equipItem);
@@ -406,7 +416,7 @@ public class BagFragment extends Fragment {
                 }
                 adapter.notifyDataSetChanged();
                 persistSharedBagGridToInventory();
-                Toast.makeText(getContext(), "已使用: " + consumableItem.getName(), Toast.LENGTH_SHORT).show();
+                showFloatMsg("已使用: " + consumableItem.getName());
             }
         });
         menuProviderFactory.registerGem();
@@ -489,13 +499,13 @@ public class BagFragment extends Fragment {
                     try {
                         int targetPos = findBagAdapterPositionByLocalPoint(event.getX(), event.getY());
                         if (targetPos < 0) {
-                            Toast.makeText(getContext(), "请拖到背包格子内再松手", Toast.LENGTH_SHORT).show();
+                            showFloatMsg("请拖到背包格子内再松手");
                             return true;
                         }
                         int realIndex = (currentPage - 1) * itemsPerPage + targetPos;
                         if (realIndex < 0 || realIndex >= allItems.size()) return true;
                         if (allItems.get(realIndex) != null) {
-                            Toast.makeText(getContext(), "目标格子已有物品", Toast.LENGTH_SHORT).show();
+                            showFloatMsg("目标格子已有物品");
                             return true;
                         }
 
@@ -505,7 +515,7 @@ public class BagFragment extends Fragment {
                         updateEquipSlotView(slotId, null);
                         adapter.notifyDataSetChanged();
                         persistSharedBagGridToInventory();
-                        Toast.makeText(getContext(), "已拖拽卸下: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
+                        showFloatMsg("已拖拽卸下: " + equipItem.getName());
                         return true;
                     } finally {
                         finishEquipSlotDragSession();
@@ -613,7 +623,7 @@ public class BagFragment extends Fragment {
     private boolean startDragFromEquipSlot(View slotView, int slotViewId) {
         EquipItem equipped = equippedItems.get(slotViewId);
         if (equipped == null) {
-            Toast.makeText(getContext(), "该槽位暂无装备", Toast.LENGTH_SHORT).show();
+            showFloatMsg("该槽位暂无装备");
             return false;
         }
         ClipData dragData = ClipData.newPlainText(DRAG_LABEL_EQUIP_FROM_SLOT, String.valueOf(slotViewId));
@@ -630,7 +640,7 @@ public class BagFragment extends Fragment {
         if (equipped == null) {
             EquipSlot slotFilter = resolveFilterSlotByViewId(slotViewId);
             if (slotFilter == null) {
-                Toast.makeText(getContext(), "该槽位暂不支持筛选", Toast.LENGTH_SHORT).show();
+                showFloatMsg("该槽位暂不支持筛选");
                 return;
             }
             if (currentFilterSlot == slotFilter) {
@@ -651,7 +661,7 @@ public class BagFragment extends Fragment {
             compactAllItemsForward();
             adapter.notifyDataSetChanged();
             persistSharedBagGridToInventory();
-            Toast.makeText(getContext(), "已向前整理背包", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已向前整理背包");
         });
         btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
@@ -777,9 +787,9 @@ public class BagFragment extends Fragment {
             persistSharedBagGridToInventory();
         }
         if (slot == null) {
-            Toast.makeText(getContext(), "已取消筛选", Toast.LENGTH_SHORT).show();
+            showFloatMsg("已取消筛选");
         } else {
-            Toast.makeText(getContext(), "已筛选: " + getSlotLabel(slot), Toast.LENGTH_SHORT).show();
+            showFloatMsg("已筛选: " + getSlotLabel(slot));
         }
     }
 
@@ -1113,13 +1123,13 @@ public class BagFragment extends Fragment {
 
         Item sourceItem = allItems.get(sourceIndex);
         if (!(sourceItem instanceof EquipItem)) {
-            Toast.makeText(getContext(), "只能把装备拖入装备栏", Toast.LENGTH_SHORT).show();
+            showFloatMsg("只能把装备拖入装备栏");
             return true;
         }
 
         EquipItem draggedEquip = (EquipItem) sourceItem;
         if (!canEquipToSlotView(targetSlotViewId, draggedEquip.getSlot())) {
-            Toast.makeText(getContext(), "该槽位与装备类型不匹配", Toast.LENGTH_SHORT).show();
+            showFloatMsg("该槽位与装备类型不匹配");
             return true;
         }
 
@@ -1129,7 +1139,7 @@ public class BagFragment extends Fragment {
         allItems.set(sourceIndex, previousEquip);
         updateEquipSlotView(targetSlotViewId, draggedEquip);
 
-        Toast.makeText(getContext(), "已装备: " + draggedEquip.getName(), Toast.LENGTH_SHORT).show();
+        showFloatMsg("已装备: " + draggedEquip.getName());
         return true;
     }
 
@@ -1277,26 +1287,32 @@ public class BagFragment extends Fragment {
                     updateEquipSlotView(slotViewId, null);
                     adapter.notifyDataSetChanged();
                     persistSharedBagGridToInventory();
-                    Toast.makeText(getContext(), "已卸下: " + item.getName(), Toast.LENGTH_SHORT).show();
+                    showFloatMsg("已卸下: " + item.getName());
                 } else {
-                    Toast.makeText(getContext(), "背包已满，无法卸下", Toast.LENGTH_SHORT).show();
+                    showFloatMsg("背包已满，无法卸下");
                 }
                 return true;
             }
             if (menuItem.getItemId() == 3) {
                 String msg = item.getName() + "\n品质: " + item.getRarity().getDisplayName()
                         + "\n数量: " + item.getCount();
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("确认丢弃")
-                        .setMessage(msg)
+                View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
+                ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(msg);
+                AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                        .setView(content)
                         .setPositiveButton("确认丢弃", (dialog, which) -> {
                             equippedItems.remove(slotViewId);
                             syncCharacterUnequip(slotViewId);
                             updateEquipSlotView(slotViewId, null);
-                            Toast.makeText(getContext(), "已丢弃: " + item.getName(), Toast.LENGTH_SHORT).show();
+                            showFloatMsg("已丢弃: " + item.getName());
                         })
                         .setNegativeButton("取消", null)
-                        .show();
+                        .create();
+                d.show();
+                if (d.getWindow() != null) {
+                    d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                }
                 return true;
             }
             return false;
@@ -1385,7 +1401,7 @@ public class BagFragment extends Fragment {
     private boolean autoEquipFromBag(int bagIndex, EquipItem equipItem) {
         int targetSlotId = resolveAutoEquipSlotId(equipItem);
         if (targetSlotId == -1) {
-            Toast.makeText(getContext(), "没有可用的装备槽位", Toast.LENGTH_SHORT).show();
+            showFloatMsg("没有可用的装备槽位");
             return false;
         }
 
@@ -1394,7 +1410,7 @@ public class BagFragment extends Fragment {
         syncCharacterEquip(targetSlotId, equipItem);
         updateEquipSlotView(targetSlotId, equipItem);
         allItems.set(bagIndex, previousEquip);
-        Toast.makeText(getContext(), "已装备: " + equipItem.getName(), Toast.LENGTH_SHORT).show();
+        showFloatMsg("已装备: " + equipItem.getName());
         return true;
     }
 
@@ -1553,5 +1569,10 @@ public class BagFragment extends Fragment {
                 tvBagStackCount = itemView.findViewById(R.id.tv_bag_stack_count);
             }
         }
+    }
+
+    private void showFloatMsg(String text) {
+        if (!isAdded() || getActivity() == null) return;
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 }
