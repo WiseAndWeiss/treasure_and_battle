@@ -531,6 +531,59 @@ public class BattleFragment extends Fragment {
         }
     }
 
+    /**
+     * 战斗中使用道具时，仅当存在「对单体敌人」的伤害类效果时才需要点选怪物；
+     * 治疗/增益/净化/逃跑、全体伤害、无配置效果（走名称兜底治疗）等均直接作用于己方或全体，无需选怪。
+     */
+    private static boolean battleConsumableNeedsMonsterTarget(@NonNull ConsumableItem item) {
+        List<ConsumableItem.Effect> effects = item.getEffects();
+        if (effects == null || effects.isEmpty()) {
+            return false;
+        }
+        for (ConsumableItem.Effect e : effects) {
+            if (e.type == ConsumableItem.EffectType.DAMAGE) {
+                if (e.target == ConsumableItem.Target.ALL_ENEMIES) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 使用道具前需已按需设置 {@link BattleContext#currentTarget}（单体敌伤需要，否则可为 null）。
+     */
+    private boolean applyBattleConsumableUseCore(@NonNull ConsumableItem consumable) {
+        if (!player.consumeActionPoints(1)) {
+            showFloatMsg("行动点不足");
+            return false;
+        }
+        boolean hasEffects = consumable.getEffects() != null
+                && !consumable.getEffects().isEmpty();
+        boolean ok;
+        if (hasEffects) {
+            ok = ConsumableManager.execute(player, battleContext, consumable, requireContext());
+        } else {
+            applyFallbackBattleConsumable(consumable);
+            ok = true;
+        }
+        if (!ok) {
+            player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
+            showFloatMsg("无法使用该道具");
+            return false;
+        }
+        consumeOneFromBag(consumable, null);
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+            afterPlayerActionUi();
+        }, 350);
+        showFloatMsg("已使用：" + consumable.getName());
+        return true;
+    }
+
     private void bindPlayerPanel() {
         if (player == null) {
             return;
@@ -767,8 +820,8 @@ public class BattleFragment extends Fragment {
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setNegativeButton("取消", null)
                 .create();
+        content.findViewById(R.id.btn_battle_skills_pick_cancel).setOnClickListener(v -> dialog.dismiss());
 
         SkillPickAdapter adapter = new SkillPickAdapter(skills, skill -> {
             dialog.dismiss();
@@ -867,16 +920,28 @@ public class BattleFragment extends Fragment {
                 itemUseDialog = null;
             }
             clearPending();
-            pendingMode = PendingMode.PICK_SINGLE_ITEM;
-            pendingConsumableItem = item;
-            setHint("点击目标使用道具：" + item.getName());
+            if (battleConsumableNeedsMonsterTarget(item)) {
+                pendingMode = PendingMode.PICK_SINGLE_ITEM;
+                pendingConsumableItem = item;
+                setHint("点击目标使用道具：" + item.getName());
+            } else {
+                battleContext.currentTarget = null;
+                if (!applyBattleConsumableUseCore(item)) {
+                    setHint("");
+                }
+            }
         });
         rv.setAdapter(adapterHolder[0]);
 
         itemUseDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setNegativeButton("关闭", (d, w) -> itemUseDialog = null)
                 .create();
+        content.findViewById(R.id.btn_battle_items_close).setOnClickListener(v -> {
+            if (itemUseDialog != null) {
+                itemUseDialog.dismiss();
+            }
+            itemUseDialog = null;
+        });
         itemUseDialog.show();
         if (itemUseDialog.getWindow() != null) {
             itemUseDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1004,38 +1069,14 @@ public class BattleFragment extends Fragment {
             setHint("");
             return;
         }
-        if (!player.consumeActionPoints(1)) {
-            showFloatMsg("行动点不足");
-            clearPending();
-            setHint("");
-            return;
-        }
         battleContext.currentTarget = m;
-        boolean hasEffects = pendingConsumableItem.getEffects() != null
-                && !pendingConsumableItem.getEffects().isEmpty();
-        boolean ok;
-        if (hasEffects) {
-            ok = ConsumableManager.execute(player, battleContext, pendingConsumableItem, requireContext());
-        } else {
-            applyFallbackBattleConsumable(pendingConsumableItem);
-            ok = true;
-        }
+        boolean ok = applyBattleConsumableUseCore(pendingConsumableItem);
         if (!ok) {
-            player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
-            showFloatMsg("无法使用该道具");
             clearPending();
             setHint("");
             return;
         }
-        consumeOneFromBag(pendingConsumableItem, null);
         hideConfirmCancelButtons();
-        mainHandler.postDelayed(() -> {
-            if (!isAdded()) return;
-            clearPending();
-            setHint("");
-            afterPlayerActionUi();
-        }, 350);
-        showFloatMsg("已使用：" + pendingConsumableItem.getName());
     }
 
     private void onMonsterSlotClick(int index) {
@@ -1545,12 +1586,18 @@ public class BattleFragment extends Fragment {
             TextView defeatMsg = defeatRoot.findViewById(R.id.tv_treasure_alert_message);
             defeatTitle.setText("战斗失败");
             defeatMsg.setText("战斗失败！");
+            View defeatNeg = defeatRoot.findViewById(R.id.btn_treasure_alert_negative);
+            TextView defeatPos = defeatRoot.findViewById(R.id.btn_treasure_alert_positive);
+            defeatNeg.setVisibility(View.GONE);
+            defeatPos.setText("确定");
             AlertDialog defeatDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                     .setView(defeatRoot)
                     .setCancelable(false)
-                    .setPositiveButton("确定", (d, w) ->
-                            requireActivity().getSupportFragmentManager().popBackStackImmediate())
                     .create();
+            defeatPos.setOnClickListener(v -> {
+                defeatDlg.dismiss();
+                requireActivity().getSupportFragmentManager().popBackStackImmediate();
+            });
             defeatDlg.show();
             if (defeatDlg.getWindow() != null) {
                 defeatDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1880,14 +1927,20 @@ public class BattleFragment extends Fragment {
             TextView leaveMsg = leaveRoot.findViewById(R.id.tv_treasure_alert_message);
             leaveTitle.setText("未领取掉落物");
             leaveMsg.setText("还有 " + remaining + " 件掉落物未领取，确定要离开？未领取的道具将永久消失。");
+            View leaveNeg = leaveRoot.findViewById(R.id.btn_treasure_alert_negative);
+            TextView leavePos = leaveRoot.findViewById(R.id.btn_treasure_alert_positive);
+            leaveNeg.setVisibility(View.VISIBLE);
+            ((TextView) leaveNeg).setText("取消");
+            leavePos.setText("确定");
             AlertDialog leaveDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                     .setView(leaveRoot)
-                    .setPositiveButton("确定", (d, w) -> {
-                        dismissLootPanel();
-                        requireActivity().getSupportFragmentManager().popBackStackImmediate();
-                    })
-                    .setNegativeButton("取消", null)
                     .create();
+            leaveNeg.setOnClickListener(v -> leaveDlg.dismiss());
+            leavePos.setOnClickListener(v -> {
+                leaveDlg.dismiss();
+                dismissLootPanel();
+                requireActivity().getSupportFragmentManager().popBackStackImmediate();
+            });
             leaveDlg.show();
             if (leaveDlg.getWindow() != null) {
                 leaveDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -2080,8 +2133,8 @@ public class BattleFragment extends Fragment {
 
         AlertDialog logDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setPositiveButton("关闭", null)
                 .create();
+        content.findViewById(R.id.btn_battle_log_close).setOnClickListener(v -> logDlg.dismiss());
         logDlg.show();
         if (logDlg.getWindow() != null) {
             logDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
