@@ -132,7 +132,8 @@ public abstract class BattleEntity {
      * 承受伤害（直接扣血的逻辑）
      */
     public void takeDamage(int damage) {
-        this.currentHp = Math.max(0, this.currentHp - damage);
+        int newHp = Math.max(0, this.currentHp - damage);
+        setCurrentHp(newHp);
         if (this.currentHp <= 0) {
             this.isDead = true;
         }
@@ -150,7 +151,8 @@ public abstract class BattleEntity {
      */
     public void healHp(int amount) {
         int maxHp = getFinalAttributes().maxHp;
-        this.currentHp = Math.min(maxHp, this.currentHp + amount);
+        int newHp = Math.min(maxHp, this.currentHp + amount);
+        setCurrentHp(newHp);
     }
 
     /**
@@ -158,7 +160,8 @@ public abstract class BattleEntity {
      */
     public void healMp(int amount) {
         int maxMp = getFinalAttributes().maxMp;
-        this.currentMp = Math.min(maxMp, this.currentMp + amount);
+        int newMp = Math.min(maxMp, this.currentMp + amount);
+        setCurrentMp(newMp);
     }
 
     /**
@@ -166,7 +169,7 @@ public abstract class BattleEntity {
      */
     public boolean consumeActionPoints(int cost) {
         if (this.currentActionPoints >= cost) {
-            this.currentActionPoints -= cost;
+            setCurrentActionPoints(this.currentActionPoints - cost);
             return true;
         }
         return false;
@@ -176,7 +179,7 @@ public abstract class BattleEntity {
      * 重置行动点（回合开始时调用）
      */
     public void resetActionPoints() {
-        this.currentActionPoints = getFinalAttributes().maxActionPoints;
+        setCurrentActionPoints(getFinalAttributes().maxActionPoints);
     }
 
     // ====================== 简单 Getters & Setters（仅保留必要的） ======================
@@ -189,11 +192,42 @@ public abstract class BattleEntity {
 
     public AttributeSet getBaseAttributes() { return baseAttributes; }
     public int getCurrentHp() { return currentHp; }
-    public void setCurrentHp(int currentHp) { this.currentHp = currentHp; }
+    public void setCurrentHp(int newHp) {
+        int delta = newHp - this.currentHp;
+        this.currentHp = newHp;
+        if (delta != 0 && resourceChangeListener != null) {
+            resourceChangeListener.onHpChanged(delta, this.currentHp);
+        }
+    }
     public int getCurrentMp() { return currentMp; }
-    public void setCurrentMp(int currentMp) { this.currentMp = currentMp; }
+    public void setCurrentMp(int newMp) {
+        int delta = newMp - this.currentMp;
+        this.currentMp = newMp;
+        if (delta != 0 && resourceChangeListener != null) {
+            resourceChangeListener.onMpChanged(delta, this.currentMp);
+        }
+    }
     public int getCurrentActionPoints() { return currentActionPoints; }
-    public void setCurrentActionPoints(int currentActionPoints) { this.currentActionPoints = currentActionPoints; }
+    public void setCurrentActionPoints(int newAp) {
+        int delta = newAp - this.currentActionPoints;
+        this.currentActionPoints = newAp;
+        if (delta != 0 && resourceChangeListener != null) {
+            resourceChangeListener.onApChanged(delta, this.currentActionPoints);
+        }
+    }
+
+    // ====================== 资源变更监听 ======================
+    public interface OnResourceChangeListener {
+        void onHpChanged(int delta, int newHp);
+        void onMpChanged(int delta, int newMp);
+        void onApChanged(int delta, int newAp);
+    }
+
+    private OnResourceChangeListener resourceChangeListener;
+
+    public void setResourceChangeListener(OnResourceChangeListener listener) {
+        this.resourceChangeListener = listener;
+    }
 
     public List<BaseBuff> getActiveBuffList() { return activeBuffList; } // 直接返回引用，由于BuffManager需要操作此列表
     public List<BaseAffix> getEntityAffixList() { return new ArrayList<>(entityAffixList); }

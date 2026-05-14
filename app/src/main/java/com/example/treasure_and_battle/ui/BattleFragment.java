@@ -85,6 +85,7 @@ public class BattleFragment extends Fragment {
         NONE,
         PICK_SINGLE_ATTACK,
         PICK_SINGLE_SKILL,
+        PICK_SINGLE_ITEM,
         AOE_HIGHLIGHT
     }
 
@@ -130,10 +131,14 @@ public class BattleFragment extends Fragment {
     private TextView btnSkill;
     private TextView btnItem;
     private TextView btnEscape;
+    private TextView btnConfirm;
+    private TextView btnCancel;
     private BottomSheetDialog statsSheet;
 
     private PendingMode pendingMode = PendingMode.NONE;
     private ActiveSkill pendingActiveSkill;
+    private ConsumableItem pendingConsumableItem;
+    private int selectedTargetIndex = -1;
 
     private final List<BuffLine> buffLines = new ArrayList<>();
 
@@ -237,6 +242,10 @@ public class BattleFragment extends Fragment {
         btnSkill.setOnClickListener(v -> onSkillCommand());
         btnItem.setOnClickListener(v -> onItemCommand());
         btnEscape.setOnClickListener(v -> onEscape());
+        btnConfirm = view.findViewById(R.id.btn_battle_confirm);
+        btnCancel = view.findViewById(R.id.btn_battle_cancel);
+        btnConfirm.setOnClickListener(v -> onConfirmClick());
+        btnCancel.setOnClickListener(v -> onCancelClick());
 
         rvBuffs.setLayoutManager(new LinearLayoutManager(requireContext()));
         buffAdapter = new BuffListAdapter();
@@ -246,6 +255,8 @@ public class BattleFragment extends Fragment {
         damageNumberOverlay = new DamageNumberOverlay(monsterArea);
         FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
         tachieDamageOverlay = new DamageNumberOverlay(decor);
+
+        setupResourceChangeListeners();
 
         refreshBuffLinesFromPlayer();
         bindPlayerPanel();
@@ -665,7 +676,20 @@ public class BattleFragment extends Fragment {
     private void clearPending() {
         pendingMode = PendingMode.NONE;
         pendingActiveSkill = null;
+        pendingConsumableItem = null;
+        selectedTargetIndex = -1;
+        hideConfirmCancelButtons();
         refreshTargetMarkers();
+    }
+
+    private void showConfirmCancelButtons() {
+        if (btnConfirm != null) btnConfirm.setVisibility(View.VISIBLE);
+        if (btnCancel != null) btnCancel.setVisibility(View.VISIBLE);
+    }
+
+    private void hideConfirmCancelButtons() {
+        if (btnConfirm != null) btnConfirm.setVisibility(View.GONE);
+        if (btnCancel != null) btnCancel.setVisibility(View.GONE);
     }
 
     private void onAttackCommand() {
@@ -726,17 +750,9 @@ public class BattleFragment extends Fragment {
             } else {
                 pendingMode = PendingMode.AOE_HIGHLIGHT;
                 pendingActiveSkill = skill;
-                setHint("正在释放：" + skill.getSkillName());
+                setHint("群体技能：" + skill.getSkillName() + " - 请确认释放");
                 refreshTargetMarkers();
-                mainHandler.postDelayed(() -> {
-                    if (!isAdded()) {
-                        return;
-                    }
-                    castPlayerSkill(skill);
-                    clearPending();
-                    setHint("");
-                    refreshTargetMarkers();
-                }, 350);
+                showConfirmCancelButtons();
             }
         });
         rv.setAdapter(adapter);
@@ -777,7 +793,6 @@ public class BattleFragment extends Fragment {
             showFloatMsg("无法释放（冷却/行动点/魔法/生命不足）");
             return;
         }
-        int hpBefore = player.getCurrentHp();
         try {
             List<BattleEntity> targets =
                     SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
@@ -789,12 +804,6 @@ public class BattleFragment extends Fragment {
         } catch (Exception e) {
             showFloatMsg("技能释放失败: " + e.getMessage());
             return;
-        }
-        int hpAfter = player.getCurrentHp();
-        if (hpAfter > hpBefore) {
-            showPlayerHealOnTachie(hpAfter - hpBefore);
-        } else if (hpAfter < hpBefore) {
-            showPlayerDamageOnTachie(hpBefore - hpAfter);
         }
 
         battleManager.checkDeath(battleContext);
@@ -820,38 +829,14 @@ public class BattleFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         final ItemPickerAdapter[] adapterHolder = new ItemPickerAdapter[1];
         adapterHolder[0] = new ItemPickerAdapter(usable, item -> {
-            if (!player.consumeActionPoints(1)) {
-                showFloatMsg("行动点不足，无法使用道具");
-                return;
-            }
-            int hpBefore = player.getCurrentHp();
-            boolean hasEffects = item.getEffects() != null && !item.getEffects().isEmpty();
-            boolean ok;
-            if (hasEffects) {
-                ok = ConsumableManager.execute(player, battleContext, item, requireContext());
-            } else {
-                applyFallbackBattleConsumable(item);
-                ok = true;
-            }
-            int hpAfter = player.getCurrentHp();
-            if (!ok) {
-                player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
-                showFloatMsg("无法使用该道具");
-                return;
-            }
-            if (hpAfter > hpBefore) {
-                showPlayerHealOnTachie(hpAfter - hpBefore);
-            }
-            consumeOneFromBag(item, usable);
-            if (adapterHolder[0] != null) {
-                adapterHolder[0].notifyDataSetChanged();
-            }
-            afterPlayerActionUi();
             if (itemUseDialog != null && itemUseDialog.isShowing()) {
                 itemUseDialog.dismiss();
                 itemUseDialog = null;
             }
-            showFloatMsg("已使用：" + item.getName());
+            clearPending();
+            pendingMode = PendingMode.PICK_SINGLE_ITEM;
+            pendingConsumableItem = item;
+            setHint("点击目标使用道具：" + item.getName());
         });
         rv.setAdapter(adapterHolder[0]);
 
@@ -893,58 +878,153 @@ public class BattleFragment extends Fragment {
         }
     }
 
+    private void onConfirmClick() {
+        if (!ensureBattleActive()) return;
+
+        switch (pendingMode) {
+            case PICK_SINGLE_ATTACK:
+                executeConfirmedAttack();
+                break;
+            case PICK_SINGLE_SKILL:
+                executeConfirmedSkill();
+                break;
+            case PICK_SINGLE_ITEM:
+                executeConfirmedItem();
+                break;
+            case AOE_HIGHLIGHT:
+                executeConfirmedAoESkill();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void onCancelClick() {
+        clearPending();
+        setHint("");
+    }
+
+    private void executeConfirmedAttack() {
+        if (selectedTargetIndex < 0) return;
+        Monster m = monsterAtSlot(selectedTargetIndex);
+        if (m == null || m.isDead()) {
+            showFloatMsg("目标无效");
+            clearPending();
+            setHint("");
+            return;
+        }
+        boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
+        if (!ok) {
+            clearPending();
+            setHint("");
+            showFloatMsg("无法普攻（资源不足）");
+            return;
+        }
+        battleManager.checkDeath(battleContext);
+        hideConfirmCancelButtons();
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+            afterPlayerActionUi();
+        }, 350);
+    }
+
+    private void executeConfirmedSkill() {
+        if (pendingActiveSkill == null || selectedTargetIndex < 0) return;
+        Monster m = monsterAtSlot(selectedTargetIndex);
+        if (m == null || m.isDead()) {
+            showFloatMsg("目标无效");
+            clearPending();
+            setHint("");
+            return;
+        }
+        battleContext.currentTarget = m;
+        hideConfirmCancelButtons();
+        castPlayerSkill(pendingActiveSkill);
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+        }, 350);
+    }
+
+    private void executeConfirmedAoESkill() {
+        if (pendingActiveSkill == null) return;
+        hideConfirmCancelButtons();
+        castPlayerSkill(pendingActiveSkill);
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+        }, 350);
+    }
+
+    private void executeConfirmedItem() {
+        if (pendingConsumableItem == null || selectedTargetIndex < 0) return;
+        Monster m = monsterAtSlot(selectedTargetIndex);
+        if (m == null || m.isDead()) {
+            showFloatMsg("目标无效");
+            clearPending();
+            setHint("");
+            return;
+        }
+        if (!player.consumeActionPoints(1)) {
+            showFloatMsg("行动点不足");
+            clearPending();
+            setHint("");
+            return;
+        }
+        battleContext.currentTarget = m;
+        boolean hasEffects = pendingConsumableItem.getEffects() != null
+                && !pendingConsumableItem.getEffects().isEmpty();
+        boolean ok;
+        if (hasEffects) {
+            ok = ConsumableManager.execute(player, battleContext, pendingConsumableItem, requireContext());
+        } else {
+            applyFallbackBattleConsumable(pendingConsumableItem);
+            ok = true;
+        }
+        if (!ok) {
+            player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
+            showFloatMsg("无法使用该道具");
+            clearPending();
+            setHint("");
+            return;
+        }
+        consumeOneFromBag(pendingConsumableItem, null);
+        hideConfirmCancelButtons();
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+            afterPlayerActionUi();
+        }, 350);
+        showFloatMsg("已使用：" + pendingConsumableItem.getName());
+    }
+
     private void onMonsterSlotClick(int index) {
         if (!ensureBattleActive()) {
             return;
         }
         Monster m = monsterAtSlot(index);
 
-        if (pendingMode == PendingMode.PICK_SINGLE_ATTACK) {
-            if (!isSlotAliveMonster(index) || m == null) {
-                showFloatMsg("该位置没有可攻击目标");
-                return;
-            }
-            refreshTargetMarkers();
-            slotMarkers[index].setVisibility(View.VISIBLE);
-            boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
-            if (!ok) {
-                clearPending();
-                setHint("");
-                refreshTargetMarkers();
-                showFloatMsg("无法普攻（资源不足）");
-                return;
-            }
-            battleManager.checkDeath(battleContext);
-            mainHandler.postDelayed(() -> {
-                if (!isAdded()) {
-                    return;
-                }
-                clearPending();
-                setHint("");
-                refreshTargetMarkers();
-                afterPlayerActionUi();
-            }, 350);
+        if (pendingMode == PendingMode.AOE_HIGHLIGHT) {
             return;
         }
 
-        if (pendingMode == PendingMode.PICK_SINGLE_SKILL && pendingActiveSkill != null) {
+        if (pendingMode == PendingMode.PICK_SINGLE_ATTACK
+                || pendingMode == PendingMode.PICK_SINGLE_SKILL
+                || pendingMode == PendingMode.PICK_SINGLE_ITEM) {
             if (!isSlotAliveMonster(index) || m == null) {
                 showFloatMsg("该位置没有可攻击目标");
-
                 return;
             }
-            refreshTargetMarkers();
-            slotMarkers[index].setVisibility(View.VISIBLE);
+            selectedTargetIndex = index;
             battleContext.currentTarget = m;
-            castPlayerSkill(pendingActiveSkill);
-            mainHandler.postDelayed(() -> {
-                if (!isAdded()) {
-                    return;
-                }
-                clearPending();
-                setHint("");
-                refreshTargetMarkers();
-            }, 350);
+            refreshTargetMarkers();
+            showConfirmCancelButtons();
+            setHint("已选中【" + m.getName() + "】，请点击确定或取消");
             return;
         }
 
@@ -970,7 +1050,6 @@ public class BattleFragment extends Fragment {
     /** 玩家行动后刷新 UI；需要玩家主动点击"结束回合"来推进。 */
     private void afterPlayerActionUi() {
         animatePlayerAttack(() -> {
-            showDamageForPlayerAction();
             refreshBattleUi();
             if (battleContext.isBattleEnded) {
                 finishBattleAndExit();
@@ -1005,16 +1084,6 @@ public class BattleFragment extends Fragment {
             }
         });
         up.start();
-    }
-
-    private void showDamageForPlayerAction() {
-        if (battleContext == null || damageNumberOverlay == null) return;
-        if (!battleContext.isHit || battleContext.finalDamage <= 0) return;
-
-        BattleEntity target = battleContext.currentTarget;
-        if (target instanceof Monster) {
-            showPlayerDamageOnMonster((Monster) target, battleContext.finalDamage);
-        }
     }
 
     private void refreshBattleUi() {
@@ -1066,6 +1135,8 @@ public class BattleFragment extends Fragment {
     private void onEndTurnClicked() {
         if (endTurnCooldown || battleContext == null || battleContext.isBattleEnded) return;
         if (playerInputLocked) return;
+        clearPending();
+        setHint("");
         endTurnCooldown = true;
         btnEndTurn.setEnabled(false);
         battleContext.actionOrderIndex++;
@@ -1112,7 +1183,6 @@ public class BattleFragment extends Fragment {
             if (m != null) {
                 int slotIdx = findMonsterSlotIndex(m);
                 animateMonsterAttack(m, slotIdx, () -> {
-                    showDamageForLastAction();
                     refreshBattleUi();
                     playerInputLocked = true;
                     showRoundBanner(roundAfter, () -> {
@@ -1150,7 +1220,6 @@ public class BattleFragment extends Fragment {
         }
         int slotIdx = findMonsterSlotIndex(m);
         animateMonsterAttack(m, slotIdx, () -> {
-            showDamageForLastAction();
             refreshBattleUi();
             if (playerDead) {
                 mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
@@ -1203,64 +1272,96 @@ public class BattleFragment extends Fragment {
         return -1;
     }
 
-    private void showDamageForLastAction() {
-        if (battleContext == null || damageNumberOverlay == null || monsterArea == null) return;
-        if (!battleContext.isHit || battleContext.finalDamage <= 0) return;
+    /**
+     * 为玩家和所有怪物注册 HP/MP/AP 资源变更监听。
+     * 任何来源（普攻/技能/道具/词缀/buff/被动）造成的资源变化都会自动弹出数字提示。
+     */
+    private void setupResourceChangeListeners() {
+        if (player == null || battleContext == null) return;
 
-        BattleEntity target = battleContext.currentTarget;
-        if (target instanceof Monster) {
-            int slotIdx = findMonsterSlotIndex((Monster) target);
-            if (slotIdx >= 0 && slotIdx < slotRoots.length && slotRoots[slotIdx] != null) {
-                View slot = slotRoots[slotIdx];
+        player.setResourceChangeListener(new BattleEntity.OnResourceChangeListener() {
+            @Override
+            public void onHpChanged(int delta, int newHp) {
+                if (!isAdded() || tachieDamageOverlay == null || ivBattleTachie == null) return;
+                android.app.Activity act = getActivity();
+                if (act == null || act.isFinishing() || act.isDestroyed()) return;
+                FrameLayout decor = (FrameLayout) act.getWindow().getDecorView();
                 int[] loc = new int[2];
-                slot.getLocationOnScreen(loc);
+                ivBattleTachie.getLocationOnScreen(loc);
                 int[] parentLoc = new int[2];
-                monsterArea.getLocationOnScreen(parentLoc);
-                int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
+                decor.getLocationOnScreen(parentLoc);
+                int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
                 int cy = loc[1] - parentLoc[1];
-                damageNumberOverlay.showDamage(cx, cy, battleContext.finalDamage);
+                if (delta > 0) {
+                    tachieDamageOverlay.showHealOffset(cx, cy, delta);
+                } else {
+                    tachieDamageOverlay.showDamageOffset(cx, cy, -delta);
+                }
             }
-        } else if (target instanceof Player && ivBattleTachie != null) {
-            showPlayerDamageOnTachie(battleContext.finalDamage);
+
+            @Override
+            public void onMpChanged(int delta, int newMp) {
+                if (!isAdded() || tachieDamageOverlay == null || ivBattleTachie == null) return;
+                android.app.Activity act = getActivity();
+                if (act == null || act.isFinishing() || act.isDestroyed()) return;
+                FrameLayout decor = (FrameLayout) act.getWindow().getDecorView();
+                int[] loc = new int[2];
+                ivBattleTachie.getLocationOnScreen(loc);
+                int[] parentLoc = new int[2];
+                decor.getLocationOnScreen(parentLoc);
+                int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
+                int cy = loc[1] - parentLoc[1];
+                tachieDamageOverlay.showMpChange(cx, cy, delta);
+            }
+
+            @Override
+            public void onApChanged(int delta, int newAp) {
+                if (!isAdded() || tachieDamageOverlay == null || ivBattleTachie == null) return;
+                android.app.Activity act = getActivity();
+                if (act == null || act.isFinishing() || act.isDestroyed()) return;
+                FrameLayout decor = (FrameLayout) act.getWindow().getDecorView();
+                int[] loc = new int[2];
+                ivBattleTachie.getLocationOnScreen(loc);
+                int[] parentLoc = new int[2];
+                decor.getLocationOnScreen(parentLoc);
+                int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
+                int cy = loc[1] - parentLoc[1];
+                tachieDamageOverlay.showApChange(cx, cy, delta);
+            }
+        });
+
+        java.util.List<Monster> monsters = battleContext.monsters;
+        if (monsters != null) {
+            for (Monster m : monsters) {
+                if (m == null) continue;
+                m.setResourceChangeListener(new BattleEntity.OnResourceChangeListener() {
+                    @Override
+                    public void onHpChanged(int delta, int newHp) {
+                        if (!isAdded() || damageNumberOverlay == null || monsterArea == null) return;
+                        int slotIdx = findMonsterSlotIndex(m);
+                        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) return;
+                        View slot = slotRoots[slotIdx];
+                        int[] loc = new int[2];
+                        slot.getLocationOnScreen(loc);
+                        int[] parentLoc = new int[2];
+                        monsterArea.getLocationOnScreen(parentLoc);
+                        int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
+                        int cy = loc[1] - parentLoc[1];
+                        if (delta > 0) {
+                            damageNumberOverlay.showHealOffset(cx, cy, delta);
+                        } else {
+                            damageNumberOverlay.showDamageOffset(cx, cy, -delta);
+                        }
+                    }
+
+                    @Override
+                    public void onMpChanged(int delta, int newMp) { }
+
+                    @Override
+                    public void onApChanged(int delta, int newAp) { }
+                });
+            }
         }
-    }
-
-    private void showPlayerDamageOnTachie(int damage) {
-        if (tachieDamageOverlay == null || ivBattleTachie == null || damage <= 0) return;
-        FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
-        int[] loc = new int[2];
-        ivBattleTachie.getLocationOnScreen(loc);
-        int[] parentLoc = new int[2];
-        decor.getLocationOnScreen(parentLoc);
-        int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
-        int cy = loc[1] - parentLoc[1];
-        tachieDamageOverlay.showDamage(cx, cy, damage);
-    }
-
-    public void showPlayerHealOnTachie(int healAmount) {
-        if (tachieDamageOverlay == null || ivBattleTachie == null || healAmount <= 0) return;
-        FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
-        int[] loc = new int[2];
-        ivBattleTachie.getLocationOnScreen(loc);
-        int[] parentLoc = new int[2];
-        decor.getLocationOnScreen(parentLoc);
-        int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
-        int cy = loc[1] - parentLoc[1];
-        tachieDamageOverlay.showHeal(cx, cy, healAmount);
-    }
-
-    private void showPlayerDamageOnMonster(Monster m, int damage) {
-        if (damageNumberOverlay == null || monsterArea == null || damage <= 0) return;
-        int slotIdx = findMonsterSlotIndex(m);
-        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) return;
-        View slot = slotRoots[slotIdx];
-        int[] loc = new int[2];
-        slot.getLocationOnScreen(loc);
-        int[] parentLoc = new int[2];
-        monsterArea.getLocationOnScreen(parentLoc);
-        int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
-        int cy = loc[1] - parentLoc[1];
-        damageNumberOverlay.showDamage(cx, cy, damage);
     }
 
     private void onTachieClick() {
@@ -1930,7 +2031,16 @@ public class BattleFragment extends Fragment {
     private void refreshTargetMarkers() {
         for (int i = 0; i < 5; i++) {
             TextView tri = slotMarkers[i];
-            boolean show = pendingMode == PendingMode.AOE_HIGHLIGHT && isSlotAliveMonster(i);
+            boolean show = false;
+            if (pendingMode == PendingMode.AOE_HIGHLIGHT) {
+                show = isSlotAliveMonster(i);
+            } else if ((pendingMode == PendingMode.PICK_SINGLE_ATTACK
+                    || pendingMode == PendingMode.PICK_SINGLE_SKILL
+                    || pendingMode == PendingMode.PICK_SINGLE_ITEM)
+                    && selectedTargetIndex == i
+                    && isSlotAliveMonster(i)) {
+                show = true;
+            }
             tri.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
         }
     }
