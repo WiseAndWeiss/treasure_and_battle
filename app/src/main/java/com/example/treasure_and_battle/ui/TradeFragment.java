@@ -411,12 +411,14 @@ public class TradeFragment extends Fragment {
         });
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog);
-        builder.setTitle("购买数量");
         builder.setView(root);
         builder.setNegativeButton("取消", null);
         builder.setPositiveButton("购买", (d, w) -> tryPurchaseWithQuantity(listing, qtyHolder[0]));
         AlertDialog dialog = builder.create();
         dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
     }
 
     private class MerchantAdapter extends RecyclerView.Adapter<MerchantAdapter.Vh> {
