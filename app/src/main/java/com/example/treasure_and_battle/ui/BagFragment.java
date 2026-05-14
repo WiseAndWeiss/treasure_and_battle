@@ -373,19 +373,25 @@ public class BagFragment extends Fragment {
                     ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
                     ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(
                             "确定要丢弃 " + item.getName() + " 吗？");
+                    View bagNeg = content.findViewById(R.id.btn_treasure_alert_negative);
+                    TextView bagPos = content.findViewById(R.id.btn_treasure_alert_positive);
+                    bagNeg.setVisibility(View.VISIBLE);
+                    ((TextView) bagNeg).setText("取消");
+                    bagPos.setText("确定");
                     AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                             .setView(content)
-                            .setPositiveButton("确定", (dialog, which) -> {
-                                int index = findItemIndex(item);
-                                if (index >= 0) {
-                                    allItems.set(index, null);
-                                }
-                                adapter.notifyDataSetChanged();
-                                persistSharedBagGridToInventory();
-                                showFloatMsg("已丢弃: " + item.getName());
-                            })
-                            .setNegativeButton("取消", null)
                             .create();
+                    bagNeg.setOnClickListener(v -> d.dismiss());
+                    bagPos.setOnClickListener(v -> {
+                        int index = findItemIndex(item);
+                        if (index >= 0) {
+                            allItems.set(index, null);
+                        }
+                        adapter.notifyDataSetChanged();
+                        persistSharedBagGridToInventory();
+                        showFloatMsg("已丢弃: " + item.getName());
+                        d.dismiss();
+                    });
                     d.show();
                     if (d.getWindow() != null) {
                         d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1299,16 +1305,22 @@ public class BagFragment extends Fragment {
                 View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
                 ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
                 ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(msg);
+                View eqNeg = content.findViewById(R.id.btn_treasure_alert_negative);
+                TextView eqPos = content.findViewById(R.id.btn_treasure_alert_positive);
+                eqNeg.setVisibility(View.VISIBLE);
+                ((TextView) eqNeg).setText("取消");
+                eqPos.setText("确认丢弃");
                 AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                         .setView(content)
-                        .setPositiveButton("确认丢弃", (dialog, which) -> {
-                            equippedItems.remove(slotViewId);
-                            syncCharacterUnequip(slotViewId);
-                            updateEquipSlotView(slotViewId, null);
-                            showFloatMsg("已丢弃: " + item.getName());
-                        })
-                        .setNegativeButton("取消", null)
                         .create();
+                eqNeg.setOnClickListener(v -> d.dismiss());
+                eqPos.setOnClickListener(v -> {
+                    equippedItems.remove(slotViewId);
+                    syncCharacterUnequip(slotViewId);
+                    updateEquipSlotView(slotViewId, null);
+                    showFloatMsg("已丢弃: " + item.getName());
+                    d.dismiss();
+                });
                 d.show();
                 if (d.getWindow() != null) {
                     d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));

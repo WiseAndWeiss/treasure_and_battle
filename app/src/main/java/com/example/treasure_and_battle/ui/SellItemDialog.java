@@ -59,13 +59,21 @@ public final class SellItemDialog {
             TextView sm = simpleRoot.findViewById(R.id.tv_treasure_alert_message);
             st.setText("出售");
             sm.setText("以 " + pay + " 金币出售「" + item.getName() + "」？");
+            View neg = simpleRoot.findViewById(R.id.btn_treasure_alert_negative);
+            TextView pos = simpleRoot.findViewById(R.id.btn_treasure_alert_positive);
+            neg.setVisibility(View.VISIBLE);
+            ((TextView) neg).setText("取消");
+            pos.setText("出售");
             MaterialAlertDialogBuilder simple = new MaterialAlertDialogBuilder(
                     context, R.style.ThemeOverlay_Tb_ItemDetailDialog);
             simple.setView(simpleRoot);
-            simple.setNegativeButton("取消", null);
-            simple.setPositiveButton("出售", (d, w) ->
-                    trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned));
             AlertDialog simpleDlg = simple.create();
+            neg.setOnClickListener(v -> simpleDlg.dismiss());
+            pos.setOnClickListener(v -> {
+                if (trySellQuantity(context, bagSlots, bagIndex, item, qty, onSold, onGoldEarned)) {
+                    simpleDlg.dismiss();
+                }
+            });
             simpleDlg.show();
             if (simpleDlg.getWindow() != null) {
                 simpleDlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
