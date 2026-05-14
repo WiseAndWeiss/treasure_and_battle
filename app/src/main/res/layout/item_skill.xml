@@ -65,7 +65,7 @@
         android:id="@+id/btn_skill_action"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:src="@drawable/ic_pixel_plus"
+        android:src="@drawable/upgrade"
         android:padding="6dp"
         android:background="@drawable/bg_slot_treasure_fill"
         android:foreground="@drawable/bg_slot_treasure_stroke"/>
