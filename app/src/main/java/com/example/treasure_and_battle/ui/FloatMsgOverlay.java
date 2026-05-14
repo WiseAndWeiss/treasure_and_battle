@@ -3,14 +3,16 @@ package com.example.treasure_and_battle.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.PixelFormat;
+import android.content.ContextWrapper;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayDeque;
@@ -18,7 +20,7 @@ import java.util.Queue;
 
 /**
  * 非阻塞浮动消息组件，替换 Toast。
- * 使用 WindowManager TYPE_APPLICATION_PANEL 确保显示在所有 Dialog 之上。
+ * 消息添加到 Activity DecorView 顶部，带向上飘动 + 渐隐动画，最多 3 条并发。
  */
 public final class FloatMsgOverlay {
 
@@ -26,15 +28,15 @@ public final class FloatMsgOverlay {
     private static final long DEFAULT_DURATION_MS = 1200;
     private static final int FLY_UP_PX = 70;
     private static final int BG_COLOR = 0xA6323232;
-    private static final int TEXT_COLOR = 0xD9000000;
+    private static final int TEXT_COLOR = 0xFFFFFFFF; 
     private static final int CORNER_RADIUS_DP = 8;
     private static final int PADDING_DP = 12;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Queue<FloatMsgTask> pendingQueue = new ArrayDeque<>();
     private int visibleCount;
-    private Context appContext;
-    private WindowManager wm;
+    private FrameLayout currentAnchor;
+    private Activity currentActivity;
 
     private static final class FloatMsgTask {
         final String text;
@@ -54,50 +56,63 @@ public final class FloatMsgOverlay {
         return Holder.INSTANCE;
     }
 
-    public static void show(Context context, String text) {
-        show(context, text, DEFAULT_DURATION_MS);
-    }
-
-    public static void show(Context context, String text, long durationMs) {
-        getInstance().enqueue(context, text, durationMs);
-    }
-
-    /**
-     * 全局便捷方法：与 {@link #show(Context, String)} 完全等价，名称更语义化。
-     * 所有替换 Toast 的统一入口。
-     */
     public static void showFloatMsg(Context context, String text) {
-        show(context, text, DEFAULT_DURATION_MS);
+        showFloatMsg(context, text, DEFAULT_DURATION_MS);
     }
 
     public static void showFloatMsg(Context context, String text, long durationMs) {
-        show(context, text, durationMs);
+        getInstance().enqueue(context, text, durationMs);
+    }
+
+    public static void show(Context context, String text) {
+        showFloatMsg(context, text, DEFAULT_DURATION_MS);
+    }
+
+    public static void show(Context context, String text, long durationMs) {
+        showFloatMsg(context, text, durationMs);
     }
 
     private void enqueue(Context context, String text, long durationMs) {
         handler.post(() -> {
             if (context == null || text == null || text.isEmpty()) return;
-            if (appContext == null) {
-                appContext = context.getApplicationContext();
-                wm = (WindowManager) appContext.getSystemService(Context.WINDOW_SERVICE);
-            }
 
             if (visibleCount >= MAX_VISIBLE) {
                 pendingQueue.add(new FloatMsgTask(text, durationMs));
                 return;
             }
 
-            showInternal(text, durationMs);
+            Activity activity = resolveActivity(context);
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+
+            FrameLayout anchor = getDecorAnchor(activity);
+            if (anchor == null) return;
+            currentAnchor = anchor;
+            currentActivity = activity;
+
+            showInternal(anchor, text, durationMs);
         });
     }
 
-    private void showInternal(String text, long durationMs) {
-        if (wm == null || appContext == null) return;
+    private Activity resolveActivity(Context context) {
+        if (context instanceof Activity) return (Activity) context;
+        if (context instanceof ContextWrapper) {
+            Context base = ((ContextWrapper) context).getBaseContext();
+            return resolveActivity(base);
+        }
+        return null;
+    }
 
-        float density = appContext.getResources().getDisplayMetrics().density;
+    private FrameLayout getDecorAnchor(Activity activity) {
+        View decor = activity.getWindow().getDecorView();
+        if (decor instanceof FrameLayout) return (FrameLayout) decor;
+        return null;
+    }
+
+    private void showInternal(FrameLayout anchor, String text, long durationMs) {
+        float density = anchor.getResources().getDisplayMetrics().density;
         int pad = (int) (PADDING_DP * density);
 
-        TextView tv = new TextView(appContext);
+        TextView tv = new TextView(anchor.getContext());
         tv.setPadding(pad, pad, pad, pad);
 
         GradientDrawable bg = new GradientDrawable();
@@ -110,26 +125,16 @@ public final class FloatMsgOverlay {
         tv.setGravity(Gravity.CENTER);
         tv.setMaxLines(2);
 
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        params.y = (int) (100 * density) + visibleCount * (int) (56 * density);
+        params.topMargin = (int) (100 * density) + visibleCount * (int) (56 * density);
+        tv.setLayoutParams(params);
 
+        anchor.addView(tv);
+        tv.bringToFront();
         visibleCount++;
-
-        try {
-            wm.addView(tv, params);
-        } catch (Exception e) {
-            visibleCount--;
-            drainPending();
-            return;
-        }
 
         ObjectAnimator alpha = ObjectAnimator.ofFloat(tv, "alpha", 1f, 0f);
         ObjectAnimator transY = ObjectAnimator.ofFloat(tv, "translationY", 0f, -FLY_UP_PX * density);
@@ -146,19 +151,25 @@ public final class FloatMsgOverlay {
                 if (removed) return;
                 removed = true;
                 handler.post(() -> {
-                    try { wm.removeView(tv); } catch (Exception ignored) { }
+                    if (tv.getParent() != null) {
+                        ((ViewGroup) tv.getParent()).removeView(tv);
+                    }
                     visibleCount--;
-                    drainPending();
+                    drainPending(anchor);
                 });
             }
         });
     }
 
-    private void drainPending() {
+    private void drainPending(FrameLayout anchor) {
         if (pendingQueue.isEmpty()) return;
+        if (currentActivity == null || currentActivity.isFinishing() || currentActivity.isDestroyed()) {
+            pendingQueue.clear();
+            return;
+        }
         FloatMsgTask next = pendingQueue.poll();
         if (next != null) {
-            showInternal(next.text, next.durationMs);
+            showInternal(anchor, next.text, next.durationMs);
         }
     }
 }

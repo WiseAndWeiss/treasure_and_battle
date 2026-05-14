@@ -515,6 +515,6 @@ public class TradeFragment extends Fragment {
 
     private void showFloatMsg(String text) {
         if (!isAdded() || getActivity() == null) return;
-        FloatMsgOverlay.show(getActivity(), text);
+        FloatMsgOverlay.showFloatMsg(getActivity(), text);
     }
 }

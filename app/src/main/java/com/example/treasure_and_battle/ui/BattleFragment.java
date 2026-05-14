@@ -126,6 +126,10 @@ public class BattleFragment extends Fragment {
     private ImageView ivBattleTachie;
     private TextView btnEndTurn;
     private boolean endTurnCooldown;
+    private TextView btnAttack;
+    private TextView btnSkill;
+    private TextView btnItem;
+    private TextView btnEscape;
     private BottomSheetDialog statsSheet;
 
     private PendingMode pendingMode = PendingMode.NONE;
@@ -225,10 +229,14 @@ public class BattleFragment extends Fragment {
         }
 
         view.findViewById(R.id.btn_battle_back).setOnClickListener(v -> onBackPressed());
-        view.findViewById(R.id.btn_battle_attack).setOnClickListener(v -> onAttackCommand());
-        view.findViewById(R.id.btn_battle_skill).setOnClickListener(v -> onSkillCommand());
-        view.findViewById(R.id.btn_battle_item).setOnClickListener(v -> onItemCommand());
-        view.findViewById(R.id.btn_battle_escape).setOnClickListener(v -> onEscape());
+        btnAttack = view.findViewById(R.id.btn_battle_attack);
+        btnSkill = view.findViewById(R.id.btn_battle_skill);
+        btnItem = view.findViewById(R.id.btn_battle_item);
+        btnEscape = view.findViewById(R.id.btn_battle_escape);
+        btnAttack.setOnClickListener(v -> onAttackCommand());
+        btnSkill.setOnClickListener(v -> onSkillCommand());
+        btnItem.setOnClickListener(v -> onItemCommand());
+        btnEscape.setOnClickListener(v -> onEscape());
 
         rvBuffs.setLayoutManager(new LinearLayoutManager(requireContext()));
         buffAdapter = new BuffListAdapter();
@@ -1014,6 +1022,37 @@ public class BattleFragment extends Fragment {
         bindPlayerPanel();
         bindAllMonsterSlots();
         updateEndTurnButton();
+        updateActionButtons();
+    }
+
+    /**
+     * 根据当前行动力 (AP) 实时更新左侧行动区按钮的可用/灰色状态：
+     * - AP=0 时攻击/道具/逃跑按钮变灰不可点击
+     * - 技能按钮始终可点击（面板内各技能独立校验可用性）
+     */
+    private void updateActionButtons() {
+        if (btnAttack == null || btnSkill == null || btnItem == null || btnEscape == null || player == null) return;
+
+        boolean hasAp = player.getCurrentActionPoints() > 0;
+
+        if (hasAp) {
+            btnAttack.setAlpha(1f);
+            btnAttack.setEnabled(true);
+            btnItem.setAlpha(1f);
+            btnItem.setEnabled(true);
+            btnEscape.setAlpha(1f);
+            btnEscape.setEnabled(true);
+        } else {
+            btnAttack.setAlpha(0.38f);
+            btnAttack.setEnabled(false);
+            btnItem.setAlpha(0.38f);
+            btnItem.setEnabled(false);
+            btnEscape.setAlpha(0.38f);
+            btnEscape.setEnabled(false);
+        }
+
+        btnSkill.setAlpha(1f);
+        btnSkill.setEnabled(true);
     }
 
     private void updateEndTurnButton() {
@@ -1921,8 +1960,23 @@ public class BattleFragment extends Fragment {
                     : (rt == SkillRangeType.SINGLE_ENEMY ? "（单体）" : "");
             h.name.setText(skill.getSkillName() + rangeHint);
             h.cost.setText(formatSkillCostLine(skill));
+
+            // 基于 canCast 校验技能可用性：资源不足或冷却中 → 变灰不可点击
+            boolean canCast = player != null && skill.canCast(player);
+            if (canCast) {
+                h.name.setAlpha(1f);
+                h.cost.setAlpha(1f);
+                h.itemView.setAlpha(1f);
+                h.itemView.setEnabled(true);
+            } else {
+                h.name.setAlpha(0.38f);
+                h.cost.setAlpha(0.38f);
+                h.itemView.setAlpha(0.38f);
+                h.itemView.setEnabled(false);
+            }
+
             h.itemView.setOnClickListener(v -> {
-                if (listener != null) {
+                if (listener != null && canCast) {
                     listener.onPick(skill);
                 }
             });

@@ -14,7 +14,6 @@ import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.affix.BaseAffix;
-import com.example.treasure_and_battle.ui.FloatMsgMsgOverlay;
 
 import org.junit.Before;
 import org.junit.Test;
