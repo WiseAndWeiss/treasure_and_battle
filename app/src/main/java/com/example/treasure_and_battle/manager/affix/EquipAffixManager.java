@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class EquipAffixManager {
     private static EquipAffixManager instance;
     private final Context context;
     private final Gson gson;
+    private final Random rng = new Random();
 
     private final Map<Integer, EquipAffixTemplate> templateMap = new HashMap<>();
 
@@ -63,38 +65,98 @@ public class EquipAffixManager {
         List<BaseEquipAffix> affixList = new ArrayList<>();
         Rarity equipmentRarity = equipment.getRarity();
         int affixCount = equipmentRarity.getAffixCount();
-
-        List<Rarity> generatedRarities = RngEngine.generateRaritiesWithPity(
-                affixCount,
-                Rarity.COMMON,
-                0f,
-                true,
-                equipmentRarity
-        );
-
         EquipCategory category = equipment.getSlot().getCategory();
+        int affixRarityBonus = equipmentRarity.getAffixRarityBonus();
 
-        for (Rarity targetRarity : generatedRarities) {
-            EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
-            if (template == null) {
-                template = getRandomEquipTemplate(category, null);
-                if (template == null) continue;
-            }
+        addPityAffix(affixList, category, equipmentRarity);
+        if (affixList.isEmpty()) return affixList;
 
-            EquipAffixTemplate.RarityParam param = resolveRarityParam(template, targetRarity);
-            if (param == null) continue;
-
-            float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
-            EquipCategory[] categories = getCategoriesFromTemplate(template);
-
-            BaseEquipAffix affix = EquipAffixFactory.create(
-                    template, targetRarity, template.getTriggerType(), categories, randomValue, param);
-            if (affix != null) {
-                affixList.add(affix);
-            }
+        for (int i = 1; i < affixCount; i++) {
+            Rarity targetRarity = rollNonPityRarity(affixRarityBonus);
+            addOneAffix(affixList, category, targetRarity, false);
         }
 
         return affixList;
+    }
+
+    private void addPityAffix(List<BaseEquipAffix> list, EquipCategory category, Rarity pityRarity) {
+        EquipAffixTemplate template = getRandomEquipTemplate(category, pityRarity);
+        if (template == null) {
+            template = getRandomEquipTemplate(category, null);
+            if (template == null) return;
+        }
+
+        EquipAffixTemplate.RarityParam param = resolveRarityParamExactOrMax(template, pityRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+        BaseEquipAffix affix = EquipAffixFactory.create(
+                template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+                categories, randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private void addOneAffix(List<BaseEquipAffix> list, EquipCategory category,
+                              Rarity targetRarity, boolean isPity) {
+        EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
+        if (template == null) {
+            template = getRandomEquipTemplate(category, null);
+            if (template == null) return;
+        }
+
+        EquipAffixTemplate.RarityParam param = isPity
+                ? resolveRarityParamExactOrMax(template, targetRarity)
+                : resolveRarityParam(template, targetRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+        BaseEquipAffix affix = EquipAffixFactory.create(
+                template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+                categories, randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private Rarity rollNonPityRarity(int affixRarityBonus) {
+        Rarity[] all = Rarity.values();
+        float totalWeight = 0f;
+        for (Rarity r : all) {
+            totalWeight += r.getGlobalProbability();
+        }
+        float roll = rng.nextFloat() * totalWeight;
+        float cumulative = 0f;
+        Rarity base = Rarity.COMMON;
+        for (Rarity r : all) {
+            cumulative += r.getGlobalProbability();
+            if (roll < cumulative) {
+                base = r;
+                break;
+            }
+        }
+        return RngEngine.upgradeRarity(base, affixRarityBonus);
+    }
+
+    private EquipAffixTemplate.RarityParam resolveRarityParamExactOrMax(
+            EquipAffixTemplate template, Rarity targetRarity) {
+        if (template.getRarityParams() == null || template.getRarityParams().isEmpty()) {
+            return null;
+        }
+        int ordinal = targetRarity.ordinal();
+        for (EquipAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() == ordinal) return p;
+        }
+        EquipAffixTemplate.RarityParam best = null;
+        for (EquipAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() <= ordinal) {
+                if (best == null || p.getRarityId() > best.getRarityId()) {
+                    best = p;
+                }
+            }
+        }
+        return best;
     }
 
     private EquipAffixTemplate.RarityParam resolveRarityParam(EquipAffixTemplate template, Rarity targetRarity) {

@@ -19,13 +19,14 @@ public class MonsterAffixFactory {
                                    TriggerType triggerType, float randomValue,
                                    MonsterAffixTemplate.RarityParam param) {
         String affixClass = template.getAffixClass();
+        Rarity actualRarity = (param != null) ? Rarity.fromId(param.getRarityId()) : rarity;
 
         if ("com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix".equals(affixClass)) {
             AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
             ValueType valueType = parseValueType(template.getValueType());
             return new MonsterAttributeAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue, attributeType, valueType);
+                    actualRarity, triggerType, randomValue, attributeType, valueType);
         }
 
         if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix".equals(affixClass)) {
@@ -42,7 +43,7 @@ public class MonsterAffixFactory {
 
             return new MonsterTriggerBuffAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue,
+                    actualRarity, triggerType, randomValue,
                     buffTemplateId, applyTarget, applyStacks, damageToStackRatio);
         }
 
@@ -57,7 +58,7 @@ public class MonsterAffixFactory {
 
             return new MonsterTriggerRecoverAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue,
+                    actualRarity, triggerType, randomValue,
                     recoverResourceType, recoverValueType, recoverValue, damageToRecoverRatio);
         }
 

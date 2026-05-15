@@ -21,6 +21,7 @@ public class EquipAffixFactory {
                                         TriggerType triggerType, EquipCategory[] categories,
                                         float randomValue, EquipAffixTemplate.RarityParam param) {
         String affixClass = template.getAffixClass();
+        Rarity actualRarity = (param != null) ? Rarity.fromId(param.getRarityId()) : targetRarity;
 
         if ("com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix".equals(affixClass)) {
             AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
@@ -29,7 +30,7 @@ public class EquipAffixFactory {
 
             return new EquipAttributeAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    targetRarity, triggerType, categories, randomValue,
+                    actualRarity, triggerType, categories, randomValue,
                     attributeType, valueType, affixScope);
         }
 
@@ -48,7 +49,7 @@ public class EquipAffixFactory {
 
             return new EquipTriggerBuffAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    targetRarity, triggerType, categories, randomValue,
+                    actualRarity, triggerType, categories, randomValue,
                     buffTemplateId, applyTarget, applyStacks, damageToStackRatio);
         }
 
@@ -63,7 +64,7 @@ public class EquipAffixFactory {
 
             return new EquipTriggerRecoverAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    targetRarity, triggerType, categories, randomValue,
+                    actualRarity, triggerType, categories, randomValue,
                     recoverResourceType, recoverValueType, recoverValue, damageToRecoverRatio);
         }
 
