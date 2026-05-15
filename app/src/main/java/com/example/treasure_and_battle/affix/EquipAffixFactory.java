@@ -19,7 +19,7 @@ public class EquipAffixFactory {
 
     public static BaseEquipAffix create(EquipAffixTemplate template, Rarity targetRarity,
                                         TriggerType triggerType, EquipCategory[] categories,
-                                        float randomValue) {
+                                        float randomValue, EquipAffixTemplate.RarityParam param) {
         String affixClass = template.getAffixClass();
 
         if ("com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix".equals(affixClass)) {
@@ -34,16 +34,17 @@ public class EquipAffixFactory {
         }
 
         if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix".equals(affixClass)) {
-            Integer buffTemplateId = template.getBuffTemplateId();
+            Integer buffTemplateId = param != null ? param.getBuffTemplateId() : null;
             if (buffTemplateId == null) {
                 throw new IllegalArgumentException(
                         "EquipTriggerBuffAffix template missing buffTemplateId: " + template.getTemplateId());
             }
 
             AffixBuffApplyTarget applyTarget = parseApplyTarget(template.getApplyTarget());
-            int applyStacks = template.getApplyStacks() == null ? 1 : Math.max(1, template.getApplyStacks());
-            float damageToStackRatio = template.getDamageToStackRatio() == null
-                    ? 0f : Math.max(0f, template.getDamageToStackRatio());
+            int applyStacks = (param != null && param.getApplyStacks() != null)
+                    ? Math.max(1, param.getApplyStacks()) : 1;
+            float damageToStackRatio = (param != null && param.getDamageToStackRatio() != null)
+                    ? Math.max(0f, param.getDamageToStackRatio()) : 0f;
 
             return new EquipTriggerBuffAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
@@ -55,9 +56,10 @@ public class EquipAffixFactory {
             AffixRecoverResourceType recoverResourceType = parseRecoverResourceType(
                     template.getRecoverResourceType());
             ValueType recoverValueType = parseRecoverValueType(template.getRecoverValueType());
-            int recoverValue = template.getRecoverValue() == null ? 0 : Math.max(0, template.getRecoverValue());
-            float damageToRecoverRatio = template.getDamageToRecoverRatio() == null
-                    ? 0f : Math.max(0f, template.getDamageToRecoverRatio());
+            int recoverValue = (param != null && param.getRecoverValue() != null)
+                    ? Math.max(0, param.getRecoverValue()) : 0;
+            float damageToRecoverRatio = (param != null && param.getDamageToRecoverRatio() != null)
+                    ? Math.max(0f, param.getDamageToRecoverRatio()) : 0f;
 
             return new EquipTriggerRecoverAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),

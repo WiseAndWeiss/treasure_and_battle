@@ -127,19 +127,19 @@ public final class SkillDetailDialog {
         appendLine(sb, "冷却", nonEmpty(d.cooldown));
         appendLine(sb, "作用范围", nonEmpty(d.castRange));
 
-        sb.append("【当前效果】\n");
+        sb.append("<b>【当前效果】</b>\n");
         sb.append(d.effectCurrent.trim()).append("\n");
 
         if (!TextUtils.isEmpty(d.effectNext)) {
-            sb.append("\n【下一等级】\n");
+            sb.append("<b>【下一等级】</b>\n");
             sb.append(d.effectNext.trim()).append("\n");
         } else {
-            sb.append("\n【下一等级】\n已满级\n");
+            sb.append("<b>【下一等级】</b>\n>已满级\n");
         }
 
         String desc = nonEmpty(d.fullDescription);
         if (desc != null) {
-            sb.append("\n【技能说明】\n");
+            sb.append("<b>【技能说明】</b>\n");
             sb.append(desc).append("\n");
         }
 

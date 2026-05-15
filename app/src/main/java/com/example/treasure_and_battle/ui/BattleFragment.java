@@ -1487,7 +1487,10 @@ public class BattleFragment extends Fragment {
             if (buffs != null && !buffs.isEmpty()) {
                 for (BaseBuff b : buffs) {
                     String text = b.getBuffName() + " x" + b.getStackCount()
-                            + " · 剩" + b.getRemainingDuration() + "回合";
+                    int duration = b.getRemainingDuration();
+                    if (duration > 0) {
+                        text += " · 剩" + duration + "回合";
+                    }
                     addStatRow(buffContainer, text, "");
                 }
             } else {
