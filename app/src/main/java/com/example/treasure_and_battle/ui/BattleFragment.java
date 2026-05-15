@@ -2050,7 +2050,7 @@ public class BattleFragment extends Fragment {
             sb.append("<b>【词缀】</b><br>");
             for (BaseAffix affix : affixes) {
                 if (affix == null) continue;
-                String desc = affix.getDescription();
+                String desc = affix.getAffixName() + "：" + affix.getDescription();
                 if (desc == null || desc.isEmpty()) continue;
                 String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                         ? affix.getRarity().getColor() : 0xFF888888);
@@ -2067,9 +2067,13 @@ public class BattleFragment extends Fragment {
             for (BaseBuff b : buffs) {
                 if (b == null) continue;
                 int dur = b.getRemainingDuration();
+                if (dur > 0) {
                 sb.append("· ").append(b.getBuffName())
                         .append(" 层").append(b.getStackCount())
                         .append(" 剩").append(dur).append("回合<br>");
+                } else {
+                    sb.append("· ").append(b.getBuffName()).append(" 层").append(b.getStackCount()).append("<br>");
+                }
             }
         }
 

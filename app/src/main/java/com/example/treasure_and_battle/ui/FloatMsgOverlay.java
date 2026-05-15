@@ -24,7 +24,7 @@ import java.util.Queue;
  */
 public final class FloatMsgOverlay {
 
-    private static final int MAX_VISIBLE = 3;
+    private static final int MAX_VISIBLE = 999; // 不限制数量，改为排队显示
     private static final long DEFAULT_DURATION_MS = 1200;
     private static final int FLY_UP_PX = 70;
     private static final int BG_COLOR = 0xA6323232;

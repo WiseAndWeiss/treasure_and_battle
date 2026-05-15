@@ -6,6 +6,8 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
+import com.example.treasure_and_battle.model.attribute.AttributeType;
+import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.model.common.TriggerType;
@@ -231,4 +233,105 @@ public class AttributeUtils {
     private static AttributeSet cachedFinalAttr = null;
     private static long lastCacheTime = 0;
     private static final long CACHE_DURATION = 100;
+
+    public static void applyAttributeTypeBonus(AttributeSet attr, AttributeType attributeType,
+                                                ValueType valueType, float value) {
+        switch (attributeType) {
+            case STRENGTH:
+                if (valueType == ValueType.FLAT) attr.strength += (int) value;
+                else attr.percentStrength += value;
+                break;
+            case AGILITY:
+                if (valueType == ValueType.FLAT) attr.agility += (int) value;
+                else attr.percentAgility += value;
+                break;
+            case INTELLIGENCE:
+                if (valueType == ValueType.FLAT) attr.intelligence += (int) value;
+                else attr.percentIntelligence += value;
+                break;
+            case SPIRIT:
+                if (valueType == ValueType.FLAT) attr.spirit += (int) value;
+                else attr.percentSpirit += value;
+                break;
+            case PHYSIQUE:
+                if (valueType == ValueType.FLAT) attr.physique += (int) value;
+                else attr.percentPhysique += value;
+                break;
+            case LUCK:
+                if (valueType == ValueType.FLAT) attr.luck += (int) value;
+                else attr.percentLuck += value;
+                break;
+            case PHYSICAL_ATK:
+                if (valueType == ValueType.FLAT) attr.physicalAtk += (int) value;
+                else attr.percentPhysicalAtk += value;
+                break;
+            case MAGICAL_ATK:
+                if (valueType == ValueType.FLAT) attr.magicalAtk += (int) value;
+                else attr.percentMagicalAtk += value;
+                break;
+            case PHYSICAL_DEF:
+                if (valueType == ValueType.FLAT) attr.physicalDef += (int) value;
+                else attr.percentPhysicalDef += value;
+                break;
+            case MAGICAL_DEF:
+                if (valueType == ValueType.FLAT) attr.magicalDef += (int) value;
+                else attr.percentMagicalDef += value;
+                break;
+            case SPEED:
+                if (valueType == ValueType.FLAT) attr.speed += (int) value;
+                else attr.percentSpeed += value;
+                break;
+            case MAX_HP:
+                if (valueType == ValueType.FLAT) attr.maxHp += (int) value;
+                else attr.percentMaxHp += value;
+                break;
+            case MAX_MP:
+                if (valueType == ValueType.FLAT) attr.maxMp += (int) value;
+                else attr.percentMaxMp += value;
+                break;
+            case MAX_ACTION_POINTS:
+                if (valueType == ValueType.FLAT) attr.maxActionPoints += (int) value;
+                break;
+            case PHYSICAL_CRIT_RATE:   attr.physicalCritRate += value; break;
+            case MAGICAL_CRIT_RATE:    attr.magicalCritRate += value; break;
+            case PHYSICAL_CRIT_DMG:    attr.physicalCritDmg += value; break;
+            case MAGICAL_CRIT_DMG:     attr.magicalCritDmg += value; break;
+            case HIT_RATE:             attr.hitRate += value; break;
+            case DODGE_RATE:           attr.dodgeRate += value; break;
+            case DEBUFF_RESIST:        attr.debuffResist += value; break;
+            case DAMAGE_REDUCTION_RATE: attr.damageReductionRate += value; break;
+        }
+    }
+
+    public static void applyBonusToAttrSet(AttributeSet attr, String type, float value) {
+        switch (type) {
+            case "STRENGTH":          attr.strength = (int) value; break;
+            case "AGILITY":           attr.agility = (int) value; break;
+            case "INTELLIGENCE":      attr.intelligence = (int) value; break;
+            case "SPIRIT":            attr.spirit = (int) value; break;
+            case "PHYSIQUE":          attr.physique = (int) value; break;
+            case "LUCK":              attr.luck = (int) value; break;
+            case "PHYSICAL_ATK":      attr.physicalAtk = (int) value; break;
+            case "MAGICAL_ATK":       attr.magicalAtk = (int) value; break;
+            case "PHYSICAL_DEF":      attr.physicalDef = (int) value; break;
+            case "MAGICAL_DEF":       attr.magicalDef = (int) value; break;
+            case "SPEED":             attr.speed = (int) value; break;
+            case "MAX_HP":            attr.maxHp = (int) value; break;
+            case "MAX_MP":            attr.maxMp = (int) value; break;
+            case "PHYSICAL_CRIT_RATE":  attr.physicalCritRate = value; break;
+            case "MAGICAL_CRIT_RATE":   attr.magicalCritRate = value; break;
+            case "PHYSICAL_CRIT_DMG":   attr.physicalCritDmg = value; break;
+            case "MAGICAL_CRIT_DMG":    attr.magicalCritDmg = value; break;
+            case "HIT_RATE":          attr.hitRate = value; break;
+            case "DODGE_RATE":        attr.dodgeRate = value; break;
+            case "DEBUFF_RESIST":     attr.debuffResist = value; break;
+            case "GOLD_BONUS":        attr.goldBonus = value; break;
+            case "EXP_BONUS":         attr.expBonus = value; break;
+            case "PHYSICAL_AND_MAGICAL_CRIT_RATE":
+                attr.physicalCritRate = value;
+                attr.magicalCritRate = value;
+                break;
+            default: break;
+        }
+    }
 }

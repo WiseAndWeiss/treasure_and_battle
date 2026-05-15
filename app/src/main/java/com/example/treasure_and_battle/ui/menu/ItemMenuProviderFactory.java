@@ -20,13 +20,16 @@ public class ItemMenuProviderFactory {
     private final Context context;
     private final Consumer<Item> viewCallback;
     private final Consumer<Item> discardCallback;
+    private final boolean isInBattle;
 
     public ItemMenuProviderFactory(Context context,
                                    Consumer<Item> viewCallback,
-                                   Consumer<Item> discardCallback) {
+                                   Consumer<Item> discardCallback,
+                                   boolean isInBattle) {
         this.context = context;
         this.viewCallback = viewCallback;
         this.discardCallback = discardCallback;
+        this.isInBattle = isInBattle;
     }
 
     public void registerEquipment(Consumer<EquipItem> equipCallback) {
@@ -39,9 +42,9 @@ public class ItemMenuProviderFactory {
                 new ConsumableMenuProvider(useCallback, viewCallback, discardCallback));
     }
 
-    public void registerGem() {
+    public void registerGem(Consumer<GemItem> gemSocketCallback) {
         providers.put(GemItem.class,
-                new GemMenuProvider(viewCallback, discardCallback));
+                new GemMenuProvider(gemSocketCallback, viewCallback, discardCallback, isInBattle));
     }
 
     public void registerMaterial() {
