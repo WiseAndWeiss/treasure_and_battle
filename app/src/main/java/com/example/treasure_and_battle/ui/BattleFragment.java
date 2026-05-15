@@ -24,7 +24,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +58,7 @@ import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -2003,7 +2003,7 @@ public class BattleFragment extends Fragment {
             title.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_gold_deep));
         }
 
-        body.setText(HtmlCompat.fromHtml(buildMonsterDetailHtml(m), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        HtmlRenderUtils.setHtmlText(body, buildMonsterDetailHtml(m));
 
         if (icon != null) {
             GameAssetIcons.bindMonster(requireContext(), icon, m.getEntityId(), R.drawable.ic_map);
@@ -2052,7 +2052,7 @@ public class BattleFragment extends Fragment {
                 if (affix == null) continue;
                 String desc = affix.getDescription();
                 if (desc == null || desc.isEmpty()) continue;
-                String colorHex = colorToHex(affix.getRarity() != null
+                String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                         ? affix.getRarity().getColor() : 0xFF888888);
                 sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
                 sb.append(android.text.TextUtils.htmlEncode(desc)).append("<br>");
@@ -2106,10 +2106,6 @@ public class BattleFragment extends Fragment {
 
     private static void appendFloatStatIfNonZero(StringBuilder sb, String label, float v) {
         if (Math.abs(v) > 0.0001f) sb.append(label).append("：").append(String.format("%.1f%%", v * 100f)).append("<br>");
-    }
-
-    private static String colorToHex(int color) {
-        return String.format("#%06X", 0xFFFFFF & color);
     }
 
     private String summarizeResult() {

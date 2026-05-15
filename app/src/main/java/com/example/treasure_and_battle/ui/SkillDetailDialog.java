@@ -16,6 +16,7 @@ import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.model.skill.SkillType;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
@@ -98,7 +99,7 @@ public final class SkillDetailDialog {
         TextView title = root.findViewById(R.id.tv_detail_title);
         TextView body = root.findViewById(R.id.tv_detail_body);
         title.setText(detail.name);
-        body.setText(buildDetailText(detail));
+        HtmlRenderUtils.setHtmlText(body, buildDetailText(detail));
 
         MaterialAlertDialogBuilder builder =
                 new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Tb_ItemDetailDialog);
@@ -127,19 +128,19 @@ public final class SkillDetailDialog {
         appendLine(sb, "冷却", nonEmpty(d.cooldown));
         appendLine(sb, "作用范围", nonEmpty(d.castRange));
 
-        sb.append("<b>【当前效果】</b>\n");
+        sb.append("<b>【当前效果】</b><br>");
         sb.append(d.effectCurrent.trim()).append("\n");
 
         if (!TextUtils.isEmpty(d.effectNext)) {
-            sb.append("<b>【下一等级】</b>\n");
+            sb.append("<b>【下一等级】</b><br>");
             sb.append(d.effectNext.trim()).append("\n");
         } else {
-            sb.append("<b>【下一等级】</b>\n>已满级\n");
+            sb.append("<b>【下一等级】</b><br>已满级\n");
         }
 
         String desc = nonEmpty(d.fullDescription);
         if (desc != null) {
-            sb.append("<b>【技能说明】</b>\n");
+            sb.append("<b>【技能说明】</b><br>");
             sb.append(desc).append("\n");
         }
 
