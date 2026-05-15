@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class EquipmentManager {
+    public static final double BALANCE_FACTOR = 2.0;
     private static EquipmentManager instance;
     private final Context context;
     private final Random random;
@@ -66,12 +67,14 @@ public class EquipmentManager {
     }
 
     private double calculateBasePower(int level) {
+        double power = 0;
         if (level <= 30) {
-            return 10.0 + 0.8 * (level - 1);
+            power = 10.0 + 0.8 * (level - 1);
         } else {
             double power30 = 10.0 + 0.8 * 29;
-            return power30 * Math.pow((double) level / 30.0, 1.4);
+            power = power30 * Math.pow((double) level / 30.0, 1.4);
         }
+        return power * BALANCE_FACTOR;
     }
 
     private double getRarityMultiplier(Rarity rarity) {

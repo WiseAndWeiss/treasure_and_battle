@@ -24,7 +24,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +58,7 @@ import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -561,24 +561,25 @@ public class BattleFragment extends Fragment {
         }
         boolean hasEffects = consumable.getEffects() != null
                 && !consumable.getEffects().isEmpty();
-        boolean ok;
-        if (hasEffects) {
-            ok = ConsumableManager.execute(player, battleContext, consumable, requireContext());
-        } else {
-            applyFallbackBattleConsumable(consumable);
-            ok = true;
-        }
-        if (!ok) {
-            player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
-            showFloatMsg("无法使用该道具");
-            return false;
-        }
         consumeOneFromBag(consumable, null);
         mainHandler.postDelayed(() -> {
             if (!isAdded()) return;
             clearPending();
             setHint("");
-            afterPlayerActionUi();
+            afterPlayerActionUi(() -> {
+                boolean ok;
+                if (hasEffects) {
+                    ok = ConsumableManager.execute(player, battleContext, consumable, requireContext());
+                } else {
+                    applyFallbackBattleConsumable(consumable);
+                    ok = true;
+                }
+                if (!ok) {
+                    showFloatMsg("无法使用该道具");
+                    return;
+                }
+                battleManager.checkDeath(battleContext);
+            });
         }, 350);
         showFloatMsg("已使用：" + consumable.getName());
         return true;
@@ -879,21 +880,22 @@ public class BattleFragment extends Fragment {
             showFloatMsg("无法释放（冷却/行动点/魔法/生命不足）");
             return;
         }
+        List<BattleEntity> targets;
         try {
-            List<BattleEntity> targets =
-                    SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
-            if (targets.isEmpty() && skill.getSkillRangeType() != SkillRangeType.NONE) {
-                showFloatMsg("没有可选目标");
-                return;
-            }
-            battleManager.executeSkill(player, skill, targets, battleContext);
+            targets = SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
         } catch (Exception e) {
             showFloatMsg("技能释放失败: " + e.getMessage());
             return;
         }
+        if (targets.isEmpty() && skill.getSkillRangeType() != SkillRangeType.NONE) {
+            showFloatMsg("没有可选目标");
+            return;
+        }
 
-        battleManager.checkDeath(battleContext);
-        afterPlayerActionUi();
+        afterPlayerActionUi(() -> {
+            battleManager.executeSkill(player, skill, targets, battleContext);
+            battleManager.checkDeath(battleContext);
+        });
     }
 
     private void onItemCommand() {
@@ -1013,20 +1015,19 @@ public class BattleFragment extends Fragment {
             setHint("");
             return;
         }
-        boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
-        if (!ok) {
-            clearPending();
-            setHint("");
-            showFloatMsg("无法普攻（资源不足）");
-            return;
-        }
-        battleManager.checkDeath(battleContext);
         hideConfirmCancelButtons();
         mainHandler.postDelayed(() -> {
             if (!isAdded()) return;
             clearPending();
             setHint("");
-            afterPlayerActionUi();
+            afterPlayerActionUi(() -> {
+                boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
+                if (!ok) {
+                    showFloatMsg("无法普攻（资源不足）");
+                    return;
+                }
+                battleManager.checkDeath(battleContext);
+            });
         }, 350);
     }
 
@@ -1123,9 +1124,8 @@ public class BattleFragment extends Fragment {
         return true;
     }
 
-    /** 玩家行动后刷新 UI；需要玩家主动点击"结束回合"来推进。 */
-    private void afterPlayerActionUi() {
-        animatePlayerAttack(() -> {
+    private void afterPlayerActionUi(@Nullable Runnable applyDamage) {
+        animatePlayerAttack(applyDamage, () -> {
             refreshBattleUi();
             if (battleContext.isBattleEnded) {
                 finishBattleAndExit();
@@ -1133,8 +1133,9 @@ public class BattleFragment extends Fragment {
         });
     }
 
-    private void animatePlayerAttack(Runnable onDone) {
+    private void animatePlayerAttack(@Nullable Runnable onPeak, @NonNull Runnable onDone) {
         if (ivBattleTachie == null) {
+            if (onPeak != null) onPeak.run();
             onDone.run();
             return;
         }
@@ -1147,6 +1148,7 @@ public class BattleFragment extends Fragment {
         up.addListener(new android.animation.AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
+                if (onPeak != null) onPeak.run();
                 android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
                         ivBattleTachie, "translationY", -upOffset, 0f);
                 down.setDuration(250);
@@ -1258,20 +1260,22 @@ public class BattleFragment extends Fragment {
             if (isEndTurn) endTurnCooldown = false;
             if (m != null) {
                 int slotIdx = findMonsterSlotIndex(m);
-                animateMonsterAttack(m, slotIdx, () -> {
-                    refreshBattleUi();
-                    playerInputLocked = true;
-                    showRoundBanner(roundAfter, () -> {
-                        if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
-                            playerInputLocked = false;
-                            if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
-                            return;
-                        }
-                        playerInputLocked = false;
+                animateMonsterAttack(m, slotIdx,
+                    () -> battleManager.executePendingMonsterAction(battleContext),
+                    () -> {
                         refreshBattleUi();
-                        runMonsterTurnsStepped();
+                        playerInputLocked = true;
+                        showRoundBanner(roundAfter, () -> {
+                            if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                                playerInputLocked = false;
+                                if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
+                                return;
+                            }
+                            playerInputLocked = false;
+                            refreshBattleUi();
+                            runMonsterTurnsStepped();
+                        });
                     });
-                });
             } else {
                 playerInputLocked = true;
                 refreshBattleUi();
@@ -1295,22 +1299,25 @@ public class BattleFragment extends Fragment {
             return;
         }
         int slotIdx = findMonsterSlotIndex(m);
-        animateMonsterAttack(m, slotIdx, () -> {
-            refreshBattleUi();
-            if (playerDead) {
-                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
-                return;
-            }
-            if (battleContext.isBattleEnded) {
-                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
-                return;
-            }
-            mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
-        });
+        animateMonsterAttack(m, slotIdx,
+            () -> battleManager.executePendingMonsterAction(battleContext),
+            () -> {
+                refreshBattleUi();
+                if (playerDead) {
+                    mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                    return;
+                }
+                if (battleContext.isBattleEnded) {
+                    mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                    return;
+                }
+                mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
+            });
     }
 
-    private void animateMonsterAttack(Monster m, int slotIdx, Runnable onDone) {
+    private void animateMonsterAttack(Monster m, int slotIdx, @Nullable Runnable onPeak, @NonNull Runnable onDone) {
         if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) {
+            if (onPeak != null) onPeak.run();
             onDone.run();
             return;
         }
@@ -1323,6 +1330,7 @@ public class BattleFragment extends Fragment {
         down.addListener(new android.animation.AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
+                if (onPeak != null) onPeak.run();
                 android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(slot, "translationY", downOffset, 0f);
                 up.setDuration(250);
                 up.addListener(new android.animation.AnimatorListenerAdapter() {
@@ -1486,8 +1494,11 @@ public class BattleFragment extends Fragment {
             List<BaseBuff> buffs = player.getActiveBuffList();
             if (buffs != null && !buffs.isEmpty()) {
                 for (BaseBuff b : buffs) {
-                    String text = b.getBuffName() + " x" + b.getStackCount()
-                            + " · 剩" + b.getRemainingDuration() + "回合";
+                    String text = b.getBuffName() + " x" + b.getStackCount();
+                    int duration = b.getRemainingDuration();
+                    if (duration > 0) {
+                        text += " · 剩" + duration + "回合";
+                    }
                     addStatRow(buffContainer, text, "");
                 }
             } else {
@@ -1992,7 +2003,7 @@ public class BattleFragment extends Fragment {
             title.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_gold_deep));
         }
 
-        body.setText(HtmlCompat.fromHtml(buildMonsterDetailHtml(m), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        HtmlRenderUtils.setHtmlText(body, buildMonsterDetailHtml(m));
 
         if (icon != null) {
             GameAssetIcons.bindMonster(requireContext(), icon, m.getEntityId(), R.drawable.ic_map);
@@ -2041,7 +2052,7 @@ public class BattleFragment extends Fragment {
                 if (affix == null) continue;
                 String desc = affix.getDescription();
                 if (desc == null || desc.isEmpty()) continue;
-                String colorHex = colorToHex(affix.getRarity() != null
+                String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                         ? affix.getRarity().getColor() : 0xFF888888);
                 sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
                 sb.append(android.text.TextUtils.htmlEncode(desc)).append("<br>");
@@ -2095,10 +2106,6 @@ public class BattleFragment extends Fragment {
 
     private static void appendFloatStatIfNonZero(StringBuilder sb, String label, float v) {
         if (Math.abs(v) > 0.0001f) sb.append(label).append("：").append(String.format("%.1f%%", v * 100f)).append("<br>");
-    }
-
-    private static String colorToHex(int color) {
-        return String.format("#%06X", 0xFFFFFF & color);
     }
 
     private String summarizeResult() {

@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.affix.BaseAffix;
@@ -23,6 +22,7 @@ import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.lang.reflect.Field;
@@ -51,7 +51,7 @@ public final class ItemDetailDialog {
         } else {
             title.setTextColor(ContextCompat.getColor(context, R.color.tb_gold_deep));
         }
-        body.setText(HtmlCompat.fromHtml(buildDetailHtml(item), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        HtmlRenderUtils.setHtmlText(body, buildDetailHtml(item));
 
         if (icon != null) {
             GameAssetIcons.bindItem(context, icon, item);
@@ -184,7 +184,7 @@ public final class ItemDetailDialog {
             if (affix == null) continue;
             String line = affix.getDescription();
             if (TextUtils.isEmpty(line)) continue;
-            String colorHex = colorToHex(affix.getRarity() != null
+            String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                     ? affix.getRarity().getColor() : 0xFF888888);
             sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
             sb.append(android.text.TextUtils.htmlEncode(line)).append("<br>");
@@ -201,7 +201,7 @@ public final class ItemDetailDialog {
             String colorHex;
             String label;
             if (gem != null) {
-                colorHex = colorToHex(gem.getRarity() != null
+                colorHex = HtmlRenderUtils.colorToHex(gem.getRarity() != null
                         ? gem.getRarity().getColor() : 0xFF888888);
                 label = gem.getName() + "（" + gem.getRarity().getDisplayName() + "）";
             } else {
@@ -216,11 +216,6 @@ public final class ItemDetailDialog {
     private static void appendHtmlLine(@NonNull StringBuilder sb, @NonNull String label, @Nullable String value) {
         if (TextUtils.isEmpty(value)) return;
         sb.append(label).append("：").append(android.text.TextUtils.htmlEncode(value.trim())).append("<br>");
-    }
-
-    @NonNull
-    private static String colorToHex(int color) {
-        return String.format("#%06X", 0xFFFFFF & color);
     }
 
     @Nullable
