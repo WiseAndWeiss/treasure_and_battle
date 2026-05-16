@@ -80,8 +80,8 @@
       "rarityParams": [
         {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "recoverValue": 5},
         {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "recoverValue": 5},
-        {"rarityId": 2, "minValue": 1.00, "maxValue": 1.00, "recoverValue": 5},
-        {"rarityId": 3, "minValue": 1.00, "maxValue": 1.00, "recoverValue": 5},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "recoverValue": 5},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "recoverValue": 5},
         {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00, "recoverValue": 10}
       ]
     },
