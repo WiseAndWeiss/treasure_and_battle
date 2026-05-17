@@ -17,15 +17,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:text="treasure and battle"
-            android:textSize="36sp"
-            android:textColor="@color/tb_text_main"
-            android:textStyle="bold"
-            android:fontFamily="serif"
-            android:letterSpacing="0.15"
+            android:src="@drawable/title"
+            android:adjustViewBounds="true"
             android:gravity="center"
             android:layout_marginBottom="12dp" />
 
@@ -67,6 +63,18 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="@string/btn_book"
+            android:textSize="18sp"
+            android:textColor="@color/tb_text_main"
+            android:textStyle="bold"
+            android:background="@drawable/bg_entry_secondary_btn"
+            android:layout_marginBottom="16dp"
+            android:elevation="4dp" />
+
+        <Button
+            android:id="@+id/btn_exit_game"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="退出游戏"
             android:textSize="18sp"
             android:textColor="@color/tb_text_main"
             android:textStyle="bold"

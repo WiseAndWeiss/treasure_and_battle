@@ -102,7 +102,7 @@ public class ItemMenuProviderTest {
                 Rarity.COMMON, 50, 99, true, false, effects, "仅战斗中使用");
 
         testGemItem = new GemItem("gem_test", "红宝石", Rarity.COMMON, 200, "RUBY");
-        testMaterialItem = new MaterialItem("mat_test", "铁矿石", Rarity.COMMON, 10, 99, "矿洞");
+        testMaterialItem = new MaterialItem("mat_test", "铁矿石", Rarity.COMMON, 10, 99, "矿洞"); 
     }
 
     @After
@@ -318,14 +318,14 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testGemMenuProvider_ActionCount() {
-        GemMenuProvider provider = new GemMenuProvider(viewCallback, discardCallback);
+        GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, false);
         List<ItemAction> actions = provider.getActions(testGemItem);
         assertEquals(3, actions.size());
     }
 
     @Test
     public void testGemMenuProvider_MosaicAlwaysDisabled() {
-        GemMenuProvider provider = new GemMenuProvider(viewCallback, discardCallback);
+        GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, false);
         List<ItemAction> actions = provider.getActions(testGemItem);
         assertEquals("镶嵌(TODO)", actions.get(0).name);
         assertFalse("镶嵌功能应默认不可用", actions.get(0).enabled);
@@ -335,7 +335,7 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testGemMenuProvider_NoUseButton() {
-        GemMenuProvider provider = new GemMenuProvider(viewCallback, discardCallback);
+        GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, false);
         List<ItemAction> actions = provider.getActions(testGemItem);
         for (ItemAction action : actions) {
             assertFalse("Gem 不应有使用按钮", "使用".equals(action.name));
@@ -344,7 +344,7 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testGemMenuProvider_ActionOrder() {
-        GemMenuProvider provider = new GemMenuProvider(viewCallback, discardCallback);
+        GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, false);
         List<ItemAction> actions = provider.getActions(testGemItem);
         assertEquals("镶嵌(TODO)", actions.get(0).name);
         assertEquals("查看", actions.get(1).name);
@@ -353,7 +353,7 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testGemMenuProvider_ViewAndDiscardWork() {
-        GemMenuProvider provider = new GemMenuProvider(viewCallback, discardCallback);
+        GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, false);
         List<ItemAction> actions = provider.getActions(testGemItem);
         actions.get(1).action.accept(testGemItem);
         assertEquals(testGemItem, lastViewed.get());
@@ -410,10 +410,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_GetActionsForEquipItem() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testEquipItem);
@@ -425,10 +425,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_GetActionsForConsumableItem() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testConsumableOutBattle);
@@ -438,10 +438,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_GetActionsForGemItem() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testGemItem);
@@ -452,10 +452,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_GetActionsForMaterialItem() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testMaterialItem);
@@ -466,10 +466,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_NullItemReturnsEmpty() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(null);
@@ -479,7 +479,7 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_UnregisteredClassReturnsEmpty() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
 
         Item unknownItem = new MaterialItem("unknown", "未知", Rarity.COMMON, 1, 1, "?") {};
         List<ItemAction> actions = factory.getActions(unknownItem);
@@ -489,10 +489,10 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testFactory_NoInstanceofCheck() {
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> equipActions = factory.getActions(testEquipItem);
@@ -516,10 +516,10 @@ public class ItemMenuProviderTest {
         Character ch = testCharacter;
         ch.unequip(EquipSlot.WEAPON);
 
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testEquipItem);
@@ -539,10 +539,10 @@ public class ItemMenuProviderTest {
         org.junit.Assume.assumeNotNull("Character creation requires real context (Robolectric)", testCharacter);
         Character ch = testCharacter;
 
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testEquipItem);
@@ -593,7 +593,7 @@ public class ItemMenuProviderTest {
             lastDiscarded.set(item);
         };
 
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardWithConfirm);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardWithConfirm, false);
         factory.registerMaterial();
 
         List<ItemAction> actions = factory.getActions(testMaterialItem);
@@ -611,7 +611,7 @@ public class ItemMenuProviderTest {
         List<ItemMenuProvider> providers = new ArrayList<>();
         providers.add(new EquipmentMenuProvider(equipCallback, viewCallback, discardCallback));
         providers.add(new ConsumableMenuProvider(useCallback, viewCallback, discardCallback));
-        providers.add(new GemMenuProvider(viewCallback, discardCallback));
+        providers.add(new GemMenuProvider(g -> {}, viewCallback, discardCallback, false));
         providers.add(new MaterialMenuProvider(viewCallback, discardCallback));
 
         List<Item> items = new ArrayList<>();
@@ -638,7 +638,7 @@ public class ItemMenuProviderTest {
         List<ItemMenuProvider> providers = new ArrayList<>();
         providers.add(new EquipmentMenuProvider(equipCallback, viewCallback, discardCallback));
         providers.add(new ConsumableMenuProvider(useCallback, viewCallback, discardCallback));
-        providers.add(new GemMenuProvider(viewCallback, discardCallback));
+        providers.add(new GemMenuProvider(g -> {}, viewCallback, discardCallback, false));
         providers.add(new MaterialMenuProvider(viewCallback, discardCallback));
 
         List<Item> items = new ArrayList<>();
@@ -668,10 +668,10 @@ public class ItemMenuProviderTest {
         items.add(testGemItem);
         items.add(testMaterialItem);
 
-        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback);
+        ItemMenuProviderFactory factory = new ItemMenuProviderFactory(context, viewCallback, discardCallback, false);
         factory.registerEquipment(equipCallback);
         factory.registerConsumable(useCallback);
-        factory.registerGem();
+        factory.registerGem(g -> {});
         factory.registerMaterial();
 
         for (Item item : items) {

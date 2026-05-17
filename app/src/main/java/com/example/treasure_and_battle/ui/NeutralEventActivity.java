@@ -30,9 +30,11 @@ import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.utils.GameAssetIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,16 @@ public class NeutralEventActivity extends AppCompatActivity {
     private Button btnContinue;
     private Button btnAction1;
     private Button btnAction2;
+
+    private int caveStep = 0;
+    private int[] caveHpLoss = new int[4];
+    private String[] caveItemDesc = new String[2];
+    private transient Item caveItem1;
+    private transient Item caveItem2;
+
+    private int travelerRequiredRarityId;
+    private ItemType travelerRequiredType;
+    private String travelerRequestDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +107,8 @@ public class NeutralEventActivity extends AppCompatActivity {
                 });
                 break;
 
-            case "exploration":
-                btnAction1 = addActionButton("深入探险", 0xFFE53935, v -> {
-                    showResult("你鼓起勇气深入洞穴...\n（探险系统后续开发）");
-                    switchToForwardButton();
-                });
-                btnAction2 = addActionButton("谨慎离开", 0xFF888888, v -> {
-                    showResult("你选择了安全离开，放弃了可能存在的宝藏。");
-                    switchToForwardButton();
-                });
-                break;
-
             case "traveler":
-                btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
-                    showResult("你帮助了迷路的旅人！\n\n✅ 获得补给品 ×3\n✅ 获得金币 ×200\n✅ 幸运值提升，持续1小时");
-                    switchToForwardButton();
-                });
-                btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
-                    showResult("你匆匆走过，没有理会旅人求助的目光。");
-                    switchToForwardButton();
-                });
+                buildTravelerActions();
                 break;
 
             case "scholar":
@@ -129,10 +123,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                 break;
 
             case "statue_blessing":
-                btnAction1 = addActionButton("接受雕像祝福", 0xFFFFC107, v -> {
-                    showResult("雕像散发金色光芒...\n\n✅ 下3场战斗开始时获得随机Buff：\n  · 攻击力 +10%\n  · 防御力 +10%\n  · 最大生命 +15%");
-                    switchToForwardButton();
-                });
+                btnAction1 = addActionButton("接受雕像祝福", 0xFFFFC107, v -> showGemUpgradeDialog());
                 btnAction2 = addActionButton("绕道离开", 0xFF888888, v -> {
                     showResult("你绕过了雕像，没有接受祝福。");
                     switchToForwardButton();
@@ -151,19 +142,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                 break;
 
             case "cave_treasure":
-                btnAction1 = addActionButton("开启宝箱", 0xFFFF9800, v -> {
-                    int roll = (int) (Math.random() * 100);
-                    if (roll < 30) {
-                        showResult("打开宝箱的瞬间，一只怪物从背后偷袭！\n⚔️ 进入战斗（战斗系统后续开发）");
-                    } else {
-                        showResult("宝箱顺利打开！\n\n✅ 获得金币 ×500\n✅ 获得随机装备 ×1\n✅ 获得随机宝石 ×1");
-                    }
-                    switchToForwardButton();
-                });
-                btnAction2 = addActionButton("放弃宝箱", 0xFF888888, v -> {
-                    showResult("你选择了谨慎行事，放弃了眼前的宝箱。");
-                    switchToForwardButton();
-                });
+                buildCaveTreasureActions();
                 break;
 
             case "equipment_reforge":
@@ -303,6 +282,182 @@ public class NeutralEventActivity extends AppCompatActivity {
         }
     }
 
+    private void buildCaveTreasureActions() {
+        llActionArea.removeAllViews();
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+
+        String btn1Text;
+        View.OnClickListener btn1Listener;
+        int btn1Color = 0xFFFF9800;
+
+        if (caveStep == 0) {
+            caveHpLoss[0] = 10 + (int) (Math.random() * 21);
+            ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
+            EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
+            Rarity r = Math.random() < 0.5 ? Rarity.COMMON : Rarity.UNCOMMON;
+            if (Math.random() < 0.4) {
+                caveItem1 = em.generateRandomEquip(5 + (int) (Math.random() * 11), r);
+            } else {
+                caveItem1 = im.getRandomConsumableByRarity(r);
+                if (caveItem1 == null) caveItem1 = im.getRandomGemByRarity(r);
+            }
+            caveItemDesc[0] = caveItem1 != null ? caveItem1.getName() : "一件宝物";
+            if (caveItem1 != null) {
+                InventoryManager.addItem(ch.getBagItems(), caveItem1);
+            }
+            btn1Text = "你不小心擦破了皮肤，但是你找到了一件宝物（-" + caveHpLoss[0] + "点生命，获得" + caveItemDesc[0] + "）";
+            btn1Listener = v -> {
+                caveStep = 1;
+                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[0]));
+                buildCaveTreasureActions();
+            };
+        } else if (caveStep == 1) {
+            caveHpLoss[1] = 20 + (int) (Math.random() * 31);
+            ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
+            EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
+            Rarity r = Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE;
+            if (Math.random() < 0.4) {
+                caveItem2 = em.generateRandomEquip(10 + (int) (Math.random() * 11), r);
+            } else {
+                caveItem2 = im.getRandomConsumableByRarity(r);
+                if (caveItem2 == null) caveItem2 = im.getRandomGemByRarity(r);
+            }
+            caveItemDesc[1] = caveItem2 != null ? caveItem2.getName() : "一件宝物";
+            if (caveItem2 != null) {
+                InventoryManager.addItem(ch.getBagItems(), caveItem2);
+            }
+            btn1Text = "你进一步深入探索，虽然受了点伤，但是你找到了一件宝物（-" + caveHpLoss[1] + "点生命，获得" + caveItemDesc[1] + "）";
+            btn1Listener = v -> {
+                caveStep = 2;
+                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[1]));
+                buildCaveTreasureActions();
+            };
+        } else if (caveStep == 2) {
+            caveHpLoss[2] = 30 + (int) (Math.random() * 41);
+            btn1Text = "你即将走到洞穴最深处，但仍坚持继续探索（-" + caveHpLoss[2] + "点生命）";
+            btn1Listener = v -> {
+                caveStep = 3;
+                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[2]));
+                buildCaveTreasureActions();
+            };
+        } else {
+            int roll = (int) (Math.random() * 2);
+            if (roll == 0) {
+                btn1Text = "洞穴里有一只猛兽，你被迫与它战斗！";
+                btn1Color = 0xFFE53935;
+                btn1Listener = v -> {
+                    Intent result = new Intent();
+                    result.putExtra("open_battle", true);
+                    setResult(RESULT_OK, result);
+                    finish();
+                };
+            } else {
+                int gold = 500 + (int) (Math.random() * 1001);
+                ch.addGold(gold);
+                ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
+                EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
+                Rarity r = Math.random() < 0.5 ? Rarity.RARE : Rarity.EPIC;
+                Item bonusItem;
+                if (Math.random() < 0.4) {
+                    bonusItem = em.generateRandomEquip(15 + (int) (Math.random() * 11), r);
+                } else {
+                    bonusItem = im.getRandomGemByRarity(r);
+                    if (bonusItem == null) bonusItem = im.getRandomConsumableByRarity(r);
+                }
+                String bonusName = bonusItem != null ? bonusItem.getName() : "一份神秘的战利品";
+                if (bonusItem != null) {
+                    InventoryManager.addItem(ch.getBagItems(), bonusItem);
+                }
+                btn1Text = "你找到了不知谁遗弃的珠宝，你发财了！（金币+" + gold + "，获得" + bonusName + "）";
+                btn1Color = 0xFF4CAF50;
+                final String finalText = btn1Text;
+                btn1Listener = v -> {
+                    showResult(finalText);
+                    switchToForwardButton();
+                };
+            }
+        }
+
+        addActionButton(btn1Text, btn1Color, btn1Listener);
+        addActionButton("你感到害怕，选择离开", 0xFF888888, v -> {
+            StringBuilder sb = new StringBuilder("你感到害怕，转身离开了洞穴。\n\n");
+            if (caveStep >= 1) {
+                sb.append("本次探险获得：\n");
+                sb.append("· ").append(caveItemDesc[0]).append("\n");
+            }
+            if (caveStep >= 2) {
+                sb.append("· ").append(caveItemDesc[1]).append("\n");
+            }
+            if (caveStep >= 1) {
+                int totalHp = caveHpLoss[0];
+                if (caveStep >= 2) totalHp += caveHpLoss[1];
+                if (caveStep >= 3) totalHp += caveHpLoss[2];
+                sb.append("\n共损失生命：" + totalHp + "点");
+            } else {
+                sb.append("你什么都没得到。");
+            }
+            showResult(sb.toString());
+            switchToForwardButton();
+        });
+    }
+
+    private void buildTravelerActions() {
+        llActionArea.removeAllViews();
+
+        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC};
+        Rarity reqRarity = rarities[(int) (Math.random() * rarities.length)];
+        travelerRequiredRarityId = reqRarity.getId();
+
+        ItemType[] types = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
+        travelerRequiredType = types[(int) (Math.random() * types.length)];
+
+        String typeName;
+        switch (travelerRequiredType) {
+            case EQUIPMENT: typeName = "装备"; break;
+            case CONSUMABLE: typeName = "药水"; break;
+            case GEM: typeName = "宝石"; break;
+            default: typeName = "物品"; break;
+        }
+
+        travelerRequestDesc = "一件" + reqRarity.getDisplayName() + "品质的" + typeName;
+
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+        Item match = findMatchingItem(bag, travelerRequiredRarityId, travelerRequiredType);
+
+        if (match != null) {
+            btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
+                InventoryManager.removeItem(bag, match);
+                int goldReward = 50 + (travelerRequiredRarityId + 1) * 50
+                        + (int) (Math.random() * ((travelerRequiredRarityId + 1) * 100 + 1));
+                ch.addGold(goldReward);
+
+                String resultText = "你慷慨地赠送了" + match.getName()
+                        + "，旅人感激不尽！\n\n✅ 获得金币 ×" + goldReward;
+                showResult(resultText);
+                switchToForwardButton();
+            });
+            btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
+                showResult("你匆匆走过，没有理会旅人求助的目光。");
+                switchToForwardButton();
+            });
+        } else {
+            btnAction1 = addActionButton("很可惜，你无法帮助他", 0xFF888888, v -> {
+                showResult("你的背包中没有" + travelerRequestDesc + "，旅人失望地离开了。");
+                switchToForwardButton();
+            });
+        }
+    }
+
+    private Item findMatchingItem(List<Item> bag, int minRarityId, ItemType type) {
+        for (Item item : bag) {
+            if (item.getType() == type && item.getRarity().getId() >= minRarityId) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     private void showEquipmentSelectionDialog() {
         Character ch = PlayerCharacterHolder.getOrCreate(this);
         List<Item> bag = ch.getBagItems();
@@ -344,6 +499,67 @@ public class NeutralEventActivity extends AppCompatActivity {
         gridDialog.show();
     }
 
+    private void showGemUpgradeDialog() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+
+        final List<GemItem> gemItems = new ArrayList<>();
+        for (Item item : bag) {
+            if (item instanceof GemItem) {
+                GemItem gem = (GemItem) item;
+                if (gem.getRarity().getId() < 4) {
+                    gemItems.add(gem);
+                }
+            }
+        }
+        if (gemItems.isEmpty()) {
+            showResult("你的背包中没有可升级的宝石。\n（传说品质宝石已无法继续升级）");
+            switchToForwardButton();
+            return;
+        }
+
+        final Dialog gridDialog = new Dialog(this);
+        gridDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        View gridView = LayoutInflater.from(this).inflate(R.layout.dialog_gem_grid, null);
+        RecyclerView rv = gridView.findViewById(R.id.rv_gem_grid);
+        gridView.findViewById(R.id.btn_grid_close).setOnClickListener(v -> gridDialog.dismiss());
+
+        rv.setLayoutManager(new GridLayoutManager(this, 2));
+        rv.setAdapter(new GemGridAdapter(gemItems, gem -> {
+            gridDialog.dismiss();
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                int currentRarityId = gem.getRarity().getId();
+                Rarity nextRarity = Rarity.fromId(currentRarityId + 1);
+                String upgradedGemId = gem.getGemType().toLowerCase() + "_"
+                        + nextRarity.name().toLowerCase();
+
+                GemItem upgraded = ItemManager.getInstance(NeutralEventActivity.this)
+                        .createGem(upgradedGemId);
+                if (upgraded == null) {
+                    showResult("宝石升级失败：无法找到对应模板。");
+                    switchToForwardButton();
+                    return;
+                }
+
+                InventoryManager.removeItem(bag, gem);
+                InventoryManager.addItem(bag, upgraded);
+
+                String resultText = "雕像散发出耀眼的金色光芒...\n\n✅ "
+                        + gem.getName() + "（" + gem.getRarity().getDisplayName()
+                        + "）已升级为\n" + upgraded.getName() + "（"
+                        + upgraded.getRarity().getDisplayName() + "）！";
+                showResult(resultText);
+                switchToForwardButton();
+            });
+        }));
+
+        gridDialog.setContentView(gridView);
+        gridDialog.setCancelable(true);
+        gridDialog.setCanceledOnTouchOutside(true);
+        gridDialog.show();
+    }
+
     private void showReforgeDialog(EquipItem equip) {
         final EquipItem targetEquip = equip;
         Dialog reforgeDialog = new Dialog(this);
@@ -373,8 +589,7 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         final boolean[] hasReforged = {false};
 
-        ivPreview.setImageResource(targetEquip.getIconResId() != 0
-                ? targetEquip.getIconResId() : android.R.drawable.ic_menu_gallery);
+        GameAssetIcons.bindItem(NeutralEventActivity.this, ivPreview, targetEquip);
         tvName.setText(targetEquip.getName());
         tvRarity.setText(targetEquip.getRarity().name());
         tvRarity.setTextColor(targetEquip.getRarity().getColor());
@@ -473,12 +688,7 @@ public class NeutralEventActivity extends AppCompatActivity {
             EquipItem equip = items.get(position);
             holder.tvName.setText(equip.getName());
             holder.tvLevel.setText("Lv." + equip.getLevel());
-            int iconRes = equip.getIconResId();
-            if (iconRes != 0) {
-                holder.ivIcon.setImageResource(iconRes);
-            } else {
-                holder.ivIcon.setImageResource(android.R.drawable.ic_menu_gallery);
-            }
+            GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, equip);
             holder.bgColor.setBackgroundTintList(null);
             android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
             if (bg != null) {
@@ -505,6 +715,62 @@ public class NeutralEventActivity extends AppCompatActivity {
                 bgColor = v.findViewById(R.id.bg_item_color);
                 tvName = v.findViewById(R.id.tv_item_name);
                 tvLevel = v.findViewById(R.id.tv_item_level);
+                ivIcon = v.findViewById(R.id.iv_item_icon);
+            }
+        }
+    }
+
+    private static class GemGridAdapter extends RecyclerView.Adapter<GemGridAdapter.VH> {
+        private final List<GemItem> items;
+        private final OnGemClickListener listener;
+
+        interface OnGemClickListener {
+            void onClick(GemItem item);
+        }
+
+        GemGridAdapter(List<GemItem> items, OnGemClickListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
+
+        @Override
+        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_gem_select, parent, false);
+            return new VH(v);
+        }
+
+        @Override
+        public void onBindViewHolder(VH holder, int position) {
+            GemItem gem = items.get(position);
+            holder.tvRarity.setText(gem.getRarity().getDisplayName());
+            holder.tvRarity.setTextColor(gem.getRarity().getColor());
+            GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, gem);
+            holder.bgColor.setBackgroundTintList(null);
+            android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
+            if (bg != null) {
+                bg.clearColorFilter();
+            }
+            Integer borderArgb = gem.getRarity() != null ? gem.getRarity().getColor() : null;
+            holder.itemView.setForeground(
+                    TreasureStyleDrawable.newSlotStrokeOverlay(holder.itemView.getContext(), borderArgb));
+            holder.itemView.setOnClickListener(v -> listener.onClick(gem));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        static class VH extends RecyclerView.ViewHolder {
+            View bgColor;
+            TextView tvRarity;
+            ImageView ivIcon;
+
+            VH(View v) {
+                super(v);
+                bgColor = v.findViewById(R.id.bg_item_color);
+                tvRarity = v.findViewById(R.id.tv_item_rarity);
                 ivIcon = v.findViewById(R.id.iv_item_icon);
             }
         }

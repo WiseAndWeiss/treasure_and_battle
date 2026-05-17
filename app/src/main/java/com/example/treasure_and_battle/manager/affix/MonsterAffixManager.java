@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.manager.affix;
 import android.content.Context;
 import com.example.treasure_and_battle.affix.BaseMonsterAffix;
 import com.example.treasure_and_battle.affix.MonsterAffixFactory;
+import com.example.treasure_and_battle.utils.RngEngine;
 
 import com.example.treasure_and_battle.model.affix.MonsterAffixTemplate;
 import com.example.treasure_and_battle.model.common.Rarity;
@@ -17,11 +18,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MonsterAffixManager {
     private static MonsterAffixManager instance;
     private final Context context;
     private final Gson gson;
+    private final Random rng = new Random();
 
     private final Map<Integer, MonsterAffixTemplate> templateMap = new HashMap<>();
 
@@ -57,35 +60,113 @@ public class MonsterAffixManager {
         }
     }
 
-    // 精确创建怪物词缀（测试/指定用）
     public BaseMonsterAffix createAffixByTemplateId(int templateId) {
         MonsterAffixTemplate template = templateMap.get(templateId);
         if (template == null) return null;
 
-        float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-        Rarity rarity = Rarity.fromId(template.getRarityId());
-        return createAffixFromTemplate(template, rarity, randomValue);
+        MonsterAffixTemplate.RarityParam param = resolveRarityParam(template, Rarity.COMMON);
+        if (param == null) return null;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        Rarity rarity = Rarity.fromId(param.getRarityId());
+        return createAffixFromTemplate(template, rarity, randomValue, param);
     }
 
-    // 随机给怪物生成词缀：可以结合引擎，这里直接随机
     public List<BaseMonsterAffix> generateAffixForMonster(Monster monster) {
         List<BaseMonsterAffix> affixList = new ArrayList<>();
         Rarity monsterRarity = monster.getRarity();
         int affixCount = monsterRarity.getAffixCount();
+        int affixRarityBonus = monsterRarity.getAffixRarityBonus();
 
-        for (int i = 0; i < affixCount; i++) {
-            MonsterAffixTemplate template = getRandomTemplate();
-            if (template == null) continue;
+        addPityAffix(affixList, monsterRarity);
+        if (affixList.isEmpty()) return affixList;
 
-            float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-            Rarity rarity = Rarity.fromId(template.getRarityId());
-            BaseMonsterAffix affix = createAffixFromTemplate(template, rarity, randomValue);
-            if (affix != null) {
-                affixList.add(affix);
-            }
+        for (int i = 1; i < affixCount; i++) {
+            Rarity targetRarity = rollNonPityRarity(affixRarityBonus);
+            addOneAffix(affixList, targetRarity, false);
         }
 
         return affixList;
+    }
+
+    private void addPityAffix(List<BaseMonsterAffix> list, Rarity pityRarity) {
+        MonsterAffixTemplate template = getRandomTemplate();
+        if (template == null) return;
+
+        MonsterAffixTemplate.RarityParam param = resolveRarityParamExactOrMax(template, pityRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        BaseMonsterAffix affix = createAffixFromTemplate(
+                template, Rarity.fromId(param.getRarityId()), randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private void addOneAffix(List<BaseMonsterAffix> list, Rarity targetRarity, boolean isPity) {
+        MonsterAffixTemplate template = getRandomTemplate();
+        if (template == null) return;
+
+        MonsterAffixTemplate.RarityParam param = isPity
+                ? resolveRarityParamExactOrMax(template, targetRarity)
+                : resolveRarityParam(template, targetRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        BaseMonsterAffix affix = createAffixFromTemplate(
+                template, Rarity.fromId(param.getRarityId()), randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private Rarity rollNonPityRarity(int affixRarityBonus) {
+        Rarity[] all = Rarity.values();
+        float totalWeight = 0f;
+        for (Rarity r : all) {
+            totalWeight += r.getGlobalProbability();
+        }
+        float roll = rng.nextFloat() * totalWeight;
+        float cumulative = 0f;
+        Rarity base = Rarity.COMMON;
+        for (Rarity r : all) {
+            cumulative += r.getGlobalProbability();
+            if (roll < cumulative) {
+                base = r;
+                break;
+            }
+        }
+        return RngEngine.upgradeRarity(base, affixRarityBonus);
+    }
+
+    private MonsterAffixTemplate.RarityParam resolveRarityParamExactOrMax(
+            MonsterAffixTemplate template, Rarity targetRarity) {
+        if (template.getRarityParams() == null || template.getRarityParams().isEmpty()) {
+            return null;
+        }
+        int ordinal = targetRarity.ordinal();
+        for (MonsterAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() == ordinal) return p;
+        }
+        MonsterAffixTemplate.RarityParam best = null;
+        for (MonsterAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() <= ordinal) {
+                if (best == null || p.getRarityId() > best.getRarityId()) {
+                    best = p;
+                }
+            }
+        }
+        return best;
+    }
+
+    private MonsterAffixTemplate.RarityParam resolveRarityParam(MonsterAffixTemplate template, Rarity maxRarity) {
+        if (template.getRarityParams() == null || template.getRarityParams().isEmpty()) return null;
+        List<MonsterAffixTemplate.RarityParam> eligible = new ArrayList<>();
+        int maxOrdinal = maxRarity.ordinal();
+        for (MonsterAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() <= maxOrdinal) {
+                eligible.add(p);
+            }
+        }
+        if (eligible.isEmpty()) return null;
+        return eligible.get(RandomUtils.getRandomInt(0, eligible.size() - 1));
     }
 
     public MonsterAffixTemplate getRandomTemplate() {
@@ -94,8 +175,9 @@ public class MonsterAffixManager {
         return validTemplates.get(RandomUtils.getRandomInt(0, validTemplates.size() - 1));
     }
 
-    public BaseMonsterAffix createAffixFromTemplate(MonsterAffixTemplate template, Rarity rarity, float randomValue) {
-        return MonsterAffixFactory.create(template, rarity, template.getTriggerType(), randomValue);
+    public BaseMonsterAffix createAffixFromTemplate(MonsterAffixTemplate template, Rarity rarity,
+                                                     float randomValue, MonsterAffixTemplate.RarityParam param) {
+        return MonsterAffixFactory.create(template, rarity, template.getTriggerType(), randomValue, param);
     }
 
     private static class ConfigWrapper {

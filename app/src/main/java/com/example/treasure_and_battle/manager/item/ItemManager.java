@@ -184,40 +184,72 @@ public class ItemManager {
                 applyBonus(gem.getArmorBonus(), be.type, be.value);
             }
         }
+        gem.setDescription(buildGemDescription(gem));
         return gem;
+    }
+
+    private String buildGemDescription(GemItem gem) {
+        StringBuilder sb = new StringBuilder();
+        String w = formatAttrSetBonus(gem.getWeaponBonus());
+        String a = formatAttrSetBonus(gem.getArmorBonus());
+        String ac = formatAttrSetBonus(gem.getAccessoryBonus());
+        if (!w.isEmpty()) sb.append("· 镶嵌在武器上时，").append(w).append("\n");
+        if (!a.isEmpty()) sb.append("· 镶嵌在护甲上时，").append(a).append("\n");
+        if (!ac.isEmpty()) sb.append("· 镶嵌在饰品上时，").append(ac);
+        return sb.toString().trim();
+    }
+
+    private String formatAttrSetBonus(com.example.treasure_and_battle.model.attribute.AttributeSet attr) {
+        java.util.LinkedHashMap<String, String> labels = new java.util.LinkedHashMap<>();
+        labels.put("strength", "力量");
+        labels.put("agility", "敏捷");
+        labels.put("intelligence", "智力");
+        labels.put("spirit", "精神");
+        labels.put("physique", "体魄");
+        labels.put("luck", "幸运");
+        labels.put("maxHp", "生命上限");
+        labels.put("maxMp", "法力上限");
+        labels.put("physicalAtk", "物理攻击力");
+        labels.put("magicalAtk", "法术攻击力");
+        labels.put("physicalDef", "物理防御");
+        labels.put("magicalDef", "法术防御");
+        labels.put("speed", "速度");
+        labels.put("physicalCritRate", "物理暴击率");
+        labels.put("magicalCritRate", "魔法暴击率");
+        labels.put("physicalCritDmg", "物理暴伤");
+        labels.put("magicalCritDmg", "魔法暴伤");
+        labels.put("hitRate", "命中率");
+        labels.put("dodgeRate", "闪避率");
+        labels.put("debuffResist", "异常抵抗");
+        labels.put("damageReductionRate", "伤害减免");
+        labels.put("goldBonus", "金币加成");
+        labels.put("expBonus", "经验加成");
+
+        java.util.Set<String> pctAttrs = new java.util.HashSet<>(java.util.Arrays.asList(
+                "physicalCritRate", "magicalCritRate", "physicalCritDmg", "magicalCritDmg",
+                "hitRate", "dodgeRate", "debuffResist", "damageReductionRate"));
+
+        for (java.lang.reflect.Field field : com.example.treasure_and_battle.model.attribute.AttributeSet.class.getFields()) {
+            String name = field.getName();
+            if (!labels.containsKey(name)) continue;
+            try {
+                Object val = field.get(attr);
+                if (val instanceof Integer && (Integer) val != 0) {
+                    return labels.get(name) + " + " + val;
+                } else if (val instanceof Float && Math.abs((Float) val) > 0.0001f) {
+                    if (pctAttrs.contains(name)) {
+                        return labels.get(name) + " + " + String.format(java.util.Locale.CHINA, "%.1f%%", (Float) val * 100f);
+                    }
+                    return labels.get(name) + " + " + String.format(java.util.Locale.CHINA, "%.1f", val);
+                }
+            } catch (IllegalAccessException ignored) {}
+        }
+        return "";
     }
 
     private void applyBonus(com.example.treasure_and_battle.model.attribute.AttributeSet attr,
                             String type, float value) {
-        switch (type) {
-            case "STRENGTH":          attr.strength = (int)value; break;
-            case "AGILITY":           attr.agility = (int)value; break;
-            case "INTELLIGENCE":      attr.intelligence = (int)value; break;
-            case "SPIRIT":            attr.spirit = (int)value; break;
-            case "PHYSIQUE":          attr.physique = (int)value; break;
-            case "LUCK":              attr.luck = (int)value; break;
-            case "PHYSICAL_ATK":      attr.physicalAtk = (int)value; break;
-            case "MAGICAL_ATK":       attr.magicalAtk = (int)value; break;
-            case "PHYSICAL_DEF":      attr.physicalDef = (int)value; break;
-            case "MAGICAL_DEF":       attr.magicalDef = (int)value; break;
-            case "SPEED":             attr.speed = (int)value; break;
-            case "MAX_HP":            attr.maxHp = (int)value; break;
-            case "MAX_MP":            attr.maxMp = (int)value; break;
-            case "PHYSICAL_CRIT_RATE":  attr.physicalCritRate = value; break;
-            case "MAGICAL_CRIT_RATE":   attr.magicalCritRate = value; break;
-            case "PHYSICAL_CRIT_DMG":   attr.physicalCritDmg = value; break;
-            case "MAGICAL_CRIT_DMG":    attr.magicalCritDmg = value; break;
-            case "HIT_RATE":          attr.hitRate = value; break;
-            case "DODGE_RATE":        attr.dodgeRate = value; break;
-            case "DEBUFF_RESIST":     attr.debuffResist = value; break;
-            case "GOLD_BONUS":        attr.goldBonus = value; break;
-            case "EXP_BONUS":         attr.expBonus = value; break;
-            case "PHYSICAL_AND_MAGICAL_CRIT_RATE":
-                attr.physicalCritRate = value;
-                attr.magicalCritRate = value;
-                break;
-            default: break;
-        }
+        com.example.treasure_and_battle.utils.AttributeUtils.applyBonusToAttrSet(attr, type, value);
     }
 
     // ====================== 查询 ======================

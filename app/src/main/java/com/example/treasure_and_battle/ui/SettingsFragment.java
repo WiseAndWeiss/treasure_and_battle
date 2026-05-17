@@ -52,7 +52,6 @@ public class SettingsFragment extends Fragment {
         View btnBattle = view.findViewById(R.id.btn_open_battle);
         btnBattle.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
-            // 先同步弹出 battle 返回栈，避免异步 pop 未完成时再次 add 导致无法进入或状态错乱
             fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
             Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
             FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
@@ -63,6 +62,12 @@ public class SettingsFragment extends Fragment {
                     .hide(this)
                     .addToBackStack("battle")
                     .commit();
+        });
+
+        View btnBackToMain = view.findViewById(R.id.btn_back_to_main);
+        btnBackToMain.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(requireActivity(), EntryActivity.class));
+            requireActivity().finish();
         });
 
         // TODO 后续在这里写设置项：音量、音效开关、存档重置

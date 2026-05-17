@@ -87,6 +87,10 @@ public class BattleContext {
     // ====================== 怪物意图（回合开始统一下达，含看破+执行标记） ======================
     /** entityId → 本轮揭示的意图列表 */
     public Map<String, List<RevealedIntent>> monsterRevealedIntents;
+    /** entityId → 当前正在执行的意图索引（-1=未开始） */
+    public transient Map<String, Integer> monsterIntentStepIndex = new java.util.HashMap<>();
+    /** 延迟执行的怪物动作（UI驱动模式下，先播动画后执行） */
+    public transient com.example.treasure_and_battle.battle.action.BattleAction pendingMonsterAction;
 
     // ====================== 待领取的掉落物 ======================
     /** 战斗胜利后生成的掉落物列表，玩家可选择逐件拿取或全部拿取 */

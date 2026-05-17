@@ -122,6 +122,9 @@ public class BagFragment extends Fragment {
 
     private ItemMenuProviderFactory menuProviderFactory;
 
+    private com.example.treasure_and_battle.model.item.gem.GemItem pendingGemItem;
+    private int pendingGemBagIndex = -1;
+
     private ImageView ivTachie;
     private TextView tvTachieName;
     private TextView tvTachieLevel;
@@ -397,7 +400,7 @@ public class BagFragment extends Fragment {
                         d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
                     }
                 }
-        );
+        , false);
         menuProviderFactory.registerEquipment(equipItem -> {
             int bagIndex = findItemIndex(equipItem);
             if (bagIndex >= 0) {
@@ -425,7 +428,14 @@ public class BagFragment extends Fragment {
                 showFloatMsg("已使用: " + consumableItem.getName());
             }
         });
-        menuProviderFactory.registerGem();
+        menuProviderFactory.registerGem(gemItem -> {
+            int bagIndex = findItemIndex(gemItem);
+            if (bagIndex < 0) return;
+            pendingGemItem = gemItem;
+            pendingGemBagIndex = bagIndex;
+            adapter.notifyDataSetChanged();
+            showFloatMsg("拖动宝石到装备上进行镶嵌");
+        });
         menuProviderFactory.registerMaterial();
     }
 
@@ -944,11 +954,12 @@ public class BagFragment extends Fragment {
                     }
 
                     boolean handledEquipDrop = tryHandleDropToEquipSlot();
+                    boolean handledGemDrop = tryHandleGemDropToBagEquip();
                     if (dragStartPage != -1 && dragStartUiPosition != -1 && dragToUiPosition != -1) {
                         int realFrom = (dragStartPage - 1) * itemsPerPage + dragStartUiPosition;
                         int realTo = (currentPage - 1) * itemsPerPage + dragToUiPosition;
 
-                        if (!handledEquipDrop && realFrom != realTo) {
+                        if (!handledEquipDrop && !handledGemDrop && realFrom != realTo) {
                             Item temp = allItems.get(realFrom);
                             allItems.set(realFrom, allItems.get(realTo));
                             allItems.set(realTo, temp);
@@ -1128,6 +1139,18 @@ public class BagFragment extends Fragment {
         }
 
         Item sourceItem = allItems.get(sourceIndex);
+
+        if (sourceItem instanceof com.example.treasure_and_battle.model.item.gem.GemItem
+                && pendingGemItem == sourceItem) {
+            EquipItem targetEquip = equippedItems.get(targetSlotViewId);
+            if (targetEquip == null) {
+                showFloatMsg("该槽位没有装备");
+                cancelGemPending();
+                return true;
+            }
+            return executeGemSocket(pendingGemItem, targetEquip, sourceIndex);
+        }
+
         if (!(sourceItem instanceof EquipItem)) {
             showFloatMsg("只能把装备拖入装备栏");
             return true;
@@ -1146,6 +1169,40 @@ public class BagFragment extends Fragment {
         updateEquipSlotView(targetSlotViewId, draggedEquip);
 
         showFloatMsg("已装备: " + draggedEquip.getName());
+        return true;
+    }
+
+    private boolean tryHandleGemDropToBagEquip() {
+        if (pendingGemItem == null || dragStartPage == -1 || dragStartUiPosition == -1) {
+            return false;
+        }
+        int sourceIndex = (dragStartPage - 1) * itemsPerPage + dragStartUiPosition;
+        if (sourceIndex < 0 || sourceIndex >= allItems.size()) return false;
+
+        Item sourceItem = allItems.get(sourceIndex);
+        if (!(sourceItem instanceof com.example.treasure_and_battle.model.item.gem.GemItem)
+                || pendingGemItem != sourceItem) {
+            return false;
+        }
+
+        if (dragToUiPosition < 0 || dragToUiPosition >= itemsPerPage) {
+            cancelGemPending();
+            return true;
+        }
+
+        int targetIndex = (currentPage - 1) * itemsPerPage + dragToUiPosition;
+        if (targetIndex < 0 || targetIndex >= allItems.size() || targetIndex == sourceIndex) {
+            cancelGemPending();
+            return true;
+        }
+
+        Item targetItem = allItems.get(targetIndex);
+        if (targetItem instanceof EquipItem) {
+            return executeGemSocket(pendingGemItem, (EquipItem) targetItem, sourceIndex);
+        }
+
+        showFloatMsg("该物品不能镶嵌");
+        cancelGemPending();
         return true;
     }
 
@@ -1275,10 +1332,78 @@ public class BagFragment extends Fragment {
         slotLayout.addView(inner);
     }
 
+    private boolean executeGemSocket(com.example.treasure_and_battle.model.item.gem.GemItem gem,
+                                      EquipItem equip, int bagIndex) {
+        if (!equip.socketGem(gem)) {
+            showFloatMsg("宝石槽已满");
+            cancelGemPending();
+            return true;
+        }
+
+        allItems.set(bagIndex, null);
+        int slotViewId = findEquipSlotByEquipItem(equip);
+        if (slotViewId != -1) {
+            updateEquipSlotView(slotViewId, equip);
+            syncCharacterEquip(slotViewId, equip);
+        }
+        showFloatMsg("镶嵌成功: " + gem.getName());
+        cancelGemPending();
+        adapter.notifyDataSetChanged();
+        persistSharedBagGridToInventory();
+        return true;
+    }
+
+    private void cancelGemPending() {
+        if (pendingGemItem != null && pendingGemBagIndex >= 0) {
+            adapter.notifyItemChanged(pendingGemBagIndex % itemsPerPage, "GEM_CANCEL");
+        }
+        pendingGemItem = null;
+        pendingGemBagIndex = -1;
+    }
+
+    private int findEquipSlotByEquipItem(EquipItem eq) {
+        for (java.util.Map.Entry<Integer, EquipItem> entry : equippedItems.entrySet()) {
+            if (entry.getValue() == eq) return entry.getKey();
+        }
+        return -1;
+    }
+
+    private boolean hasDiamondDrill() {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return false;
+        for (Item it : ch.getBagItems()) {
+            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
+                    && "diamond_drill".equals(it.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void consumeDiamondDrill() {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return;
+        java.util.List<Item> bag = ch.getBagItems();
+        for (Item it : bag) {
+            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
+                    && "diamond_drill".equals(it.getId())) {
+                if (it.getCount() > 1) {
+                    it.setCount(it.getCount() - 1);
+                } else {
+                    bag.remove(it);
+                }
+                return;
+            }
+        }
+    }
+
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
         popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
+            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+        }
         popupMenu.getMenu().add(0, 3, 0, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
@@ -1296,6 +1421,28 @@ public class BagFragment extends Fragment {
                     showFloatMsg("已卸下: " + item.getName());
                 } else {
                     showFloatMsg("背包已满，无法卸下");
+                }
+                return true;
+            }
+            if (menuItem.getItemId() == 4) {
+                if (item.getSocketedGems() == null || item.getSocketedGems().isEmpty()) {
+                    showFloatMsg("该装备没有宝石");
+                    return true;
+                }
+                if (!hasDiamondDrill()) {
+                    showFloatMsg("缺少金刚钻，无法拆卸宝石");
+                    return true;
+                }
+                com.example.treasure_and_battle.model.item.gem.GemItem removed =
+                        item.unsocketGem(item.getSocketedGems().size() - 1);
+                if (removed != null) {
+                    consumeDiamondDrill();
+                    allItems.set(findEmptyBagSlot(), removed);
+                    updateEquipSlotView(slotViewId, item);
+                    syncCharacterEquip(slotViewId, item);
+                    adapter.notifyDataSetChanged();
+                    persistSharedBagGridToInventory();
+                    showFloatMsg("已拆卸: " + removed.getName());
                 }
                 return true;
             }
@@ -1333,14 +1480,19 @@ public class BagFragment extends Fragment {
     }
 
     private boolean tryPutIntoBag(Item item) {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        for (int i = 0; i < bagCapacity; i++) {
-            if (allItems.get(i) == null) {
-                allItems.set(i, item);
-                return true;
-            }
+        int idx = findEmptyBagSlot();
+        if (idx >= 0) {
+            allItems.set(idx, item);
+            return true;
         }
         return false;
+    }
+
+    private int findEmptyBagSlot() {
+        for (int i = 0; i < allItems.size(); i++) {
+            if (allItems.get(i) == null) return i;
+        }
+        return -1;
     }
 
     private void bindBagGridCellFrame(@NonNull View cellFrameRoot, @Nullable Item item) {
@@ -1535,6 +1687,13 @@ public class BagFragment extends Fragment {
                     showItemMenu(v, realPosition, item);
                 }
             });
+
+            if (item instanceof com.example.treasure_and_battle.model.item.gem.GemItem
+                    && item == pendingGemItem) {
+                holder.itemView.setAlpha(0.35f);
+            } else {
+                holder.itemView.setAlpha(1.0f);
+            }
         }
 
         @Override

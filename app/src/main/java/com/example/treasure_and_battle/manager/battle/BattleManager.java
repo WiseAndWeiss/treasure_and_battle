@@ -189,7 +189,12 @@ public class BattleManager {
             if (monsterActListener != null) {
                 monsterActListener.onMonsterWillAct(actingMonster);
             }
-            monsterActionPhaseFor(ctx, actingMonster);
+            prepareMonsterAction(ctx, actingMonster);
+            while (ctx.pendingMonsterAction != null) {
+                executePendingMonsterAction(ctx);
+                if (ctx.isBattleEnded) break;
+                prepareMonsterAction(ctx, actingMonster);
+            }
             ctx.actionOrderIndex++;
             checkDeath(ctx);
         }
@@ -249,9 +254,11 @@ public class BattleManager {
         if (monsterActListener != null) {
             monsterActListener.onMonsterWillAct(actingMonster);
         }
-        monsterActionPhaseFor(ctx, actingMonster);
-        ctx.actionOrderIndex++;
-        checkDeath(ctx);
+        boolean hasMore = prepareMonsterAction(ctx, actingMonster);
+        if (!hasMore) {
+            ctx.actionOrderIndex++;
+            ctx.monsterIntentStepIndex.remove(actingMonster.getEntityId());
+        }
         return actingMonster;
     }
 
@@ -288,6 +295,7 @@ public class BattleManager {
 
         // 3.2 所有怪物统一下达本轮意图 + 看破判定
         ctx.monsterRevealedIntents.clear();
+        ctx.monsterIntentStepIndex.clear();
         for (Monster m : ctx.getAliveMonsters()) {
             List<ActionIntent> intents = m.decideNextTurnIntents();
             if (intents == null) intents = new ArrayList<>();
@@ -380,7 +388,13 @@ public class BattleManager {
             if (actor instanceof Player) {
                 playerActionPhase(ctx);
             } else if (actor instanceof Monster) {
-                monsterActionPhaseFor(ctx, (Monster) actor);
+                Monster m = (Monster) actor;
+                prepareMonsterAction(ctx, m);
+                while (ctx.pendingMonsterAction != null) {
+                    executePendingMonsterAction(ctx);
+                    if (ctx.isBattleEnded) break;
+                    prepareMonsterAction(ctx, m);
+                }
             }
         }
     }
@@ -453,23 +467,40 @@ public class BattleManager {
 
     // ====================== 【核心规则实现】功能清单具体逻辑 ======================
 
-    // ====================== 7. 怪物行动阶段 ======================
-    private void monsterActionPhaseFor(BattleContext ctx, Monster m) {
+    // ====================== 7. 怪物行动阶段（UI驱动：改为逐步执行） ======================
+    private boolean prepareMonsterAction(BattleContext ctx, Monster m) {
         List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
         if (revealed == null || revealed.isEmpty()) {
-            BattleAction fallback = BattleAction.normalAttack(m, ctx.player);
-            submitBattleAction(ctx, fallback);
-            return;
+            ctx.pendingMonsterAction = BattleAction.normalAttack(m, ctx.player);
+            return false;
         }
 
-        for (RevealedIntent ri : revealed) {
-            if (ctx.isBattleEnded) break;
-            ri.executed = true;
+        Integer stepIdxObj = ctx.monsterIntentStepIndex.get(m.getEntityId());
+        int idx = (stepIdxObj == null) ? 0 : stepIdxObj;
 
-            BattleAction action = toBattleAction(ctx, m, ri.intent);
-            if (action == null) continue;
+        if (idx < 0 || idx >= revealed.size()) {
+            ctx.pendingMonsterAction = null;
+            return false;
+        }
 
-            submitBattleAction(ctx, action);
+        RevealedIntent ri = revealed.get(idx);
+        ri.executed = true;
+
+        BattleAction action = toBattleAction(ctx, m, ri.intent);
+        ctx.pendingMonsterAction = action;
+
+        int nextIdx = idx + 1;
+        boolean hasMore = nextIdx < revealed.size();
+        ctx.monsterIntentStepIndex.put(m.getEntityId(), hasMore ? nextIdx : -1);
+
+        return hasMore;
+    }
+
+    public void executePendingMonsterAction(BattleContext ctx) {
+        if (ctx.pendingMonsterAction != null) {
+            submitBattleAction(ctx, ctx.pendingMonsterAction);
+            ctx.pendingMonsterAction = null;
+            checkDeath(ctx);
         }
     }
 

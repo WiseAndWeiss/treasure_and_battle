@@ -19,17 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
-/**
- * 装备词缀管理器。
- * 职责：
- * 1. 从配置加载装备词缀模板。
- * 2. 按装备品质与槽位规则生成随机词缀。
- */
 public class EquipAffixManager {
     private static EquipAffixManager instance;
     private final Context context;
     private final Gson gson;
+    private final Random rng = new Random();
 
     private final Map<Integer, EquipAffixTemplate> templateMap = new HashMap<>();
 
@@ -48,7 +44,6 @@ public class EquipAffixManager {
 
     private void loadTemplates() {
         try {
-            // 启动时一次性加载词缀模板，后续生成流程仅走内存映射，避免重复IO。
             InputStream is = context.getAssets().open("equip_affix_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
@@ -59,7 +54,6 @@ public class EquipAffixManager {
             Type type = new TypeToken<ConfigWrapper>() {}.getType();
             ConfigWrapper wrapper = gson.fromJson(json, type);
             for (EquipAffixTemplate template : wrapper.affix_templates) {
-                // templateId 作为唯一键，便于后续快速查找/扩展。
                 templateMap.put(template.getTemplateId(), template);
             }
         } catch (Exception e) {
@@ -67,47 +61,125 @@ public class EquipAffixManager {
         }
     }
 
-    // 给装备生成随机词缀
     public List<BaseEquipAffix> generateAffixForEquipment(EquipItem equipment) {
         List<BaseEquipAffix> affixList = new ArrayList<>();
         Rarity equipmentRarity = equipment.getRarity();
         int affixCount = equipmentRarity.getAffixCount();
-
-        // 先确定每条词缀目标稀有度：数量由装备品质决定，且支持保底机制。
-        List<Rarity> generatedRarities = RngEngine.generateRaritiesWithPity(
-                affixCount,
-                Rarity.COMMON,
-                0f,
-                true, // 开启保底
-                equipmentRarity
-        );
-
         EquipCategory category = equipment.getSlot().getCategory();
+        int affixRarityBonus = equipmentRarity.getAffixRarityBonus();
 
-        for (Rarity targetRarity : generatedRarities) {
-            // 优先按目标稀有度筛模板，若没有可选模板则降级为“仅按槽位筛”。
-            EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
-            if (template == null) {
-                template = getRandomEquipTemplate(category, null); 
-                if (template == null) continue;
-            }
+        addPityAffix(affixList, category, equipmentRarity);
+        if (affixList.isEmpty()) return affixList;
 
-            float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
-            EquipCategory[] categories = getCategoriesFromTemplate(template);
-
-            BaseEquipAffix affix = EquipAffixFactory.create(template, targetRarity, template.getTriggerType(), categories, randomValue);
-            if (affix != null) {
-                affixList.add(affix);
-            }
+        for (int i = 1; i < affixCount; i++) {
+            Rarity targetRarity = rollNonPityRarity(affixRarityBonus);
+            addOneAffix(affixList, category, targetRarity, false);
         }
 
         return affixList;
     }
 
+    private void addPityAffix(List<BaseEquipAffix> list, EquipCategory category, Rarity pityRarity) {
+        EquipAffixTemplate template = getRandomEquipTemplate(category, pityRarity);
+        if (template == null) {
+            template = getRandomEquipTemplate(category, null);
+            if (template == null) return;
+        }
+
+        EquipAffixTemplate.RarityParam param = resolveRarityParamExactOrMax(template, pityRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+        BaseEquipAffix affix = EquipAffixFactory.create(
+                template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+                categories, randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private void addOneAffix(List<BaseEquipAffix> list, EquipCategory category,
+                              Rarity targetRarity, boolean isPity) {
+        EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
+        if (template == null) {
+            template = getRandomEquipTemplate(category, null);
+            if (template == null) return;
+        }
+
+        EquipAffixTemplate.RarityParam param = isPity
+                ? resolveRarityParamExactOrMax(template, targetRarity)
+                : resolveRarityParam(template, targetRarity);
+        if (param == null) return;
+
+        float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+        EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+        BaseEquipAffix affix = EquipAffixFactory.create(
+                template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+                categories, randomValue, param);
+        if (affix != null) list.add(affix);
+    }
+
+    private Rarity rollNonPityRarity(int affixRarityBonus) {
+        Rarity[] all = Rarity.values();
+        float totalWeight = 0f;
+        for (Rarity r : all) {
+            totalWeight += r.getGlobalProbability();
+        }
+        float roll = rng.nextFloat() * totalWeight;
+        float cumulative = 0f;
+        Rarity base = Rarity.COMMON;
+        for (Rarity r : all) {
+            cumulative += r.getGlobalProbability();
+            if (roll < cumulative) {
+                base = r;
+                break;
+            }
+        }
+        return RngEngine.upgradeRarity(base, affixRarityBonus);
+    }
+
+    private EquipAffixTemplate.RarityParam resolveRarityParamExactOrMax(
+            EquipAffixTemplate template, Rarity targetRarity) {
+        if (template.getRarityParams() == null || template.getRarityParams().isEmpty()) {
+            return null;
+        }
+        int ordinal = targetRarity.ordinal();
+        for (EquipAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() == ordinal) return p;
+        }
+        EquipAffixTemplate.RarityParam best = null;
+        for (EquipAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() <= ordinal) {
+                if (best == null || p.getRarityId() > best.getRarityId()) {
+                    best = p;
+                }
+            }
+        }
+        return best;
+    }
+
+    private EquipAffixTemplate.RarityParam resolveRarityParam(EquipAffixTemplate template, Rarity targetRarity) {
+        if (targetRarity == null) {
+            if (template.getRarityParams() != null && !template.getRarityParams().isEmpty()) {
+                return template.getRarityParams().get(0);
+            }
+            return null;
+        }
+        List<EquipAffixTemplate.RarityParam> eligible = new ArrayList<>();
+        int maxOrdinal = targetRarity.ordinal();
+        for (EquipAffixTemplate.RarityParam p : template.getRarityParams()) {
+            if (p.getRarityId() <= maxOrdinal) {
+                eligible.add(p);
+            }
+        }
+        if (eligible.isEmpty()) return null;
+        return eligible.get(RandomUtils.getRandomInt(0, eligible.size() - 1));
+    }
+
     private EquipAffixTemplate getRandomEquipTemplate(EquipCategory category, Rarity targetRarity) {
         List<EquipAffixTemplate> validTemplates = new ArrayList<>();
         for (EquipAffixTemplate template : templateMap.values()) {
-            // allowCategories 为空表示“全槽位通用”。
             boolean matchCategory = false;
             String[] cats = template.getAllowCategories();
             if (cats == null || cats.length == 0) {
@@ -120,11 +192,10 @@ public class EquipAffixManager {
                     }
                 }
             }
-            
+
             boolean matchRarity = true;
             if (targetRarity != null) {
-                // 模板 rarityId 小于等于目标稀有度即视为可投放。
-                matchRarity = (template.getRarityId() <= targetRarity.ordinal()); 
+                matchRarity = template.hasRarityParamUpTo(targetRarity.ordinal());
             }
 
             if (matchCategory && matchRarity) {
@@ -136,7 +207,6 @@ public class EquipAffixManager {
     }
 
     private EquipCategory[] getCategoriesFromTemplate(EquipAffixTemplate template) {
-        // 构建词缀实例时将字符串槽位转为枚举，避免运行时频繁解析。
         String[] cats = template.getAllowCategories();
         if (cats == null) return new EquipCategory[0];
         EquipCategory[] res = new EquipCategory[cats.length];

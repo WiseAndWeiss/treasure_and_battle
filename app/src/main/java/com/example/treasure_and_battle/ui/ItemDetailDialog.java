@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.affix.BaseAffix;
@@ -23,6 +22,7 @@ import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.lang.reflect.Field;
@@ -51,7 +51,7 @@ public final class ItemDetailDialog {
         } else {
             title.setTextColor(ContextCompat.getColor(context, R.color.tb_gold_deep));
         }
-        body.setText(HtmlCompat.fromHtml(buildDetailHtml(item), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        HtmlRenderUtils.setHtmlText(body, buildDetailHtml(item));
 
         if (icon != null) {
             GameAssetIcons.bindItem(context, icon, item);
@@ -106,9 +106,15 @@ public final class ItemDetailDialog {
     @NonNull
     private static String buildDetailHtml(@NonNull Item item) {
         StringBuilder sb = new StringBuilder();
-
+        appendTitleLine(sb, "基本信息");
         appendHtmlLine(sb, "品质", item.getRarity() != null ? item.getRarity().getDisplayName() : null);
         appendHtmlLine(sb, "类型", itemTypeLabel(item.getType()));
+        if (item.getMaxStack() > 1) {
+            appendHtmlLine(sb, "堆叠上限", String.valueOf(item.getMaxStack()));
+        }
+        if (item.getCount() > 1 || item.getMaxStack() > 1) {
+            appendHtmlLine(sb, "持有数量", String.valueOf(item.getCount()));
+        }
 
         if (item instanceof EquipItem) {
             EquipItem eq = (EquipItem) item;
@@ -119,9 +125,14 @@ public final class ItemDetailDialog {
             appendGemSockets(sb, eq);
         }
 
-        appendHtmlLine(sb, "描述", nonEmpty(item.getDescription()));
+        if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+            appendTitleLine(sb, "描述");
+            sb.append(nonEmpty(item.getDescription())); 
+            sb.append("<br>");
+        }
 
         if (item.getBaseValue() > 0) {
+            appendTitleLine(sb, "价值");
             appendHtmlLine(sb, "基准价值", String.valueOf(item.getBaseValue()));
         }
         if (item.getRarity() != null && item.getBaseValue() > 0) {
@@ -129,13 +140,6 @@ public final class ItemDetailDialog {
             if (approxSell > 0) {
                 appendHtmlLine(sb, "回收价（约）", String.valueOf(approxSell));
             }
-        }
-
-        if (item.getMaxStack() > 1) {
-            appendHtmlLine(sb, "堆叠上限", String.valueOf(item.getMaxStack()));
-        }
-        if (item.getCount() > 1 || item.getMaxStack() > 1) {
-            appendHtmlLine(sb, "持有数量", String.valueOf(item.getCount()));
         }
 
         String out = sb.toString().trim();
@@ -179,12 +183,12 @@ public final class ItemDetailDialog {
 
     private static void appendAffixes(@NonNull StringBuilder sb, @Nullable List<BaseAffix> affixes) {
         if (affixes == null || affixes.isEmpty()) return;
-        sb.append("<b>【词缀】</b><br>");
+        appendTitleLine(sb, "词缀");
         for (BaseAffix affix : affixes) {
             if (affix == null) continue;
-            String line = affix.getDescription();
+            String line = affix.getAffixName() + "：" + affix.getDescription();
             if (TextUtils.isEmpty(line)) continue;
-            String colorHex = colorToHex(affix.getRarity() != null
+            String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                     ? affix.getRarity().getColor() : 0xFF888888);
             sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
             sb.append(android.text.TextUtils.htmlEncode(line)).append("<br>");
@@ -195,22 +199,70 @@ public final class ItemDetailDialog {
         int total = eq.getMaxSockets();
         if (total <= 0) return;
         List<GemItem> gems = eq.getSocketedGems();
-        sb.append("<b>【宝石槽】</b><br>");
+        appendTitleLine(sb, "宝石槽");
         for (int i = 0; i < total; i++) {
             GemItem gem = i < gems.size() ? gems.get(i) : null;
-            String colorHex;
-            String label;
             if (gem != null) {
-                colorHex = colorToHex(gem.getRarity() != null
+                String colorHex = HtmlRenderUtils.colorToHex(gem.getRarity() != null
                         ? gem.getRarity().getColor() : 0xFF888888);
-                label = gem.getName() + "（" + gem.getRarity().getDisplayName() + "）";
+                String line = "<font color=\"" + colorHex + "\">●</font> "
+                        + gem.getName() + "：" + formatGemBonus(eq, gem);
+                sb.append(line).append("<br>");
             } else {
-                colorHex = "#888888";
-                label = "空槽位";
+                sb.append("<font color=\"#888888\">●</font> 空槽位<br>");
             }
-            sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
-            sb.append(label).append("<br>");
         }
+    }
+
+    @NonNull
+    private static String formatGemBonus(@NonNull EquipItem eq, @NonNull GemItem gem) {
+        AttributeSet bonus = gem.getBonusForCategory(eq.getSlot().getCategory());
+        java.util.LinkedHashMap<String, String> labels = new java.util.LinkedHashMap<>();
+        labels.put("strength", "力量");
+        labels.put("agility", "敏捷");
+        labels.put("intelligence", "智力");
+        labels.put("spirit", "精神");
+        labels.put("physique", "体魄");
+        labels.put("luck", "幸运");
+        labels.put("maxHp", "生命上限");
+        labels.put("maxMp", "法力上限");
+        labels.put("physicalAtk", "物理攻击力");
+        labels.put("magicalAtk", "法术攻击力");
+        labels.put("physicalDef", "物理防御");
+        labels.put("magicalDef", "法术防御");
+        labels.put("speed", "速度");
+        labels.put("physicalCritRate", "物理暴击率");
+        labels.put("magicalCritRate", "魔法暴击率");
+        labels.put("physicalCritDmg", "物理暴伤");
+        labels.put("magicalCritDmg", "魔法暴伤");
+        labels.put("hitRate", "命中率");
+        labels.put("dodgeRate", "闪避率");
+        labels.put("debuffResist", "异常抵抗");
+        labels.put("damageReductionRate", "伤害减免");
+        labels.put("goldBonus", "金币加成");
+        labels.put("expBonus", "经验加成");
+
+        java.util.Set<String> pctAttrs = new java.util.HashSet<>(java.util.Arrays.asList(
+                "physicalCritRate", "magicalCritRate", "physicalCritDmg", "magicalCritDmg",
+                "hitRate", "dodgeRate", "debuffResist", "damageReductionRate"));
+
+        for (java.lang.reflect.Field field : AttributeSet.class.getFields()) {
+            String name = field.getName();
+            if (!labels.containsKey(name)) continue;
+            try {
+                Object val = field.get(bonus);
+                if (val == null) continue;
+                if (val instanceof Integer && (Integer) val != 0) {
+                    return labels.get(name) + " + " + val;
+                } else if (val instanceof Float && Math.abs((Float) val) > 0.0001f) {
+                    if (pctAttrs.contains(name)) {
+                        return labels.get(name) + " + " + String.format(java.util.Locale.CHINA, "%.1f%%", (Float) val * 100f);
+                    }
+                    return labels.get(name) + " + " + String.format(java.util.Locale.CHINA, "%.1f", val);
+                }
+            } catch (IllegalAccessException ignored) {}
+        }
+        return "";
     }
 
     private static void appendHtmlLine(@NonNull StringBuilder sb, @NonNull String label, @Nullable String value) {
@@ -218,9 +270,8 @@ public final class ItemDetailDialog {
         sb.append(label).append("：").append(android.text.TextUtils.htmlEncode(value.trim())).append("<br>");
     }
 
-    @NonNull
-    private static String colorToHex(int color) {
-        return String.format("#%06X", 0xFFFFFF & color);
+    private static void appendTitleLine(@NonNull StringBuilder sb, @NonNull String title) {
+        sb.append("<b>【").append(title).append("】</b><br>");
     }
 
     @Nullable

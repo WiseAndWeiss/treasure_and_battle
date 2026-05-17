@@ -25,6 +25,7 @@ public class EntryActivity extends AppCompatActivity {
         Button btnStartGame = findViewById(R.id.btn_start_game);
         Button btnSelectSave = findViewById(R.id.btn_select_save);
         Button btnEncyclopedia = findViewById(R.id.btn_encyclopedia);
+        Button btnExitGame = findViewById(R.id.btn_exit_game);
 
         btnStartGame.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -41,6 +42,8 @@ public class EntryActivity extends AppCompatActivity {
 
         btnEncyclopedia.setOnClickListener(v ->
                 startActivity(new Intent(this, EncyclopediaActivity.class)));
+
+        btnExitGame.setOnClickListener(v -> finishAffinity());
     }
 
     @Override

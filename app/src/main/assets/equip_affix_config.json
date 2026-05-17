@@ -1,2109 +1,467 @@
-{
+﻿{
   "affix_templates": [
     {
       "templateId": 1001,
       "affixName": "淬毒",
       "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的中毒",
-      "rarityId": 0,
       "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.20,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3001,
       "applyTarget": "TARGET",
-      "damageToStackRatio": 0.20,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "buffTemplateId": 3001, "damageToStackRatio": 0.20, "applyStacks": 1},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "buffTemplateId": 3001, "damageToStackRatio": 0.20, "applyStacks": 1},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "buffTemplateId": 3001, "damageToStackRatio": 0.20, "applyStacks": 1},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "buffTemplateId": 3001, "damageToStackRatio": 0.20, "applyStacks": 1},
+        {"rarityId": 4, "minValue": 1.0,  "maxValue": 1.0,  "buffTemplateId": 3001, "damageToStackRatio": 0.40, "applyStacks": 1}
+      ]
     },
     {
       "templateId": 1002,
-      "affixName": "淬毒",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的中毒",
-      "rarityId": 1,
+      "affixName": "火焰附加",
+      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
       "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.30,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3001,
       "applyTarget": "TARGET",
-      "damageToStackRatio": 0.20,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "buffTemplateId": 3002, "damageToStackRatio": 0.30, "applyStacks": 1},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "buffTemplateId": 3002, "damageToStackRatio": 0.30, "applyStacks": 1},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "buffTemplateId": 3002, "damageToStackRatio": 0.30, "applyStacks": 1},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "buffTemplateId": 3002, "damageToStackRatio": 0.30, "applyStacks": 1},
+        {"rarityId": 4, "minValue": 1.0,  "maxValue": 1.0,  "buffTemplateId": 3002, "damageToStackRatio": 0.50, "applyStacks": 1}
+      ]
     },
     {
       "templateId": 1003,
-      "affixName": "淬毒",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的中毒",
-      "rarityId": 2,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.30,
-      "maxValue": 0.50,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3001,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.20,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1004,
-      "affixName": "淬毒",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的中毒",
-      "rarityId": 3,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.50,
-      "maxValue": 0.80,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3001,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.20,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1005,
-      "affixName": "淬毒",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的中毒",
-      "rarityId": 4,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.0,
-      "maxValue": 1.0,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.20,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1011,
-      "affixName": "火焰附加",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
-      "rarityId": 0,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.30,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1012,
-      "affixName": "火焰附加",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
-      "rarityId": 1,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.30,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.30,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1013,
-      "affixName": "火焰附加",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
-      "rarityId": 2,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.30,
-      "maxValue": 0.50,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.30,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1014,
-      "affixName": "火焰附加",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
-      "rarityId": 3,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.50,
-      "maxValue": 0.80,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.30,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1015,
-      "affixName": "火焰附加",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加本次伤害 %.0f%% 层数的燃烧",
-      "rarityId": 4,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.0,
-      "maxValue": 1.0,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3002,
-      "applyTarget": "TARGET",
-      "damageToStackRatio": 0.30,
-      "applyStacks": 1,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1021,
       "affixName": "出血之刃",
       "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
-      "rarityId": 0,
       "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.20,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
       "applyTarget": "TARGET",
-      "applyStacks": 3,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1022,
-      "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
-      "rarityId": 1,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.30,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
-      "applyTarget": "TARGET",
-      "applyStacks": 3,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1023,
-      "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
-      "rarityId": 2,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.30,
-      "maxValue": 0.50,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
-      "applyTarget": "TARGET",
-      "applyStacks": 3,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1024,
-      "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
-      "rarityId": 3,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.50,
-      "maxValue": 0.80,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
-      "applyTarget": "TARGET",
-      "applyStacks": 3,
-      "affixScope": "GLOBAL"
-    },
-    {
-      "templateId": 1025,
-      "affixName": "出血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率给目标施加 %.0f%% 层流血",
-      "rarityId": 4,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.0,
-      "maxValue": 1.0,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
-      "buffTemplateId": 3003,
-      "applyTarget": "TARGET",
-      "applyStacks": 3,
-      "affixScope": "GLOBAL"
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 4, "minValue": 1.0,  "maxValue": 1.0,  "buffTemplateId": 3003, "applyStacks": 5}
+      ]
     },
     {
       "templateId": 2001,
       "affixName": "汲血之刃",
       "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
-      "rarityId": 0,
       "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
       "recoverResourceType": "HP",
       "recoverValueType": "FLAT",
-      "recoverValue": 1
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "recoverValue": 5},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "recoverValue": 5},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "recoverValue": 5},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "recoverValue": 5},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00, "recoverValue": 10}
+      ]
     },
     {
       "templateId": 2002,
-      "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
-      "rarityId": 1,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "HP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 2
-    },
-    {
-      "templateId": 2003,
-      "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
-      "rarityId": 2,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "HP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 3
-    },
-    {
-      "templateId": 2004,
-      "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
-      "rarityId": 3,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "HP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 4
-    },
-    {
-      "templateId": 2005,
-      "affixName": "汲血之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%生命值",
-      "rarityId": 4,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "HP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 5
-    },
-    {
-      "templateId": 2011,
       "affixName": "汲魔之刃",
       "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
-      "rarityId": 0,
       "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
       "recoverResourceType": "MP",
       "recoverValueType": "FLAT",
-      "recoverValue": 1
-    },
-    {
-      "templateId": 2012,
-      "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
-      "rarityId": 1,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "MP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 2
-    },
-    {
-      "templateId": 2013,
-      "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
-      "rarityId": 2,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "MP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 3
-    },
-    {
-      "templateId":2014,
-      "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
-      "rarityId": 3,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "MP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 4
-    },
-    {
-      "templateId": 2015,
-      "affixName": "汲魔之刃",
-      "descriptionFormat": "攻击命中后有 %.0f%% 概率回复自身 %.0f%%法力值",
-      "rarityId": 4,
-      "triggerType": "ON_HIT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 1.00,
-      "maxValue": 1.00,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix",
-      "recoverResourceType": "MP",
-      "recoverValueType": "FLAT",
-      "recoverValue": 5
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30, "recoverValue": 5},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50, "recoverValue": 5},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.80, "recoverValue": 5},
+        {"rarityId": 3, "minValue": 0.80, "maxValue": 0.90, "recoverValue": 5},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00, "recoverValue": 10}
+      ]
     },
     {
       "templateId": 3001,
       "affixName": "锋利",
       "descriptionFormat": "武器物理攻击力提高 %.0f%%",
-      "rarityId": 0,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.05,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "PHYSICAL_ATK",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.20},
+        {"rarityId": 1, "minValue": 0.20, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
     },
     {
       "templateId": 3002,
-      "affixName": "锋利",
-      "descriptionFormat": "武器物理攻击力提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3003,
-      "affixName": "锋利",
-      "descriptionFormat": "武器物理攻击力提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3004,
-      "affixName": "锋利",
-      "descriptionFormat": "武器物理攻击力提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3005,
-      "affixName": "锋利",
-      "descriptionFormat": "武器物理攻击力提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3011,
       "affixName": "附魔",
       "descriptionFormat": "武器魔法攻击力提高 %.0f%%",
-      "rarityId": 0,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.05,
+      "allowCategories": ["WEAPON"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAGICAL_ATK",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3012,
-      "affixName": "附魔",
-      "descriptionFormat": "武器魔法攻击力提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3013,
-      "affixName": "附魔",
-      "descriptionFormat": "武器魔法攻击力提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3014,
-      "affixName": "附魔",
-      "descriptionFormat": "武器魔法攻击力提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 3015,
-      "affixName": "附魔",
-      "descriptionFormat": "武器魔法攻击力提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "WEAPON"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_ATK",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.20},
+        {"rarityId": 1, "minValue": 0.20, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
     },
     {
       "templateId": 4001,
       "affixName": "坚韧",
       "descriptionFormat": "护甲生命值提高 %.0f%%",
-      "rarityId": 0,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.05,
+      "allowCategories": ["ARMOR"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAX_HP",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.20},
+        {"rarityId": 1, "minValue": 0.20, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
     },
     {
       "templateId": 4002,
-      "affixName": "坚韧",
-      "descriptionFormat": "护甲生命值提高 %.0f%%",
-      "rarityId": 1,
+      "affixName": "铁壁",
+      "descriptionFormat": "护甲物理防御提高 %.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
+      "allowCategories": ["ARMOR"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_HP",
+      "attributeType": "PHYSICAL_DEF",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.20},
+        {"rarityId": 1, "minValue": 0.20, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
     },
     {
       "templateId": 4003,
-      "affixName": "坚韧",
-      "descriptionFormat": "护甲生命值提高 %.0f%%",
-      "rarityId": 2,
+      "affixName": "抗魔",
+      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
+      "allowCategories": ["ARMOR"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_HP",
+      "attributeType": "MAGICAL_DEF",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.20},
+        {"rarityId": 1, "minValue": 0.20, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
     },
     {
       "templateId": 4004,
-      "affixName": "坚韧",
-      "descriptionFormat": "护甲生命值提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_HP",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4005,
-      "affixName": "坚韧",
-      "descriptionFormat": "护甲生命值提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_HP",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4011,
-      "affixName": "铁壁",
-      "descriptionFormat": "护甲物理防御提高 %.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.05,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4012,
-      "affixName": "铁壁",
-      "descriptionFormat": "护甲物理防御提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4013,
-      "affixName": "铁壁",
-      "descriptionFormat": "护甲物理防御提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4014,
-      "affixName": "铁壁",
-      "descriptionFormat": "护甲物理防御提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4015,
-      "affixName": "铁壁",
-      "descriptionFormat": "护甲物理防御提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4021,
-      "affixName": "抗魔",
-      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.05,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4022,
-      "affixName": "抗魔",
-      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4023,
-      "affixName": "抗魔",
-      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4024,
-      "affixName": "抗魔",
-      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4025,
-      "affixName": "抗魔",
-      "descriptionFormat": "护甲魔法防御提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_DEF",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4031,
       "affixName": "法潮",
       "descriptionFormat": "法力上限提高 %.0f",
-      "rarityId": 0,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 1,
-      "maxValue": 5,
+      "allowCategories": ["ARMOR"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "MAX_MP",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4032,
-      "affixName": "法潮",
-      "descriptionFormat": "法力上限提高 %.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 6,
-      "maxValue": 10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_MP",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4033,
-      "affixName": "法潮",
-      "descriptionFormat": "法力上限提高 %.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 11,
-      "maxValue": 15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_MP",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4034,
-      "affixName": "法潮",
-      "descriptionFormat": "法力上限提高 %.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 15,
-      "maxValue": 20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_MP",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4035,
-      "affixName": "法潮",
-      "descriptionFormat": "法力上限提高 %.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ARMOR"
-      ],
-      "minValue": 20,
-      "maxValue": 25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAX_MP",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4041,
-      "affixName": "轻灵",
-      "descriptionFormat": "速度 +%.0f",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 4,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPEED",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4042,
-      "affixName": "轻灵",
-      "descriptionFormat": "速度 +%.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 6,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPEED",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4043,
-      "affixName": "轻灵",
-      "descriptionFormat": "速度 +%.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 6,
-      "maxValue": 8,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPEED",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4044,
-      "affixName": "轻灵",
-      "descriptionFormat": "速度 +%.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 8,
-      "maxValue": 10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPEED",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 4045,
-      "affixName": "轻灵",
-      "descriptionFormat": "速度 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 10,
-      "maxValue": 12,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPEED",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 5,  "maxValue": 10},
+        {"rarityId": 1, "minValue": 10,  "maxValue": 15},
+        {"rarityId": 2, "minValue": 15, "maxValue": 20},
+        {"rarityId": 3, "minValue": 20, "maxValue": 30},
+        {"rarityId": 4, "minValue": 50, "maxValue": 50}
+      ]
     },
     {
       "templateId": 5001,
-      "affixName": "蛮力",
-      "descriptionFormat": "力量 +%.0f",
-      "rarityId": 0,
+      "affixName": "轻灵",
+      "descriptionFormat": "速度 +%.0f",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "STRENGTH",
+      "attributeType": "SPEED",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 4,  "maxValue": 6},
+        {"rarityId": 1, "minValue": 6,  "maxValue": 8},
+        {"rarityId": 2, "minValue": 8,  "maxValue": 10},
+        {"rarityId": 3, "minValue": 10,  "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
     },
     {
       "templateId": 5002,
       "affixName": "蛮力",
       "descriptionFormat": "力量 +%.0f",
-      "rarityId": 1,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "STRENGTH",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
     },
     {
       "templateId": 5003,
-      "affixName": "蛮力",
-      "descriptionFormat": "力量 +%.0f",
-      "rarityId": 2,
+      "affixName": "迅捷",
+      "descriptionFormat": "敏捷 +%.0f",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "STRENGTH",
+      "attributeType": "AGILITY",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
     },
     {
       "templateId": 5004,
-      "affixName": "蛮力",
-      "descriptionFormat": "力量 +%.0f",
-      "rarityId": 3,
+      "affixName": "睿智",
+      "descriptionFormat": "智力 +%.0f",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "STRENGTH",
+      "attributeType": "INTELLIGENCE",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
     },
     {
       "templateId": 5005,
-      "affixName": "蛮力",
-      "descriptionFormat": "力量 +%.0f",
-      "rarityId": 4,
+      "affixName": "灵心",
+      "descriptionFormat": "精神 +%.0f",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "STRENGTH",
+      "attributeType": "SPIRIT",
       "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
+    },
+    {
+      "templateId": 5006,
+      "affixName": "强体",
+      "descriptionFormat": "体魄 +%.0f",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "PHYSIQUE",
+      "valueType": "FLAT",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
+    },
+    {
+      "templateId": 5007,
+      "affixName": "福运",
+      "descriptionFormat": "幸运 +%.0f",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "LUCK",
+      "valueType": "FLAT",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 4},
+        {"rarityId": 1, "minValue": 4, "maxValue": 6},
+        {"rarityId": 2, "minValue": 6, "maxValue": 10},
+        {"rarityId": 3, "minValue": 10, "maxValue": 15},
+        {"rarityId": 4, "minValue": 20, "maxValue": 20}
+      ]
+    },
+    {
+      "templateId": 5008,
+      "affixName": "狩魂",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "PHYSICAL_CRIT_RATE",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
+    },
+    {
+      "templateId": 5009,
+      "affixName": "咒痕",
+      "descriptionFormat": "魔法暴击率 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "MAGICAL_CRIT_RATE",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
+    },
+    {
+      "templateId": 5010,
+      "affixName": "碎甲",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "PHYSICAL_CRIT_DMG",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.25},
+        {"rarityId": 4, "minValue": 0.30, "maxValue": 0.30}
+      ]
     },
     {
       "templateId": 5011,
-      "affixName": "迅捷",
-      "descriptionFormat": "敏捷 +%.0f",
-      "rarityId": 0,
+      "affixName": "裂咒",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "AGILITY",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "attributeType": "MAGICAL_CRIT_DMG",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.25},
+        {"rarityId": 4, "minValue": 0.30, "maxValue": 0.30}
+      ]
     },
     {
       "templateId": 5012,
-      "affixName": "迅捷",
-      "descriptionFormat": "敏捷 +%.0f",
-      "rarityId": 1,
+      "affixName": "鹰眼",
+      "descriptionFormat": "命中率提高 %.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "AGILITY",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "attributeType": "HIT_RATE",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
     },
     {
       "templateId": 5013,
-      "affixName": "迅捷",
-      "descriptionFormat": "敏捷 +%.0f",
-      "rarityId": 2,
+      "affixName": "幻步",
+      "descriptionFormat": "闪避率提高 %.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "AGILITY",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "attributeType": "DODGE_RATE",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
     },
     {
       "templateId": 5014,
-      "affixName": "迅捷",
-      "descriptionFormat": "敏捷 +%.0f",
-      "rarityId": 3,
+      "affixName": "抗咒",
+      "descriptionFormat": "异常抗性提高 %.0f%%",
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "AGILITY",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
+      "attributeType": "DEBUFF_RESIST",
+      "valueType": "PERCENTAGE",
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
     },
     {
       "templateId": 5015,
-      "affixName": "迅捷",
-      "descriptionFormat": "敏捷 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "AGILITY",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5021,
-      "affixName": "睿智",
-      "descriptionFormat": "智力 +%.0f",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "INTELLIGENCE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5022,
-      "affixName": "睿智",
-      "descriptionFormat": "智力 +%.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "INTELLIGENCE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5023,
-      "affixName": "睿智",
-      "descriptionFormat": "智力 +%.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "INTELLIGENCE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5024,
-      "affixName": "睿智",
-      "descriptionFormat": "智力 +%.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "INTELLIGENCE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5025,
-      "affixName": "睿智",
-      "descriptionFormat": "智力 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "INTELLIGENCE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5031,
-      "affixName": "灵心",
-      "descriptionFormat": "精神 +%.0f",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPIRIT",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5032,
-      "affixName": "灵心",
-      "descriptionFormat": "精神 +%.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPIRIT",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5033,
-      "affixName": "灵心",
-      "descriptionFormat": "精神 +%.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPIRIT",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5034,
-      "affixName": "灵心",
-      "descriptionFormat": "精神 +%.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPIRIT",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5035,
-      "affixName": "灵心",
-      "descriptionFormat": "精神 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "SPIRIT",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5041,
-      "affixName": "强体",
-      "descriptionFormat": "体魄 +%.0f",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSIQUE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5042,
-      "affixName": "强体",
-      "descriptionFormat": "体魄 +%.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSIQUE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5043,
-      "affixName": "强体",
-      "descriptionFormat": "体魄 +%.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSIQUE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5044,
-      "affixName": "强体",
-      "descriptionFormat": "体魄 +%.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSIQUE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5045,
-      "affixName": "强体",
-      "descriptionFormat": "体魄 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSIQUE",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5051,
-      "affixName": "福运",
-      "descriptionFormat": "幸运 +%.0f",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 1,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "LUCK",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5052,
-      "affixName": "福运",
-      "descriptionFormat": "幸运 +%.0f",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 1,
-      "maxValue": 2,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "LUCK",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5053,
-      "affixName": "福运",
-      "descriptionFormat": "幸运 +%.0f",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 2,
-      "maxValue": 3,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "LUCK",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5054,
-      "affixName": "福运",
-      "descriptionFormat": "幸运 +%.0f",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 3,
-      "maxValue": 4,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "LUCK",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5055,
-      "affixName": "福运",
-      "descriptionFormat": "幸运 +%.0f",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 4,
-      "maxValue": 5,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "LUCK",
-      "valueType": "FLAT",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5101,
-      "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.03,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5102,
-      "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.03,
-      "maxValue": 0.05,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5103,
-      "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.07,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5104,
-      "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.07,
-      "maxValue": 0.09,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5105,
-      "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.09,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5111,
-      "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.03,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5112,
-      "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.03,
-      "maxValue": 0.05,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5113,
-      "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.07,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5114,
-      "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.07,
-      "maxValue": 0.09,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5115,
-      "affixName": "咒痕",
-      "descriptionFormat": "魔法暴击率 +%.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.09,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5121,
-      "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5122,
-      "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5123,
-      "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5124,
-      "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5125,
-      "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.25,
-      "maxValue": 0.30,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "PHYSICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5131,
-      "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.05,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5132,
-      "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.10,
-      "maxValue": 0.15,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5133,
-      "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.15,
-      "maxValue": 0.20,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5134,
-      "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.20,
-      "maxValue": 0.25,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5135,
-      "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.25,
-      "maxValue": 0.30,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "MAGICAL_CRIT_DMG",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5141,
-      "affixName": "鹰眼",
-      "descriptionFormat": "命中率提高 %.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.02,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "HIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5142,
-      "affixName": "鹰眼",
-      "descriptionFormat": "命中率提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.02,
-      "maxValue": 0.04,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "HIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5143,
-      "affixName": "鹰眼",
-      "descriptionFormat": "命中率提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.04,
-      "maxValue": 0.06,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "HIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5144,
-      "affixName": "鹰眼",
-      "descriptionFormat": "命中率提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.06,
-      "maxValue": 0.08,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "HIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5145,
-      "affixName": "鹰眼",
-      "descriptionFormat": "命中率提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.08,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "HIT_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5151,
-      "affixName": "幻步",
-      "descriptionFormat": "闪避率提高 %.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.02,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DODGE_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5152,
-      "affixName": "幻步",
-      "descriptionFormat": "闪避率提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.02,
-      "maxValue": 0.04,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DODGE_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5153,
-      "affixName": "幻步",
-      "descriptionFormat": "闪避率提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.04,
-      "maxValue": 0.06,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DODGE_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5154,
-      "affixName": "幻步",
-      "descriptionFormat": "闪避率提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.06,
-      "maxValue": 0.08,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DODGE_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5155,
-      "affixName": "幻步",
-      "descriptionFormat": "闪避率提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.08,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DODGE_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5161,
-      "affixName": "抗咒",
-      "descriptionFormat": "异常抗性提高 %.0f%%",
-      "rarityId": 0,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.02,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DEBUFF_RESIST",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5162,
-      "affixName": "抗咒",
-      "descriptionFormat": "异常抗性提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.02,
-      "maxValue": 0.04,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DEBUFF_RESIST",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5163,
-      "affixName": "抗咒",
-      "descriptionFormat": "异常抗性提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.04,
-      "maxValue": 0.06,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DEBUFF_RESIST",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5164,
-      "affixName": "抗咒",
-      "descriptionFormat": "异常抗性提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.06,
-      "maxValue": 0.08,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DEBUFF_RESIST",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5165,
-      "affixName": "抗咒",
-      "descriptionFormat": "异常抗性提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.08,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DEBUFF_RESIST",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5171,
       "affixName": "不屈",
       "descriptionFormat": "伤害减免提高 %.0f%%",
-      "rarityId": 0,
       "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.01,
-      "maxValue": 0.02,
+      "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
       "attributeType": "DAMAGE_REDUCTION_RATE",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5172,
-      "affixName": "不屈",
-      "descriptionFormat": "伤害减免提高 %.0f%%",
-      "rarityId": 1,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.02,
-      "maxValue": 0.04,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DAMAGE_REDUCTION_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5173,
-      "affixName": "不屈",
-      "descriptionFormat": "伤害减免提高 %.0f%%",
-      "rarityId": 2,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.04,
-      "maxValue": 0.06,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DAMAGE_REDUCTION_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5174,
-      "affixName": "不屈",
-      "descriptionFormat": "伤害减免提高 %.0f%%",
-      "rarityId": 3,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.06,
-      "maxValue": 0.08,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DAMAGE_REDUCTION_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
-    },
-    {
-      "templateId": 5175,
-      "affixName": "不屈",
-      "descriptionFormat": "伤害减免提高 %.0f%%",
-      "rarityId": 4,
-      "triggerType": "PERMANENT",
-      "allowCategories": [
-        "ACCESSORY"
-      ],
-      "minValue": 0.08,
-      "maxValue": 0.10,
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DAMAGE_REDUCTION_RATE",
-      "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY"
+      "affixScope": "EQUIPMENT_ONLY",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
+        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
+        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
+        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+      ]
     }
   ]
 }

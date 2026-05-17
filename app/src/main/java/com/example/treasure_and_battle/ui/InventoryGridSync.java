@@ -93,6 +93,7 @@ public final class InventoryGridSync {
         addWithCount(bag, im.createConsumable("potion_mp_small"), 20);
         addWithCount(bag, im.createConsumable("potion_hp_medium"), 15);
         addWithCount(bag, im.createConsumable("potion_hp_large"), 10);
+        addWithCount(bag, im.createConsumable("diamond_drill"), 3);
     }
 
     private static void addEquipOrLog(List<Item> bag, EquipItem item) {
