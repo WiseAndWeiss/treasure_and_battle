@@ -5,11 +5,9 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.graphics.Shader;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -40,7 +38,7 @@ public final class TreasureStyleDrawable extends Drawable {
         BOTTOM_NAV,
         PANEL_FILL,
         PANEL_STROKE,
-        /** 与 {@link #SCREEN} 同色渐变，无阶梯外框（用于主界面根布局等）。 */
+        /** 与 {@link #SCREEN} 同色填充，无阶梯外框（用于主界面根布局等）。 */
         SCREEN_FILL,
         ENTRY_PRIMARY
     }
@@ -100,12 +98,12 @@ public final class TreasureStyleDrawable extends Drawable {
         switch (variant) {
             case PANEL:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFE2CB9E, 0xFFD9C29A, 0xFFBE9B6D));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFD9C29A));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case SLOT:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFD9BE91, 0xFFC9AD84, 0xFFC9AD84));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFC9AD84));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case SLOT_STROKE:
@@ -113,45 +111,41 @@ public final class TreasureStyleDrawable extends Drawable {
                 break;
             case SLOT_FILL:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(2.7f),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFD9BE91, 0xFFC9AD84, 0xFFC9AD84));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFC9AD84));
                 break;
             case TAB_ACTIVE:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFE4C18B, 0xFFD3A569, 0xFFD3A569));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFD3A569));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case TAB_IDLE:
-                drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), (c, iL, iT, iR, iB) -> {
-                    fillPaint.setShader(null);
-                    fillPaint.setColor(0x66E7D4AE);
-                    c.drawRect(iL, iT, iR, iB, fillPaint);
-                });
+                drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), (c, iL, iT, iR, iB) ->
+                        drawSolidFill(c, iL, iT, iR, iB, 0x66E7D4AE));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xB37B5C3B);
                 break;
             case SCREEN:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientDiag(c, iL, iT, iR, iB, 0xFFE0CCA8, 0xFFC9AD84, 0xFFAA7D50));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFC9AD84));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0x66705134);
                 break;
             case BOTTOM_NAV:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFBA9161, 0xFF996B3F, 0xFF996B3F));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFF996B3F));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case PANEL_FILL:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientV(c, iL, iT, iR, iB, 0xFFE2CB9E, 0xFFD9C29A, 0xFFBE9B6D));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFFD9C29A));
                 break;
             case PANEL_STROKE:
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case SCREEN_FILL:
-                drawGradientDiag(canvas, L, T, R, B, 0xFFE0CCA8, 0xFFC9AD84, 0xFFAA7D50);
+                drawSolidFill(canvas, L, T, R, B, 0xFFC9AD84);
                 break;
             case ENTRY_PRIMARY:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP),
-                        (c, iL, iT, iR, iB) -> drawGradientDiag(c, iL, iT, iR, iB,
-                                0xFF7B512C, 0xFF5F3A1D, 0xFF2F2117));
+                        (c, iL, iT, iR, iB) -> drawSolidFill(c, iL, iT, iR, iB, 0xFF5F3A1D));
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             default:
@@ -193,22 +187,9 @@ public final class TreasureStyleDrawable extends Drawable {
         }
     }
 
-    private void drawGradientV(Canvas canvas, int L, int T, int R, int B, int top, int mid, int bot) {
-        float[] pos = new float[]{0f, 0.5f, 1f};
-        int[] colors = new int[]{top, mid, bot};
-        LinearGradient g = new LinearGradient(0, T, 0, B, colors, pos, Shader.TileMode.CLAMP);
-        fillPaint.setShader(g);
+    private void drawSolidFill(Canvas canvas, int L, int T, int R, int B, int color) {
+        fillPaint.setColor(color);
         canvas.drawRect(L, T, R, B, fillPaint);
-        fillPaint.setShader(null);
-    }
-
-    private void drawGradientDiag(Canvas canvas, int L, int T, int R, int B, int c0, int c1, int c2) {
-        float[] pos = new float[]{0f, 0.5f, 1f};
-        int[] colors = new int[]{c0, c1, c2};
-        LinearGradient g = new LinearGradient(L, T, R, B, colors, pos, Shader.TileMode.CLAMP);
-        fillPaint.setShader(g);
-        canvas.drawRect(L, T, R, B, fillPaint);
-        fillPaint.setShader(null);
     }
 
     /**

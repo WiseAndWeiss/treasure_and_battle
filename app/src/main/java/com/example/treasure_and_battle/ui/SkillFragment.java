@@ -112,8 +112,6 @@ public class SkillFragment extends Fragment {
         view.findViewById(R.id.btn_add_phy).setOnClickListener(v -> tryAllocateTalent(pm, "PHYSIQUE"));
         view.findViewById(R.id.btn_add_luc).setOnClickListener(v -> tryAllocateTalent(pm, "LUCK"));
 
-        setupDebugGrantRow(view);
-
         selectTab(0);
         refreshCharacterPanels();
 
@@ -144,50 +142,6 @@ public class SkillFragment extends Fragment {
         }
         refreshCharacterPanels();
         reloadSkillsForCurrentTab();
-    }
-
-    /**
-     * Debug 包在「角色属性」卡内显示三个快捷按钮；正式包隐藏。
-     * 若需在 release 也显示，把下面 {@link BuildConfig#DEBUG} 判断去掉或改为 true。
-     */
-    private void setupDebugGrantRow(View root) {
-        View row = root.findViewById(R.id.row_skill_debug_grant);
-        if (row == null) {
-            return;
-        }
-        row.setVisibility(View.VISIBLE);
-        root.findViewById(R.id.btn_debug_gain_exp).setOnClickListener(v -> grantDebugExp(50000));
-        root.findViewById(R.id.btn_debug_gain_talent).setOnClickListener(v -> grantDebugTalentPoints(20));
-        root.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v -> grantDebugSkillPoints(20));
-    }
-
-    private void grantDebugExp(int exp) {
-        if (character == null || exp <= 0) {
-            return;
-        }
-        character.gainExp(exp);
-        refreshCharacterPanels();
-        reloadSkillsForCurrentTab();
-        showFloatMsg("已获得 " + exp + " 经验");
-    }
-
-    private void grantDebugTalentPoints(int amount) {
-        if (character == null || amount <= 0) {
-            return;
-        }
-        character.addTalentPoints(amount);
-        refreshCharacterPanels();
-        showFloatMsg("已获得 " + amount + " 天赋点");
-    }
-
-    private void grantDebugSkillPoints(int amount) {
-        if (character == null || amount <= 0) {
-            return;
-        }
-        character.addSkillPoints(amount);
-        refreshCharacterPanels();
-        reloadSkillsForCurrentTab();
-        showFloatMsg("已获得 " + amount + " 技能点");
     }
 
     private void tryAllocateTalent(PlayerManager pm, String attributeName) {
