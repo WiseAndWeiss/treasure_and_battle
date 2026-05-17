@@ -70,6 +70,13 @@ public class SettingsFragment extends Fragment {
             requireActivity().finish();
         });
 
+        view.findViewById(R.id.btn_debug_gain_exp).setOnClickListener(v ->
+                DebugCharacterGrants.grantExp(requireContext(), 500_000));
+        view.findViewById(R.id.btn_debug_gain_talent).setOnClickListener(v ->
+                DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
+        view.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v ->
+                DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+
         // TODO 后续在这里写设置项：音量、音效开关、存档重置
 
         return view;

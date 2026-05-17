@@ -45,59 +45,6 @@
                 android:layout_marginBottom="6dp"
                 android:background="@color/tb_divider" />
 
-            <!-- Debug 构建下由 SkillFragment 设为可见：快速加经验/天赋点/技能点 -->
-            <LinearLayout
-                android:id="@+id/row_skill_debug_grant"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/btn_debug_gain_exp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="+5000经验"
-                    android:textColor="@color/tb_battle"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/btn_debug_gain_talent"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="+20天赋点"
-                    android:textColor="@color/tb_battle"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/btn_debug_gain_skill"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="+20技能点"
-                    android:textColor="@color/tb_battle"
-                    android:textSize="11sp" />
-            </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

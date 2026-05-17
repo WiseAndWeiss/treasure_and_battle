@@ -1,94 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="120dp"
-    android:layout_height="100dp"
-    android:layout_marginHorizontal="32dp"
-    android:layout_marginVertical="-12dp"
+    android:layout_width="148dp"
+    android:layout_height="144dp"
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="2dp"
     android:clipChildren="false"
     android:clipToPadding="false">
 
     <FrameLayout
+        android:id="@+id/fl_monster_sprite"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
+        android:layout_height="108dp"
+        android:layout_gravity="top|center_horizontal"
         android:clipChildren="false"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:paddingHorizontal="4dp"
+        android:paddingTop="2dp">
 
         <ImageView
             android:id="@+id/iv_battle_monster"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="0dp"
-            android:contentDescription="@null"
-            android:scaleType="center"
-            android:src="@drawable/ic_map" />
-
-        <LinearLayout
-            android:id="@+id/layout_monster_info"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingBottom="4dp">
-
-            <TextView
-                android:id="@+id/tv_battle_monster_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="1"
-                android:textColor="@color/tb_text_main"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <ProgressBar
-                android:id="@+id/pb_battle_monster_hp"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:layout_marginTop="6dp"
-                android:max="100"
-                android:progress="100"
-                android:progressTint="@color/tb_battle" />
-
-            <TextView
-                android:id="@+id/tv_battle_monster_hp_val"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="9sp"
-                android:visibility="gone" />
-        </LinearLayout>
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_map" />
 
         <TextView
             android:id="@+id/tv_battle_target_marker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="-2dp"
             android:includeFontPadding="false"
             android:text="▼"
             android:textColor="#FFE53935"
             android:textSize="16sp"
             android:textStyle="bold"
             android:visibility="invisible" />
-
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_monster_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="2dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="0dp">
+
+        <TextView
+            android:id="@+id/tv_battle_monster_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@color/tb_text_main"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/pb_battle_monster_hp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="2dp"
+            android:max="100"
+            android:progress="100"
+            android:progressTint="@color/tb_battle" />
+
+        <TextView
+            android:id="@+id/tv_battle_monster_hp_val"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/tb_text_sub"
+            android:textSize="9sp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_battle_monster_intent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/bg_tab_idle"
         android:includeFontPadding="false"
         android:paddingHorizontal="4dp"
