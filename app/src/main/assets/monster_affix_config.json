@@ -346,6 +346,105 @@
         {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
         {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
       ]
+    },
+    {
+      "templateId": 6001,
+      "affixName": "再生皮肤",
+      "descriptionFormat": "每回合开始时，恢复最大生命的 %.0f%%",
+      "triggerType": "ON_ROUND_START",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRoundStartRecoverAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.03, "maxValue": 0.05},
+        {"rarityId": 1, "minValue": 0.05, "maxValue": 0.08},
+        {"rarityId": 2, "minValue": 0.08, "maxValue": 0.12},
+        {"rarityId": 3, "minValue": 0.12, "maxValue": 0.18},
+        {"rarityId": 4, "minValue": 0.25, "maxValue": 0.25}
+      ]
+    },
+    {
+      "templateId": 6002,
+      "affixName": "铁壁守护",
+      "descriptionFormat": "每回合开始时，获得 %.0f 层护盾",
+      "triggerType": "ON_ROUND_START",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
+      "applyTarget": "SELF",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 10, "maxValue": 20, "buffTemplateId": 4001, "applyStacks": 10},
+        {"rarityId": 1, "minValue": 20, "maxValue": 40, "buffTemplateId": 4001, "applyStacks": 20},
+        {"rarityId": 2, "minValue": 40, "maxValue": 80, "buffTemplateId": 4001, "applyStacks": 40},
+        {"rarityId": 3, "minValue": 80, "maxValue": 120, "buffTemplateId": 4001, "applyStacks": 80},
+        {"rarityId": 4, "minValue": 150, "maxValue": 150, "buffTemplateId": 4001, "applyStacks": 150}
+      ]
+    },
+    {
+      "templateId": 6003,
+      "affixName": "毒雾扩散",
+      "descriptionFormat": "回合结束时，对敌方全体施加 %.0f 层中毒",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1, "maxValue": 1, "buffTemplateId": 3001, "applyStacks": 2},
+        {"rarityId": 1, "minValue": 2, "maxValue": 2, "buffTemplateId": 3001, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 3, "maxValue": 3, "buffTemplateId": 3001, "applyStacks": 5},
+        {"rarityId": 3, "minValue": 5, "maxValue": 5, "buffTemplateId": 3001, "applyStacks": 8},
+        {"rarityId": 4, "minValue": 10, "maxValue": 10, "buffTemplateId": 3001, "applyStacks": 10}
+      ]
+    },
+    {
+      "templateId": 6004,
+      "affixName": "烈焰光环",
+      "descriptionFormat": "回合结束时，对敌方全体施加 %.0f 层燃烧",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1, "maxValue": 1, "buffTemplateId": 3002, "applyStacks": 2},
+        {"rarityId": 1, "minValue": 2, "maxValue": 2, "buffTemplateId": 3002, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 3, "maxValue": 3, "buffTemplateId": 3002, "applyStacks": 5},
+        {"rarityId": 3, "minValue": 5, "maxValue": 5, "buffTemplateId": 3002, "applyStacks": 8},
+        {"rarityId": 4, "minValue": 10, "maxValue": 10, "buffTemplateId": 3002, "applyStacks": 10}
+      ]
+    },
+    {
+      "templateId": 6005,
+      "affixName": "硬化皮肤",
+      "descriptionFormat": "单次受到的伤害不超过最大生命值的 %.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.defensive.MonsterDamageCapAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.30, "maxValue": 0.35},
+        {"rarityId": 1, "minValue": 0.25, "maxValue": 0.30},
+        {"rarityId": 2, "minValue": 0.20, "maxValue": 0.25},
+        {"rarityId": 3, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 4, "minValue": 0.10, "maxValue": 0.10}
+      ]
+    },
+    {
+      "templateId": 6006,
+      "affixName": "法力燃烧",
+      "descriptionFormat": "回合结束时，敌方全体法力值减少 %.0f 点",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerManaBurnAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 5},
+        {"rarityId": 1, "minValue": 5, "maxValue": 10},
+        {"rarityId": 2, "minValue": 10, "maxValue": 15},
+        {"rarityId": 3, "minValue": 15, "maxValue": 25},
+        {"rarityId": 4, "minValue": 30, "maxValue": 30}
+      ]
+    },
+    {
+      "templateId": 6007,
+      "affixName": "自爆",
+      "descriptionFormat": "死亡时，对击杀者造成自身最大生命的 %.0f%% 点魔法伤害",
+      "triggerType": "ON_DEATH",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerOnDeathExplodeAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 1, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 2, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 3, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 4, "minValue": 0.80, "maxValue": 0.80}
+      ]
     }
   ]
 }

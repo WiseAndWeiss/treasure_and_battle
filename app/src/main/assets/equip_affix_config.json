@@ -1,4 +1,4 @@
-﻿{
+{
   "affix_templates": [
     {
       "templateId": 1001,
@@ -446,21 +446,274 @@
       ]
     },
     {
-      "templateId": 5015,
-      "affixName": "不屈",
-      "descriptionFormat": "伤害减免提高 %.0f%%",
+      "templateId": 6001,
+      "affixName": "先发制人",
+      "descriptionFormat": "战斗开始时，对敌方全体造成基于自身(物攻+魔攻) %.0f%% 的伤害",
+      "triggerType": "ON_BATTLE_START",
+      "allowCategories": ["WEAPON"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBattleStartAoeDamageAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 1, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 2, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 3, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 4, "minValue": 0.80, "maxValue": 0.80}
+      ]
+    },
+    {
+      "templateId": 6002,
+      "affixName": "有备而来",
+      "descriptionFormat": "战斗开始时，获得 %.0f 点护盾",
+      "triggerType": "ON_BATTLE_START",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
+      "applyTarget": "SELF",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 10, "maxValue": 20, "buffTemplateId": 4001, "applyStacks": 10},
+        {"rarityId": 1, "minValue": 20, "maxValue": 40, "buffTemplateId": 4001, "applyStacks": 20},
+        {"rarityId": 2, "minValue": 40, "maxValue": 80, "buffTemplateId": 4001, "applyStacks": 40},
+        {"rarityId": 3, "minValue": 80, "maxValue": 120, "buffTemplateId": 4001, "applyStacks": 80},
+        {"rarityId": 4, "minValue": 150, "maxValue": 150, "buffTemplateId": 4001, "applyStacks": 150}
+      ]
+    },
+    {
+      "templateId": 6003,
+      "affixName": "食尸",
+      "descriptionFormat": "击杀敌人时，恢复自身最大生命的 %.0f%% 与最大法力的 %.0f%%",
+      "triggerType": "ON_KILL",
+      "allowCategories": ["WEAPON"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerOnKillRecoverAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.25},
+        {"rarityId": 4, "minValue": 0.30, "maxValue": 0.30}
+      ]
+    },
+    {
+      "templateId": 6004,
+      "affixName": "回春之力",
+      "descriptionFormat": "每回合开始时，恢复自身最大生命的 %.0f%%",
+      "triggerType": "ON_ROUND_START",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRoundStartRecoverAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.03},
+        {"rarityId": 1, "minValue": 0.03, "maxValue": 0.05},
+        {"rarityId": 2, "minValue": 0.05, "maxValue": 0.08},
+        {"rarityId": 3, "minValue": 0.08, "maxValue": 0.10},
+        {"rarityId": 4, "minValue": 0.15, "maxValue": 0.15}
+      ]
+    },
+    {
+      "templateId": 6005,
+      "affixName": "净化",
+      "descriptionFormat": "回合结束时，有 %.0f%% 概率净化自身 1 层减益效果",
+      "triggerType": "ON_ROUND_END",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerPurifyAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 1, "minValue": 0.30, "maxValue": 0.50},
+        {"rarityId": 2, "minValue": 0.50, "maxValue": 0.70},
+        {"rarityId": 3, "minValue": 0.70, "maxValue": 0.90},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
+    },
+    {
+      "templateId": 6006,
+      "affixName": "以暴制暴",
+      "descriptionFormat": "暴击时，有 %.0f%% 概率减少目标 1 点行动点",
+      "triggerType": "ON_CRIT",
+      "allowCategories": ["WEAPON"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerCritReduceApAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 1, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 3, "minValue": 0.60, "maxValue": 0.80},
+        {"rarityId": 4, "minValue": 1.00, "maxValue": 1.00}
+      ]
+    },
+    {
+      "templateId": 6007,
+      "affixName": "荆棘",
+      "descriptionFormat": "受到伤害时，对攻击者反弹所受伤害的 %.0f%%",
+      "triggerType": "ON_AFTER_DAMAGE_TAKEN",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerThornsAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 1, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 2, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 3, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 4, "minValue": 0.80, "maxValue": 0.80}
+      ]
+    },
+    {
+      "templateId": 6008,
+      "affixName": "魔力源泉",
+      "descriptionFormat": "释放技能后，恢复自身最大法力的 %.0f%%",
+      "triggerType": "ON_SKILL_CAST",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastRecoverMpAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6009,
+      "affixName": "法术狂暴",
+      "descriptionFormat": "释放技能后，有 %.0f%% 概率使所有冷却中的技能冷却减少 1 回合",
+      "triggerType": "ON_SKILL_CAST",
+      "allowCategories": ["WEAPON"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastReduceCdAffix",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 1, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 2, "minValue": 0.40, "maxValue": 0.55},
+        {"rarityId": 3, "minValue": 0.55, "maxValue": 0.70},
+        {"rarityId": 4, "minValue": 0.80, "maxValue": 0.80}
+      ]
+    },
+    {
+      "templateId": 6101,
+      "affixName": "生命源泉",
+      "descriptionFormat": "生命值 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "MAX_HP",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6102,
+      "affixName": "法力潮汐",
+      "descriptionFormat": "法力上限 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "MAX_MP",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6103,
+      "affixName": "物攻强化",
+      "descriptionFormat": "物理攻击力 +%.0f%%",
       "triggerType": "PERMANENT",
       "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
-      "attributeType": "DAMAGE_REDUCTION_RATE",
+      "attributeType": "PHYSICAL_ATK",
       "valueType": "PERCENTAGE",
-      "affixScope": "EQUIPMENT_ONLY",
+      "affixScope": "GLOBAL",
       "rarityParams": [
-        {"rarityId": 0, "minValue": 0.02, "maxValue": 0.04},
-        {"rarityId": 1, "minValue": 0.04, "maxValue": 0.06},
-        {"rarityId": 2, "minValue": 0.06, "maxValue": 0.10},
-        {"rarityId": 3, "minValue": 0.10, "maxValue": 0.15},
-        {"rarityId": 4, "minValue": 0.20, "maxValue": 0.20}
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6104,
+      "affixName": "魔攻强化",
+      "descriptionFormat": "魔法攻击力 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "MAGICAL_ATK",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6105,
+      "affixName": "物防强化",
+      "descriptionFormat": "物理防御 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "PHYSICAL_DEF",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6106,
+      "affixName": "魔防强化",
+      "descriptionFormat": "魔法防御 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ARMOR"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "MAGICAL_DEF",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
+      ]
+    },
+    {
+      "templateId": 6107,
+      "affixName": "速度强化",
+      "descriptionFormat": "速度 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "allowCategories": ["ACCESSORY"],
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
+      "attributeType": "SPEED",
+      "valueType": "PERCENTAGE",
+      "affixScope": "GLOBAL",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.05, "maxValue": 0.10},
+        {"rarityId": 1, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 2, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 3, "minValue": 0.20, "maxValue": 0.30},
+        {"rarityId": 4, "minValue": 0.40, "maxValue": 0.40}
       ]
     }
   ]

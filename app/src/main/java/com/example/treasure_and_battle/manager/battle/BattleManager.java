@@ -414,6 +414,7 @@ public class BattleManager {
         this.currentBattleContext = context;
         try {
             skill.applyCastCost(caster);
+            TriggerDispatcher.dispatch(caster, context, TriggerType.ON_SKILL_CAST, this.context);
             skill.onCast(caster, targets, this);
             context.addLog(LogType.ACTION, "[%s] 释放了 [%s]",
                     caster.getName(), skill.getSkillName());
