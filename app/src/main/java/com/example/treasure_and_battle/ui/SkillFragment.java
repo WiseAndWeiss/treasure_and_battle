@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -37,6 +39,7 @@ import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +114,8 @@ public class SkillFragment extends Fragment {
         view.findViewById(R.id.btn_add_spr).setOnClickListener(v -> tryAllocateTalent(pm, "SPIRIT"));
         view.findViewById(R.id.btn_add_phy).setOnClickListener(v -> tryAllocateTalent(pm, "PHYSIQUE"));
         view.findViewById(R.id.btn_add_luc).setOnClickListener(v -> tryAllocateTalent(pm, "LUCK"));
+
+        view.findViewById(R.id.btn_view_bonuses).setOnClickListener(v -> showBonusDialog());
 
         selectTab(0);
         refreshCharacterPanels();
@@ -625,6 +630,43 @@ public class SkillFragment extends Fragment {
                 }
                 compactApplied = true;
             }
+        }
+    }
+
+    private void showBonusDialog() {
+        AttributeSet fa = AttributeUtils.calculateCharacterAttributes(character);
+
+        View content = View.inflate(requireContext(), R.layout.dialog_treasure_alert, null);
+        ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("属性百分比加成");
+        View neg = content.findViewById(R.id.btn_treasure_alert_negative);
+        TextView pos = content.findViewById(R.id.btn_treasure_alert_positive);
+        neg.setVisibility(View.GONE);
+        pos.setText("关闭");
+
+        TextView msg = content.findViewById(R.id.tv_treasure_alert_message);
+        StringBuilder sb = new StringBuilder();
+        sb.append("力量加成: ").append(percentLabel(fa.percentStrength)).append("\n");
+        sb.append("敏捷加成: ").append(percentLabel(fa.percentAgility)).append("\n");
+        sb.append("智力加成: ").append(percentLabel(fa.percentIntelligence)).append("\n");
+        sb.append("精神加成: ").append(percentLabel(fa.percentSpirit)).append("\n");
+        sb.append("体魄加成: ").append(percentLabel(fa.percentPhysique)).append("\n");
+        sb.append("幸运加成: ").append(percentLabel(fa.percentLuck)).append("\n");
+        sb.append("生命上限加成: ").append(percentLabel(fa.percentMaxHp)).append("\n");
+        sb.append("魔力上限加成: ").append(percentLabel(fa.percentMaxMp)).append("\n");
+        sb.append("物攻加成: ").append(percentLabel(fa.percentPhysicalAtk)).append("\n");
+        sb.append("物防加成: ").append(percentLabel(fa.percentPhysicalDef)).append("\n");
+        sb.append("法攻加成: ").append(percentLabel(fa.percentMagicalAtk)).append("\n");
+        sb.append("法防加成: ").append(percentLabel(fa.percentMagicalDef)).append("\n");
+        sb.append("速度加成: ").append(percentLabel(fa.percentSpeed));
+        msg.setText(sb.toString());
+
+        AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(content)
+                .create();
+        pos.setOnClickListener(v -> d.dismiss());
+        d.show();
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
     }
 

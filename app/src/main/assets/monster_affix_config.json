@@ -364,16 +364,16 @@
     {
       "templateId": 6002,
       "affixName": "铁壁守护",
-      "descriptionFormat": "每回合开始时，获得 %.0f 层护盾",
+      "descriptionFormat": "每回合开始时，获得 %2$.0f 层护盾",
       "triggerType": "ON_ROUND_START",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
       "applyTarget": "SELF",
       "rarityParams": [
-        {"rarityId": 0, "minValue": 10, "maxValue": 20, "buffTemplateId": 4001, "applyStacks": 10},
-        {"rarityId": 1, "minValue": 20, "maxValue": 40, "buffTemplateId": 4001, "applyStacks": 20},
-        {"rarityId": 2, "minValue": 40, "maxValue": 80, "buffTemplateId": 4001, "applyStacks": 40},
-        {"rarityId": 3, "minValue": 80, "maxValue": 120, "buffTemplateId": 4001, "applyStacks": 80},
-        {"rarityId": 4, "minValue": 150, "maxValue": 150, "buffTemplateId": 4001, "applyStacks": 150}
+        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 10},
+        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 20},
+        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 40},
+        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 80},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 150}
       ]
     },
     {

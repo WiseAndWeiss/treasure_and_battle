@@ -41,7 +41,7 @@ public class MonsterTriggerBuffAffixTest {
     @Test
     public void testDescriptionWithFixedStacks() {
         MonsterTriggerBuffAffix affix = new MonsterTriggerBuffAffix(
-                501, "怪物附加", "%.0f%%概率，施加%d层", Rarity.RARE,
+                501, "怪物附加", "%.0f%%概率，施加%.0f层", Rarity.RARE,
                 TriggerType.ON_HIT, 1.0f, 3002,
                 AffixBuffApplyTarget.TARGET, 3, 0f
         );

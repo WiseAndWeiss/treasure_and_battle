@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
@@ -410,6 +411,16 @@ public class BagFragment extends Fragment {
                     persistSharedBagGridToInventory();
                 }
             }
+        }, equipItem -> {
+            if (equipItem.getSocketedGems() == null || equipItem.getSocketedGems().isEmpty()) {
+                showFloatMsg("该装备没有宝石");
+                return;
+            }
+            if (!hasDiamondDrill()) {
+                showFloatMsg("缺少金刚钻，无法拆卸宝石");
+                return;
+            }
+            showUnsocketGemDialog(equipItem);
         });
         menuProviderFactory.registerConsumable(consumableItem -> {
             Player player = PlayerCharacterHolder.getOrCreate(getContext()).generatePlayer();
@@ -1358,7 +1369,12 @@ public class BagFragment extends Fragment {
             return true;
         }
 
-        allItems.set(bagIndex, null);
+        Item bagItem = allItems.get(bagIndex);
+        if (bagItem.getCount() > 1) {
+            bagItem.setCount(bagItem.getCount() - 1);
+        } else {
+            allItems.set(bagIndex, null);
+        }
         int slotViewId = findEquipSlotByEquipItem(equip);
         if (slotViewId != -1) {
             updateEquipSlotView(slotViewId, equip);
@@ -1377,6 +1393,91 @@ public class BagFragment extends Fragment {
         }
         pendingGemItem = null;
         pendingGemBagIndex = -1;
+    }
+
+    private void showUnsocketGemDialog(EquipItem equip) {
+        List<com.example.treasure_and_battle.model.item.gem.GemItem> gems = equip.getSocketedGems();
+        if (gems == null || gems.isEmpty()) {
+            showFloatMsg("该装备没有宝石");
+            return;
+        }
+
+        showUnsocketGemIndexPicker(equip, new ArrayList<>(gems));
+    }
+
+    private void showUnsocketGemIndexPicker(EquipItem equip, List<com.example.treasure_and_battle.model.item.gem.GemItem> gems) {
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_battle_items, null, false);
+        ((TextView) content.findViewById(R.id.tv_battle_items_title)).setText("选择拆卸");
+        RecyclerView rv = content.findViewById(R.id.rv_battle_items);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        List<com.example.treasure_and_battle.model.item.gem.GemItem> gemList = new ArrayList<>(gems);
+        AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(content)
+                .create();
+        rv.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            @NonNull @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_battle_inventory_row, parent, false);
+                return new RecyclerView.ViewHolder(row) {};
+            }
+            @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+                ImageView iv = holder.itemView.findViewById(R.id.iv_battle_item_icon);
+                TextView tv = holder.itemView.findViewById(R.id.tv_battle_item_name);
+                tv.setText(gemList.get(position).getName());
+                if (iv != null) GameAssetIcons.bindItem(holder.itemView.getContext(), iv, gemList.get(position));
+                holder.itemView.setOnClickListener(v -> {
+                    com.example.treasure_and_battle.model.item.gem.GemItem gem = gemList.get(position);
+                    View confirmView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                    ((TextView) confirmView.findViewById(R.id.tv_treasure_alert_title)).setText("确认拆卸");
+                    ((TextView) confirmView.findViewById(R.id.tv_treasure_alert_message)).setText("确定要拆卸 " + gem.getName() + " 吗？");
+                    View neg = confirmView.findViewById(R.id.btn_treasure_alert_negative);
+                    TextView pos = confirmView.findViewById(R.id.btn_treasure_alert_positive);
+                    neg.setVisibility(View.VISIBLE);
+                    ((TextView) neg).setText("取消");
+                    pos.setText("确认");
+                    AlertDialog confirmD = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                            .setView(confirmView)
+                            .create();
+                    neg.setOnClickListener(v3 -> confirmD.dismiss());
+                    pos.setOnClickListener(v3 -> {
+                        com.example.treasure_and_battle.model.item.gem.GemItem removed = equip.unsocketGem(position);
+                        if (removed != null) {
+                            consumeDiamondDrill();
+                            putGemIntoBag(removed);
+                            int slotViewId = findEquipSlotByEquipItem(equip);
+                            if (slotViewId != -1) {
+                                updateEquipSlotView(slotViewId, equip);
+                                syncCharacterEquip(slotViewId, equip);
+                            }
+                            adapter.notifyDataSetChanged();
+                            persistSharedBagGridToInventory();
+                            showFloatMsg("已拆卸: " + removed.getName());
+                        }
+                        confirmD.dismiss();
+                        d.dismiss();
+                    });
+                    confirmD.show();
+                    if (confirmD.getWindow() != null) {
+                        confirmD.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                    }
+                });
+            }
+            @Override public int getItemCount() { return gemList.size(); }
+        });
+        content.findViewById(R.id.btn_battle_items_close).setOnClickListener(v -> d.dismiss());
+        d.show();
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+    }
+
+    private void putGemIntoBag(com.example.treasure_and_battle.model.item.gem.GemItem gem) {
+        for (int i = 0; i < allItems.size(); i++) {
+            if (allItems.get(i) == null) {
+                allItems.set(i, gem);
+                return;
+            }
+        }
     }
 
     private int findEquipSlotByEquipItem(EquipItem eq) {
@@ -1451,17 +1552,7 @@ public class BagFragment extends Fragment {
                     showFloatMsg("缺少金刚钻，无法拆卸宝石");
                     return true;
                 }
-                com.example.treasure_and_battle.model.item.gem.GemItem removed =
-                        item.unsocketGem(item.getSocketedGems().size() - 1);
-                if (removed != null) {
-                    consumeDiamondDrill();
-                    allItems.set(findEmptyBagSlot(), removed);
-                    updateEquipSlotView(slotViewId, item);
-                    syncCharacterEquip(slotViewId, item);
-                    adapter.notifyDataSetChanged();
-                    persistSharedBagGridToInventory();
-                    showFloatMsg("已拆卸: " + removed.getName());
-                }
+                showUnsocketGemDialog(item);
                 return true;
             }
             if (menuItem.getItemId() == 3) {

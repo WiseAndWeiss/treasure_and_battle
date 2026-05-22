@@ -71,6 +71,19 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/btn_profession_select"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_tab_idle"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="职业选择"
+            android:textColor="@color/tb_text_main"
+            android:textSize="16sp" />
+
+        <TextView
             android:id="@+id/btn_back_to_main"
             android:layout_width="match_parent"
             android:layout_height="44dp"

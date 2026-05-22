@@ -45,6 +45,8 @@ public class BattleManager {
 
     public interface MonsterActListener {
         void onMonsterWillAct(Monster monster);
+        void onMonsterEscaped(Monster monster);
+        void onMonsterEscapeFailed(Monster monster);
     }
 
     @Nullable
@@ -118,11 +120,14 @@ public class BattleManager {
         if (ctx.surpriseAttacker != SurpriseDirection.NONE) {
             ctx.addLog(LogType.INIT, "【偷袭】一方发起突袭，获得先手行动权。");
         }
-        TriggerDispatcher.dispatch(ctx, TriggerType.ON_BATTLE_START, context);
 
         ctx.addLog(LogType.INIT, "战斗开始：[%s] VS [%d个怪物]",
                 player.getName(), ctx.getAliveMonsters().size());
         return ctx;
+    }
+
+    public void dispatchOnBattleStart(BattleContext ctx) {
+        TriggerDispatcher.dispatch(ctx, TriggerType.ON_BATTLE_START, context);
     }
 
     /** 新回合：递增回合数、日志、回合开始阶段（意图/速度条）。达到回合上限则结束战斗。 */
@@ -526,6 +531,11 @@ public class BattleManager {
             if (e == null || e.isDead()) continue;
             BuffManager.getInstance(context).onRoundEnd(e, ctx);
             BuffManager.getInstance(context).tickBuffs(e);
+            if (e.getActiveSkillList() != null) {
+                for (ActiveSkill skill : e.getActiveSkillList()) {
+                    skill.decreaseCooldown();
+                }
+            }
         }
         for (Monster m : ctx.getAliveMonsters()) {
             if (m == null) continue;
@@ -755,7 +765,11 @@ public class BattleManager {
 
         if (RandomUtils.checkProbability((float) escapeChance)) {
             actingMonster.setDead(true);
+            actingMonster.setEscaped(true);
             ctx.addLog(LogType.ACTION, "怪物[%s]逃跑成功。", actingMonster.getName());
+            if (monsterActListener != null) {
+                monsterActListener.onMonsterEscaped(actingMonster);
+            }
             if (ctx.getAliveMonsters().isEmpty()) {
                 ctx.isBattleEnded = true;
                 ctx.battleResult = BattleContext.BattleResult.MONSTER_ESCAPED;
@@ -763,6 +777,9 @@ public class BattleManager {
             return true;
         }
         ctx.addLog(LogType.ACTION, "怪物[%s]逃跑失败。", actingMonster.getName());
+        if (monsterActListener != null) {
+            monsterActListener.onMonsterEscapeFailed(actingMonster);
+        }
         return false;
     }
 

@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.affix.impl.equip.trigger;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.damage.DamageConfig;
+import com.example.treasure_and_battle.battle.damage.DamageSource;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
@@ -29,18 +30,22 @@ public class EquipTriggerThornsAffix extends BaseEquipAffix {
             return;
         }
 
+        if (context.damageSource == DamageSource.COUNTER_ATTACK) {
+            return;
+        }
+
+        BattleEntity attacker = context.currentActor;
+        if (attacker == null || attacker.isDead() || attacker == owner) {
+            return;
+        }
+
         int reflectDamage = (int) (context.finalDamage * affixValue);
         if (reflectDamage <= 0) {
             return;
         }
 
-        BattleEntity attacker = context.currentActor;
-        if (attacker == null || attacker.isDead()) {
-            return;
-        }
-
         DamageManager dm = DamageManager.getInstance(owner.getContext());
-        dm.dealDamage(DamageConfig.piercing(com.example.treasure_and_battle.battle.damage.DamageSource.COUNTER_ATTACK),
+        dm.dealDamage(DamageConfig.piercing(DamageSource.COUNTER_ATTACK),
                 owner, attacker, reflectDamage, context);
 
         context.addLogWithMeta(

@@ -35,7 +35,7 @@ public class MonsterTriggerOnDeathExplodeAffix extends BaseMonsterAffix {
         }
 
         DamageManager dm = DamageManager.getInstance(owner.getContext());
-        dm.dealDamage(DamageConfig.skillMagical(), owner, killer, explodeDamage, context);
+        dm.dealDamage(DamageConfig.buffMagical(), owner, killer, explodeDamage, context);
 
         context.addLogWithMeta(
                 LogType.AFFIX,

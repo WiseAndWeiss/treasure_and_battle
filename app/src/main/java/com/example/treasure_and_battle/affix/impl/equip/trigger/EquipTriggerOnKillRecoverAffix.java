@@ -52,6 +52,7 @@ public class EquipTriggerOnKillRecoverAffix extends BaseEquipAffix {
 
     @Override
     public String getDescription() {
-        return String.format(description, affixValue * 100);
+        float pct = affixValue * 100;
+        return String.format(description, pct, pct);
     }
 }

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GemItemTest {
 
@@ -25,7 +26,7 @@ public class GemItemTest {
         assertEquals(50, gem.getBaseValue());
         assertEquals(ItemType.GEM, gem.getType());
         assertEquals("RUBY", gem.getGemType());
-        assertFalse(gem.canStack());
+        assertTrue(gem.canStack());
     }
 
     @Test
@@ -105,7 +106,7 @@ public class GemItemTest {
         GemItem gem = new GemItem("test", "测试", Rarity.COMMON, 10, "TEST");
 
         assertEquals(1, gem.getCount());
-        assertEquals(1, gem.getMaxStack());
-        assertFalse(gem.canStack());
+        assertEquals(99, gem.getMaxStack());
+        assertTrue(gem.canStack());
     }
 }
