@@ -33,8 +33,8 @@
       "dropFrom": "史莱姆"
     },
     {
-      "materialId": "slime_crown_fragment",
-      "name": "史莱姆王冠碎片",
+      "materialId": "slime_crown",
+      "name": "史莱姆王冠",
       "rarityId": 4,
       "baseValue": 500,
       "maxStack": 20,
@@ -57,16 +57,16 @@
       "dropFrom": "狼"
     },
     {
-      "materialId": "wolf_pelt_rare",
-      "name": "恐狼毛皮",
+      "materialId": "wolf_alpha_fang",
+      "name": "头狼獠牙",
       "rarityId": 2,
       "baseValue": 50,
       "maxStack": 50,
       "dropFrom": "狼"
     },
     {
-      "materialId": "wolf_alpha_fang",
-      "name": "头狼獠牙",
+      "materialId": "wolf_pelt_rare",
+      "name": "恐狼毛皮",
       "rarityId": 3,
       "baseValue": 150,
       "maxStack": 30,
@@ -249,24 +249,24 @@
       "dropFrom": "邪教徒"
     },
     {
-      "materialId": "goblin_ear",
-      "name": "地精耳朵",
+      "materialId": "goblin_stone",
+      "name": "地精的石头",
       "rarityId": 0,
       "baseValue": 3,
       "maxStack": 99,
       "dropFrom": "地精"
     },
     {
-      "materialId": "goblin_ear_gold",
-      "name": "地精的金耳朵",
+      "materialId": "goblin_short_knife",
+      "name": "地精的短刀",
       "rarityId": 1,
       "baseValue": 10,
       "maxStack": 80,
       "dropFrom": "地精"
     },
     {
-      "materialId": "goblin_staff",
-      "name": "萨满手杖碎片",
+      "materialId": "goblin_scepter",
+      "name": "萨满手杖",
       "rarityId": 2,
       "baseValue": 30,
       "maxStack": 30,
@@ -281,8 +281,8 @@
       "dropFrom": "兽人"
     },
     {
-      "materialId": "orc_tusk_war",
-      "name": "督军的战痕獠牙",
+      "materialId": "orc_helmet",
+      "name": "督军的头盔",
       "rarityId": 2,
       "baseValue": 60,
       "maxStack": 20,
