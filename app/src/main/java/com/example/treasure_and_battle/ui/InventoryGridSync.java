@@ -93,6 +93,31 @@ public final class InventoryGridSync {
         addWithCount(bag, im.createConsumable("potion_mp_small"), 20);
         addWithCount(bag, im.createConsumable("potion_hp_medium"), 15);
         addWithCount(bag, im.createConsumable("potion_hp_large"), 10);
+        addWithCount(bag, im.createConsumable("potion_hp_super"), 5);
+        addWithCount(bag, im.createConsumable("potion_hp_divine"), 2);
+        addWithCount(bag, im.createConsumable("potion_mp_medium"), 10);
+        addWithCount(bag, im.createConsumable("potion_mp_large"), 8);
+        addWithCount(bag, im.createConsumable("potion_mp_super"), 4);
+        addWithCount(bag, im.createConsumable("crystal_mana"), 1);
+        addWithCount(bag, im.createConsumable("potion_atk"), 5);
+        addWithCount(bag, im.createConsumable("potion_def"), 5);
+        addWithCount(bag, im.createConsumable("potion_swift"), 3);
+        addWithCount(bag, im.createConsumable("potion_crit"), 3);
+        addWithCount(bag, im.createConsumable("antidote"), 8);
+        addWithCount(bag, im.createConsumable("potion_purify"), 3);
+        addWithCount(bag, im.createConsumable("smoke_bomb"), 3);
+        addWithCount(bag, im.createConsumable("bomb_fire"), 5);
+        addWithCount(bag, im.createConsumable("acid_flask"), 3);
+        addWithCount(bag, im.createConsumable("key_copper"), 3);
+        addWithCount(bag, im.createConsumable("key_silver"), 2);
+        addWithCount(bag, im.createConsumable("key_gold"), 1);
+        addWithCount(bag, im.createConsumable("diamond_drill"), 2);
+        addWithCount(bag, im.createConsumable("polish_stone"), 3);
+        addWithCount(bag, im.createConsumable("scroll_reset"), 1);
+        addWithCount(bag, im.createConsumable("beacon_refresh"), 2);
+        addWithCount(bag, im.createConsumable("incense_monster"), 3);
+        addWithCount(bag, im.createConsumable("compass_treasure"), 2);
+        addWithCount(bag, im.createConsumable("potion_bloodrage"), 3);
     }
 
     private static void addEquipOrLog(List<Item> bag, EquipItem item) {

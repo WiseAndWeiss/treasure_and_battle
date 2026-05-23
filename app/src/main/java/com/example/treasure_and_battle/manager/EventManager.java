@@ -6,6 +6,7 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
@@ -28,6 +29,7 @@ public class EventManager {
     private Random mRandom = new Random();
     private LatLng mCurrentLatLng;
     private Monster mCurrentBattleMonster;
+    private BattleContext.SurpriseDirection mCurrentBattleSurprise = BattleContext.SurpriseDirection.NONE;
 
     public static class EventCircle {
         public Circle circle;
@@ -409,6 +411,14 @@ public class EventManager {
 
     public Monster getCurrentBattleMonster() {
         return mCurrentBattleMonster;
+    }
+
+    public void setCurrentBattleSurprise(BattleContext.SurpriseDirection surprise) {
+        mCurrentBattleSurprise = surprise;
+    }
+
+    public BattleContext.SurpriseDirection getCurrentBattleSurprise() {
+        return mCurrentBattleSurprise;
     }
 
     public List<EventCircle> getEventCircleList() {

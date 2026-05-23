@@ -104,6 +104,31 @@ public class EquipAffixManager {
         return affixList;
     }
 
+    public BaseEquipAffix generateSingleAffixForEquipment(EquipItem equipment) {
+        Rarity equipmentRarity = equipment.getRarity();
+        List<Rarity> generatedRarities = RngEngine.generateRaritiesWithPity(
+                1, Rarity.COMMON, 0f, true, equipmentRarity);
+
+        EquipCategory category = equipment.getSlot().getCategory();
+
+        for (Rarity targetRarity : generatedRarities) {
+            EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
+            if (template == null) {
+                template = getRandomEquipTemplate(category, null);
+                if (template == null) return null;
+            }
+
+            float randomValue = RandomUtils.getRandomFloat(template.getMinValue(), template.getMaxValue());
+            EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+            BaseEquipAffix affix = EquipAffixFactory.create(template, targetRarity, template.getTriggerType(), categories, randomValue);
+            if (affix != null) {
+                return affix;
+            }
+        }
+        return null;
+    }
+
     private EquipAffixTemplate getRandomEquipTemplate(EquipCategory category, Rarity targetRarity) {
         List<EquipAffixTemplate> validTemplates = new ArrayList<>();
         for (EquipAffixTemplate template : templateMap.values()) {

@@ -9,6 +9,17 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.manager.item.ItemManager;
+import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
+import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
+
+import java.util.List;
 
 public class BenefitEventActivity extends AppCompatActivity {
 
@@ -29,20 +40,100 @@ public class BenefitEventActivity extends AppCompatActivity {
         tvResult = findViewById(R.id.tv_result);
         btnContinue = findViewById(R.id.btn_continue);
 
-        findViewById(R.id.card_rest).setOnClickListener(v -> {
-            showResult("你选择休息，回复了80点生命值！\n\n✅ 生命值 +80");
-            switchToForwardButton();
-        });
+        findViewById(R.id.card_rest).setOnClickListener(v -> doRest());
 
-        findViewById(R.id.card_training).setOnClickListener(v -> {
-            showResult("你进行了锻炼，感觉力量增强了！\n\n✅ 力量 +5");
-            switchToForwardButton();
-        });
+        findViewById(R.id.card_chest).setOnClickListener(v -> doChest());
+    }
 
-        findViewById(R.id.card_treasure).setOnClickListener(v -> {
-            showResult("你发现了隐藏宝藏！\n\n✅ 获得金币 ×300~800\n✅ 获得随机装备 ×1\n✅ 获得随机材料 ×3\n✅ 获得随机宝石 ×1");
+    private void doRest() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        int heal = (int) (ch.getBaseMaxHp() * 0.3);
+        int newHp = Math.min(ch.getCurrentHp() + heal, ch.getBaseMaxHp());
+        ch.setCurrentHp(newHp);
+        showResult("你靠在篝火旁休息，伤势恢复了。\n\n✅ 生命值 +" + heal + "（当前：" + ch.getCurrentHp() + "/" + ch.getBaseMaxHp() + "）");
+        switchToForwardButton();
+    }
+
+    private void doChest() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+
+        double roll = Math.random();
+        String chestName, keyId;
+        Rarity rarity;
+        int goldMin, goldMax;
+
+        if (roll < 0.10) {
+            chestName = "金宝箱";
+            keyId = "key_gold";
+            rarity = Rarity.EPIC;
+            goldMin = 1000;
+            goldMax = 2000;
+        } else if (roll < 0.30) {
+            chestName = "银宝箱";
+            keyId = "key_silver";
+            rarity = Rarity.RARE;
+            goldMin = 500;
+            goldMax = 1000;
+        } else {
+            chestName = "铜宝箱";
+            keyId = "key_copper";
+            rarity = Rarity.UNCOMMON;
+            goldMin = 200;
+            goldMax = 500;
+        }
+
+        ConsumableItem keyItem = findConsumableById(bag, keyId);
+        if (keyItem == null) {
+            showResult("营地中有一只" + chestName + "！\n\n❌ 你没有" + getKeyName(keyId) + "，无法打开宝箱。");
             switchToForwardButton();
-        });
+            return;
+        }
+
+        keyItem.setCount(keyItem.getCount() - 1);
+        if (keyItem.getCount() <= 0) {
+            InventoryManager.removeItem(bag, keyItem);
+        }
+
+        EquipmentManager em = EquipmentManager.getInstance(this);
+        ItemManager im = ItemManager.getInstance(this);
+        int level = 5 + rarity.getId() * 5 + (int) (Math.random() * 11);
+        EquipItem equip = em.generateRandomEquip(level, rarity);
+        String equipName = equip != null ? equip.getName() + "（" + equip.getRarity().getDisplayName() + "）" : "一件装备";
+        if (equip != null) InventoryManager.addItem(bag, equip);
+
+        int gold = goldMin + (int) (Math.random() * (goldMax - goldMin + 1));
+        ch.addGold(gold);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("营地中有一只").append(chestName).append("！\n");
+        sb.append("你使用").append(getKeyName(keyId)).append("打开了宝箱！\n\n");
+        sb.append("✅ 获得：").append(equipName).append("\n");
+        sb.append("✅ 金币 +").append(gold).append("\n");
+
+        GemItem gem = im.getRandomGemByRarity(rarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
+        if (gem != null) {
+            InventoryManager.addItem(bag, gem);
+            sb.append("✅ 获得：").append(gem.getName()).append("（").append(gem.getRarity().getDisplayName()).append("）");
+        }
+
+        showResult(sb.toString());
+        switchToForwardButton();
+    }
+
+    private ConsumableItem findConsumableById(List<Item> bag, String id) {
+        for (Item item : bag) {
+            if (item instanceof ConsumableItem && id.equals(item.getId())) {
+                return (ConsumableItem) item;
+            }
+        }
+        return null;
+    }
+
+    private String getKeyName(String keyId) {
+        if ("key_gold".equals(keyId)) return "金钥匙";
+        if ("key_silver".equals(keyId)) return "银钥匙";
+        return "铜钥匙";
     }
 
     private void showResult(String text) {

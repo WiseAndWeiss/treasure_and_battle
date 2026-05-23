@@ -51,6 +51,7 @@ public final class TreasureStyleDrawable extends Drawable {
     private final Paint borderPaint = new Paint();
     private float density = 1f;
     private Variant variant = Variant.PANEL;
+    private float stairScale = 1f;
     @Nullable private Integer stairBorderColorOverride;
 
     public TreasureStyleDrawable() {
@@ -109,7 +110,19 @@ public final class TreasureStyleDrawable extends Drawable {
                 drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
                 break;
             case SLOT_STROKE:
-                drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
+                if (stairScale != 1f && stairScale > 0f) {
+                    float cx = (L + R) / 2f;
+                    float cy = (T + B) / 2f;
+                    float hw = (R - L) * stairScale / 2f;
+                    float hh = (B - T) * stairScale / 2f;
+                    int sL = Math.round(cx - hw);
+                    int sT = Math.round(cy - hh);
+                    int sR = Math.round(cx + hw);
+                    int sB = Math.round(cy + hh);
+                    drawSlotStairFrame(canvas, sL, sT, sR, sB, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
+                } else {
+                    drawSlotStairFrame(canvas, L, T, R, B, dp(STAIR_BORDER_WIDTH_DP), 0xFF5F3A1D);
+                }
                 break;
             case SLOT_FILL:
                 drawFillInsetOneBw(canvas, L, T, R, B, dp(2.7f),
@@ -284,10 +297,16 @@ public final class TreasureStyleDrawable extends Drawable {
 
     @NonNull
     public static TreasureStyleDrawable newSlotStrokeOverlay(@NonNull Context context, @Nullable Integer borderArgb) {
+        return newSlotStrokeOverlay(context, borderArgb, 1f);
+    }
+
+    @NonNull
+    public static TreasureStyleDrawable newSlotStrokeOverlay(@NonNull Context context, @Nullable Integer borderArgb, float scale) {
         TreasureStyleDrawable d = new TreasureStyleDrawable();
         d.density = context.getResources().getDisplayMetrics().density;
         d.variant = Variant.SLOT_STROKE;
         d.stairBorderColorOverride = borderArgb;
+        d.stairScale = scale;
         return d;
     }
 }
