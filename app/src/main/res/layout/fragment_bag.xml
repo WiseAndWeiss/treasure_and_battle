@@ -45,13 +45,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_helmet"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="头盔" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="头盔" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -61,13 +61,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_chest"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="胸甲" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="胸甲" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -77,13 +77,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_leggings"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="护腿" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="护腿" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -93,13 +93,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_boots"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="鞋子" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="鞋子" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -116,13 +116,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_necklace"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="项链" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="项链" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -132,13 +132,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_bracelet"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="手镯" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="手镯" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -148,13 +148,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_ring_left"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="左戒" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="左戒" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
 
             <Space
@@ -164,13 +164,13 @@
 
             <LinearLayout
                 android:id="@+id/slot_ring_right"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_slot_treasure_fill"
                 android:foreground="@drawable/bg_slot_treasure_stroke"
                 android:gravity="center">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="右戒" android:textColor="@color/tb_text_main" android:textSize="12sp" />
+                    android:text="右戒" android:textColor="@color/tb_text_main" android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -271,8 +271,8 @@
 
         <LinearLayout
             android:id="@+id/slot_weapon"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="4dp"
             android:background="@drawable/bg_slot_treasure_fill"
@@ -285,7 +285,7 @@
             app:layout_constraintVertical_bias="1">
 
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="武器" android:textColor="@color/tb_text_main" android:textSize="13sp" />
+                android:text="武器" android:textColor="@color/tb_text_main" android:textSize="11sp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
