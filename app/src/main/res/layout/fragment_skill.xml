@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/border"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_screen_treasure"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
     android:padding="10dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_stats"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="28"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
         app:cardMaxElevation="0dp"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.28"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:cardUseCompatPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,7 +27,6 @@
             android:background="@drawable/bg_panel_treasure_fill_only"
             android:foreground="@drawable/bg_panel_treasure_stroke_only"
             android:orientation="vertical"
-            android:layout_marginTop="8dp"
             android:padding="13dp">
 
             <LinearLayout
@@ -126,51 +124,57 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_talents"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_weight="22"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
         app:cardMaxElevation="0dp"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.16"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cv_stats">
+        app:cardUseCompatPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_panel_treasure_fill_only"
-            android:foreground="@drawable/bg_panel_treasure_stroke_only"
+            android:background="@drawable/bg_panel_treasure"
             android:orientation="vertical"
-            android:padding="9dp">
+            android:paddingStart="13dp"
+            android:paddingTop="13dp"
+            android:paddingEnd="13dp"
+            android:paddingBottom="13dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
-                android:gravity="center_vertical|start"
-                android:text="天赋加点"
-                android:textColor="@color/tb_gold"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="天赋加点"
+                    android:textColor="@color/tb_gold"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="6dp"
                 android:background="@color/tb_divider" />
 
             <GridLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:columnCount="6"
                 android:gravity="center"
                 android:rowCount="1">
 
-                <!-- 力量 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -194,7 +198,6 @@
                         android:src="@drawable/upgrade" />
                 </LinearLayout>
 
-                <!-- 敏捷 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -218,7 +221,6 @@
                         android:src="@drawable/upgrade" />
                 </LinearLayout>
 
-                <!-- 智力 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -242,7 +244,6 @@
                         android:src="@drawable/upgrade" />
                 </LinearLayout>
 
-                <!-- 精神 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -266,7 +267,6 @@
                         android:src="@drawable/upgrade" />
                 </LinearLayout>
 
-                <!-- 体魄 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -290,7 +290,6 @@
                         android:src="@drawable/upgrade" />
                 </LinearLayout>
 
-                <!-- 幸运 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
@@ -320,7 +319,7 @@
                 android:id="@+id/tv_remaining_points"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center"
                 android:text="剩余天赋点: 0"
                 android:textColor="@color/tb_battle"
@@ -332,18 +331,15 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_skills"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_weight="50"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
         app:cardMaxElevation="0dp"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cv_talents">
+        app:cardUseCompatPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -411,23 +407,25 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:background="@color/tb_panel"
                 android:orientation="vertical">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_skills"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
                     android:clipToPadding="false"
+                    android:overScrollMode="ifContentScrolls"
                     android:paddingStart="8dp"
                     android:paddingTop="8dp"
                     android:paddingEnd="8dp"
-                    android:paddingBottom="8dp" />
+                    android:paddingBottom="8dp"
+                    android:scrollbars="vertical" />
             </LinearLayout>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
