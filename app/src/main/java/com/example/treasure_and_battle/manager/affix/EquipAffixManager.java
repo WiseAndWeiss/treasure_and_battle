@@ -175,6 +175,8 @@ public class EquipAffixManager {
         }
         if (eligible.isEmpty()) return null;
         return eligible.get(RandomUtils.getRandomInt(0, eligible.size() - 1));
+    }
+
     public BaseEquipAffix generateSingleAffixForEquipment(EquipItem equipment) {
         Rarity equipmentRarity = equipment.getRarity();
         List<Rarity> generatedRarities = RngEngine.generateRaritiesWithPity(
