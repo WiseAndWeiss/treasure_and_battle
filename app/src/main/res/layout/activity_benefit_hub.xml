@@ -86,7 +86,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="回复80点生命值"
+                        android:text="在营地篝火旁休息，恢复30%最大生命值"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -94,13 +94,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="奖励：生命值+80    风险：无"
+                        android:text="奖励：恢复30%最大生命值    风险：无"
                         android:textColor="#4CAF50"
                         android:textSize="12sp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/card_training"
+                    android:id="@+id/card_chest"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -113,7 +113,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="💪 锻炼"
+                        android:text="📦 打开宝箱"
                         android:textColor="#333333"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -122,7 +122,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="增加5点力量属性"
+                        android:text="营地里发现一只宝箱！10%概率金宝箱、20%银宝箱、70%铜宝箱，需要对应钥匙开启"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -130,43 +130,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="奖励：力量+5    风险：无"
-                        android:textColor="#FF9800"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/card_treasure"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_event_popup"
-                    android:padding="20dp"
-                    android:layout_marginBottom="12dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="💰 宝藏事件"
-                        android:textColor="#333333"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="发现一处隐藏宝藏，随机获得金币、装备、材料或宝石"
-                        android:textColor="#666666"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="奖励：金币×300~800、随机装备/材料/宝石    风险：无"
+                        android:text="奖励：铜→稀有装备+金币200~500 银→罕见装备+金币500~1000 金→史诗装备+金币1000~2000    风险：需要对应钥匙"
                         android:textColor="#FFC107"
                         android:textSize="12sp" />
                 </LinearLayout>

@@ -458,22 +458,52 @@ public class MapFragment extends Fragment {
     private void initTimedTasks() {
         mGenerateEventRunnable = () -> {
             if (isDetached()) return;
+            applyRateSettings();
             int count = mEventManager.generateRandomEvents();
             if (count > 0) {
-                showFloatMsg("生成事件：" + count);
+                boolean showToast = mPrefs.getBoolean("showEventToast", true);
+                if (showToast) showFloatMsg("生成事件：" + count);
                 refreshEventIcons();
             }
-            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getGlobalConfig().getGenerateInterval());
+            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
         };
 
         mCheckExpireRunnable = () -> {
             if (isDetached()) return;
+            boolean pendingClear = mPrefs.getBoolean("pendingRateClear", false);
+            if (pendingClear) {
+                mPrefs.edit().putBoolean("pendingRateClear", false).apply();
+                applyRateSettings();
+                mEventManager.clearAllEvents();
+                refreshEventIcons();
+                int count = mEventManager.generateRandomEvents();
+                if (count > 0) {
+                    refreshEventIcons();
+                    showFloatMsg("速率已切换，重新生成事件：" + count);
+                }
+                mMainHandler.removeCallbacks(mGenerateEventRunnable);
+                mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
+            }
             int count = mEventManager.checkExpiredEvents();
             if (count > 0) {
                 refreshEventIcons();
             }
             mMainHandler.postDelayed(mCheckExpireRunnable, 1000);
         };
+    }
+
+    private void applyRateSettings() {
+        int rate = mPrefs.getInt("eventRate", 0);
+        long genInterval, battleExp, benefitExp, neutralExp;
+        if (rate == 1) {
+            genInterval = 60000; battleExp = 180000; benefitExp = 120000; neutralExp = 240000;
+        } else if (rate == 2) {
+            genInterval = 1800000; battleExp = 5400000; benefitExp = 4500000; neutralExp = 7200000;
+        } else {
+            genInterval = 10000; battleExp = 30000; benefitExp = 25000; neutralExp = 40000;
+        }
+        mEventManager.setOverrideGenerateInterval(genInterval);
+        mEventManager.setExpireOverrides(battleExp, benefitExp, neutralExp);
     }
 
     private void startTimedTasks() {
@@ -643,9 +673,7 @@ public class MapFragment extends Fragment {
             mBattleTriggerPosition = mEventManager.getCurrentLatLng();
             showFloatMsg("即将进入战斗...");
             startBattleCountdown();
-        } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "")
-                || "training".equals(sub != null ? sub.getKey() : "")
-                || "treasure".equals(sub != null ? sub.getKey() : "")) {
+        } else if ("BENEFIT".equals(type) || "benefit_hub".equals(sub != null ? sub.getKey() : "")) {
             handleBenefitAction();
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
@@ -873,11 +901,14 @@ public class MapFragment extends Fragment {
         if (sub == null) return "BATTLE";
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
-        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key)) return "BENEFIT";
+        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key)) return "BENEFIT";
         if ("merchant".equals(key) || "traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
-                || "equipment_reforge".equals(key)) return "NEUTRAL";
+                || "equipment_reforge".equals(key) || "casino_wagon".equals(key)
+                || "divination_hut".equals(key) || "mystery_box".equals(key)
+                || "mysterious_altar".equals(key) || "phantom_maze".equals(key)
+                || "wishing_well".equals(key) || "cursed_chest".equals(key)) return "NEUTRAL";
         return "BATTLE";
     }
 

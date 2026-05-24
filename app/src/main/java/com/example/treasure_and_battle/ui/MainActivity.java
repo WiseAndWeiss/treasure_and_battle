@@ -1,8 +1,11 @@
 package com.example.treasure_and_battle.ui;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -21,6 +24,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        View spacer = findViewById(R.id.v_status_bar_spacer);
+        ViewCompat.setOnApplyWindowInsetsListener(spacer, (v, insets) -> {
+            int topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            v.getLayoutParams().height = topInset;
+            v.requestLayout();
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
 

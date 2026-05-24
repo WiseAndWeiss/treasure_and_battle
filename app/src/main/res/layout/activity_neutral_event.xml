@@ -1,97 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#88000000">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#FFC107"
-        android:elevation="4dp">
-
-        <TextView
-            android:id="@+id/tv_toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="中性事件"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="←"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp" />
-
-    </RelativeLayout>
+    <TextView
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="←"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="36dp"
+        android:padding="8dp">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/iv_event_border"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:gravity="center"
+                android:paddingStart="48dp"
+                android:paddingEnd="48dp"
+                android:paddingTop="40dp"
+                android:paddingBottom="20dp">
 
                 <TextView
                     android:id="@+id/tv_event_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="事件名称"
-                    android:textColor="#333333"
+                    android:textColor="#FFD700"
                     android:textSize="22sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="#E0E0E0" />
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#22FFFFFF"
+                    android:padding="16dp" />
 
                 <TextView
                     android:id="@+id/tv_event_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="64dp"
                     android:text="事件描述"
-                    android:textColor="#666666"
+                    android:textColor="#FFFFFF"
                     android:textSize="15sp"
-                    android:lineSpacingExtra="4dp" />
+                    android:lineSpacingExtra="4dp"
+                    android:gravity="center"
+                    android:background="#22FFFFFF"
+                    android:padding="16dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="60dp"
                         android:layout_height="wrap_content"
                         android:text="奖励："
-                        android:textColor="#00CC00"
+                        android:textColor="#4CAF50"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -101,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="奖励内容"
-                        android:textColor="#00CC00"
+                        android:textColor="#4CAF50"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -110,7 +100,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="60dp"
@@ -130,57 +121,58 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_action_area"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical">
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_result_area"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:visibility="gone">
-
-                <TextView
+                <LinearLayout
+                    android:id="@+id/ll_action_area"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="结果"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_result"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text=""
-                    android:textColor="#666666"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/btn_continue"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
                     android:layout_marginTop="16dp"
-                    android:background="#4CAF50"
-                    android:text="前进"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:id="@+id/ll_result_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#22FFFFFF"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="结果"
+                        android:textColor="#FFD700"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:gravity="center" />
+
+                    <TextView
+                        android:id="@+id/tv_result"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text=""
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_continue"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="16dp"
+                        android:background="#4CAF50"
+                        android:text="前进"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
             </LinearLayout>
 
-        </LinearLayout>
+        </FrameLayout>
+
     </ScrollView>
 
-</LinearLayout>
+</FrameLayout>
