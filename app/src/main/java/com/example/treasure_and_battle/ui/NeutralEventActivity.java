@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.ui;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -345,17 +346,18 @@ public class NeutralEventActivity extends AppCompatActivity {
     private Button addActionButton(String text, int bgColor, View.OnClickListener listener) {
         Button btn = new Button(this);
         btn.setText(text);
-        btn.setTextSize(12);
+        btn.setTextSize(10);
         btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor(bgColor);
-        int pad = (int) (9 * getResources().getDisplayMetrics().density);
+        btn.setBackgroundResource(R.drawable.bg_neutral_action_btn);
+        btn.getBackground().setTintList(ColorStateList.valueOf(bgColor));
+        int pad = (int) (6 * getResources().getDisplayMetrics().density);
         btn.setPadding(pad, pad, pad, pad);
         btn.setAllCaps(false);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        int margin = (int) (3 * getResources().getDisplayMetrics().density);
+        int margin = (int) (2 * getResources().getDisplayMetrics().density);
         params.setMargins(0, margin, 0, margin);
         btn.setLayoutParams(params);
         btn.setOnClickListener(listener);
