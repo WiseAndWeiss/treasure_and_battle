@@ -8,13 +8,21 @@
     android:background="@drawable/bg_screen_treasure_fill_only"
     tools:context=".ui.MainActivity">
 
+    <!-- 顶部状态栏/刘海屏安全区占位 -->
+    <View
+        android:id="@+id/v_status_bar_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/tb_bg_dark"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- 页面容器 -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/v_status_bar_spacer"/>
 
     <!-- 底部导航栏 -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

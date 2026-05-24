@@ -41,6 +41,7 @@ import com.example.treasure_and_battle.battle.log.BattleLogEntry;
 import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.EventManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
@@ -448,20 +449,27 @@ public class BattleFragment extends Fragment {
         player = ch.generatePlayer();
         player.resetActionPoints();
 
-        MonsterManager mm = MonsterManager.getInstance(requireContext());
+        EventManager em = EventManager.getInstance(requireContext());
+        Monster reservedMonster = em.getCurrentBattleMonster();
+        BattleContext.SurpriseDirection surprise = em.getCurrentBattleSurprise();
+
         List<Monster> monsters = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            monsters.add(null);
-        }
-        for (int k = 0; k < MONSTER_SLOT_INDEX.length && k < MONSTER_TEMPLATE_IDS.length; k++) {
-            Monster m = mm.createMonsterByTemplateId(MONSTER_TEMPLATE_IDS[k]);
-            if (m != null) {
-                monsters.set(MONSTER_SLOT_INDEX[k], m);
+        if (reservedMonster != null && surprise != BattleContext.SurpriseDirection.NONE) {
+            for (int i = 0; i < 5; i++) monsters.add(null);
+            monsters.set(1, reservedMonster);
+            em.setCurrentBattleMonster(null);
+            em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.NONE);
+        } else {
+            MonsterManager mm = MonsterManager.getInstance(requireContext());
+            for (int i = 0; i < 5; i++) monsters.add(null);
+            for (int k = 0; k < MONSTER_SLOT_INDEX.length && k < MONSTER_TEMPLATE_IDS.length; k++) {
+                Monster m = mm.createMonsterByTemplateId(MONSTER_TEMPLATE_IDS[k]);
+                if (m != null) monsters.set(MONSTER_SLOT_INDEX[k], m);
             }
         }
 
         battleContext = battleManager.bootstrapBattleForUi(player, monsters,
-                BattleContext.SurpriseDirection.NONE, false);
+                surprise, false);
         BattleSessionHolder.setSuspended(battleContext);
         clearMonsterSlotBindCache();
     }

@@ -2,19 +2,26 @@ package com.example.treasure_and_battle.ui;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,12 +30,15 @@ import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.EventManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
+import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -38,6 +48,7 @@ import com.example.treasure_and_battle.utils.GameAssetIcons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.InputStream;
 
 public class NeutralEventActivity extends AppCompatActivity {
 
@@ -59,12 +70,27 @@ public class NeutralEventActivity extends AppCompatActivity {
     private ItemType travelerRequiredType;
     private String travelerRequestDesc;
 
+    private int wishingRound;
+    private String lastWishResult;
+    private static final int[] WISHING_AMOUNTS = {1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_neutral_event);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
+        View root = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            View btnBack = findViewById(R.id.btn_back);
+            int topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            android.widget.FrameLayout.LayoutParams lp =
+                    (android.widget.FrameLayout.LayoutParams) btnBack.getLayoutParams();
+            lp.topMargin = topInset + (int)(12 * getResources().getDisplayMetrics().density);
+            btnBack.setLayoutParams(lp);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         btnContinue = findViewById(R.id.btn_continue);
         btnContinue.setOnClickListener(v -> finish());
@@ -80,13 +106,34 @@ public class NeutralEventActivity extends AppCompatActivity {
         String risk = intent.getStringExtra("event_risk");
         eventKey = intent.getStringExtra("event_key");
 
-        ((TextView) findViewById(R.id.tv_toolbar_title)).setText(name != null ? name : "中性事件");
         ((TextView) findViewById(R.id.tv_event_name)).setText(name != null ? name : "未知事件");
         ((TextView) findViewById(R.id.tv_event_desc)).setText(desc != null ? desc : "暂无描述");
         ((TextView) findViewById(R.id.tv_event_reward)).setText(reward != null ? reward : "暂无");
         ((TextView) findViewById(R.id.tv_event_risk)).setText(risk != null ? risk : "无");
 
+        loadEventBorder();
+
         buildActionButtons();
+    }
+
+    private void loadEventBorder() {
+        if (eventKey == null) return;
+        String fileName = eventKey.replace("equipment_reforge", "equipment_reforce") + ".png";
+        ImageView ivBorder = findViewById(R.id.iv_event_border);
+        try (InputStream is = getAssets().open("border/" + fileName)) {
+            Bitmap raw = BitmapFactory.decodeStream(is);
+            int screenW = getResources().getDisplayMetrics().widthPixels;
+            int padPx = (int) (12 * getResources().getDisplayMetrics().density * 2);
+            int targetW = screenW - padPx;
+            float ratio = (float) targetW / raw.getWidth();
+            int targetH = (int) (raw.getHeight() * ratio);
+            Bitmap scaled = Bitmap.createScaledBitmap(raw, targetW, targetH, false);
+            raw.recycle();
+            ivBorder.setImageBitmap(scaled);
+            ivBorder.setVisibility(android.view.View.VISIBLE);
+        } catch (Exception e) {
+            ivBorder.setVisibility(android.view.View.GONE);
+        }
     }
 
     private void buildActionButtons() {
@@ -113,7 +160,13 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "scholar":
                 btnAction1 = addActionButton("洗点重置（消耗500金币）", 0xFFFF9800, v -> {
-                    showResult("你消耗了500金币，天赋点和技能点已重置！");
+                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                    if (!ch.spendGold(500)) {
+                        showResult("你的金币不足500，无法支付洗点费用。");
+                        switchToForwardButton();
+                        return;
+                    }
+                    showResult("你消耗了500金币，天赋点和技能点已重置！（当前金币：" + ch.getGold() + "）");
                     switchToForwardButton();
                 });
                 btnAction2 = addActionButton("离开", 0xFF888888, v -> {
@@ -132,8 +185,14 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "monster_camp":
                 btnAction1 = addActionButton("偷袭怪物", 0xFFE53935, v -> {
-                    showResult("你悄悄靠近并发动偷袭！必定先手攻击！\n（战斗系统后续开发）");
-                    switchToForwardButton();
+                    Monster monster = MonsterManager.getInstance(this).createRandomMonster();
+                    EventManager em = EventManager.getInstance(getApplicationContext());
+                    em.setCurrentBattleMonster(monster);
+                    em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.PLAYER_SURPRISE);
+                    Intent result = new Intent();
+                    result.putExtra("open_battle", true);
+                    setResult(RESULT_OK, result);
+                    finish();
                 });
                 btnAction2 = addActionButton("悄悄离开", 0xFF888888, v -> {
                     showResult("你屏住呼吸，悄悄绕过了正在休息的怪物。");
@@ -157,13 +216,21 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "casino_wagon":
                 btnAction1 = addActionButton("下注100金币", 0xFFE53935, v -> {
+                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                    if (!ch.spendGold(100)) {
+                        showResult("你的金币不足100，无法下注。");
+                        switchToForwardButton();
+                        return;
+                    }
                     int roll = (int) (Math.random() * 100);
                     if (roll < 40) {
-                        showResult("🎉 恭喜！你赢了！\n\n✅ 获得双倍回报：200金币！");
+                        ch.addGold(200);
+                        showResult("🎉 恭喜！你赢了！\n\n✅ 获得双倍回报：200金币！（当前金币：" + ch.getGold() + "）");
                     } else if (roll < 70) {
-                        showResult("😐 平局！你的100金币退还给你。");
+                        ch.addGold(100);
+                        showResult("😐 平局！你的100金币退还给你。（当前金币：" + ch.getGold() + "）");
                     } else {
-                        showResult("😞 你输了...100金币血本无归。");
+                        showResult("😞 你输了...100金币血本无归。（当前金币：" + ch.getGold() + "）");
                     }
                     switchToForwardButton();
                 });
@@ -176,8 +243,14 @@ public class NeutralEventActivity extends AppCompatActivity {
             case "divination_hut":
                 if (EventManager.getInstance(getApplicationContext()).hasUnknownEvents()) {
                     btnAction1 = addActionButton("付300金币占卜", 0xFF7B1FA2, v -> {
+                        Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                        if (!ch.spendGold(300)) {
+                            showResult("你的金币不足300，无法支付占卜费用。");
+                            switchToForwardButton();
+                            return;
+                        }
                         String result = EventManager.getInstance(getApplicationContext()).revealUnknownEvent();
-                        showResult(result);
+                        showResult(result + "\n（当前金币：" + ch.getGold() + "）");
                         switchToForwardButton();
                     });
                 } else {
@@ -196,11 +269,16 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "mystery_box":
                 btnAction1 = addActionButton("购买盲盒（200金币）", 0xFFFF9800, v -> {
+                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                    if (!ch.spendGold(200)) {
+                        showResult("你的金币不足200，无法购买盲盒。");
+                        switchToForwardButton();
+                        return;
+                    }
                     ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
                     EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
                     Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC};
                     Rarity rarity = rarities[(int) (Math.random() * rarities.length)];
-                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
 
                     int roll = (int) (Math.random() * 3);
                     StringBuilder sb = new StringBuilder("🎁 打开盲盒！\n\n");
@@ -234,6 +312,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                         }
                     }
 
+                    sb.append("\n（当前金币：" + ch.getGold() + "）");
                     showResult(sb.toString());
                     switchToForwardButton();
                 });
@@ -242,23 +321,41 @@ public class NeutralEventActivity extends AppCompatActivity {
                     switchToForwardButton();
                 });
                 break;
+
+            case "mysterious_altar":
+                buildAltarActions();
+                break;
+
+            case "phantom_maze":
+                buildPhantomMazeActions();
+                break;
+
+            case "wishing_well":
+                wishingRound = 0;
+                lastWishResult = null;
+                buildWishingWellActions();
+                break;
+
+            case "cursed_chest":
+                buildCursedChestActions();
+                break;
         }
     }
 
     private Button addActionButton(String text, int bgColor, View.OnClickListener listener) {
         Button btn = new Button(this);
         btn.setText(text);
-        btn.setTextSize(15);
+        btn.setTextSize(12);
         btn.setTextColor(0xFFFFFFFF);
         btn.setBackgroundColor(bgColor);
-        int pad = (int) (14 * getResources().getDisplayMetrics().density);
+        int pad = (int) (9 * getResources().getDisplayMetrics().density);
         btn.setPadding(pad, pad, pad, pad);
         btn.setAllCaps(false);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        int margin = (int) (8 * getResources().getDisplayMetrics().density);
+        int margin = (int) (3 * getResources().getDisplayMetrics().density);
         params.setMargins(0, margin, 0, margin);
         btn.setLayoutParams(params);
         btn.setOnClickListener(listener);
@@ -451,7 +548,7 @@ public class NeutralEventActivity extends AppCompatActivity {
 
     private Item findMatchingItem(List<Item> bag, int minRarityId, ItemType type) {
         for (Item item : bag) {
-            if (item.getType() == type && item.getRarity().getId() >= minRarityId) {
+            if (item != null && item.getType() == type && item.getRarity().getId() >= minRarityId) {
                 return item;
             }
         }
@@ -560,24 +657,351 @@ public class NeutralEventActivity extends AppCompatActivity {
         gridDialog.show();
     }
 
-    private void showReforgeDialog(EquipItem equip) {
-        final EquipItem targetEquip = equip;
-        Dialog reforgeDialog = new Dialog(this);
-        reforgeDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    private void buildAltarActions() {
+        llActionArea.removeAllViews();
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
 
-        View content = LayoutInflater.from(this).inflate(R.layout.dialog_equip_reforge, null);
-        reforgeDialog.setContentView(content);
-
-        Window window = reforgeDialog.getWindow();
-        if (window != null) {
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(window.getAttributes());
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.66);
-            window.setAttributes(lp);
-            window.setBackgroundDrawableResource(android.R.color.transparent);
+        int eligibleCount = 0;
+        for (Item item : bag) {
+            if (item != null && item.getType() != ItemType.MATERIAL) eligibleCount += item.getCount();
         }
 
+        if (eligibleCount >= 3) {
+            boolean hasValidCombo = false;
+            ItemType[] checkTypes = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
+            Rarity[] checkRarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE};
+            outer:
+            for (ItemType t : checkTypes)
+                for (Rarity r : checkRarities)
+                    if (countItemsByTypeAndRarity(bag, t, r) >= 3) { hasValidCombo = true; break outer; }
+
+            if (hasValidCombo) addActionButton("挑选献祭物品", 0xFFFF9800, v -> showAltarSacrificeDialog());
+            else addActionButton("没有足够的同类型同品质物品", 0xFF888888, v -> { showResult("祭坛需要3件相同类型相同品质的物品才能献祭。"); switchToForwardButton(); });
+        } else {
+            addActionButton("可献祭物品不足3件", 0xFF888888, v -> { showResult("你背包中可献祭的物品不足3件（材料不可献祭）。"); switchToForwardButton(); });
+        }
+        addActionButton("转身离开", 0xFF888888, v -> { showResult("你对祭坛默默祈祷，然后离开了。"); switchToForwardButton(); });
+    }
+
+    private int countItemsByTypeAndRarity(List<Item> bag, ItemType type, Rarity rarity) {
+        int count = 0;
+        for (Item item : bag) if (item != null && item.getType() == type && item.getRarity() == rarity) count += item.getCount();
+        return count;
+    }
+
+    private void showAltarSacrificeDialog() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+        List<Item> eligible = new ArrayList<>();
+        for (Item item : bag) if (item != null && item.getType() != ItemType.MATERIAL) eligible.add(item);
+
+        Dialog d = new Dialog(this);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundResource(R.drawable.bg_panel_treasure);
+        int pad = dpToPx(12);
+        root.setPadding(pad, pad, pad, pad);
+
+        FrameLayout header = new FrameLayout(this);
+        header.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+        header.setMinimumHeight(dpToPx(40));
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText("挑选物品献祭（总数≤3件，材料不可选）");
+        tvTitle.setTextColor(getResources().getColor(R.color.tb_gold_deep, null));
+        tvTitle.setTextSize(16);
+        tvTitle.setPadding(0, 0, dpToPx(36), 0);
+        FrameLayout.LayoutParams tp = new FrameLayout.LayoutParams(-1, -2);
+        tp.gravity = android.view.Gravity.CENTER_VERTICAL;
+        header.addView(tvTitle, tp);
+        TextView btnClose = new TextView(this);
+        btnClose.setText("×");
+        btnClose.setTextColor(getResources().getColor(R.color.tb_gold_deep, null));
+        btnClose.setTextSize(24);
+        btnClose.setGravity(android.view.Gravity.CENTER);
+        TypedValue ov = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ov, true);
+        btnClose.setBackgroundResource(ov.resourceId);
+        btnClose.setWidth(dpToPx(36));
+        btnClose.setHeight(dpToPx(36));
+        FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(-2, -2);
+        cp.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+        btnClose.setOnClickListener(v -> d.dismiss());
+        header.addView(btnClose, cp);
+        root.addView(header);
+
+        TextView tvCounter = new TextView(this);
+        tvCounter.setText(eligible.isEmpty() ? "⚠ 无可献祭物品" : "已选 0 / 3 — 请挑选≤3件同类型同品质的物品");
+        tvCounter.setTextColor(eligible.isEmpty() ? 0xFFE53935 : 0xFFFF9800);
+        tvCounter.setTextSize(14);
+        tvCounter.setPadding(0, 0, 0, dpToPx(8));
+        tvCounter.setGravity(android.view.Gravity.CENTER);
+        root.addView(tvCounter);
+
+        int[] sacrificeCounts = new int[eligible.size()];
+        int[] totalCount = {0};
+
+        RecyclerView rv = new RecyclerView(this);
+        rv.setLayoutManager(new GridLayoutManager(this, 2));
+        rv.setLayoutParams(new LinearLayout.LayoutParams(-1, 0, 1));
+
+        LinearLayout bb = new LinearLayout(this);
+        bb.setOrientation(LinearLayout.HORIZONTAL);
+        bb.setGravity(android.view.Gravity.CENTER);
+        bb.setPadding(0, dpToPx(12), 0, 0);
+        bb.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+
+        Button btnConfirm = new Button(this);
+        btnConfirm.setText("献祭物品");
+        btnConfirm.setTextColor(0xFFFFFFFF);
+        btnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+        btnConfirm.setEnabled(false);
+        btnConfirm.setTextSize(15);
+        btnConfirm.setOnClickListener(v -> {
+            int total = totalCount[0];
+            if (total < 1 || total > 3) return;
+            if (!isSacCountsValid(eligible, sacrificeCounts)) {
+                tvCounter.setText("选中的物品类型或品质不一致！");
+                tvCounter.setTextColor(0xFFE53935);
+                return;
+            }
+            d.dismiss();
+            for (int i = 0; i < sacrificeCounts.length; i++) {
+                int n = sacrificeCounts[i];
+                if (n <= 0) continue;
+                Item item = eligible.get(i);
+                item.setCount(item.getCount() - n);
+                if (item.getCount() <= 0) InventoryManager.removeItem(bag, item);
+            }
+            Item first = null;
+            for (int i = 0; i < sacrificeCounts.length; i++)
+                if (sacrificeCounts[i] > 0) { first = eligible.get(i); break; }
+            if (first == null) return;
+            Rarity fromR = first.getRarity();
+            Rarity toR = Rarity.fromId(fromR.getId() + 1);
+            if (toR == null) { showResult("已达到最高品质。"); switchToForwardButton(); return; }
+            Item reward = genReward(first.getType(), toR);
+            String rd = reward != null ? (reward.getName() + "（" + reward.getRarity().getDisplayName() + "）") : "什么都没有";
+            if (reward != null) InventoryManager.addItem(bag, reward);
+            showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→获得：" + rd);
+            switchToForwardButton();
+        });
+        btnConfirm.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1));
+        bb.addView(btnConfirm);
+
+        Button btnCancel = new Button(this);
+        btnCancel.setText("取消");
+        btnCancel.setTextColor(0xFFFFFFFF);
+        btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF666666));
+        btnCancel.setTextSize(15);
+        LinearLayout.LayoutParams canP = new LinearLayout.LayoutParams(0, -2, 1);
+        canP.setMargins(dpToPx(6), 0, 0, 0);
+        btnCancel.setLayoutParams(canP);
+        btnCancel.setOnClickListener(v -> d.dismiss());
+        bb.addView(btnCancel);
+
+        Button fBtnConfirm = btnConfirm;
+        Runnable updateV = () -> {
+            int t = totalCount[0];
+            if (t == 0) { tvCounter.setText("已选 0 / 3 — 请挑选≤3件同类型同品质的物品"); tvCounter.setTextColor(0xFFFF9800); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
+            else if (!isSacCountsValid(eligible, sacrificeCounts)) { tvCounter.setText("已选 " + t + " / 3 ❌ 类型或品质不一致"); tvCounter.setTextColor(0xFFE53935); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
+            else {
+                Item fi = null;
+                for (int i = 0; i < sacrificeCounts.length; i++)
+                    if (sacrificeCounts[i] > 0) { fi = eligible.get(i); break; }
+                tvCounter.setText("已选 " + t + " / 3 ✅ " + (fi != null ? fi.getRarity().getDisplayName() + nameForType(fi.getType()) + " — 品质统一！" : ""));
+                tvCounter.setTextColor(0xFF4CAF50);
+                fBtnConfirm.setEnabled(t >= 1);
+                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(t >= 1 ? 0xFFFF9800 : 0xFF888888));
+            }
+        };
+
+        AltarSacrificeAdapter[] ar = {null};
+        ar[0] = new AltarSacrificeAdapter(eligible, sacrificeCounts, totalCount, (idx, isStacked) -> {
+            Item item = eligible.get(idx);
+            int cur = sacrificeCounts[idx];
+            if (cur > 0) {
+                sacrificeCounts[idx] = 0;
+                totalCount[0] -= cur;
+                updateV.run();
+                ar[0].notifyItemChanged(idx);
+                return;
+            }
+            int remaining = 3 - totalCount[0];
+            if (remaining <= 0) return;
+            int maxN = item.getCount();
+            if (!isStacked || maxN <= 1) {
+                sacrificeCounts[idx] = 1;
+                totalCount[0]++;
+                updateV.run();
+                ar[0].notifyItemChanged(idx);
+                return;
+            }
+            int n = Math.min(remaining, maxN);
+            if (n == 1) {
+                sacrificeCounts[idx] = 1;
+                totalCount[0]++;
+                updateV.run();
+                ar[0].notifyItemChanged(idx);
+                return;
+            }
+            String[] opts = new String[n];
+            for (int k = 0; k < n; k++) opts[k] = String.valueOf(k + 1);
+            new android.app.AlertDialog.Builder(NeutralEventActivity.this)
+                    .setTitle("选择献祭数量（最多" + n + "件）")
+                    .setItems(opts, (dia, which) -> {
+                        sacrificeCounts[idx] = which + 1;
+                        totalCount[0] += which + 1;
+                        updateV.run();
+                        ar[0].notifyItemChanged(idx);
+                    })
+                    .show();
+        });
+        rv.setAdapter(ar[0]);
+        root.addView(rv);
+        root.addView(bb);
+        d.setContentView(root);
+        d.setCancelable(true);
+        d.show();
+    }
+
+    private boolean isSacCountsValid(List<Item> items, int[] counts) {
+        Item first = null;
+        for (int i = 0; i < counts.length; i++) {
+            if (counts[i] <= 0) continue;
+            if (first == null) { first = items.get(i); continue; }
+            Item t = items.get(i);
+            if (t.getType() != first.getType() || t.getRarity() != first.getRarity()) return false;
+        }
+        return first != null;
+    }
+
+    private String nameForType(ItemType t) { return t == ItemType.EQUIPMENT ? "装备" : t == ItemType.CONSUMABLE ? "药水" : t == ItemType.GEM ? "宝石" : "物品"; }
+
+    private Item genReward(ItemType type, Rarity r) {
+        if (type == ItemType.EQUIPMENT) return EquipmentManager.getInstance(this).generateRandomEquip(5 + r.getId() * 8, r);
+        if (type == ItemType.CONSUMABLE) return ItemManager.getInstance(this).getRandomConsumableByRarity(r);
+        return ItemManager.getInstance(this).getRandomGemByRarity(r);
+    }
+
+    private void buildPhantomMazeActions() {
+        llActionArea.removeAllViews();
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        int str = ch.getAllocatedStrength(), agi = ch.getAllocatedAgility(), inte = ch.getAllocatedIntelligence();
+        int[][] ranked = {{str, 0}, {agi, 1}, {inte, 2}};
+        java.util.Arrays.sort(ranked, (a, b) -> Integer.compare(b[0], a[0]));
+        String[] titles = {"角斗场（力量）", "密林迷宫（敏捷）", "元素试炼（智力）"};
+        for (int i = 0; i < 2; i++) {
+            int attrIdx = ranked[i][1];
+            int[] vals = {str, agi, inte};
+            int color = attrIdx == 0 ? 0xFFE53935 : attrIdx == 1 ? 0xFF4CAF50 : 0xFF2196F3;
+            String label = titles[attrIdx] + "（当前" + vals[attrIdx] + "）";
+            int ai = attrIdx;
+            addActionButton(label, color, v -> {
+                if (ai == 0) { Intent r = new Intent(); r.putExtra("open_battle", true); setResult(RESULT_OK, r); finish(); }
+                else if (ai == 1) {
+                    int g = 300 + (int)(Math.random() * 701); ch.addGold(g);
+                    GemItem gm = ItemManager.getInstance(this).getRandomGemByRarity(Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE);
+                    if (gm != null) InventoryManager.addItem(ch.getBagItems(), gm);
+                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n✅ 金币+" + g + "\n✅ 获得：" + (gm != null ? gm.getName() : "宝石"));
+                    switchToForwardButton();
+                } else {
+                    int pts = 2 + (int)(Math.random() * 3); ch.addSkillPoints(pts);
+                    ConsumableItem pt = ItemManager.getInstance(this).getRandomConsumableByRarity(Rarity.UNCOMMON);
+                    if (pt != null) InventoryManager.addItem(ch.getBagItems(), pt);
+                    showResult("元素试炼：符文亮起，破解成功！\n✅ 技能点+" + pts + "\n✅ 获得：" + (pt != null ? pt.getName() : "药水"));
+                    switchToForwardButton();
+                }
+            });
+        }
+        addActionButton("离开迷宫", 0xFF888888, v -> { showResult("雾气散去，迷宫入口消失了。"); switchToForwardButton(); });
+    }
+
+    private void buildWishingWellActions() {
+        llActionArea.removeAllViews();
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        int coins = WISHING_AMOUNTS[Math.min(wishingRound, WISHING_AMOUNTS.length - 1)];
+
+        if (lastWishResult != null && !lastWishResult.isEmpty()) {
+            TextView tv = new TextView(this);
+            tv.setText(lastWishResult);
+            tv.setTextColor(0xFF333333);
+            tv.setTextSize(14);
+            tv.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
+            tv.setBackgroundResource(R.drawable.bg_event_popup);
+            llActionArea.addView(tv);
+            lastWishResult = null;
+        }
+
+        if (ch.getGold() < coins) {
+            addActionButton("金币不足" + coins + "，无法继续许愿", 0xFF888888, v -> {});
+            addActionButton("离开古井", 0xFF888888, v -> { showResult("许愿之旅到此结束。\n（当前金币：" + ch.getGold() + "）"); switchToForwardButton(); });
+        } else {
+            addActionButton("投入" + coins + "金币许愿（第" + (wishingRound + 1) + "次）", 0xFF448AFF, v -> {
+                if (!ch.spendGold(coins)) return;
+                lastWishResult = rollWish(ch, coins);
+                wishingRound++;
+                buildWishingWellActions();
+            });
+            addActionButton("离开古井", 0xFF888888, v -> { showResult("你对着古井默默祈祷。\n（当前金币：" + ch.getGold() + "）"); switchToForwardButton(); });
+        }
+    }
+
+    private String rollWish(Character ch, int n) {
+        double cp = Math.min(n * 0.005, 0.70), up = Math.min(n * 0.0001, 0.04), rp = Math.min(n * 0.0001, 0.04);
+        double ep = Math.min(n * 0.000005, 0.002), lp = Math.min(n * 0.000005, 0.002);
+        double roll = Math.random();
+        Rarity rr = null;
+        double cum = cp; if (roll < cum) rr = Rarity.COMMON;
+        cum += up; if (rr == null && roll < cum) rr = Rarity.UNCOMMON;
+        cum += rp; if (rr == null && roll < cum) rr = Rarity.RARE;
+        cum += ep; if (rr == null && roll < cum) rr = Rarity.EPIC;
+        cum += lp; if (rr == null && roll < cum) rr = Rarity.LEGENDARY;
+        if (rr == null) return "水面泛起涟漪，什么都没发生...\n（当前金币：" + ch.getGold() + "）";
+        int lv = 5 + wishingRound * 3 + (int)(Math.random() * 11);
+        Item reward;
+        int tr = (int)(Math.random() * 3);
+        if (tr == 0) reward = EquipmentManager.getInstance(this).generateRandomEquip(lv, rr);
+        else if (tr == 1) reward = ItemManager.getInstance(this).getRandomConsumableByRarity(rr);
+        else reward = ItemManager.getInstance(this).getRandomGemByRarity(rr);
+        if (reward == null) reward = EquipmentManager.getInstance(this).generateRandomEquip(lv, rr);
+        if (reward == null) return "水面泛起涟漪，什么都没发生...\n（当前金币：" + ch.getGold() + "）";
+        InventoryManager.addItem(ch.getBagItems(), reward);
+        return "古井涌出" + rr.getDisplayName() + "光芒！\n✅ 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）\n（当前金币：" + ch.getGold() + "）";
+    }
+
+    private void buildCursedChestActions() {
+        llActionArea.removeAllViews();
+        addActionButton("打开宝箱", 0xFF9C27B0, v -> {
+            Monster monster = MonsterManager.getInstance(this).createRandomMonster();
+            EventManager.getInstance(getApplicationContext()).setCurrentBattleMonster(monster);
+            EventManager.getInstance(getApplicationContext()).setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
+            showResult("紫黑色雾气喷涌而出！\n\n" + monster.getName() + "从暗处扑来，怪物获得了先手攻击！");
+            if (btnContinue != null) {
+                btnContinue.setText("被迫进入战斗");
+                btnContinue.setBackgroundColor(0xFFE53935);
+                btnContinue.setOnClickListener(v2 -> { Intent r = new Intent(); r.putExtra("open_battle", true); setResult(RESULT_OK, r); finish(); });
+            }
+        });
+        addActionButton("就此离开", 0xFF888888, v -> { showResult("你绕过了散发不祥气息的宝箱。"); switchToForwardButton(); });
+    }
+
+    private void showReforgeDialog(EquipItem equip) {
+        final EquipItem targetEquip = equip;
+        Dialog d = new Dialog(this);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_equip_reforge, null);
+        d.setContentView(content);
+        Window w = d.getWindow();
+        if (w != null) {
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(w.getAttributes());
+            lp.width = -1;
+            lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.66);
+            w.setAttributes(lp);
+            w.setBackgroundDrawableResource(android.R.color.transparent);
+        }
         ImageView ivPreview = content.findViewById(R.id.iv_equip_preview);
         TextView tvName = content.findViewById(R.id.tv_equip_name);
         TextView tvRarity = content.findViewById(R.id.tv_equip_rarity);
@@ -586,137 +1010,117 @@ public class NeutralEventActivity extends AppCompatActivity {
         ScrollView svAffix = content.findViewById(R.id.sv_affix_container);
         Button btnAction = content.findViewById(R.id.btn_reforge_action);
         Button btnCancel = content.findViewById(R.id.btn_reforge_cancel);
-
-        final boolean[] hasReforged = {false};
-
-        GameAssetIcons.bindItem(NeutralEventActivity.this, ivPreview, targetEquip);
+        boolean[] hasReforged = {false};
+        int[] selIdx = {-1};
+        GameAssetIcons.bindItem(this, ivPreview, targetEquip);
         tvName.setText(targetEquip.getName());
+        tvName.setTextSize(18);
         tvRarity.setText(targetEquip.getRarity().name());
         tvRarity.setTextColor(targetEquip.getRarity().getColor());
         tvLevel.setText("Lv." + targetEquip.getLevel());
-
-        updateAffixList(llAffixList, targetEquip.getAffixes());
-
+        tvLevel.setTextSize(14);
+        btnAction.setText("请选择要重炼的词条");
+        btnAction.setEnabled(false);
+        btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+        final RefineClick[] cbRef = {null};
+        cbRef[0] = idx -> { selIdx[0] = idx; btnAction.setEnabled(true); btnAction.setText("重炼此词条"); btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF9C27B0)); updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0]); };
+        updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0]);
         btnAction.setOnClickListener(v -> {
-            if (hasReforged[0]) {
-                reforgeDialog.dismiss();
-                showResult("装备重炼完成！新的词缀已经附魔到装备上。");
-                switchToForwardButton();
-            } else {
-                List<BaseAffix> oldAffixes = new ArrayList<>(targetEquip.getAffixes());
-                List<BaseEquipAffix> newAffixes = EquipAffixManager.getInstance(NeutralEventActivity.this)
-                        .generateAffixForEquipment(targetEquip);
-                targetEquip.getAffixes().clear();
-                targetEquip.getAffixes().addAll(newAffixes);
-
-                updateAffixList(llAffixList, targetEquip.getAffixes());
-                svAffix.fullScroll(View.FOCUS_DOWN);
-
-                btnAction.setText("确定");
-                btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
-                hasReforged[0] = true;
-            }
+            if (hasReforged[0]) { d.dismiss(); showResult("装备重炼完成！"); switchToForwardButton(); return; }
+            int idx = selIdx[0];
+            if (idx < 0 || idx >= targetEquip.getAffixes().size()) return;
+            BaseEquipAffix newAffix = EquipAffixManager.getInstance(this).generateSingleAffixForEquipment(targetEquip);
+            if (newAffix != null) targetEquip.getAffixes().set(idx, newAffix);
+            updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, null);
+            svAffix.fullScroll(View.FOCUS_DOWN);
+            btnAction.setText("确定");
+            btnAction.setEnabled(true);
+            btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
+            btnCancel.setVisibility(View.GONE);
+            LinearLayout.LayoutParams lp2 = (LinearLayout.LayoutParams) btnAction.getLayoutParams();
+            lp2.setMargins(0, lp2.topMargin, 0, lp2.bottomMargin);
+            btnAction.setLayoutParams(lp2);
+            hasReforged[0] = true;
         });
-
-        btnCancel.setOnClickListener(v -> reforgeDialog.dismiss());
-
-        reforgeDialog.show();
+        btnCancel.setOnClickListener(v -> { if (!hasReforged[0]) d.dismiss(); });
+        d.show();
     }
 
-    private void updateAffixList(LinearLayout container, List<? extends BaseAffix> affixes) {
+    private interface RefineClick { void onClick(int index); }
+
+    private void updateRefineList(LinearLayout container, List<? extends BaseAffix> affixes,
+            int[] selIdx, boolean[] hasReforged, RefineClick cb) {
         container.removeAllViews();
-        int padH = (int) (4 * getResources().getDisplayMetrics().density);
-        int padV = (int) (10 * getResources().getDisplayMetrics().density);
+        int padH = dpToPx(4), padV = dpToPx(10);
         if (affixes == null || affixes.isEmpty()) {
-            TextView tv = new TextView(this);
-            tv.setText("(无词条)");
-            tv.setTextSize(13);
-            tv.setTextColor(0xFF888888);
-            tv.setPadding(padH, padV, padH, padV);
-            container.addView(tv);
-            return;
+            TextView tv = new TextView(this); tv.setText("(无词条)"); tv.setTextSize(13); tv.setTextColor(0xFF888888);
+            tv.setPadding(padH, padV, padH, padV); container.addView(tv); return;
         }
+        boolean done = hasReforged[0];
+        int sel = selIdx[0];
         String[] colors = {"#E53935", "#FF9800", "#FDD835", "#4CAF50", "#2196F3"};
         for (int i = 0; i < affixes.size(); i++) {
+            int idx = i;
             BaseAffix a = affixes.get(i);
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(padH, padV, padH, padV);
-            row.setBackgroundColor(0x0AFFFFFF);
-
-            TextView tvDot = new TextView(this);
-            tvDot.setText("●");
-            tvDot.setTextColor(android.graphics.Color.parseColor(colors[i % colors.length]));
-            tvDot.setTextSize(10);
-            row.addView(tvDot);
-
-            TextView tvLine = new TextView(this);
-            String affixName = (a != null && a.getAffixName() != null) ? a.getAffixName() : "???";
-            String desc = (a != null && a.getDescription() != null) ? a.getDescription() : "...";
-            tvLine.setText(affixName + "：" + desc);
-            tvLine.setTextSize(13);
-            tvLine.setTextColor(0xFFDDDDDD);
-            tvLine.setPadding((int) (8 * getResources().getDisplayMetrics().density), 0, 0, 0);
-            row.addView(tvLine);
-
+            row.setBackgroundColor(idx == sel ? (done ? 0x334CAF50 : 0x33FFC107) : 0x0AFFFFFF);
+            TextView dot = new TextView(this);
+            dot.setText(idx == sel && done ? "★" : "●");
+            dot.setTextColor(android.graphics.Color.parseColor(colors[i % colors.length]));
+            dot.setTextSize(10);
+            row.addView(dot);
+            TextView line = new TextView(this);
+            line.setText((a != null ? a.getAffixName() : "???") + "：" + (a != null ? a.getDescription() : "..."));
+            line.setTextSize(14);
+            line.setTextColor(0xFFDDDDDD);
+            line.setPadding(dpToPx(8), 0, 0, 0);
+            row.addView(line);
+            if (!done && cb != null) row.setOnClickListener(v -> cb.onClick(idx));
             container.addView(row);
         }
     }
 
-    private static class EquipGridAdapter extends RecyclerView.Adapter<EquipGridAdapter.VH> {
-        private final List<EquipItem> items;
-        private final OnEquipClickListener listener;
+    static class EquipGridAdapter extends RecyclerView.Adapter<EquipGridAdapter.VH> {
+        final List<EquipItem> items;
+        final OnEquipClickListener listener;
 
-        interface OnEquipClickListener {
-            void onClick(EquipItem item);
-        }
+        interface OnEquipClickListener { void onClick(EquipItem item); }
 
-        EquipGridAdapter(List<EquipItem> items, OnEquipClickListener listener) {
-            this.items = items;
-            this.listener = listener;
-        }
+        EquipGridAdapter(List<EquipItem> items, OnEquipClickListener l) { this.items = items; this.listener = l; }
 
         @Override
-        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_equip_select, parent, false);
+        public VH onCreateViewHolder(ViewGroup p, int vt) {
+            View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_equip_select, p, false);
+            int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, p.getContext().getResources().getDisplayMetrics());
+            RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(-1, sz);
+            int sp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, p.getContext().getResources().getDisplayMetrics());
+            lp.setMargins(sp, sp, sp, sp);
+            v.setLayoutParams(lp);
             return new VH(v);
         }
 
         @Override
-        public void onBindViewHolder(VH holder, int position) {
-            EquipItem equip = items.get(position);
+        public void onBindViewHolder(VH holder, int pos) {
+            EquipItem equip = items.get(pos);
             holder.tvName.setText(equip.getName());
+            holder.tvName.setTextSize(14);
             holder.tvLevel.setText("Lv." + equip.getLevel());
+            holder.tvLevel.setTextSize(12);
             GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, equip);
             holder.bgColor.setBackgroundTintList(null);
             android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
-            if (bg != null) {
-                bg.clearColorFilter();
-            }
-            Integer borderArgb = equip.getRarity() != null ? equip.getRarity().getColor() : null;
-            holder.itemView.setForeground(
-                    TreasureStyleDrawable.newSlotStrokeOverlay(holder.itemView.getContext(), borderArgb));
+            if (bg != null) bg.clearColorFilter();
+            holder.itemView.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(holder.itemView.getContext(), equip.getRarity() != null ? equip.getRarity().getColor() : null));
             holder.itemView.setOnClickListener(v -> listener.onClick(equip));
         }
 
-        @Override
-        public int getItemCount() {
-            return items.size();
-        }
+        @Override public int getItemCount() { return items.size(); }
 
-        static class VH extends RecyclerView.ViewHolder {
-            View bgColor;
-            TextView tvName, tvLevel;
-            ImageView ivIcon;
-
-            VH(View v) {
-                super(v);
-                bgColor = v.findViewById(R.id.bg_item_color);
-                tvName = v.findViewById(R.id.tv_item_name);
-                tvLevel = v.findViewById(R.id.tv_item_level);
-                ivIcon = v.findViewById(R.id.iv_item_icon);
-            }
+        class VH extends RecyclerView.ViewHolder {
+            View bgColor; TextView tvName, tvLevel; ImageView ivIcon;
+            VH(View v) { super(v); bgColor = v.findViewById(R.id.bg_item_color); tvName = v.findViewById(R.id.tv_item_name); tvLevel = v.findViewById(R.id.tv_item_level); ivIcon = v.findViewById(R.id.iv_item_icon); }
         }
     }
 
@@ -772,6 +1176,101 @@ public class NeutralEventActivity extends AppCompatActivity {
                 bgColor = v.findViewById(R.id.bg_item_color);
                 tvRarity = v.findViewById(R.id.tv_item_rarity);
                 ivIcon = v.findViewById(R.id.iv_item_icon);
+            }
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private static class AltarSacrificeAdapter extends RecyclerView.Adapter<AltarSacrificeAdapter.VH> {
+        final List<Item> items;
+        final int[] counts;
+        final int[] totalCount;
+        final OnSacrificeListener listener;
+
+        interface OnSacrificeListener { void onToggle(int index, boolean isStacked); }
+
+        AltarSacrificeAdapter(List<Item> items, int[] counts, int[] totalCount, OnSacrificeListener l) {
+            this.items = items; this.counts = counts; this.totalCount = totalCount; this.listener = l;
+        }
+
+        @Override
+        public VH onCreateViewHolder(ViewGroup p, int vt) {
+            View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_equip_select, p, false);
+            int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, p.getContext().getResources().getDisplayMetrics());
+            RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, sz);
+            int sp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, p.getContext().getResources().getDisplayMetrics());
+            lp.setMargins(sp, sp, sp, sp);
+            v.setLayoutParams(lp);
+            return new VH(v);
+        }
+
+        @Override
+        public void onBindViewHolder(VH holder, int pos) {
+            Item item = items.get(pos);
+            GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, item);
+            if (item instanceof EquipItem) {
+                holder.tvLevel.setVisibility(View.VISIBLE);
+                holder.tvLevel.setText("Lv." + ((EquipItem) item).getLevel());
+            } else {
+                holder.tvLevel.setVisibility(View.GONE);
+            }
+            holder.tvName.setVisibility(View.VISIBLE);
+            holder.tvName.setText(item.getName());
+            holder.tvName.setTextSize(10);
+            int stackCount = item.getCount();
+            int sel = counts[pos];
+            if (stackCount > 1) {
+                holder.tvCount.setVisibility(View.VISIBLE);
+                holder.tvCount.setText("×" + stackCount);
+            } else {
+                holder.tvCount.setVisibility(View.GONE);
+            }
+            holder.itemView.setForeground(TreasureStyleDrawable.newSlotStrokeOverlay(
+                    holder.itemView.getContext(), item.getRarity() != null ? item.getRarity().getColor() : null));
+            holder.selectOverlay.setVisibility(sel > 0 ? View.VISIBLE : View.GONE);
+            if (sel > 0) {
+                holder.selBadge.setVisibility(View.VISIBLE);
+                holder.selBadge.setText(String.valueOf(sel));
+            } else {
+                holder.selBadge.setVisibility(View.GONE);
+            }
+            boolean isStacked = stackCount > 1;
+            holder.itemView.setOnClickListener(v -> { if (listener != null) listener.onToggle(pos, isStacked); });
+        }
+
+        @Override public int getItemCount() { return items.size(); }
+
+        class VH extends RecyclerView.ViewHolder {
+            ImageView ivIcon; TextView tvLevel, tvName, tvCount, selBadge; View selectOverlay;
+            VH(View v) {
+                super(v);
+                ivIcon = v.findViewById(R.id.iv_item_icon);
+                tvLevel = v.findViewById(R.id.tv_item_level);
+                tvName = v.findViewById(R.id.tv_item_name);
+                tvName.setVisibility(View.GONE);
+                tvName.setLayoutParams(new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                ((RelativeLayout.LayoutParams) tvName.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                tvCount = v.findViewById(R.id.tv_bag_stack_count);
+                selectOverlay = new View(v.getContext());
+                selectOverlay.setBackgroundColor(0x66FFC107);
+                selectOverlay.setVisibility(View.GONE);
+                ((FrameLayout) v).addView(selectOverlay, new FrameLayout.LayoutParams(-1, -1));
+                selBadge = new TextView(v.getContext());
+                selBadge.setTextColor(0xFFFFFFFF);
+                selBadge.setTextSize(12);
+                selBadge.setTypeface(v.getContext().getResources().getFont(R.font.zpix));
+                selBadge.setGravity(android.view.Gravity.CENTER);
+                selBadge.setBackgroundColor(0xFFE53935);
+                int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, v.getContext().getResources().getDisplayMetrics());
+                FrameLayout.LayoutParams bp = new FrameLayout.LayoutParams(sz, sz);
+                bp.gravity = android.view.Gravity.TOP | android.view.Gravity.START;
+                selBadge.setLayoutParams(bp);
+                selBadge.setVisibility(View.GONE);
+                ((FrameLayout) v).addView(selBadge);
             }
         }
     }

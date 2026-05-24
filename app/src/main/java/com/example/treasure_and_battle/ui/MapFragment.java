@@ -673,9 +673,7 @@ public class MapFragment extends Fragment {
             mBattleTriggerPosition = mEventManager.getCurrentLatLng();
             showFloatMsg("即将进入战斗...");
             startBattleCountdown();
-        } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "")
-                || "training".equals(sub != null ? sub.getKey() : "")
-                || "treasure".equals(sub != null ? sub.getKey() : "")) {
+        } else if ("BENEFIT".equals(type) || "benefit_hub".equals(sub != null ? sub.getKey() : "")) {
             handleBenefitAction();
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
@@ -903,11 +901,14 @@ public class MapFragment extends Fragment {
         if (sub == null) return "BATTLE";
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
-        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key)) return "BENEFIT";
+        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key)) return "BENEFIT";
         if ("merchant".equals(key) || "traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
-                || "equipment_reforge".equals(key)) return "NEUTRAL";
+                || "equipment_reforge".equals(key) || "casino_wagon".equals(key)
+                || "divination_hut".equals(key) || "mystery_box".equals(key)
+                || "mysterious_altar".equals(key) || "phantom_maze".equals(key)
+                || "wishing_well".equals(key) || "cursed_chest".equals(key)) return "NEUTRAL";
         return "BATTLE";
     }
 
