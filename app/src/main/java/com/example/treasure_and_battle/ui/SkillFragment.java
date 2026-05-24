@@ -634,7 +634,7 @@ public class SkillFragment extends Fragment {
     }
 
     private void showBonusDialog() {
-        AttributeSet fa = AttributeUtils.calculateCharacterAttributes(character);
+        AttributeSet fa = AttributeUtils.getCharacterPercentBonuses(character);
 
         View content = View.inflate(requireContext(), R.layout.dialog_treasure_alert, null);
         ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("属性百分比加成");

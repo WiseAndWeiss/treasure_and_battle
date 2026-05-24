@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.ui;
 
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.ClipData;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.Canvas;
@@ -126,6 +128,7 @@ public class BagFragment extends Fragment {
     private int pendingGemBagIndex = -1;
 
     private ImageView ivTachie;
+    private boolean tachieJumpCooldown;
     private TextView tvTachieName;
     private TextView tvTachieLevel;
     private ProgressBar pbTachieExp;
@@ -162,6 +165,29 @@ public class BagFragment extends Fragment {
         bindEquipSlots(view);
 
         ivTachie = view.findViewById(R.id.iv_tachie);
+        ivTachie.setOnClickListener(v -> {
+            if (tachieJumpCooldown) return;
+            tachieJumpCooldown = true;
+            float density = ivTachie.getResources().getDisplayMetrics().density;
+            float jumpUp = -24f * density;
+            ObjectAnimator up = ObjectAnimator.ofFloat(ivTachie, "translationY", 0f, jumpUp);
+            up.setDuration(150);
+            ObjectAnimator down = ObjectAnimator.ofFloat(ivTachie, "translationY", jumpUp, 0f);
+            down.setDuration(200);
+            up.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(android.animation.Animator animation) {
+                    down.start();
+                }
+            });
+            down.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(android.animation.Animator animation) {
+                    tachieJumpCooldown = false;
+                }
+            });
+            up.start();
+        });
         tvTachieName = view.findViewById(R.id.tv_tachie_name);
         tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
         pbTachieExp = view.findViewById(R.id.pb_tachie_exp);

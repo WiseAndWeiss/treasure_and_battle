@@ -68,6 +68,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 战斗界面：新开局通过 {@link BattleManager#bootstrapBattleForUi} 进入与 {@link BattleManager#startBattle}
@@ -313,6 +314,7 @@ public class BattleFragment extends Fragment {
         rvBuffs.setAdapter(buffAdapter);
 
         monsterArea = view.findViewById(R.id.monster_area);
+        loadRandomBattleBackground(view);
         disableViewGroupClipping(monsterArea);
         for (View slotRoot : slotRoots) {
             disableViewGroupClipping(slotRoot);
@@ -638,6 +640,7 @@ public class BattleFragment extends Fragment {
             return;
         }
         tvPlayerName.setText(player.getName());
+        tvPlayerName.setVisibility(View.GONE);
         int maxHp = Math.max(1, player.getFinalAttributes().maxHp);
         int maxMp = Math.max(1, player.getFinalAttributes().maxMp);
         int maxAp = Math.max(1, player.getFinalAttributes().maxActionPoints);
@@ -669,6 +672,32 @@ public class BattleFragment extends Fragment {
         ViewGroup group = (ViewGroup) view;
         group.setClipChildren(false);
         group.setClipToPadding(false);
+    }
+
+    private void loadRandomBattleBackground(View root) {
+        ImageView ivBg = root.findViewById(R.id.iv_battle_bg);
+        if (ivBg == null) return;
+        try {
+            String[] files = requireContext().getAssets().list("icons/battle_bg");
+            if (files == null || files.length == 0) return;
+            int idx = new Random().nextInt(files.length);
+            InputStream is = null;
+            try {
+                is = requireContext().getAssets().open("icons/battle_bg/" + files[idx]);
+                Bitmap bmp = BitmapFactory.decodeStream(is);
+                if (bmp != null) {
+                    ivBg.setImageBitmap(bmp);
+                }
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        } catch (IOException ignored) {
+        }
     }
 
     private void bindAllMonsterSlots() {
@@ -842,43 +871,46 @@ public class BattleFragment extends Fragment {
             tv.setVisibility(View.GONE);
             return;
         }
-        RevealedIntent first = list.get(0);
-        tv.setVisibility(View.VISIBLE);
-        if (first.seenThrough && first.intent != null) {
-            tv.setText(intentLabel(first.intent, m));
-        } else {
-            tv.setText("?");
+        StringBuilder sb = new StringBuilder();
+        boolean anyRevealed = false;
+        for (RevealedIntent ri : list) {
+            if (ri == null) continue;
+            if (ri.seenThrough && ri.intent != null) {
+                if (sb.length() > 0) sb.append("\n");
+                sb.append(intentLabel(ri.intent, m));
+                anyRevealed = true;
+            } else {
+                if (sb.length() > 0) sb.append("\n");
+                sb.append("未知意图");
+            }
         }
+        if (sb.length() == 0) {
+            tv.setVisibility(View.GONE);
+            return;
+        }
+        tv.setVisibility(View.VISIBLE);
+        tv.setText(sb.toString());
     }
 
     private static String intentLabel(ActionIntent intent, Monster m) {
-        if (intent == null) return "?";
-        if (intent.getType() == ActionIntent.IntentType.SKILL) {
-            String skillId = intent.getActionRefId();
-            if (skillId != null && m != null) {
-                ActiveSkill skill = m.getMonsterSkill(skillId);
-                if (skill != null) {
-                    return "技:" + skill.getSkillName();
-                }
-            }
-            return "技:" + intent.getName();
-        }
-        return intentTypeShort(intent.getType());
-    }
-
-    private static String intentTypeShort(ActionIntent.IntentType t) {
-        if (t == null) {
-            return "?";
-        }
-        switch (t) {
+        if (intent == null) return "未知意图";
+        switch (intent.getType()) {
             case ATTACK:
-                return "攻";
-            case SKILL:
-                return "技";
+                return "攻击";
+            case SKILL: {
+                String skillId = intent.getActionRefId();
+                if (skillId != null && m != null) {
+                    ActiveSkill skill = m.getMonsterSkill(skillId);
+                    if (skill != null) {
+                        return "技能：" + skill.getSkillName();
+                    }
+                }
+                return "技能：" + intent.getName();
+            }
             case ESCAPE:
-                return "逃";
+                return "逃跑";
             default:
-                return "?";
+                return "未知意图";
         }
     }
 

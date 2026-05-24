@@ -28,6 +28,7 @@
             android:background="@drawable/bg_panel_treasure_fill_only"
             android:foreground="@drawable/bg_panel_treasure_stroke_only"
             android:orientation="vertical"
+            android:layout_marginTop="8dp"
             android:padding="13dp">
 
             <LinearLayout

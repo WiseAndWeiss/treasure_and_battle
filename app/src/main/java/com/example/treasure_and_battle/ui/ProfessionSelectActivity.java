@@ -2,9 +2,11 @@ package com.example.treasure_and_battle.ui;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,6 +54,7 @@ public class ProfessionSelectActivity extends AppCompatActivity {
     private RecyclerView rvSkills;
     private SkillPreviewAdapter adapter;
     private int currentTabIndex;
+    private EditText etCharacterName;
 
     private final List<SkillPreviewRow> currentSkillList = new ArrayList<>();
 
@@ -75,6 +78,7 @@ public class ProfessionSelectActivity extends AppCompatActivity {
         tabPassive = findViewById(R.id.tab_passive);
         tabActive = findViewById(R.id.tab_active);
         rvSkills = findViewById(R.id.rv_skills);
+        etCharacterName = findViewById(R.id.et_character_name);
         TextView btnLeft = findViewById(R.id.btn_arrow_left);
         TextView btnRight = findViewById(R.id.btn_arrow_right);
         TextView btnConfirm = findViewById(R.id.btn_confirm_profession);
@@ -83,6 +87,9 @@ public class ProfessionSelectActivity extends AppCompatActivity {
         btnLeft.setTypeface(zpix);
         btnRight.setTypeface(zpix);
         btnBack.setTypeface(zpix);
+
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        etCharacterName.setText(ch.getName());
 
         btnBack.setOnClickListener(v -> finish());
 
@@ -104,7 +111,21 @@ public class ProfessionSelectActivity extends AppCompatActivity {
         tabActive.setOnClickListener(v -> selectTab(1));
 
         btnConfirm.setOnClickListener(v -> {
-            Character ch = PlayerCharacterHolder.getOrCreate(this);
+            String name = etCharacterName.getText() != null ? etCharacterName.getText().toString().trim() : "";
+            if (name.isEmpty()) {
+                FloatMsgOverlay.showFloatMsg(this, "角色名不能为空");
+                return;
+            }
+            int chineseCount = 0;
+            for (int i = 0; i < name.length(); i++) {
+                char c = name.charAt(i);
+                if (c >= '\u4e00' && c <= '\u9fff') chineseCount++;
+            }
+            if (chineseCount < 2 || chineseCount > 8) {
+                FloatMsgOverlay.showFloatMsg(this, "角色名需包含2~8个中文字符");
+                return;
+            }
+            ch.setName(name);
             Profession newProfession = ProfessionManager.getInstance(this)
                     .createProfession(PROFESSIONS[currentIndex]);
             ch.switchProfession(PROFESSIONS[currentIndex], newProfession);
