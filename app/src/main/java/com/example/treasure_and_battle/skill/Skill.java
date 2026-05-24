@@ -77,6 +77,23 @@ public abstract class Skill {
     public SkillEffectParams getEffectParams() { return effectParams; }
     public int getCooldown() { return template.getCooldown(); }
 
+    /** 将详细描述中的 {x}/{y}/{z}/{w} 替换为当前等级的效果参数。 */
+    public String getFormattedDetailedDesc() {
+        String raw = getDetailedDesc();
+        if (raw == null || raw.isEmpty()) {
+            raw = getSimpleDesc();
+        }
+        if (raw == null) {
+            return "";
+        }
+        SkillEffectParams p = effectParams;
+        return raw
+                .replace("{x}", String.valueOf(p.x))
+                .replace("{y}", String.valueOf(p.y))
+                .replace("{z}", String.valueOf(p.z))
+                .replace("{w}", String.valueOf(p.w));
+    }
+
     // =============== 升级方法 ===============
     public boolean isLearned(){
         return level > 0;
