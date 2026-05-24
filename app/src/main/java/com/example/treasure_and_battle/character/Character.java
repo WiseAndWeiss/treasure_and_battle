@@ -57,6 +57,10 @@ public class Character {
     private int allocatedPhysique;
     private int allocatedLuck;
 
+    // 基础战斗属性（用于调试）
+    private int basePhysicalDef = 0;
+    private int baseMagicalDef = 0;
+
     /** 背包：125 格固定槽位，与 InventoryGridSync.BAG_SLOT_COUNT 一致 */
     private final List<Item> bagItems = new ArrayList<Item>(125);
 
@@ -250,6 +254,11 @@ public class Character {
         base.luck = allocatedLuck;
         base.maxHp = this.baseMaxHp;
         base.maxMp = this.baseMaxMp;
+
+        // 添加基础防御属性
+        base.physicalDef = basePhysicalDef;
+        base.magicalDef = baseMagicalDef;
+
         Player.computeFullBaseCombatAttributes(base);
 
         player.markAttributeCacheDirty();
@@ -306,7 +315,20 @@ public class Character {
     public void addGold(int amount) { this.gold += amount; }
     public boolean spendGold(int amount) { if (this.gold < amount) return false; this.gold -= amount; return true; }
     public int getBaseMaxHp() { return baseMaxHp; }
+    public void setBaseMaxHp(int maxHp) {
+        this.baseMaxHp = maxHp;
+        // 确保当前HP不超过新的最大值
+        if (currentHp > baseMaxHp) {
+            currentHp = baseMaxHp;
+        }
+    }
     public int getBaseMaxMp() { return baseMaxMp; }
+
+    // 设置基础防御属性的方法（用于调试）
+    public void setBasePhysicalDef(int def) { this.basePhysicalDef = def; }
+    public void setBaseMagicalDef(int def) { this.baseMagicalDef = def; }
+    public int getBasePhysicalDef() { return basePhysicalDef; }
+    public int getBaseMagicalDef() { return baseMagicalDef; }
 
     public void addTalentPoints(int amount) {
         if (amount > 0) {

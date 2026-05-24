@@ -38,7 +38,8 @@ public class EntityViewMapper {
         ViewGroup animationContainer = createAnimationContainer(parentContainer);
         entityContainerMap.put(entityId, animationContainer);
 
-        Log.d(TAG, "Registered entity: " + entityId);
+        Log.d(TAG, "✅ Registered entity: " + entityId + " (View: " + entityView.getClass().getSimpleName() +
+                   ", Container: " + parentContainer.getClass().getSimpleName() + ")");
     }
 
     /**

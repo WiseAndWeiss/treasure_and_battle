@@ -168,4 +168,28 @@
             android:textSize="13sp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/btn_debug_setup_test_character"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_panel_treasure"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="🧪 设置测试角色"
+        android:textColor="@color/tb_battle"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="血量1000/防御50/技能1级"
+        android:textSize="11sp"
+        android:textColor="#888888"
+        android:gravity="center"
+        android:layout_marginTop="2dp"/>
+
 </LinearLayout>

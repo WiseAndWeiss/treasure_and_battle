@@ -4,9 +4,13 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +41,22 @@ public class ActiveSkill_WhirlwindSlash extends ActiveSkill {
         int totalDamageDealt = 0;
         int hits = 0;
         int attackCount = 0;
+
+        // 发送一次旋风斩动画信号 - 使用动画专用ID
+        List<String> targetEntityIds = new ArrayList<>();
+        for (BattleEntity target : targets) {
+            String targetId = (target instanceof Monster) ? ((Monster) target).getAnimationId() : target.getEntityId();
+            targetEntityIds.add(targetId);
+        }
+
+        String casterId = (caster instanceof Monster) ? ((Monster) caster).getAnimationId() : caster.getEntityId();
+        AnimationSignal attackSignal = new AnimationSignal(
+            "skill_whirlwind_slash",
+            casterId,
+            targetEntityIds,
+            null
+        );
+        AnimationSignalPipeline.getInstance().emitSignal(attackSignal);
 
         // 循环：检查当前AP，如果有AP则扣除1点并执行一轮攻击
         while (caster.getCurrentActionPoints() > 0) {

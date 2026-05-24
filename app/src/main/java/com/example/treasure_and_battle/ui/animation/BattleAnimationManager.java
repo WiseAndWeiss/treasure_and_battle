@@ -215,10 +215,13 @@ public class BattleAnimationManager {
                    " targets, type: " + template.type);
 
         for (String targetId : signal.targetEntityIds) {
-            Log.d(TAG, "Processing target: " + targetId);
+            Log.d(TAG, "🎯 Processing target: " + targetId);
 
             View entityView = entityViewMapper.getEntityView(targetId);
             ViewGroup container = entityViewMapper.getEntityContainer(targetId);
+
+            Log.d(TAG, "   View lookup result: view=" + (entityView != null ? "✅" : "❌") +
+                       ", container=" + (container != null ? "✅" : "❌"));
 
             if (entityView != null && container != null) {
                 Animation animation = createAnimation(template, entityView, container);

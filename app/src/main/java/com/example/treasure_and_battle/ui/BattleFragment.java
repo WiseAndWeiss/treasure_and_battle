@@ -2595,8 +2595,9 @@ public class BattleFragment extends Fragment {
                 }
 
                 if (container != null) {
+                    // 使用动画专用ID，而不是通用entityId
                     animationManager.registerEntityView(
-                        m.getEntityId(),
+                        m.getAnimationId(),
                         slotIcons[i],
                         container
                     );

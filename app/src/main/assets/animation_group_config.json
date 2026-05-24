@@ -1,0 +1,58 @@
+{
+  "animation_groups": {
+    "normal_slash": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 15,
+        "position": "center",
+        "scale": 1.5,
+        "num": 5,
+        "texture_set": [
+          "icons/animation/normal_slash/frame_1.png",
+          "icons/animation/normal_slash/frame_2.png",
+          "icons/animation/normal_slash/frame_3.png",
+          "icons/animation/normal_slash/frame_4.png",
+          "icons/animation/normal_slash/frame_5.png"
+        ]
+      }
+    ],
+    "red_single_brust": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 16,
+        "position": "center",
+        "scale": 1.5,
+        "num": 4,
+        "texture_set": [
+          "icons/animation/red_single_brust/frame_1.png",
+          "icons/animation/red_single_brust/frame_2.png",
+          "icons/animation/red_single_brust/frame_3.png",
+          "icons/animation/red_single_brust/frame_4.png"
+        ]
+      }
+    ],
+    "blood_slash": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 18,
+        "position": "center",
+        "scale": 1.5,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/blood_slash/frame_1.png",
+          "icons/animation/blood_slash/frame_2.png",
+          "icons/animation/blood_slash/frame_3.png",
+          "icons/animation/blood_slash/frame_4.png",
+          "icons/animation/blood_slash/frame_5.png",
+          "icons/animation/blood_slash/frame_6.png"
+        ]
+      }
+    ]
+  }
+}

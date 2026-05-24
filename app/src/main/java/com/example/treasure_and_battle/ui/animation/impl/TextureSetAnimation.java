@@ -112,26 +112,38 @@ public class TextureSetAnimation extends Animation {
         int targetWidth = targetView.getWidth();
         int targetHeight = targetView.getHeight();
 
+        android.util.Log.d("TextureSetAnimation", "=== 动画尺寸计算 ===");
+        android.util.Log.d("TextureSetAnimation", "目标View尺寸: " + targetWidth + "x" + targetHeight +
+                          " (View: " + targetView.getClass().getSimpleName() + ")");
+        android.util.Log.d("TextureSetAnimation", "目标View是否已布局: " + (targetWidth > 0 && targetHeight > 0));
+
         // 应用scale参数：scale=1.0 表示和实体一样大
         float scale = textureTemplate.scale;
         int width = (int) (targetWidth * scale);
         int height = (int) (targetHeight * scale);
+
+        android.util.Log.d("TextureSetAnimation", "应用缩放(scale=" + scale + "): " + width + "x" + height);
 
         // 保持贴图原始比例
         if (textures[0] != null) {
             float bitmapRatio = (float) textures[0].getWidth() / textures[0].getHeight();
             float targetRatio = (float) width / height;
 
+            android.util.Log.d("TextureSetAnimation", "贴图原始尺寸: " + textures[0].getWidth() + "x" + textures[0].getHeight());
+            android.util.Log.d("TextureSetAnimation", "宽高比 - 贴图: " + bitmapRatio + ", 目标: " + targetRatio);
+
             if (bitmapRatio > targetRatio) {
                 // 以宽度为准
                 height = (int) (width / bitmapRatio);
+                android.util.Log.d("TextureSetAnimation", "以宽度为准，调整高度: " + width + "x" + height);
             } else {
                 // 以高度为准
                 width = (int) (height * bitmapRatio);
+                android.util.Log.d("TextureSetAnimation", "以高度为准，调整宽度: " + width + "x" + height);
             }
         }
 
-        android.util.Log.d("TextureSetAnimation", "动画尺寸: " + width + "x" + height +
+        android.util.Log.d("TextureSetAnimation", "最终动画尺寸: " + width + "x" + height +
                           " (实体: " + targetWidth + "x" + targetHeight + ", scale: " + scale + ")");
 
         return new ViewGroup.LayoutParams(width, height);
@@ -148,10 +160,15 @@ public class TextureSetAnimation extends Animation {
     }
 
     private void positionRelativeToTarget() {
-        // 创建FrameLayout.LayoutParams以支持gravity设置
+        // 获取已设置的正确尺寸，不要覆盖！
+        ViewGroup.LayoutParams currentParams = imageView.getLayoutParams();
+        int width = currentParams.width;
+        int height = currentParams.height;
+
+        // 创建FrameLayout.LayoutParams以支持gravity设置，保留原尺寸
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                width,  // 保留计算的尺寸
+                height  // 保留计算的尺寸
         );
 
         switch (textureTemplate.position.toLowerCase()) {
@@ -173,6 +190,7 @@ public class TextureSetAnimation extends Animation {
                 break;
         }
 
+        android.util.Log.d("TextureSetAnimation", "设置位置: gravity=" + params.gravity + ", 尺寸: " + width + "x" + height);
         imageView.setLayoutParams(params);
     }
 

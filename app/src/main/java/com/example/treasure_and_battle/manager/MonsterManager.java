@@ -26,6 +26,10 @@ public class MonsterManager {
     private Context context;
     private Map<Integer, MonsterTemplate> templateMap = new HashMap<>();
 
+    // 用于生成唯一entityId的计数器
+    private static int monsterInstanceCounter = 0;
+    private static final Object counterLock = new Object();
+
     private MonsterManager(Context context) {
         this.context = context.getApplicationContext();
         loadTemplates();
@@ -139,6 +143,10 @@ public class MonsterManager {
 
         monster.setTemplateId(templateId);
 
+        // 为动画系统设置唯一ID
+        String animationUniqueId = generateUniqueAnimationId(template.getEntityId(), templateId);
+        monster.setAnimationUniqueId(animationUniqueId);
+
         addDefaultCombatIntents(monster);
         addSkillPoolIntents(monster, template);
 
@@ -200,6 +208,27 @@ public class MonsterManager {
     public List<MonsterTemplate.DropEntry> getDropTable(int templateId) {
         MonsterTemplate template = templateMap.get(templateId);
         return template == null ? null : template.getDropTable();
+    }
+
+    /**
+     * 为每个怪物实例生成唯一的动画ID
+     * 这个ID专门用于动画系统，不影响entityId的其他用途
+     * @param baseEntityId 模板的基础entityId
+     * @param templateId 模板ID
+     * @return 唯一的动画ID
+     */
+    private String generateUniqueAnimationId(String baseEntityId, int templateId) {
+        synchronized (counterLock) {
+            monsterInstanceCounter++;
+            // 格式: 模板ID_实例计数器
+            // 例如: slime_1, slime_2, slime_3, slime_4
+            String uniqueAnimationId = baseEntityId + "_" + monsterInstanceCounter;
+
+            android.util.Log.d("MonsterManager", "Generated unique animation ID: " + uniqueAnimationId +
+                " (template: " + baseEntityId + ", counter: " + monsterInstanceCounter + ")");
+
+            return uniqueAnimationId;
+        }
     }
 
     private static class MonsterConfigWrapper {

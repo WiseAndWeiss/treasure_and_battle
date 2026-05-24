@@ -1,36 +1,7 @@
 {
   "signal_to_animation_templates": {
-     "skill_slash": [
-       {
-         "type": "TEXTURE_SET",
-         "target": "TARGET_ENTITY",
-         "begin_at": 0,
-         "duration": 15,
-         "position": "center",
-         "scale": "1.5",
-         "num": 5,
-         "texture_set": [
-           "icons/animation/skill_slash/skill_slash_frame_1.png",
-           "icons/animation/skill_slash/skill_slash_frame_2.png",
-           "icons/animation/skill_slash/skill_slash_frame_3.png",
-           "icons/animation/skill_slash/skill_slash_frame_4.png",
-           "icons/animation/skill_slash/skill_slash_frame_5.png"
-         ]
-       },
-       {
-         "type": "DEBUG_BORDER",
-         "target": "OWN_ENTITY",
-         "begin_at": 0,
-         "duration": 15,
-         "color": "#FF0000"
-       },
-       {
-         "type": "DEBUG_BORDER",
-         "target": "TARGET_ENTITY",
-         "begin_at": 0,
-         "duration": 15 ,
-         "color": "#00FF00"
-       }
-     ]
+    "skill_slash": "normal_slash",
+    "skill_whirlwind_slash": "normal_slash",
+    "skill_blood_fury_slash": "blood_slash"
   }
 }

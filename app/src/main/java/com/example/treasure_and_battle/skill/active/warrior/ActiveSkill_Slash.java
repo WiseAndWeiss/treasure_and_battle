@@ -4,6 +4,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
@@ -26,15 +27,18 @@ public class ActiveSkill_Slash extends ActiveSkill {
             return;
         }
 
-        // 构建目标实体ID列表
+        // 构建目标实体ID列表 - 使用动画专用ID
         List<String> targetEntityIds = new java.util.ArrayList<>();
         for (BattleEntity target : targets) {
-            targetEntityIds.add(target.getEntityId());
+            // 检查是否有动画专用ID
+            String targetId = (target instanceof Monster) ? ((Monster) target).getAnimationId() : target.getEntityId();
+            targetEntityIds.add(targetId);
         }
 
-        // 发送技能释放动画信号 - 传递完整的目标列表
+        // 发送技能释放动画信号 - 使用动画专用ID
+        String casterId = (caster instanceof Monster) ? ((Monster) caster).getAnimationId() : caster.getEntityId();
         AnimationSignalPipeline.getInstance().emitSignal(
-            new AnimationSignal("skill_slash", caster.getEntityId(), targetEntityIds, null)
+            new AnimationSignal("skill_slash", casterId, targetEntityIds, null)
         );
 
         BattleEntity target = targets.get(0);

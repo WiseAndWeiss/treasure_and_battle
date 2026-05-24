@@ -30,6 +30,9 @@ public class Monster extends BattleEntity {
 
     private Random random = new Random();
 
+    // 专用于动画系统的唯一ID
+    private String animationUniqueId;
+
     public Monster(String entityId, String name, int level, Rarity rarity,
                    int strength, int agility, int intelligence,
                    int spirit, int physique, int luck,
@@ -234,6 +237,17 @@ public class Monster extends BattleEntity {
     public Map<String, ActiveSkill> getMonsterSkillMap() {
         return monsterSkillMap;
     }
+
+    /**
+     * 获取专用于动画系统的唯一ID
+     * 每个怪物实例都有不同的动画ID，用于动画系统准确定位
+     */
+    public String getAnimationId() { return animationUniqueId; }
+
+    /**
+     * 设置动画唯一ID（由MonsterManager在创建时设置）
+     */
+    public void setAnimationUniqueId(String animationId) { this.animationUniqueId = animationId; }
 
     public void tickSkillCooldowns() {
         for (ActiveSkill skill : monsterSkillMap.values()) {
