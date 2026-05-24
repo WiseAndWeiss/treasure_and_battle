@@ -42,6 +42,10 @@ import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.ui.animation.AnimationTestHelper;
+import com.example.treasure_and_battle.ui.animation.BattleAnimationManager;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
@@ -213,6 +217,9 @@ public class BattleFragment extends Fragment {
     private AlertDialog itemUseDialog;
     private boolean playerInputLocked;
 
+    // 动画系统
+    private BattleAnimationManager animationManager;
+
     /** 本次进入是否为继续暂存战斗（用于恢复时补跑速度条上未完成的怪物回合）。 */
     private boolean openedWithResume;
 
@@ -303,6 +310,14 @@ public class BattleFragment extends Fragment {
         damageNumberOverlay = new DamageNumberOverlay(monsterArea);
         FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
         tachieDamageOverlay = new DamageNumberOverlay(decor);
+
+        // 初始化动画管理器
+        animationManager = new BattleAnimationManager(requireContext());
+        setupEntityViewMappings();
+
+        // 初始化动画管理器
+        animationManager = new BattleAnimationManager(requireContext());
+        setupEntityViewMappings();
 
         setupResourceChangeListeners();
 
@@ -1722,6 +1737,11 @@ public class BattleFragment extends Fragment {
     private void setupResourceChangeListeners() {
         if (player == null || battleContext == null) return;
 
+        // 启动动画管理器
+        if (animationManager != null) {
+            animationManager.start();
+        }
+
         player.setResourceChangeListener(new BattleEntity.OnResourceChangeListener() {
             @Override
             public void onHpChanged(int delta, int newHp) {
@@ -1922,6 +1942,11 @@ public class BattleFragment extends Fragment {
             battleManager.setMonsterActListener(null);
         }
         dismissLootPanel();
+
+        // 销毁动画管理器
+        if (animationManager != null) {
+            animationManager.destroy();
+        }
     }
 
     private void dismissLootPanel() {
@@ -2540,6 +2565,137 @@ public class BattleFragment extends Fragment {
             }
             tri.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
         }
+    }
+
+    /**
+     * 设置实体View映射 - 为动画系统提供目标定位
+     */
+    private void setupEntityViewMappings() {
+        if (animationManager == null) return;
+
+        // 注册玩家立绘
+        if (player != null && ivBattleTachie != null) {
+            animationManager.registerEntityView(
+                player.getEntityId(),
+                ivBattleTachie,
+                (ViewGroup) ivBattleTachie.getParent()
+            );
+        }
+
+        // 注册所有怪物槽位
+        for (int i = 0; i < 5; i++) {
+            Monster m = monsterAtSlot(i);
+            if (m != null && slotIcons[i] != null) {
+                // 获取合适的容器View
+                ViewGroup container = null;
+                if (slotRoots[i] instanceof ViewGroup) {
+                    container = (ViewGroup) slotRoots[i];
+                } else if (slotRoots[i].getParent() instanceof ViewGroup) {
+                    container = (ViewGroup) slotRoots[i].getParent();
+                }
+
+                if (container != null) {
+                    animationManager.registerEntityView(
+                        m.getEntityId(),
+                        slotIcons[i],
+                        container
+                    );
+                }
+            }
+        }
+
+        // 注册全局场景容器
+        if (monsterArea != null) {
+            animationManager.registerSceneContainer(monsterArea);
+        }
+    }
+
+    /**
+     * 发送动画信号到管道
+     */
+    private void emitAnimationSignal(String signalId, String activeEntityId,
+                                  List<String> targetEntityIds) {
+        if (animationManager != null) {
+            AnimationSignal signal = AnimationSignal.createMultiTarget(
+                signalId, activeEntityId, targetEntityIds
+            );
+            AnimationSignalPipeline.getInstance().emitSignal(signal);
+        }
+    }
+
+    /**
+     * 发送无目标动画信号
+     */
+    private void emitAnimationSignal(String signalId, String activeEntityId) {
+        if (animationManager != null) {
+            AnimationSignal signal = AnimationSignal.createNoTarget(
+                signalId, activeEntityId
+            );
+            AnimationSignalPipeline.getInstance().emitSignal(signal);
+        }
+    }
+
+    /**
+     * 调试方法 - 测试动画系统
+     * 在设置界面或通过特殊操作调用
+     */
+    public void debugTestAnimationSystem() {
+        if (player == null || animationManager == null) {
+            android.util.Log.w("BattleFragment", "无法测试动画系统：player或animationManager为null");
+            return;
+        }
+
+        android.util.Log.i("BattleFragment", "=== 开始测试动画系统 ===");
+
+        // 构建目标实体列表 - 包含所有怪物
+        java.util.List<String> targetEntityIds = new java.util.ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Monster m = monsterAtSlot(i);
+            if (m != null) {
+                targetEntityIds.add(m.getEntityId());
+            }
+        }
+
+        // 测试玩家实体动画 - 传递完整的目标列表
+        AnimationTestHelper.testSlashAnimation(player.getEntityId(), targetEntityIds);
+
+        // 检查动画管理器状态
+        AnimationTestHelper.checkAnimationManagerStatus(animationManager);
+
+        android.util.Log.i("BattleFragment", "=== 动画系统测试完成 ===");
+    }
+
+    /**
+     * 调试方法 - 测试怪物实体动画
+     */
+    public void debugTestMonsterAnimation() {
+        if (animationManager == null) return;
+
+        android.util.Log.i("BattleFragment", "=== 测试怪物动画 ===");
+
+        // 找到第一个怪物并测试
+        for (int i = 0; i < 5; i++) {
+            Monster m = monsterAtSlot(i);
+            if (m != null) {
+                AnimationTestHelper.testSlashAnimation(m.getEntityId());
+
+                // 调试实体映射
+                if (slotIcons[i] != null) {
+                    ViewGroup container = null;
+                    if (slotRoots[i] instanceof ViewGroup) {
+                        container = (ViewGroup) slotRoots[i];
+                    } else if (slotRoots[i].getParent() instanceof ViewGroup) {
+                        container = (ViewGroup) slotRoots[i].getParent();
+                    }
+
+                    AnimationTestHelper.debugEntityMapping(m.getEntityId(), slotIcons[i], container);
+                }
+                break;
+            }
+        }
+
+        AnimationTestHelper.checkAnimationManagerStatus(animationManager);
+        android.util.Log.i("BattleFragment", "=== 怪物动画测试完成 ===");
     }
 
     private final class SkillPickAdapter extends RecyclerView.Adapter<SkillPickAdapter.Vh> {

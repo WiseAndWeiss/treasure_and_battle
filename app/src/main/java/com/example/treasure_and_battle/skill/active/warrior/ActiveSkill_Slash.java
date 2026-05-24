@@ -6,6 +6,8 @@ import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
 
 import java.util.List;
 
@@ -23,6 +25,17 @@ public class ActiveSkill_Slash extends ActiveSkill {
         if (targets.isEmpty()) {
             return;
         }
+
+        // 构建目标实体ID列表
+        List<String> targetEntityIds = new java.util.ArrayList<>();
+        for (BattleEntity target : targets) {
+            targetEntityIds.add(target.getEntityId());
+        }
+
+        // 发送技能释放动画信号 - 传递完整的目标列表
+        AnimationSignalPipeline.getInstance().emitSignal(
+            new AnimationSignal("skill_slash", caster.getEntityId(), targetEntityIds, null)
+        );
 
         BattleEntity target = targets.get(0);
         BattleContext context = battleManager.getContext();
