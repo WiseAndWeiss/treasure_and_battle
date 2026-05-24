@@ -84,7 +84,7 @@ public final class InventoryGridSync {
         addWithCount(bag, im.createMaterial("slime_crystal"), 30);
         addWithCount(bag, im.createMaterial("wolf_alpha_fang"), 1);
 
-        addWithCount(bag, im.createGem("ruby_common"), 1);
+        addWithCount(bag, im.createGem("ruby_common"), 3);
         addWithCount(bag, im.createGem("emerald_common"), 1);
 
         addWithCount(bag, im.createConsumable("potion_hp_small"), 30);

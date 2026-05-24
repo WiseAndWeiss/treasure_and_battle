@@ -167,7 +167,19 @@ public class NeutralEventActivity extends AppCompatActivity {
                         switchToForwardButton();
                         return;
                     }
-                    showResult("你消耗了500金币，天赋点和技能点已重置！（当前金币：" + ch.getGold() + "）");
+                    int oldTalent = ch.getTalentPoints();
+                    int oldSkill = ch.getSkillPoints();
+                    ch.resetAllTalentPoints();
+                    int skillRefund = 0;
+                    if (ch.getProfession() != null) {
+                        skillRefund += ch.getProfession().getActiveSkillTree().resetAllSkills();
+                        skillRefund += ch.getProfession().getPassiveSkillTree().resetAllSkills();
+                        skillRefund += ch.getProfession().getEventSkillTree().resetAllSkills();
+                    }
+                    ch.addSkillPoints(skillRefund);
+                    int newTalent = ch.getTalentPoints();
+                    int newSkill = ch.getSkillPoints();
+                    showResult("你消耗了500金币，天赋点和技能点已重置！\n\n返还天赋点：+" + (newTalent - oldTalent) + "\n返还技能点：+" + (newSkill - oldSkill) + "\n当前金币：" + ch.getGold());
                     switchToForwardButton();
                 });
                 btnAction2 = addActionButton("离开", 0xFF888888, v -> {
