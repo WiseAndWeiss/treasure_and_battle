@@ -97,6 +97,22 @@ public class SettingsFragment extends Fragment {
             requireActivity().finish();
         });
 
+        View btnDebugExp = view.findViewById(R.id.btn_debug_gain_exp);
+        if (btnDebugExp != null) {
+            btnDebugExp.setOnClickListener(v ->
+                    DebugCharacterGrants.grantExp(requireContext(), 500_000));
+        }
+        View btnDebugTalent = view.findViewById(R.id.btn_debug_gain_talent);
+        if (btnDebugTalent != null) {
+            btnDebugTalent.setOnClickListener(v ->
+                    DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
+        }
+        View btnDebugSkill = view.findViewById(R.id.btn_debug_gain_skill);
+        if (btnDebugSkill != null) {
+            btnDebugSkill.setOnClickListener(v ->
+                    DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+        }
+
         return view;
     }
 
