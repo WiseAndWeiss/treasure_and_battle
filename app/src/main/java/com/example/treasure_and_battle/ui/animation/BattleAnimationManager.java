@@ -155,8 +155,15 @@ public class BattleAnimationManager {
      */
     private void createAnimationsFromSignal(AnimationSignal signal) {
         List<AnimationTemplate> templates = animationConfigs.get(signal.signalId);
-        if (templates == null || templates.isEmpty()) {
-            Log.w(TAG, "No animation template found for signal: " + signal.signalId);
+
+        // 处理找不到信号ID或信号对应动画组为空的情况
+        if (templates == null) {
+            Log.d(TAG, "未配置信号动画: " + signal.signalId + " (直接抛弃信号)");
+            return;
+        }
+
+        if (templates.isEmpty()) {
+            Log.d(TAG, "信号对应动画组为空: " + signal.signalId + " (直接抛弃信号)");
             return;
         }
 

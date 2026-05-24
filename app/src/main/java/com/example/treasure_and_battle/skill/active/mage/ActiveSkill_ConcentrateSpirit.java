@@ -9,9 +9,13 @@ import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +33,12 @@ public class ActiveSkill_ConcentrateSpirit extends ActiveSkill {
 
     @Override
     public void onCast(BattleEntity caster, List<BattleEntity> targets, BattleManager battleManager) {
+        // 发送凝神定气动画信号
+        String casterId = (caster instanceof Monster) ? ((Monster) caster).getAnimationId() : caster.getEntityId();
+        AnimationSignalPipeline.getInstance().emitSignal(
+            new AnimationSignal("skill_concentrate_spirit", casterId, new ArrayList<>(), null)
+        );
+
         BattleContext context = battleManager.getContext();
 
         int magicalAtkBonus = getEffectParams().x;

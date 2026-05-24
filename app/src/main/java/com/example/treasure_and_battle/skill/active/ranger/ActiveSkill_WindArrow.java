@@ -6,9 +6,13 @@ import com.example.treasure_and_battle.buff.impl.control.SlowDebuff;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.model.buff.BuffType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
+import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
+import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +30,18 @@ public class ActiveSkill_WindArrow extends ActiveSkill {
         if (targets.isEmpty()) {
             return;
         }
+
+        // 发送凭风引箭动画信号
+        List<String> targetEntityIds = new ArrayList<>();
+        for (BattleEntity target : targets) {
+            String targetId = (target instanceof Monster) ? ((Monster) target).getAnimationId() : target.getEntityId();
+            targetEntityIds.add(targetId);
+        }
+
+        String casterId = (caster instanceof Monster) ? ((Monster) caster).getAnimationId() : caster.getEntityId();
+        AnimationSignalPipeline.getInstance().emitSignal(
+            new AnimationSignal("skill_wind_arrow", casterId, targetEntityIds, null)
+        );
 
         BattleEntity target = targets.get(0);
         BattleContext context = battleManager.getContext();
