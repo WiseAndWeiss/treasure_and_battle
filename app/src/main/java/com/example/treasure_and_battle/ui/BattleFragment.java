@@ -60,7 +60,6 @@ import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.utils.HtmlRenderUtils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.IOException;
@@ -166,7 +165,7 @@ public class BattleFragment extends Fragment {
     private CommandHighlight commandHighlight = CommandHighlight.NONE;
     private TextView btnConfirm;
     private TextView btnCancel;
-    private BottomSheetDialog statsSheet;
+    private AlertDialog statsDialog;
 
     private PendingMode pendingMode = PendingMode.NONE;
     private ActiveSkill pendingActiveSkill;
@@ -1985,7 +1984,7 @@ public class BattleFragment extends Fragment {
 
     private void onTachieClick() {
         if (player == null) return;
-        if (statsSheet != null && statsSheet.isShowing()) return;
+        if (statsDialog != null && statsDialog.isShowing()) return;
 
         ScaleAnimation anim = new ScaleAnimation(
                 1.0f, 1.05f, 1.0f, 1.05f,
@@ -2000,12 +1999,14 @@ public class BattleFragment extends Fragment {
                 .inflate(R.layout.dialog_battle_stats, null, false);
         populateStatsSheet(sheetView);
 
-        statsSheet = new BottomSheetDialog(requireContext());
-        statsSheet.setContentView(sheetView);
-        statsSheet.setCanceledOnTouchOutside(true);
-        statsSheet.show();
-        if (statsSheet.getWindow() != null) {
-            statsSheet.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        statsDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(sheetView)
+                .create();
+        statsDialog.setCanceledOnTouchOutside(true);
+        sheetView.findViewById(R.id.btn_battle_stats_close).setOnClickListener(v -> statsDialog.dismiss());
+        statsDialog.show();
+        if (statsDialog.getWindow() != null) {
+            statsDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
     }
 
@@ -2091,9 +2092,10 @@ public class BattleFragment extends Fragment {
         if (ivBattleTachie != null) {
             ivBattleTachie.setImageDrawable(null);
         }
-        if (statsSheet != null && statsSheet.isShowing()) {
-            statsSheet.dismiss();
+        if (statsDialog != null && statsDialog.isShowing()) {
+            statsDialog.dismiss();
         }
+        statsDialog = null;
         if (battleManager != null) {
             battleManager.setMonsterActListener(null);
         }
@@ -2649,8 +2651,13 @@ public class BattleFragment extends Fragment {
                                 in.getName(), in.getType().name(), in.getApCost(), in.getMpCost()));
                         if (in.getType() == ActionIntent.IntentType.SKILL) {
                             ActiveSkill skill = m.getMonsterSkill(in.getActionRefId());
-                            if (skill != null && skill.getDetailedDesc() != null && !skill.getDetailedDesc().isEmpty()) {
-                                sb.append("  <small><i>").append(android.text.TextUtils.htmlEncode(skill.getDetailedDesc())).append("</i></small><br>");
+                            if (skill != null) {
+                                String formattedDesc = skill.getFormattedDetailedDesc();
+                                if (formattedDesc != null && !formattedDesc.isEmpty()) {
+                                    sb.append("  <small><i>")
+                                            .append(android.text.TextUtils.htmlEncode(formattedDesc))
+                                            .append("</i></small><br>");
+                                }
                             }
                         }
                     } else {
