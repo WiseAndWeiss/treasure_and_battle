@@ -1,15 +1,21 @@
 package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
-import com.example.treasure_and_battle.model.entity.Player;
+
+import com.example.treasure_and_battle.character.Character;
 
 public class GameManager {
+    private static final long AUTO_SAVE_INTERVAL_MS = 15 * 60 * 1000;
+
     private static GameManager instance;
-    private Context context;
-    private Player currentPlayer;
+    private final Context context;
+    private Character currentCharacter;
+    private boolean isGameActive;
+    private SaveManager saveManager;
 
     private GameManager(Context context) {
         this.context = context.getApplicationContext();
+        this.saveManager = SaveManager.getInstance(context);
     }
 
     public static synchronized GameManager getInstance(Context context) {
@@ -19,13 +25,41 @@ public class GameManager {
         return instance;
     }
 
-    public Player getCurrentPlayer() {
-        return currentPlayer;
+    public void startGame(Character character) {
+        this.currentCharacter = character;
+        this.isGameActive = true;
+        saveManager.startPlayTimeTracking();
+        saveManager.startAutoSaveTimer(character, AUTO_SAVE_INTERVAL_MS);
     }
 
-    // TODO: 创建新游戏（初始化玩家、设置初始位置等）
-    // TODO: 加载存档（从 SharedPreferences / 文件反序列化游戏状态）
-    // TODO: 保存游戏（关键操作后自动存档）
-    // TODO: 前台/后台切换处理（暂停/恢复定位和事件刷新）
-    // TODO: 游戏时间管理（日夜循环、事件时效性）
+    public void onGameResume() {
+        if (currentCharacter != null) {
+            isGameActive = true;
+            saveManager.startPlayTimeTracking();
+            saveManager.startAutoSaveTimer(currentCharacter, AUTO_SAVE_INTERVAL_MS);
+        }
+    }
+
+    public void onGamePause() {
+        isGameActive = false;
+        saveManager.stopAutoSaveTimer();
+        saveManager.stopPlayTimeTracking();
+        if (currentCharacter != null) {
+            saveManager.autoSave(currentCharacter);
+        }
+    }
+
+    public void triggerAutoSave() {
+        if (currentCharacter != null) {
+            saveManager.autoSave(currentCharacter);
+        }
+    }
+
+    public Character getCurrentCharacter() {
+        return currentCharacter;
+    }
+
+    public boolean isGameActive() {
+        return isGameActive;
+    }
 }

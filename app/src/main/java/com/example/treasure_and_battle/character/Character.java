@@ -11,13 +11,18 @@ import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.profession.ProfessionManager;
 import com.example.treasure_and_battle.profession.ProfessionType;
 import com.example.treasure_and_battle.skill.Skill;
+import com.example.treasure_and_battle.skill.SkillTree;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
+import com.example.treasure_and_battle.manager.skill.SkillManager;
+import com.example.treasure_and_battle.skill.Skill;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -345,4 +350,188 @@ public class Character {
 
     /** 背包：125 格固定槽位列表 */
     public List<Item> getBagItems() { return bagItems; }
+
+    void setLevel(int level) { this.level = level; }
+    void setCurrentExp(int exp) { this.currentExp = exp; }
+    void setExpToNextLevel(int exp) { this.expToNextLevel = exp; }
+    void setTalentPoints(int pts) { this.talentPoints = pts; }
+    void setSkillPoints(int pts) { this.skillPoints = pts; }
+    void setGold(int g) { this.gold = g; }
+    void setBaseMaxHp(int hp) { this.baseMaxHp = hp; }
+    void setBaseMaxMp(int mp) { this.baseMaxMp = mp; }
+    void setProfession(Profession p) { this.profession = p; }
+
+    void copyEquippedFrom(Map<EquipSlot, EquipItem> src, EquipItem lr, EquipItem rr) {
+        this.equippedItems.clear();
+        if (src != null) this.equippedItems.putAll(src);
+        this.leftRing = lr;
+        this.rightRing = rr;
+    }
+
+    void setAllocatedStats(int s, int a, int i, int sp, int p, int l) {
+        this.allocatedStrength = s; this.allocatedAgility = a;
+        this.allocatedIntelligence = i; this.allocatedSpirit = sp;
+        this.allocatedPhysique = p; this.allocatedLuck = l;
+    }
+
+    // ========== 序列化 ==========
+
+    public static class SkillTreeData {
+        public Map<String, Integer> learnedSkillLevels;
+        public int usedPoints;
+        public int unlockedLayer;
+    }
+
+    public static class CharacterData {
+        public int characterId;
+        public String name;
+        public String professionType;
+        public int level;
+        public int currentExp;
+        public int expToNextLevel;
+        public int talentPoints;
+        public int skillPoints;
+        public int gold;
+        public int baseMaxHp;
+        public int baseMaxMp;
+        public int currentHp;
+        public int currentMp;
+        public int allocatedStrength;
+        public int allocatedAgility;
+        public int allocatedIntelligence;
+        public int allocatedSpirit;
+        public int allocatedPhysique;
+        public int allocatedLuck;
+        public Map<String, EquipItem> equippedItems;
+        public EquipItem leftRing;
+        public EquipItem rightRing;
+        public List<Item> bagItems;
+        public SkillTreeData activeSkillTree;
+        public SkillTreeData passiveSkillTree;
+        public SkillTreeData eventSkillTree;
+    }
+
+    public static class SaveData {
+        public int version = 1;
+        public long timestamp;
+        public long playTimeSeconds;
+        public CharacterData character;
+    }
+
+    public SaveData toSaveData() {
+        SaveData data = new SaveData();
+        data.character = new CharacterData();
+        CharacterData cd = data.character;
+
+        cd.characterId = this.characterId;
+        cd.name = this.name;
+        cd.professionType = this.professionType.name();
+        cd.level = this.level;
+        cd.currentExp = this.currentExp;
+        cd.expToNextLevel = this.expToNextLevel;
+        cd.talentPoints = this.talentPoints;
+        cd.skillPoints = this.skillPoints;
+        cd.gold = this.gold;
+        cd.baseMaxHp = this.baseMaxHp;
+        cd.baseMaxMp = this.baseMaxMp;
+        cd.currentHp = this.currentHp;
+        cd.currentMp = this.currentMp;
+        cd.allocatedStrength = this.allocatedStrength;
+        cd.allocatedAgility = this.allocatedAgility;
+        cd.allocatedIntelligence = this.allocatedIntelligence;
+        cd.allocatedSpirit = this.allocatedSpirit;
+        cd.allocatedPhysique = this.allocatedPhysique;
+        cd.allocatedLuck = this.allocatedLuck;
+
+        cd.equippedItems = new LinkedHashMap<>();
+        for (Map.Entry<EquipSlot, EquipItem> e : this.equippedItems.entrySet()) {
+            cd.equippedItems.put(e.getKey().name(), e.getValue());
+        }
+        cd.leftRing = this.leftRing;
+        cd.rightRing = this.rightRing;
+
+        cd.bagItems = new ArrayList<>(this.bagItems);
+
+        cd.activeSkillTree = saveSkillTree(this.profession != null ? this.profession.getActiveSkillTree() : null);
+        cd.passiveSkillTree = saveSkillTree(this.profession != null ? this.profession.getPassiveSkillTree() : null);
+        cd.eventSkillTree = saveSkillTree(this.profession != null ? this.profession.getEventSkillTree() : null);
+
+        return data;
+    }
+
+    private static SkillTreeData saveSkillTree(SkillTree tree) {
+        if (tree == null) return null;
+        SkillTreeData data = new SkillTreeData();
+        data.learnedSkillLevels = new LinkedHashMap<>();
+        for (Skill skill : tree.getAllLearnedSkills()) {
+            data.learnedSkillLevels.put(skill.getSkillId(), skill.getLevel());
+        }
+        data.usedPoints = tree.getUsedPoints();
+        data.unlockedLayer = tree.getUnlockedLayer();
+        return data;
+    }
+
+    public static Character fromSaveData(CharacterData cd, Context context) {
+        if (cd == null) return null;
+
+        ProfessionType pt;
+        try {
+            pt = ProfessionType.valueOf(cd.professionType);
+        } catch (Exception e) {
+            pt = ProfessionType.WARRIOR;
+        }
+
+        Character ch = new Character(cd.characterId, cd.name, pt, context);
+        ch.setLevel(cd.level);
+        ch.setCurrentExp(cd.currentExp);
+        ch.setExpToNextLevel(cd.expToNextLevel);
+        ch.setTalentPoints(cd.talentPoints);
+        ch.setSkillPoints(cd.skillPoints);
+        ch.setGold(cd.gold);
+        ch.setBaseMaxHp(cd.baseMaxHp);
+        ch.setBaseMaxMp(cd.baseMaxMp);
+        ch.setCurrentHp(cd.currentHp);
+        ch.setCurrentMp(cd.currentMp);
+        ch.setAllocatedStats(cd.allocatedStrength, cd.allocatedAgility, cd.allocatedIntelligence,
+                cd.allocatedSpirit, cd.allocatedPhysique, cd.allocatedLuck);
+
+        Map<EquipSlot, EquipItem> eqMap = new HashMap<>();
+        if (cd.equippedItems != null) {
+            for (Map.Entry<String, EquipItem> e : cd.equippedItems.entrySet()) {
+                try {
+                    eqMap.put(EquipSlot.valueOf(e.getKey()), e.getValue());
+                } catch (Exception ignored) {}
+            }
+        }
+        ch.copyEquippedFrom(eqMap, cd.leftRing, cd.rightRing);
+
+        if (cd.bagItems != null) {
+            for (int i = 0; i < Math.min(cd.bagItems.size(), 125); i++) {
+                ch.bagItems.set(i, cd.bagItems.get(i));
+            }
+        }
+
+        SkillManager sm = SkillManager.getInstance(context);
+        restoreSkillTree(sm, ch.profession.getActiveSkillTree(), cd.activeSkillTree);
+        restoreSkillTree(sm, ch.profession.getPassiveSkillTree(), cd.passiveSkillTree);
+        restoreSkillTree(sm, ch.profession.getEventSkillTree(), cd.eventSkillTree);
+
+        return ch;
+    }
+
+    private static void restoreSkillTree(SkillManager sm, SkillTree tree, SkillTreeData data) {
+        if (tree == null || data == null || data.learnedSkillLevels == null) return;
+        List<Skill> restored = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : data.learnedSkillLevels.entrySet()) {
+            String skillId = e.getKey();
+            int level = e.getValue();
+            if (sm.hasSkill(skillId) && level > 0) {
+                Skill skill = sm.createSkillBySkillId(skillId, level);
+                if (skill != null) {
+                    restored.add(skill);
+                }
+            }
+        }
+        tree.loadSavedState(restored, data.usedPoints, data.unlockedLayer);
+    }
 }

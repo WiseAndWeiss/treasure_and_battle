@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
 
 public class EntryActivity extends AppCompatActivity {
 
@@ -33,12 +34,20 @@ public class EntryActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOCATION);
             } else {
-                enterGame();
+                enterGame(null);
             }
         });
 
         btnSelectSave.setOnClickListener(v ->
-                FloatMsgOverlay.showFloatMsg(this, "功能开发中"));
+                SaveSelectDialog.show(this, SaveSelectDialog.MODE_LOAD, new SaveSelectDialog.OnSaveActionListener() {
+                    @Override
+                    public void onLoadSave(Character character) {
+                        enterGame(character);
+                    }
+
+                    @Override
+                    public void onSaveComplete() {}
+                }));
 
         btnEncyclopedia.setOnClickListener(v ->
                 startActivity(new Intent(this, EncyclopediaActivity.class)));
@@ -51,11 +60,14 @@ public class EntryActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQ_LOCATION) {
-            enterGame();
+            enterGame(null);
         }
     }
 
-    private void enterGame() {
+    private void enterGame(Character restoredCharacter) {
+        if (restoredCharacter != null) {
+            PlayerCharacterHolder.restoreFrom(restoredCharacter);
+        }
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }

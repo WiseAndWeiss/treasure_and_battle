@@ -42,6 +42,7 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.manager.EventManager;
+import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.event.EventConfig;
@@ -94,6 +95,7 @@ public class MapFragment extends Fragment {
     private FrameLayout mCircleAnimOverlay;
     private boolean mIsPlayingCircleAnim = false;
     private Runnable mCircleAnimRunnable;
+    private boolean mWasInEvent;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -649,6 +651,7 @@ public class MapFragment extends Fragment {
     }
 
     private void processClickedEvent(EventManager.EventCircle ec) {
+        mWasInEvent = true;
         String type = ec.config.getType();
         EventConfig.EventSubItem sub = ec.selectedSubEvent;
 
@@ -925,6 +928,10 @@ public class MapFragment extends Fragment {
         mMapView.onResume();
         mIsProcessingNeutral = false;
         refreshDebugButton();
+        if (mWasInEvent) {
+            mWasInEvent = false;
+            GameManager.getInstance(requireContext()).triggerAutoSave();
+        }
     }
 
     @Override

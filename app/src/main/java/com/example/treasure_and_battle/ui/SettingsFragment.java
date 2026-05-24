@@ -7,23 +7,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.GameManager;
+import com.example.treasure_and_battle.manager.SaveManager;
 
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
-    private RadioGroup rgRate;
-    private RadioButton rbFast, rbNormal, rbSlow;
-    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,22 +41,7 @@ public class SettingsFragment extends Fragment {
         switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
-
-        rbFast = view.findViewById(R.id.rb_rate_fast);
-        rbNormal = view.findViewById(R.id.rb_rate_normal);
-        rbSlow = view.findViewById(R.id.rb_rate_slow);
-        rgRate = view.findViewById(R.id.rg_event_rate);
-
-        savedRate = sharedPrefs.getInt("eventRate", 0);
-        selectRadioSilently(savedRate);
-
-        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
-        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
-        switchToast.setChecked(showToast);
-        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
-        });
-
+        
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
@@ -93,42 +75,49 @@ public class SettingsFragment extends Fragment {
 
         View btnBackToMain = view.findViewById(R.id.btn_back_to_main);
         btnBackToMain.setOnClickListener(v -> {
-            startActivity(new android.content.Intent(requireActivity(), EntryActivity.class));
+            Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+            GameManager.getInstance(requireContext()).triggerAutoSave();
+            PlayerCharacterHolder.clear();
+            startActivity(new Intent(requireActivity(), EntryActivity.class));
             requireActivity().finish();
         });
 
-        return view;
-    }
+        View btnSaveGame = view.findViewById(R.id.btn_save_game);
+        btnSaveGame.setOnClickListener(v -> {
+            SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_SAVE,
+                    new SaveSelectDialog.OnSaveActionListener() {
+                        @Override
+                        public void onLoadSave(Character character) {}
 
-    private int checkedId2Rate(int checkedId) {
-        if (checkedId == R.id.rb_rate_fast) return 0;
-        if (checkedId == R.id.rb_rate_normal) return 1;
-        return 2;
-    }
-
-    private void selectRadioSilently(int rate) {
-        rgRate.setOnCheckedChangeListener(null);
-        if (rate == 1) rbNormal.setChecked(true);
-        else if (rate == 2) rbSlow.setChecked(true);
-        else rbFast.setChecked(true);
-        rgRate.setOnCheckedChangeListener((group, checkedId) -> {
-            int newRate = checkedId2Rate(checkedId);
-            if (newRate == savedRate) return;
-            String msg;
-            if (newRate == 0) msg = "确认为快速（10秒/批）？\n将清空当前地图事件并重新生成。";
-            else if (newRate == 1) msg = "确认为普通（1分钟/批）？\n将清空当前地图事件并重新生成。";
-            else msg = "确认为慢速（30分钟/批）？\n将清空当前地图事件并重新生成。";
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("是否确认更换速率")
-                    .setMessage(msg)
-                    .setPositiveButton("确认", (d, which) -> {
-                        savedRate = newRate;
-                        sharedPrefs.edit().putInt("eventRate", savedRate)
-                                .putBoolean("pendingRateClear", true).apply();
-                    })
-                    .setNegativeButton("取消", (d, which) -> selectRadioSilently(savedRate))
-                    .setOnCancelListener(d -> selectRadioSilently(savedRate))
-                    .show();
+                        @Override
+                        public void onSaveComplete() {
+                            FloatMsgOverlay.showFloatMsg(requireContext(), "存档成功");
+                        }
+                    });
         });
+
+        View btnLoadGame = view.findViewById(R.id.btn_load_game);
+        btnLoadGame.setOnClickListener(v -> {
+            SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_LOAD,
+                    new SaveSelectDialog.OnSaveActionListener() {
+                        @Override
+                        public void onLoadSave(Character character) {
+                            PlayerCharacterHolder.restoreFrom(character);
+                            FloatMsgOverlay.showFloatMsg(requireContext(), "读档成功");
+                        }
+
+                        @Override
+                        public void onSaveComplete() {}
+                    });
+        });
+
+        view.findViewById(R.id.btn_debug_gain_exp).setOnClickListener(v ->
+                DebugCharacterGrants.grantExp(requireContext(), 500_000));
+        view.findViewById(R.id.btn_debug_gain_talent).setOnClickListener(v ->
+                DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
+        view.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v ->
+                DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+
+        return view;
     }
 }
