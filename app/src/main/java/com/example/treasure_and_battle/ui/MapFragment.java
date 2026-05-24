@@ -470,6 +470,20 @@ public class MapFragment extends Fragment {
 
         mCheckExpireRunnable = () -> {
             if (isDetached()) return;
+            boolean pendingClear = mPrefs.getBoolean("pendingRateClear", false);
+            if (pendingClear) {
+                mPrefs.edit().putBoolean("pendingRateClear", false).apply();
+                applyRateSettings();
+                mEventManager.clearAllEvents();
+                refreshEventIcons();
+                int count = mEventManager.generateRandomEvents();
+                if (count > 0) {
+                    refreshEventIcons();
+                    showFloatMsg("速率已切换，重新生成事件：" + count);
+                }
+                mMainHandler.removeCallbacks(mGenerateEventRunnable);
+                mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
+            }
             int count = mEventManager.checkExpiredEvents();
             if (count > 0) {
                 refreshEventIcons();
@@ -490,18 +504,6 @@ public class MapFragment extends Fragment {
         }
         mEventManager.setOverrideGenerateInterval(genInterval);
         mEventManager.setExpireOverrides(battleExp, benefitExp, neutralExp);
-
-        boolean pendingClear = mPrefs.getBoolean("pendingRateClear", false);
-        if (pendingClear) {
-            mPrefs.edit().putBoolean("pendingRateClear", false).apply();
-            mEventManager.clearAllEvents();
-            refreshEventIcons();
-            int count = mEventManager.generateRandomEvents();
-            if (count > 0) {
-                refreshEventIcons();
-                showFloatMsg("速率已切换，重新生成事件：" + count);
-            }
-        }
     }
 
     private void startTimedTasks() {

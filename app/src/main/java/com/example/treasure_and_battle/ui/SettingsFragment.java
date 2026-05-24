@@ -105,7 +105,6 @@ public class SettingsFragment extends Fragment {
         if (rate == 1) rbNormal.setChecked(true);
         else if (rate == 2) rbSlow.setChecked(true);
         else rbFast.setChecked(true);
-        rgRate.setOnCheckedChangeListener((group, checkedId) -> {});
         rgRate.setOnCheckedChangeListener((group, checkedId) -> {
             int newRate = checkedId2Rate(checkedId);
             if (newRate == savedRate) return;
