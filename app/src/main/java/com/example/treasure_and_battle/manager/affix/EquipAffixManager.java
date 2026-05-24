@@ -44,7 +44,7 @@ public class EquipAffixManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("equip_affix_config.json");
+            InputStream is = context.getAssets().open("configs/equip_affix_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

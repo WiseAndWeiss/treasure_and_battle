@@ -46,7 +46,7 @@ public class EquipmentManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("equip_config.json");
+            InputStream is = context.getAssets().open("configs/equip_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

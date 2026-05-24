@@ -62,7 +62,7 @@ public class ProfessionManager {
      */
     private void loadProfessionTemplates() {
         try {
-            InputStream is = context.getAssets().open("profession_config.json");
+            InputStream is = context.getAssets().open("configs/profession_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

@@ -39,7 +39,7 @@ public class MonsterSkillManager {
     }
 
     private void loadMonsterSkillTemplates() {
-        SkillDataLoader.loadInto(context, "monster_skill_config.json",
+        SkillDataLoader.loadInto(context, "configs/monster_skill_config.json",
                 templateMap, skillIdToTemplateIdMap);
     }
 

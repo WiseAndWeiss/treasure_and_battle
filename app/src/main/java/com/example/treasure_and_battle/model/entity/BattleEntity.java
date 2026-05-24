@@ -250,6 +250,13 @@ public abstract class BattleEntity {
         activeSkillList.add(skill);
     }
 
+    public List<ActiveSkill> getActiveSkillList() {
+        if (activeSkillList == null) {
+            activeSkillList = new ArrayList<>();
+        }
+        return activeSkillList;
+    }
+
     // ====================== 被动技能管理 ======================
 
     /**

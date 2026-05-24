@@ -48,6 +48,10 @@
         <activity
             android:name="com.example.treasure_and_battle.ui.EncyclopediaActivity"
             android:exported="false"/>
+
+        <activity
+            android:name="com.example.treasure_and_battle.ui.ProfessionSelectActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>
