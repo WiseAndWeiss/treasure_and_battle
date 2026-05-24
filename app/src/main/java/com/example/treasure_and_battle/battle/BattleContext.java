@@ -162,7 +162,7 @@ public class BattleContext {
         List<Monster> alive = new ArrayList<>();
         if (monsters == null) return alive;
         for (Monster m : monsters) {
-            if (m != null && !m.isDead()) {
+            if (m != null && !m.isDead() && !m.isEscaped()) {
                 alive.add(m);
             }
         }

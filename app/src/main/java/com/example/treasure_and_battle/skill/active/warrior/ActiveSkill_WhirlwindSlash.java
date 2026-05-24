@@ -28,19 +28,16 @@ public class ActiveSkill_WhirlwindSlash extends ActiveSkill {
         BattleContext context = battleManager.getContext();
 
         // 获取效果参数
-        int damagePercent = getEffectParams().x;  // 伤害百分比
+        int damagePercent = getEffectParams().x;
 
-        // 注意：applyCastCost已经扣除了1点AP（配置中的actionPointCost=1）
-        // 记录施放前的AP，用于计算总消耗
-        int apBeforeConsumption = caster.getCurrentActionPoints() + 1;  // +1是因为applyCastCost已经扣了1AP
+        int totalAp = caster.getCurrentActionPoints() + getActionPointCost();
+        caster.setCurrentActionPoints(totalAp);
 
         int totalDamageDealt = 0;
         int hits = 0;
         int attackCount = 0;
 
-        // 循环：检查当前AP，如果有AP则扣除1点并执行一轮攻击
         while (caster.getCurrentActionPoints() > 0) {
-            // 扣除1点AP用于本轮攻击
             caster.setCurrentActionPoints(caster.getCurrentActionPoints() - 1);
             attackCount++;
 
@@ -75,9 +72,8 @@ public class ActiveSkill_WhirlwindSlash extends ActiveSkill {
         }
 
         // 计算总共消耗的AP
-        int totalApConsumed = apBeforeConsumption - caster.getCurrentActionPoints();
+        int totalApConsumed = attackCount;
 
-        // 记录日志
         context.addLog(LogType.ACTION,
             "【旋风斩】[%s] 消耗了 %d 点行动点，发动 %d 次斩击",
             caster.getName(), totalApConsumed, attackCount);

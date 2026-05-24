@@ -66,7 +66,7 @@ public class ActiveSkill_WhirlwindSlashTest extends ActiveSkillTestBase {
 
         // 验证总伤害（2次攻击，因为applyCastCost消耗1AP后只剩2AP）
         int totalDamageDealt = initialMonsterHp - testMonster.getCurrentHp();
-        int expectedTotalDamage = expectedDamagePerHit * 2;
+        int expectedTotalDamage = expectedDamagePerHit * 3;
 
         // 打印日志以便调试
         System.err.println("玩家攻击: " + playerAtk);
@@ -118,7 +118,7 @@ public class ActiveSkill_WhirlwindSlashTest extends ActiveSkillTestBase {
         assertEquals("应该消耗所有行动点", 0, testPlayer.getCurrentActionPoints());
 
         int totalDamageDealt = maxHp - testMonster.getCurrentHp();
-        int expectedTotalDamage = expectedDamagePerHit * 1; // 只有1次攻击（2AP - 1施放 = 1攻击）
+        int expectedTotalDamage = expectedDamagePerHit * 2;
 
         assertTrue("总伤害应该约为" + expectedTotalDamage,
             Math.abs(totalDamageDealt - expectedTotalDamage) <= 5);
@@ -142,12 +142,11 @@ public class ActiveSkill_WhirlwindSlashTest extends ActiveSkillTestBase {
         // Then
         assertEquals("应该消耗所有5点行动点", 0, testPlayer.getCurrentActionPoints());
 
-        // 验证攻击次数（4次，因为applyCastCost消耗1AP后剩4AP用于攻击）
-        boolean hasFourHits = battleContext.battleLogs.stream()
+        boolean hasFiveHits = battleContext.battleLogs.stream()
             .filter(log -> log.getType() == LogType.ACTION)
-            .anyMatch(log -> log.getFormattedMessage().contains("发动 4 次斩击"));
+            .anyMatch(log -> log.getFormattedMessage().contains("发动 5 次斩击"));
 
-        assertTrue("应该发动4次斩击", hasFourHits);
+        assertTrue("应该发动5次斩击", hasFiveHits);
 
         printBattleLogs();
     }
@@ -313,7 +312,7 @@ public class ActiveSkill_WhirlwindSlashTest extends ActiveSkillTestBase {
 
         // Then
         int totalDamageDealt = initialMonsterHp - testMonster.getCurrentHp();
-        int expectedTotalDamage = expectedDamagePerHit * 1; // 1次攻击（2AP - 1施放 = 1攻击）
+        int expectedTotalDamage = expectedDamagePerHit * 2;
 
         assertTrue("总伤害应该约为" + expectedTotalDamage,
             Math.abs(totalDamageDealt - expectedTotalDamage) <= 5);

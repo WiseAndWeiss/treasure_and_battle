@@ -508,16 +508,16 @@
       "templateId": 4001,
       "buffName": "护盾",
       "buffId": "buff_shield",
-      "descriptionFormat": "吸收%d点伤害，持续%d回合。",
+      "descriptionFormat": "吸收%d点伤害。",
       "buffType": "BUFF",
       "triggerType": "PERMANENT",
       "isDispellable": true,
-      "defaultDuration": 1,
+      "defaultDuration": -1,
       "maxStackCount": 10000,
       "refreshOnApply": true,
       "minValue": 1,
       "maxValue": 1,
-      "buffClass": "com.example.treasure_and_battle.buff.impl.ShieldBuff"
+      "buffClass": "com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff"
     },
     {
       "templateId": 5001,

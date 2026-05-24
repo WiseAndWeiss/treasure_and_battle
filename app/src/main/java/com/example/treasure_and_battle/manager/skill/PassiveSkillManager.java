@@ -14,6 +14,11 @@ import com.example.treasure_and_battle.skill.passive.PassiveSkill;
  */
 public class PassiveSkillManager {
     private static PassiveSkillManager instance;
+    private OnPassiveSkillTriggerListener passiveSkillTriggerListener;
+
+    public interface OnPassiveSkillTriggerListener {
+        void onPassiveSkillTriggered(BattleEntity entity, String skillName);
+    }
 
     private PassiveSkillManager() {
     }
@@ -29,6 +34,10 @@ public class PassiveSkillManager {
         instance = null;
     }
 
+    public void setOnPassiveSkillTriggerListener(OnPassiveSkillTriggerListener listener) {
+        this.passiveSkillTriggerListener = listener;
+    }
+
     // ====================== 统一触发入口 ======================
 
     /**
@@ -41,6 +50,9 @@ public class PassiveSkillManager {
         for (PassiveSkill skill : owner.getPassiveSkillList()) {
             if (!skill.hasTriggerType(type)) continue;
             try {
+                if (passiveSkillTriggerListener != null) {
+                    passiveSkillTriggerListener.onPassiveSkillTriggered(owner, skill.getSkillName());
+                }
                 switch (type) {
                     case ON_BATTLE_START:  skill.onBattleStart(owner, context); break;
                     case ON_BATTLE_END:    skill.onBattleEnd(owner, context); break;
