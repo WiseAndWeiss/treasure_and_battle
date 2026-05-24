@@ -641,7 +641,8 @@ public class NeutralEventActivity extends AppCompatActivity {
                     return;
                 }
 
-                InventoryManager.removeItem(bag, gem);
+                gem.setCount(gem.getCount() - 1);
+                if (gem.getCount() <= 0) InventoryManager.removeItem(bag, gem);
                 InventoryManager.addItem(bag, upgraded);
 
                 String resultText = "雕像散发出耀眼的金色光芒...\n\n✅ "
@@ -1152,6 +1153,13 @@ public class NeutralEventActivity extends AppCompatActivity {
             holder.tvRarity.setText(gem.getRarity().getDisplayName());
             holder.tvRarity.setTextColor(gem.getRarity().getColor());
             GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, gem);
+            int c = gem.getCount();
+            if (c > 1) {
+                holder.tvCount.setVisibility(View.VISIBLE);
+                holder.tvCount.setText("×" + c);
+            } else {
+                holder.tvCount.setVisibility(View.GONE);
+            }
             holder.bgColor.setBackgroundTintList(null);
             android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
             if (bg != null) {
@@ -1170,13 +1178,14 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         static class VH extends RecyclerView.ViewHolder {
             View bgColor;
-            TextView tvRarity;
+            TextView tvRarity, tvCount;
             ImageView ivIcon;
 
             VH(View v) {
                 super(v);
                 bgColor = v.findViewById(R.id.bg_item_color);
                 tvRarity = v.findViewById(R.id.tv_item_rarity);
+                tvCount = v.findViewById(R.id.tv_bag_stack_count);
                 ivIcon = v.findViewById(R.id.iv_item_icon);
             }
         }
