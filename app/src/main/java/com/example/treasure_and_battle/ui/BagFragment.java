@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -71,11 +72,9 @@ public class BagFragment extends Fragment {
     private final int itemsPerPage = 25;
     @Nullable
     private EquipSlot currentFilterSlot = null;
-    private static final int BAG_GRID_COLUMNS = 5;
-    private static final int BAG_GRID_ROWS = 5;
-    private static final int BAG_CELL_MAX_DP = 68;
-    private static final int BAG_CELL_MIN_DP = 42;
-    private static final int BAG_CELL_SPACING_DP = 2;
+    private static final int BAG_GRID_COLUMNS = BagGridCellSizer.GRID_COLUMNS;
+    private static final int BAG_GRID_ROWS = BagGridCellSizer.GRID_ROWS;
+    private static final int BAG_CELL_SPACING_DP = BagGridCellSizer.CELL_SPACING_DP;
 
     private List<Item> allItems;
 
@@ -122,6 +121,9 @@ public class BagFragment extends Fragment {
 
     private ItemMenuProviderFactory menuProviderFactory;
 
+    private com.example.treasure_and_battle.model.item.gem.GemItem pendingGemItem;
+    private int pendingGemBagIndex = -1;
+
     private ImageView ivTachie;
     private TextView tvTachieName;
     private TextView tvTachieLevel;
@@ -154,7 +156,7 @@ public class BagFragment extends Fragment {
             bagBottomHalfRoot.setClipChildren(false);
             bagBottomHalfRoot.setClipToPadding(false);
         }
-        bagCellSizePx = dpToPx(68);
+        bagCellSizePx = 0;
 
         bindEquipSlots(view);
 
@@ -179,6 +181,7 @@ public class BagFragment extends Fragment {
         // 底栏用 hide/show 切换 Fragment 时，从隐藏变为显示会走这里，保证每次点进背包都拉最新数据
         if (!hidden) {
             refreshBagFromInventory();
+            applyBagGridCellSizeIfReady();
         }
     }
 
@@ -373,25 +376,31 @@ public class BagFragment extends Fragment {
                     ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
                     ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(
                             "确定要丢弃 " + item.getName() + " 吗？");
+                    View bagNeg = content.findViewById(R.id.btn_treasure_alert_negative);
+                    TextView bagPos = content.findViewById(R.id.btn_treasure_alert_positive);
+                    bagNeg.setVisibility(View.VISIBLE);
+                    ((TextView) bagNeg).setText("取消");
+                    bagPos.setText("确定");
                     AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                             .setView(content)
-                            .setPositiveButton("确定", (dialog, which) -> {
-                                int index = findItemIndex(item);
-                                if (index >= 0) {
-                                    allItems.set(index, null);
-                                }
-                                adapter.notifyDataSetChanged();
-                                persistSharedBagGridToInventory();
-                                showFloatMsg("已丢弃: " + item.getName());
-                            })
-                            .setNegativeButton("取消", null)
                             .create();
+                    bagNeg.setOnClickListener(v -> d.dismiss());
+                    bagPos.setOnClickListener(v -> {
+                        int index = findItemIndex(item);
+                        if (index >= 0) {
+                            allItems.set(index, null);
+                        }
+                        adapter.notifyDataSetChanged();
+                        persistSharedBagGridToInventory();
+                        showFloatMsg("已丢弃: " + item.getName());
+                        d.dismiss();
+                    });
                     d.show();
                     if (d.getWindow() != null) {
                         d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
                     }
                 }
-        );
+        , false);
         menuProviderFactory.registerEquipment(equipItem -> {
             int bagIndex = findItemIndex(equipItem);
             if (bagIndex >= 0) {
@@ -419,7 +428,14 @@ public class BagFragment extends Fragment {
                 showFloatMsg("已使用: " + consumableItem.getName());
             }
         });
-        menuProviderFactory.registerGem();
+        menuProviderFactory.registerGem(gemItem -> {
+            int bagIndex = findItemIndex(gemItem);
+            if (bagIndex < 0) return;
+            pendingGemItem = gemItem;
+            pendingGemBagIndex = bagIndex;
+            adapter.notifyDataSetChanged();
+            showFloatMsg("拖动宝石到装备上进行镶嵌");
+        });
         menuProviderFactory.registerMaterial();
     }
 
@@ -446,16 +462,68 @@ public class BagFragment extends Fragment {
         recyclerView.setLayoutManager(gridLayoutManager);
 
         adapter = new BagAdapter();
-        adapter.setCellSizePx(bagCellSizePx);
-        recyclerView.setAdapter(adapter);
         setupEquipToBagDropListener();
-        applyAdaptiveBagCellSize();
-        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+        gridBagContainer.addView(recyclerView);
+        scheduleBagGridCellSizeApply();
+        gridBagContainer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
-                applyAdaptiveBagCellSize();
+                applyBagGridCellSizeIfReady();
             }
         });
-        gridBagContainer.addView(recyclerView);
+    }
+
+    /** 在容器量好尺寸后再挂 Adapter，避免先用 68dp 上限画一帧再缩小。 */
+    private void scheduleBagGridCellSizeApply() {
+        if (gridBagContainer == null) {
+            return;
+        }
+        if (applyBagGridCellSizeIfReady()) {
+            return;
+        }
+        gridBagContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (applyBagGridCellSizeIfReady()) {
+                    gridBagContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyBagGridCellSizeIfReady() {
+        if (gridBagContainer == null || recyclerView == null || adapter == null) {
+            return false;
+        }
+        int width = gridBagContainer.getWidth()
+                - gridBagContainer.getPaddingLeft() - gridBagContainer.getPaddingRight();
+        int height = gridBagContainer.getHeight()
+                - gridBagContainer.getPaddingTop() - gridBagContainer.getPaddingBottom();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+
+        int resolved = BagGridCellSizer.resolveCellSizePx(getResources().getDisplayMetrics(), width, height);
+        if (resolved <= 0) {
+            return false;
+        }
+
+        boolean sizeChanged = resolved != bagCellSizePx;
+        bagCellSizePx = resolved;
+        adapter.setCellSizePx(bagCellSizePx);
+
+        int rvWidth = recyclerView.getWidth() > 0 ? recyclerView.getWidth() : width;
+        int hPad = BagGridCellSizer.horizontalPaddingPx(getResources().getDisplayMetrics(), rvWidth, bagCellSizePx);
+        int tbPad = dpToPx(4);
+        recyclerView.setPadding(hPad, tbPad, hPad, tbPad);
+        recyclerView.setClipToPadding(false);
+
+        if (recyclerView.getAdapter() == null) {
+            recyclerView.setAdapter(adapter);
+        } else if (sizeChanged) {
+            adapter.notifyItemRangeChanged(0, adapter.getItemCount(), "CELL_SIZE");
+        }
+        return true;
     }
 
     private void setupEquipToBagDropListener() {
@@ -565,38 +633,6 @@ public class BagFragment extends Fragment {
         return true;
     }
 
-    private void applyAdaptiveBagCellSize() {
-        recyclerView.post(() -> {
-            int width = recyclerView.getWidth();
-            int height = recyclerView.getHeight();
-            if (width <= 0 || height <= 0) return;
-
-            int spacing = dpToPx(BAG_CELL_SPACING_DP);
-            int horizontalSpace = spacing * 2 * BAG_GRID_COLUMNS;
-            int verticalSpace = spacing * 2 * BAG_GRID_ROWS;
-
-            int cellByWidth = (width - horizontalSpace) / BAG_GRID_COLUMNS;
-            int cellByHeight = (height - verticalSpace) / BAG_GRID_ROWS;
-            int maxCell = dpToPx(BAG_CELL_MAX_DP);
-            int minCell = dpToPx(BAG_CELL_MIN_DP);
-            int resolvedCell = Math.min(cellByWidth, cellByHeight);
-            resolvedCell = Math.min(maxCell, Math.max(minCell, resolvedCell));
-            if (resolvedCell <= 0) return;
-
-            if (resolvedCell != bagCellSizePx) {
-                bagCellSizePx = resolvedCell;
-                adapter.setCellSizePx(bagCellSizePx);
-                adapter.notifyDataSetChanged();
-            }
-
-            int totalCellWidth = (bagCellSizePx + spacing * 2) * BAG_GRID_COLUMNS;
-            int horizontalPadding = Math.max((width - totalCellWidth) / 2, 0);
-            int topBottomPadding = dpToPx(4);
-            recyclerView.setPadding(horizontalPadding, topBottomPadding, horizontalPadding, topBottomPadding);
-            recyclerView.setClipToPadding(false);
-        });
-    }
-
     private void bindEquipSlots(View root) {
         bindSingleEquipSlot(root, R.id.slot_weapon, "武器");
         bindSingleEquipSlot(root, R.id.slot_helmet, "头盔");
@@ -692,7 +728,6 @@ public class BagFragment extends Fragment {
 
         recyclerView.animate()
                 .translationX(direction * width)
-                .alpha(0f)
                 .setDuration(120)
                 .withEndAction(() -> {
                     if (isDragging) {
@@ -703,7 +738,6 @@ public class BagFragment extends Fragment {
                     recyclerView.setTranslationX(-direction * width);
                     recyclerView.animate()
                             .translationX(0)
-                            .alpha(1f)
                             .setDuration(120)
                             .start();
                 }).start();
@@ -938,11 +972,12 @@ public class BagFragment extends Fragment {
                     }
 
                     boolean handledEquipDrop = tryHandleDropToEquipSlot();
+                    boolean handledGemDrop = tryHandleGemDropToBagEquip();
                     if (dragStartPage != -1 && dragStartUiPosition != -1 && dragToUiPosition != -1) {
                         int realFrom = (dragStartPage - 1) * itemsPerPage + dragStartUiPosition;
                         int realTo = (currentPage - 1) * itemsPerPage + dragToUiPosition;
 
-                        if (!handledEquipDrop && realFrom != realTo) {
+                        if (!handledEquipDrop && !handledGemDrop && realFrom != realTo) {
                             Item temp = allItems.get(realFrom);
                             allItems.set(realFrom, allItems.get(realTo));
                             allItems.set(realTo, temp);
@@ -1122,6 +1157,18 @@ public class BagFragment extends Fragment {
         }
 
         Item sourceItem = allItems.get(sourceIndex);
+
+        if (sourceItem instanceof com.example.treasure_and_battle.model.item.gem.GemItem
+                && pendingGemItem == sourceItem) {
+            EquipItem targetEquip = equippedItems.get(targetSlotViewId);
+            if (targetEquip == null) {
+                showFloatMsg("该槽位没有装备");
+                cancelGemPending();
+                return true;
+            }
+            return executeGemSocket(pendingGemItem, targetEquip, sourceIndex);
+        }
+
         if (!(sourceItem instanceof EquipItem)) {
             showFloatMsg("只能把装备拖入装备栏");
             return true;
@@ -1140,6 +1187,40 @@ public class BagFragment extends Fragment {
         updateEquipSlotView(targetSlotViewId, draggedEquip);
 
         showFloatMsg("已装备: " + draggedEquip.getName());
+        return true;
+    }
+
+    private boolean tryHandleGemDropToBagEquip() {
+        if (pendingGemItem == null || dragStartPage == -1 || dragStartUiPosition == -1) {
+            return false;
+        }
+        int sourceIndex = (dragStartPage - 1) * itemsPerPage + dragStartUiPosition;
+        if (sourceIndex < 0 || sourceIndex >= allItems.size()) return false;
+
+        Item sourceItem = allItems.get(sourceIndex);
+        if (!(sourceItem instanceof com.example.treasure_and_battle.model.item.gem.GemItem)
+                || pendingGemItem != sourceItem) {
+            return false;
+        }
+
+        if (dragToUiPosition < 0 || dragToUiPosition >= itemsPerPage) {
+            cancelGemPending();
+            return true;
+        }
+
+        int targetIndex = (currentPage - 1) * itemsPerPage + dragToUiPosition;
+        if (targetIndex < 0 || targetIndex >= allItems.size() || targetIndex == sourceIndex) {
+            cancelGemPending();
+            return true;
+        }
+
+        Item targetItem = allItems.get(targetIndex);
+        if (targetItem instanceof EquipItem) {
+            return executeGemSocket(pendingGemItem, (EquipItem) targetItem, sourceIndex);
+        }
+
+        showFloatMsg("该物品不能镶嵌");
+        cancelGemPending();
         return true;
     }
 
@@ -1269,10 +1350,78 @@ public class BagFragment extends Fragment {
         slotLayout.addView(inner);
     }
 
+    private boolean executeGemSocket(com.example.treasure_and_battle.model.item.gem.GemItem gem,
+                                      EquipItem equip, int bagIndex) {
+        if (!equip.socketGem(gem)) {
+            showFloatMsg("宝石槽已满");
+            cancelGemPending();
+            return true;
+        }
+
+        allItems.set(bagIndex, null);
+        int slotViewId = findEquipSlotByEquipItem(equip);
+        if (slotViewId != -1) {
+            updateEquipSlotView(slotViewId, equip);
+            syncCharacterEquip(slotViewId, equip);
+        }
+        showFloatMsg("镶嵌成功: " + gem.getName());
+        cancelGemPending();
+        adapter.notifyDataSetChanged();
+        persistSharedBagGridToInventory();
+        return true;
+    }
+
+    private void cancelGemPending() {
+        if (pendingGemItem != null && pendingGemBagIndex >= 0) {
+            adapter.notifyItemChanged(pendingGemBagIndex % itemsPerPage, "GEM_CANCEL");
+        }
+        pendingGemItem = null;
+        pendingGemBagIndex = -1;
+    }
+
+    private int findEquipSlotByEquipItem(EquipItem eq) {
+        for (java.util.Map.Entry<Integer, EquipItem> entry : equippedItems.entrySet()) {
+            if (entry.getValue() == eq) return entry.getKey();
+        }
+        return -1;
+    }
+
+    private boolean hasDiamondDrill() {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return false;
+        for (Item it : ch.getBagItems()) {
+            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
+                    && "diamond_drill".equals(it.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void consumeDiamondDrill() {
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        if (ch == null) return;
+        java.util.List<Item> bag = ch.getBagItems();
+        for (Item it : bag) {
+            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
+                    && "diamond_drill".equals(it.getId())) {
+                if (it.getCount() > 1) {
+                    it.setCount(it.getCount() - 1);
+                } else {
+                    bag.remove(it);
+                }
+                return;
+            }
+        }
+    }
+
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
         popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
+            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+        }
         popupMenu.getMenu().add(0, 3, 0, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
@@ -1293,22 +1442,50 @@ public class BagFragment extends Fragment {
                 }
                 return true;
             }
+            if (menuItem.getItemId() == 4) {
+                if (item.getSocketedGems() == null || item.getSocketedGems().isEmpty()) {
+                    showFloatMsg("该装备没有宝石");
+                    return true;
+                }
+                if (!hasDiamondDrill()) {
+                    showFloatMsg("缺少金刚钻，无法拆卸宝石");
+                    return true;
+                }
+                com.example.treasure_and_battle.model.item.gem.GemItem removed =
+                        item.unsocketGem(item.getSocketedGems().size() - 1);
+                if (removed != null) {
+                    consumeDiamondDrill();
+                    allItems.set(findEmptyBagSlot(), removed);
+                    updateEquipSlotView(slotViewId, item);
+                    syncCharacterEquip(slotViewId, item);
+                    adapter.notifyDataSetChanged();
+                    persistSharedBagGridToInventory();
+                    showFloatMsg("已拆卸: " + removed.getName());
+                }
+                return true;
+            }
             if (menuItem.getItemId() == 3) {
                 String msg = item.getName() + "\n品质: " + item.getRarity().getDisplayName()
                         + "\n数量: " + item.getCount();
                 View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
                 ((TextView) content.findViewById(R.id.tv_treasure_alert_title)).setText("确认丢弃");
                 ((TextView) content.findViewById(R.id.tv_treasure_alert_message)).setText(msg);
+                View eqNeg = content.findViewById(R.id.btn_treasure_alert_negative);
+                TextView eqPos = content.findViewById(R.id.btn_treasure_alert_positive);
+                eqNeg.setVisibility(View.VISIBLE);
+                ((TextView) eqNeg).setText("取消");
+                eqPos.setText("确认丢弃");
                 AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                         .setView(content)
-                        .setPositiveButton("确认丢弃", (dialog, which) -> {
-                            equippedItems.remove(slotViewId);
-                            syncCharacterUnequip(slotViewId);
-                            updateEquipSlotView(slotViewId, null);
-                            showFloatMsg("已丢弃: " + item.getName());
-                        })
-                        .setNegativeButton("取消", null)
                         .create();
+                eqNeg.setOnClickListener(v -> d.dismiss());
+                eqPos.setOnClickListener(v -> {
+                    equippedItems.remove(slotViewId);
+                    syncCharacterUnequip(slotViewId);
+                    updateEquipSlotView(slotViewId, null);
+                    showFloatMsg("已丢弃: " + item.getName());
+                    d.dismiss();
+                });
                 d.show();
                 if (d.getWindow() != null) {
                     d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1321,14 +1498,19 @@ public class BagFragment extends Fragment {
     }
 
     private boolean tryPutIntoBag(Item item) {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        for (int i = 0; i < bagCapacity; i++) {
-            if (allItems.get(i) == null) {
-                allItems.set(i, item);
-                return true;
-            }
+        int idx = findEmptyBagSlot();
+        if (idx >= 0) {
+            allItems.set(idx, item);
+            return true;
         }
         return false;
+    }
+
+    private int findEmptyBagSlot() {
+        for (int i = 0; i < allItems.size(); i++) {
+            if (allItems.get(i) == null) return i;
+        }
+        return -1;
     }
 
     private void bindBagGridCellFrame(@NonNull View cellFrameRoot, @Nullable Item item) {
@@ -1439,6 +1621,20 @@ public class BagFragment extends Fragment {
             this.cellSizePx = cellSizePx;
         }
 
+        private void applyCellLayoutParams(@NonNull ViewHolder holder) {
+            if (cellSizePx <= 0) {
+                return;
+            }
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            if (lp instanceof RecyclerView.LayoutParams) {
+                RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) lp;
+                if (p.height != cellSizePx) {
+                    p.height = cellSizePx;
+                    holder.itemView.setLayoutParams(p);
+                }
+            }
+        }
+
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -1460,7 +1656,9 @@ public class BagFragment extends Fragment {
             }
 
             for (Object payload : payloads) {
-                if ("HOVER".equals(payload)) {
+                if ("CELL_SIZE".equals(payload)) {
+                    applyCellLayoutParams(holder);
+                } else if ("HOVER".equals(payload)) {
                     int pos = holder.getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION && shouldShowBagCellHoverScale(holder, pos)) {
                         holder.itemView.setScaleX(0.85f);
@@ -1480,6 +1678,7 @@ public class BagFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            applyCellLayoutParams(holder);
             int realPosition = (currentPage - 1) * itemsPerPage + position;
             Item sourceItem = allItems.get(realPosition);
             Item item = canDisplayByCurrentFilter(sourceItem) ? sourceItem : null;
@@ -1523,6 +1722,13 @@ public class BagFragment extends Fragment {
                     showItemMenu(v, realPosition, item);
                 }
             });
+
+            if (item instanceof com.example.treasure_and_battle.model.item.gem.GemItem
+                    && item == pendingGemItem) {
+                holder.itemView.setAlpha(0.35f);
+            } else {
+                holder.itemView.setAlpha(1.0f);
+            }
         }
 
         @Override

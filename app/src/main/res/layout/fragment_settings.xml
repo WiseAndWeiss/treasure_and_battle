@@ -198,5 +198,56 @@
         android:paddingEnd="10dp"
         android:paddingBottom="10dp"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_panel_treasure"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/btn_debug_gain_exp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="+500000经验"
+            android:textColor="@color/tb_battle"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btn_debug_gain_talent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="+20天赋点"
+            android:textColor="@color/tb_battle"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btn_debug_gain_skill"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="+20技能点"
+            android:textColor="@color/tb_battle"
+            android:textSize="13sp" />
+    </LinearLayout>
 
 </LinearLayout>

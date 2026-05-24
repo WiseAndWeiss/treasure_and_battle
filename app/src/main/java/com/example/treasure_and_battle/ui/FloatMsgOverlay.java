@@ -20,11 +20,11 @@ import java.util.Queue;
 
 /**
  * 非阻塞浮动消息组件，替换 Toast。
- * 消息添加到 Activity DecorView 顶部，带向上飘动 + 渐隐动画，最多 3 条并发。
+ * 消息添加到 Activity DecorView 顶部，带向上飘动动画，最多 3 条并发。
  */
 public final class FloatMsgOverlay {
 
-    private static final int MAX_VISIBLE = 3;
+    private static final int MAX_VISIBLE = 999; // 不限制数量，改为排队显示
     private static final long DEFAULT_DURATION_MS = 1200;
     private static final int FLY_UP_PX = 70;
     private static final int BG_COLOR = 0xA6323232;
@@ -136,14 +136,11 @@ public final class FloatMsgOverlay {
         tv.bringToFront();
         visibleCount++;
 
-        ObjectAnimator alpha = ObjectAnimator.ofFloat(tv, "alpha", 1f, 0f);
         ObjectAnimator transY = ObjectAnimator.ofFloat(tv, "translationY", 0f, -FLY_UP_PX * density);
-        alpha.setDuration(durationMs);
         transY.setDuration(durationMs);
-        alpha.start();
         transY.start();
 
-        alpha.addListener(new AnimatorListenerAdapter() {
+        transY.addListener(new AnimatorListenerAdapter() {
             private boolean removed;
 
             @Override

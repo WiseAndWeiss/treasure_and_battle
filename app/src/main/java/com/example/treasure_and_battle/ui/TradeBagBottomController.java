@@ -8,6 +8,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.appcompat.widget.PopupMenu;
@@ -55,11 +56,9 @@ public final class TradeBagBottomController {
     private final int itemsPerPage = 25;
     @Nullable
     private EquipSlot currentFilterSlot = null;
-    private static final int BAG_GRID_COLUMNS = 5;
-    private static final int BAG_GRID_ROWS = 5;
-    private static final int BAG_CELL_MAX_DP = 68;
-    private static final int BAG_CELL_MIN_DP = 42;
-    private static final int BAG_CELL_SPACING_DP = 2;
+    private static final int BAG_GRID_COLUMNS = BagGridCellSizer.GRID_COLUMNS;
+    private static final int BAG_GRID_ROWS = BagGridCellSizer.GRID_ROWS;
+    private static final int BAG_CELL_SPACING_DP = BagGridCellSizer.CELL_SPACING_DP;
 
     private List<Item> allItems;
 
@@ -104,7 +103,7 @@ public final class TradeBagBottomController {
         gridBagContainer = sectionRoot.findViewById(R.id.grid_bag_container);
         gridBagContainer.setClipChildren(false);
         gridBagContainer.setClipToPadding(false);
-        bagCellSizePx = dpToPx(68);
+        bagCellSizePx = 0;
 
         setupRecyclerView();
         setupPagination();
@@ -179,15 +178,68 @@ public final class TradeBagBottomController {
         recyclerView.setLayoutManager(gridLayoutManager);
 
         adapter = new BagAdapter();
-        adapter.setCellSizePx(bagCellSizePx);
-        recyclerView.setAdapter(adapter);
-        applyAdaptiveBagCellSize();
-        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+        gridBagContainer.addView(recyclerView);
+        scheduleBagGridCellSizeApply();
+        gridBagContainer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
-                applyAdaptiveBagCellSize();
+                applyBagGridCellSizeIfReady();
             }
         });
-        gridBagContainer.addView(recyclerView);
+    }
+
+    private void scheduleBagGridCellSizeApply() {
+        if (gridBagContainer == null) {
+            return;
+        }
+        if (applyBagGridCellSizeIfReady()) {
+            return;
+        }
+        gridBagContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (applyBagGridCellSizeIfReady()) {
+                    gridBagContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyBagGridCellSizeIfReady() {
+        if (gridBagContainer == null || recyclerView == null || adapter == null) {
+            return false;
+        }
+        int width = gridBagContainer.getWidth()
+                - gridBagContainer.getPaddingLeft() - gridBagContainer.getPaddingRight();
+        int height = gridBagContainer.getHeight()
+                - gridBagContainer.getPaddingTop() - gridBagContainer.getPaddingBottom();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+
+        int resolved = BagGridCellSizer.resolveCellSizePx(
+                host.getResources().getDisplayMetrics(), width, height);
+        if (resolved <= 0) {
+            return false;
+        }
+
+        boolean sizeChanged = resolved != bagCellSizePx;
+        bagCellSizePx = resolved;
+        adapter.setCellSizePx(bagCellSizePx);
+
+        int rvWidth = recyclerView.getWidth() > 0 ? recyclerView.getWidth() : width;
+        int hPad = BagGridCellSizer.horizontalPaddingPx(
+                host.getResources().getDisplayMetrics(), rvWidth, bagCellSizePx);
+        int tbPad = dpToPx(4);
+        recyclerView.setPadding(hPad, tbPad, hPad, tbPad);
+        recyclerView.setClipToPadding(false);
+
+        if (recyclerView.getAdapter() == null) {
+            recyclerView.setAdapter(adapter);
+        } else if (sizeChanged) {
+            adapter.notifyItemRangeChanged(0, adapter.getItemCount(), "CELL_SIZE");
+        }
+        return true;
     }
 
     /** 当前手指下的背包 UI 格是否应显示「缩小高亮」 */
@@ -206,38 +258,6 @@ public final class TradeBagBottomController {
         boolean isCrossPageStartTarget =
                 currentPage != dragStartPage && adapterPosition == dragStartUiPosition;
         return holder != currentDragHolder || isCrossPageStartTarget;
-    }
-
-    private void applyAdaptiveBagCellSize() {
-        recyclerView.post(() -> {
-            int width = recyclerView.getWidth();
-            int height = recyclerView.getHeight();
-            if (width <= 0 || height <= 0) return;
-
-            int spacing = dpToPx(BAG_CELL_SPACING_DP);
-            int horizontalSpace = spacing * 2 * BAG_GRID_COLUMNS;
-            int verticalSpace = spacing * 2 * BAG_GRID_ROWS;
-
-            int cellByWidth = (width - horizontalSpace) / BAG_GRID_COLUMNS;
-            int cellByHeight = (height - verticalSpace) / BAG_GRID_ROWS;
-            int maxCell = dpToPx(BAG_CELL_MAX_DP);
-            int minCell = dpToPx(BAG_CELL_MIN_DP);
-            int resolvedCell = Math.min(cellByWidth, cellByHeight);
-            resolvedCell = Math.min(maxCell, Math.max(minCell, resolvedCell));
-            if (resolvedCell <= 0) return;
-
-            if (resolvedCell != bagCellSizePx) {
-                bagCellSizePx = resolvedCell;
-                adapter.setCellSizePx(bagCellSizePx);
-                adapter.notifyDataSetChanged();
-            }
-
-            int totalCellWidth = (bagCellSizePx + spacing * 2) * BAG_GRID_COLUMNS;
-            int horizontalPadding = Math.max((width - totalCellWidth) / 2, 0);
-            int topBottomPadding = dpToPx(4);
-            recyclerView.setPadding(horizontalPadding, topBottomPadding, horizontalPadding, topBottomPadding);
-            recyclerView.setClipToPadding(false);
-        });
     }
 
     private void setupPagination() {
@@ -278,7 +298,6 @@ public final class TradeBagBottomController {
 
         recyclerView.animate()
                 .translationX(direction * width)
-                .alpha(0f)
                 .setDuration(120)
                 .withEndAction(() -> {
                     if (isDragging) {
@@ -289,7 +308,6 @@ public final class TradeBagBottomController {
                     recyclerView.setTranslationX(-direction * width);
                     recyclerView.animate()
                             .translationX(0)
-                            .alpha(1f)
                             .setDuration(120)
                             .start();
                 }).start();
@@ -765,6 +783,20 @@ public final class TradeBagBottomController {
             this.cellSizePx = cellSizePx;
         }
 
+        private void applyCellLayoutParams(@NonNull ViewHolder holder) {
+            if (cellSizePx <= 0) {
+                return;
+            }
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            if (lp instanceof RecyclerView.LayoutParams) {
+                RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) lp;
+                if (p.height != cellSizePx) {
+                    p.height = cellSizePx;
+                    holder.itemView.setLayoutParams(p);
+                }
+            }
+        }
+
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -787,7 +819,9 @@ public final class TradeBagBottomController {
             }
 
             for (Object payload : payloads) {
-                if ("HOVER".equals(payload)) {
+                if ("CELL_SIZE".equals(payload)) {
+                    applyCellLayoutParams(holder);
+                } else if ("HOVER".equals(payload)) {
                     int pos = holder.getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION && shouldShowBagCellHoverScale(holder, pos)) {
                         holder.itemView.setScaleX(0.85f);
@@ -808,6 +842,7 @@ public final class TradeBagBottomController {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            applyCellLayoutParams(holder);
             int realPosition = (currentPage - 1) * itemsPerPage + position;
             Item sourceItem = allItems.get(realPosition);
             Item item = canDisplayByCurrentFilter(sourceItem) ? sourceItem : null;

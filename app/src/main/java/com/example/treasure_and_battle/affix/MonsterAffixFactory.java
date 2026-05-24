@@ -16,31 +16,34 @@ import com.example.treasure_and_battle.model.common.ValueType;
 public class MonsterAffixFactory {
 
     public static BaseMonsterAffix create(MonsterAffixTemplate template, Rarity rarity,
-                                   TriggerType triggerType, float randomValue) {
+                                   TriggerType triggerType, float randomValue,
+                                   MonsterAffixTemplate.RarityParam param) {
         String affixClass = template.getAffixClass();
+        Rarity actualRarity = (param != null) ? Rarity.fromId(param.getRarityId()) : rarity;
 
         if ("com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix".equals(affixClass)) {
             AttributeType attributeType = AttributeType.valueOf(template.getAttributeType());
             ValueType valueType = parseValueType(template.getValueType());
             return new MonsterAttributeAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue, attributeType, valueType);
+                    actualRarity, triggerType, randomValue, attributeType, valueType);
         }
 
         if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix".equals(affixClass)) {
-            Integer buffTemplateId = template.getBuffTemplateId();
+            Integer buffTemplateId = param != null ? param.getBuffTemplateId() : null;
             if (buffTemplateId == null) {
                 throw new IllegalArgumentException(
                         "MonsterTriggerBuffAffix template missing buffTemplateId: " + template.getTemplateId());
             }
             AffixBuffApplyTarget applyTarget = parseApplyTarget(template.getApplyTarget());
-            int applyStacks = template.getApplyStacks() == null ? 1 : Math.max(1, template.getApplyStacks());
-            float damageToStackRatio = template.getDamageToStackRatio() == null
-                    ? 0f : Math.max(0f, template.getDamageToStackRatio());
+            int applyStacks = (param != null && param.getApplyStacks() != null)
+                    ? Math.max(1, param.getApplyStacks()) : 1;
+            float damageToStackRatio = (param != null && param.getDamageToStackRatio() != null)
+                    ? Math.max(0f, param.getDamageToStackRatio()) : 0f;
 
             return new MonsterTriggerBuffAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue,
+                    actualRarity, triggerType, randomValue,
                     buffTemplateId, applyTarget, applyStacks, damageToStackRatio);
         }
 
@@ -48,13 +51,14 @@ public class MonsterAffixFactory {
             AffixRecoverResourceType recoverResourceType = parseRecoverResourceType(
                     template.getRecoverResourceType());
             ValueType recoverValueType = parseValueType(template.getRecoverValueType());
-            int recoverValue = template.getRecoverValue() == null ? 0 : Math.max(0, template.getRecoverValue());
-            float damageToRecoverRatio = template.getDamageToRecoverRatio() == null
-                    ? 0f : Math.max(0f, template.getDamageToRecoverRatio());
+            int recoverValue = (param != null && param.getRecoverValue() != null)
+                    ? Math.max(0, param.getRecoverValue()) : 0;
+            float damageToRecoverRatio = (param != null && param.getDamageToRecoverRatio() != null)
+                    ? Math.max(0f, param.getDamageToRecoverRatio()) : 0f;
 
             return new MonsterTriggerRecoverAffix(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
-                    rarity, triggerType, randomValue,
+                    actualRarity, triggerType, randomValue,
                     recoverResourceType, recoverValueType, recoverValue, damageToRecoverRatio);
         }
 

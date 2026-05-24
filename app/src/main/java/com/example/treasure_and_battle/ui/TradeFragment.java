@@ -412,9 +412,12 @@ public class TradeFragment extends Fragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog);
         builder.setView(root);
-        builder.setNegativeButton("取消", null);
-        builder.setPositiveButton("购买", (d, w) -> tryPurchaseWithQuantity(listing, qtyHolder[0]));
         AlertDialog dialog = builder.create();
+        root.findViewById(R.id.btn_merchant_buy_cancel).setOnClickListener(v -> dialog.dismiss());
+        root.findViewById(R.id.btn_merchant_buy_confirm).setOnClickListener(v -> {
+            tryPurchaseWithQuantity(listing, qtyHolder[0]);
+            dialog.dismiss();
+        });
         dialog.show();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));

@@ -24,7 +24,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +58,7 @@ import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.utils.HtmlRenderUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -89,13 +89,31 @@ public class BattleFragment extends Fragment {
         AOE_HIGHLIGHT
     }
 
-    private static final class BuffLine {
-        final String title;
-        final String detail;
+    private enum CommandHighlight {
+        NONE,
+        ATTACK,
+        SKILL,
+        ITEM
+    }
 
-        BuffLine(String title, String detail) {
-            this.title = title;
-            this.detail = detail;
+    private static final class BuffLine {
+        final String name;
+        final int stacks;
+        final String detailBody;
+        final boolean placeholder;
+
+        BuffLine(@NonNull BaseBuff buff) {
+            name = buff.getBuffName();
+            stacks = Math.max(1, buff.getStackCount());
+            detailBody = BuffUiText.detailBody(buff);
+            placeholder = false;
+        }
+
+        BuffLine(@NonNull String emptyTitle, @NonNull String emptyDetail) {
+            name = emptyTitle;
+            stacks = 0;
+            detailBody = emptyDetail;
+            placeholder = true;
         }
     }
 
@@ -109,14 +127,25 @@ public class BattleFragment extends Fragment {
         void onPick(ActiveSkill skill);
     }
 
-    private static final int[] MONSTER_TEMPLATE_IDS = {1001, 2002};
-    private static final int[] MONSTER_SLOT_INDEX = {1, 2};
+    /** 小史莱姆 templateId=1001；演示战 5 格：0/1/3/4 为小史莱姆，2 为森林狼 */
+    private static final int SLIME_SMALL_TEMPLATE_ID = 1001;
+    private static final int[] MONSTER_TEMPLATE_IDS = {
+            SLIME_SMALL_TEMPLATE_ID,
+            SLIME_SMALL_TEMPLATE_ID,
+            2002,
+            SLIME_SMALL_TEMPLATE_ID,
+            SLIME_SMALL_TEMPLATE_ID
+    };
+    private static final int[] MONSTER_SLOT_INDEX = {0, 1, 2, 3, 4};
     private static final int[] MONSTER_ICONS = {
             R.drawable.ic_map,
             R.drawable.ic_map,
             R.drawable.ic_map,
             R.drawable.ic_map
     };
+    /** 仅放大立绘 ImageView，槽位/血条/名字布局尺寸不变 */
+    private static final float MONSTER_ICON_DISPLAY_SCALE = 1.6f;
+    private static final float MONSTER_ICON_DISPLAY_OFFSET_Y_DP = 32f;
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -131,6 +160,8 @@ public class BattleFragment extends Fragment {
     private TextView btnSkill;
     private TextView btnItem;
     private TextView btnEscape;
+    private TextView btnBack;
+    private CommandHighlight commandHighlight = CommandHighlight.NONE;
     private TextView btnConfirm;
     private TextView btnCancel;
     private BottomSheetDialog statsSheet;
@@ -156,6 +187,10 @@ public class BattleFragment extends Fragment {
     private View[] slotRoots = new View[5];
     private TextView[] slotMarkers = new TextView[5];
     private ImageView[] slotIcons = new ImageView[5];
+    /** 避免 refresh 时重复 bind 立绘导致全体贴图抖动 */
+    @Nullable
+    private final String[] slotBoundEntityIds = new String[5];
+    private final boolean[] slotDisplayScaleApplied = new boolean[5];
     private TextView[] slotNames = new TextView[5];
     private ProgressBar[] slotHps = new ProgressBar[5];
     private TextView[] slotHpVals = new TextView[5];
@@ -234,15 +269,19 @@ public class BattleFragment extends Fragment {
             btnEndTurn.setOnClickListener(v -> onEndTurnClicked());
         }
 
-        view.findViewById(R.id.btn_battle_back).setOnClickListener(v -> onBackPressed());
         btnAttack = view.findViewById(R.id.btn_battle_attack);
         btnSkill = view.findViewById(R.id.btn_battle_skill);
         btnItem = view.findViewById(R.id.btn_battle_item);
         btnEscape = view.findViewById(R.id.btn_battle_escape);
+        btnBack = view.findViewById(R.id.btn_battle_back);
         btnAttack.setOnClickListener(v -> onAttackCommand());
         btnSkill.setOnClickListener(v -> onSkillCommand());
         btnItem.setOnClickListener(v -> onItemCommand());
         btnEscape.setOnClickListener(v -> onEscape());
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
+        applyCommandButtonStyles();
         btnConfirm = view.findViewById(R.id.btn_battle_confirm);
         btnCancel = view.findViewById(R.id.btn_battle_cancel);
         btnConfirm.setOnClickListener(v -> onConfirmClick());
@@ -253,6 +292,14 @@ public class BattleFragment extends Fragment {
         rvBuffs.setAdapter(buffAdapter);
 
         monsterArea = view.findViewById(R.id.monster_area);
+        disableViewGroupClipping(monsterArea);
+        for (View slotRoot : slotRoots) {
+            disableViewGroupClipping(slotRoot);
+            if (slotRoot != null) {
+                View spriteHost = slotRoot.findViewById(R.id.fl_monster_sprite);
+                disableViewGroupClipping(spriteHost);
+            }
+        }
         damageNumberOverlay = new DamageNumberOverlay(monsterArea);
         FrameLayout decor = (FrameLayout) requireActivity().getWindow().getDecorView();
         tachieDamageOverlay = new DamageNumberOverlay(decor);
@@ -312,32 +359,15 @@ public class BattleFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, bannerH);
         params.gravity = android.view.Gravity.CENTER;
         banner.setLayoutParams(params);
-        banner.setAlpha(0f);
 
         monsterArea.addView(banner);
 
-        android.animation.ObjectAnimator fadeIn = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 0f, 1f);
-        fadeIn.setDuration(200);
-        fadeIn.addListener(new android.animation.AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                mainHandler.postDelayed(() -> {
-                    android.animation.ObjectAnimator fadeOut = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 1f, 0f);
-                    fadeOut.setDuration(600);
-                    fadeOut.addListener(new android.animation.AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(android.animation.Animator animation) {
-                            if (banner.getParent() != null) {
-                                ((ViewGroup) banner.getParent()).removeView(banner);
-                            }
-                            onDone.run();
-                        }
-                    });
-                    fadeOut.start();
-                }, 1200);
+        mainHandler.postDelayed(() -> {
+            if (banner.getParent() != null) {
+                ((ViewGroup) banner.getParent()).removeView(banner);
             }
-        });
-        fadeIn.start();
+            onDone.run();
+        }, 1400);
     }
 
     private void showRoundBanner(int round, Runnable onDone) {
@@ -361,32 +391,15 @@ public class BattleFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, bannerH);
         params.gravity = android.view.Gravity.CENTER;
         banner.setLayoutParams(params);
-        banner.setAlpha(0f);
 
         monsterArea.addView(banner);
 
-        android.animation.ObjectAnimator fadeIn = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 0f, 1f);
-        fadeIn.setDuration(200);
-        fadeIn.addListener(new android.animation.AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                mainHandler.postDelayed(() -> {
-                    android.animation.ObjectAnimator fadeOut = android.animation.ObjectAnimator.ofFloat(banner, "alpha", 1f, 0f);
-                    fadeOut.setDuration(600);
-                    fadeOut.addListener(new android.animation.AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(android.animation.Animator animation) {
-                            if (banner.getParent() != null) {
-                                ((ViewGroup) banner.getParent()).removeView(banner);
-                            }
-                            onDone.run();
-                        }
-                    });
-                    fadeOut.start();
-                }, 1000);
+        mainHandler.postDelayed(() -> {
+            if (banner.getParent() != null) {
+                ((ViewGroup) banner.getParent()).removeView(banner);
             }
-        });
-        fadeIn.start();
+            onDone.run();
+        }, 1000);
     }
 
     private void scheduleFinishBattleAfterViewReady(@NonNull View root) {
@@ -423,6 +436,7 @@ public class BattleFragment extends Fragment {
             battleContext = BattleSessionHolder.getSuspended();
             player = battleContext != null ? battleContext.player : null;
             if (battleContext != null && player != null) {
+                clearMonsterSlotBindCache();
                 return;
             }
         }
@@ -449,6 +463,14 @@ public class BattleFragment extends Fragment {
         battleContext = battleManager.bootstrapBattleForUi(player, monsters,
                 BattleContext.SurpriseDirection.NONE, false);
         BattleSessionHolder.setSuspended(battleContext);
+        clearMonsterSlotBindCache();
+    }
+
+    private void clearMonsterSlotBindCache() {
+        for (int i = 0; i < 5; i++) {
+            slotBoundEntityIds[i] = null;
+            slotDisplayScaleApplied[i] = false;
+        }
     }
 
     @Nullable
@@ -471,9 +493,7 @@ public class BattleFragment extends Fragment {
                 if (b == null) {
                     continue;
                 }
-                int dur = b.getRemainingDuration();
-                String title = b.getBuffName() + (dur > 0 ? " · " + dur + " 回合" : "");
-                buffLines.add(new BuffLine(title, "层数 " + b.getStackCount()));
+                buffLines.add(new BuffLine(b));
             }
         }
         if (buffLines.isEmpty()) {
@@ -531,6 +551,60 @@ public class BattleFragment extends Fragment {
         }
     }
 
+    /**
+     * 战斗中使用道具时，仅当存在「对单体敌人」的伤害类效果时才需要点选怪物；
+     * 治疗/增益/净化/逃跑、全体伤害、无配置效果（走名称兜底治疗）等均直接作用于己方或全体，无需选怪。
+     */
+    private static boolean battleConsumableNeedsMonsterTarget(@NonNull ConsumableItem item) {
+        List<ConsumableItem.Effect> effects = item.getEffects();
+        if (effects == null || effects.isEmpty()) {
+            return false;
+        }
+        for (ConsumableItem.Effect e : effects) {
+            if (e.type == ConsumableItem.EffectType.DAMAGE) {
+                if (e.target == ConsumableItem.Target.ALL_ENEMIES) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 使用道具前需已按需设置 {@link BattleContext#currentTarget}（单体敌伤需要，否则可为 null）。
+     */
+    private boolean applyBattleConsumableUseCore(@NonNull ConsumableItem consumable) {
+        if (!player.consumeActionPoints(1)) {
+            showFloatMsg("行动点不足");
+            return false;
+        }
+        boolean hasEffects = consumable.getEffects() != null
+                && !consumable.getEffects().isEmpty();
+        consumeOneFromBag(consumable, null);
+        mainHandler.postDelayed(() -> {
+            if (!isAdded()) return;
+            clearPending();
+            setHint("");
+            afterPlayerActionUi(() -> {
+                boolean ok;
+                if (hasEffects) {
+                    ok = ConsumableManager.execute(player, battleContext, consumable, requireContext());
+                } else {
+                    applyFallbackBattleConsumable(consumable);
+                    ok = true;
+                }
+                if (!ok) {
+                    showFloatMsg("无法使用该道具");
+                    return;
+                }
+                battleManager.checkDeath(battleContext);
+            });
+        }, 350);
+        showFloatMsg("已使用：" + consumable.getName());
+        return true;
+    }
+
     private void bindPlayerPanel() {
         if (player == null) {
             return;
@@ -560,16 +634,101 @@ public class BattleFragment extends Fragment {
         return cur + " / " + max;
     }
 
+    private static void disableViewGroupClipping(@Nullable View view) {
+        if (!(view instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup group = (ViewGroup) view;
+        group.setClipChildren(false);
+        group.setClipToPadding(false);
+    }
+
     private void bindAllMonsterSlots() {
         for (int i = 0; i < 5; i++) {
             bindMonsterSlot(i);
         }
     }
 
+    @Nullable
+    private View monsterSpriteAnimTarget(int slotIdx) {
+        if (slotIdx < 0 || slotIdx >= slotIcons.length) {
+            return null;
+        }
+        ImageView icon = slotIcons[slotIdx];
+        return icon != null ? icon : slotRoots[slotIdx];
+    }
+
+    private void resetMonsterSlotTransforms(int i, boolean clearIconDisplayTransform) {
+        View root = slotRoots[i];
+        if (root == null) {
+            return;
+        }
+        root.animate().cancel();
+        root.setTranslationX(0f);
+        root.setTranslationY(0f);
+        root.setScaleX(1f);
+        root.setScaleY(1f);
+        if (slotIcons[i] != null) {
+            slotIcons[i].animate().cancel();
+            slotIcons[i].setTranslationX(0f);
+            if (clearIconDisplayTransform) {
+                slotIcons[i].setTranslationY(0f);
+                slotIcons[i].setScaleX(1f);
+                slotIcons[i].setScaleY(1f);
+            }
+            slotIcons[i].setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+    }
+
+    private void resolveMonsterIconLayoutSize(int slotIndex, @NonNull ImageView icon, @NonNull int[] outSize) {
+        int w = icon.getWidth();
+        int h = icon.getHeight();
+        if (w > 0 && h > 0) {
+            outSize[0] = w;
+            outSize[1] = h;
+            return;
+        }
+        View root = slotRoots[slotIndex];
+        if (root != null) {
+            View host = root.findViewById(R.id.fl_monster_sprite);
+            if (host != null && host.getWidth() > 0 && host.getHeight() > 0) {
+                outSize[0] = host.getWidth();
+                outSize[1] = host.getHeight();
+                return;
+            }
+        }
+        float density = icon.getResources().getDisplayMetrics().density;
+        outSize[0] = Math.round(148f * density);
+        outSize[1] = Math.round(108f * density);
+    }
+
+    private void applyMonsterIconDisplayScale(int i) {
+        ImageView icon = slotIcons[i];
+        if (icon == null) {
+            return;
+        }
+        icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int[] size = new int[2];
+        resolveMonsterIconLayoutSize(i, icon, size);
+        icon.setPivotX(size[0] / 2f);
+        icon.setPivotY(size[1]);
+        icon.setScaleX(MONSTER_ICON_DISPLAY_SCALE);
+        icon.setScaleY(MONSTER_ICON_DISPLAY_SCALE);
+        float offsetPx = MONSTER_ICON_DISPLAY_OFFSET_Y_DP
+                * icon.getResources().getDisplayMetrics().density;
+        icon.setTranslationY(offsetPx);
+    }
+
     private void bindMonsterSlot(int i) {
         Monster m = monsterAtSlot(i);
         View root = slotRoots[i];
+        if (root == null || slotIcons[i] == null) {
+            return;
+        }
         if (m == null) {
+            slotBoundEntityIds[i] = null;
+            slotDisplayScaleApplied[i] = false;
+            resetMonsterSlotTransforms(i, true);
             root.setAlpha(0.4f);
             root.setClickable(false);
             slotIcons[i].setVisibility(View.INVISIBLE);
@@ -585,12 +744,23 @@ public class BattleFragment extends Fragment {
             return;
         }
 
+        String entityId = m.getEntityId();
+        boolean sameMonster = entityId != null && entityId.equals(slotBoundEntityIds[i]);
+        if (!sameMonster) {
+            resetMonsterSlotTransforms(i, false);
+            slotBoundEntityIds[i] = entityId;
+            slotDisplayScaleApplied[i] = false;
+        }
+
         int iconRes = iconForMonsterSlot(i);
         if (!m.isDead()) {
             root.setAlpha(1f);
             root.setClickable(true);
             slotIcons[i].setVisibility(View.VISIBLE);
-            GameAssetIcons.bindMonster(requireContext(), slotIcons[i], m.getEntityId(), iconRes);
+            if (!sameMonster) {
+                slotIcons[i].setScaleType(ImageView.ScaleType.FIT_CENTER);
+                GameAssetIcons.bindMonster(requireContext(), slotIcons[i], entityId, iconRes);
+            }
             slotNames[i].setText(m.getName());
             int maxHp = Math.max(1, m.getFinalAttributes().maxHp);
             slotHps[i].setMax(maxHp);
@@ -604,7 +774,10 @@ public class BattleFragment extends Fragment {
             root.setAlpha(0.45f);
             root.setClickable(false);
             slotIcons[i].setVisibility(View.VISIBLE);
-            GameAssetIcons.bindMonster(requireContext(), slotIcons[i], m.getEntityId(), iconRes);
+            if (!sameMonster) {
+                slotIcons[i].setScaleType(ImageView.ScaleType.FIT_CENTER);
+                GameAssetIcons.bindMonster(requireContext(), slotIcons[i], entityId, iconRes);
+            }
             slotNames[i].setText("已击倒");
             int maxHpDead = Math.max(1, m.getFinalAttributes().maxHp);
             slotHps[i].setMax(maxHpDead);
@@ -616,6 +789,11 @@ public class BattleFragment extends Fragment {
             if (slotIntents[i] != null) {
                 slotIntents[i].setVisibility(View.GONE);
             }
+        }
+
+        if (!slotDisplayScaleApplied[i]) {
+            applyMonsterIconDisplayScale(i);
+            slotDisplayScaleApplied[i] = true;
         }
     }
 
@@ -711,6 +889,29 @@ public class BattleFragment extends Fragment {
         hideConfirmCancelButtons();
         refreshTargetMarkers();
         setHint("");
+        setCommandHighlight(CommandHighlight.NONE);
+    }
+
+    private void setCommandHighlight(@NonNull CommandHighlight highlight) {
+        commandHighlight = highlight;
+        applyCommandButtonStyles();
+    }
+
+    private void applyCommandButtonStyles() {
+        applyCommandButtonStyle(btnAttack, commandHighlight == CommandHighlight.ATTACK);
+        applyCommandButtonStyle(btnSkill, commandHighlight == CommandHighlight.SKILL);
+        applyCommandButtonStyle(btnItem, commandHighlight == CommandHighlight.ITEM);
+        applyCommandButtonStyle(btnEscape, false);
+        applyCommandButtonStyle(btnBack, false);
+    }
+
+    private void applyCommandButtonStyle(@Nullable TextView button, boolean selected) {
+        if (button == null) {
+            return;
+        }
+        button.setBackgroundResource(selected ? R.drawable.bg_tab_active : R.drawable.bg_tab_idle);
+        int colorRes = selected ? R.color.tb_bg_dark : R.color.tb_text_main;
+        button.setTextColor(requireContext().getColor(colorRes));
     }
 
     private void showConfirmCancelButtons() {
@@ -729,6 +930,7 @@ public class BattleFragment extends Fragment {
         }
         clearPending();
         pendingMode = PendingMode.PICK_SINGLE_ATTACK;
+        setCommandHighlight(CommandHighlight.ATTACK);
         setHint("点击敌人普攻（消耗 1 AP）");
     }
 
@@ -737,10 +939,12 @@ public class BattleFragment extends Fragment {
             return;
         }
         clearPending();
+        setCommandHighlight(CommandHighlight.SKILL);
         Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
         Profession prof = ch.getProfession();
         if (prof == null) {
             showFloatMsg("职业数据异常");
+            setCommandHighlight(CommandHighlight.NONE);
             return;
         }
 
@@ -758,6 +962,7 @@ public class BattleFragment extends Fragment {
 
         if (skills.isEmpty()) {
             showFloatMsg("没有已学习的主动技能");
+            setCommandHighlight(CommandHighlight.NONE);
             return;
         }
 
@@ -767,12 +972,13 @@ public class BattleFragment extends Fragment {
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setNegativeButton("取消", null)
                 .create();
+        content.findViewById(R.id.btn_battle_skills_pick_cancel).setOnClickListener(v -> dialog.dismiss());
 
         SkillPickAdapter adapter = new SkillPickAdapter(skills, skill -> {
             dialog.dismiss();
             SkillRangeType rt = skill.getSkillRangeType();
+            setCommandHighlight(CommandHighlight.SKILL);
             if (rt == SkillRangeType.SINGLE_ENEMY) {
                 pendingMode = PendingMode.PICK_SINGLE_SKILL;
                 pendingActiveSkill = skill;
@@ -786,6 +992,11 @@ public class BattleFragment extends Fragment {
             }
         });
         rv.setAdapter(adapter);
+        dialog.setOnDismissListener(d -> {
+            if (pendingMode == PendingMode.NONE) {
+                setCommandHighlight(CommandHighlight.NONE);
+            }
+        });
         dialog.show();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -826,21 +1037,22 @@ public class BattleFragment extends Fragment {
             showFloatMsg("无法释放（冷却/行动点/魔法/生命不足）");
             return;
         }
+        List<BattleEntity> targets;
         try {
-            List<BattleEntity> targets =
-                    SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
-            if (targets.isEmpty() && skill.getSkillRangeType() != SkillRangeType.NONE) {
-                showFloatMsg("没有可选目标");
-                return;
-            }
-            battleManager.executeSkill(player, skill, targets, battleContext);
+            targets = SkillTargetResolver.resolve(skill.getSkillRangeType(), player, battleContext);
         } catch (Exception e) {
             showFloatMsg("技能释放失败: " + e.getMessage());
             return;
         }
+        if (targets.isEmpty() && skill.getSkillRangeType() != SkillRangeType.NONE) {
+            showFloatMsg("没有可选目标");
+            return;
+        }
 
-        battleManager.checkDeath(battleContext);
-        afterPlayerActionUi();
+        afterPlayerActionUi(() -> {
+            battleManager.executeSkill(player, skill, targets, battleContext);
+            battleManager.checkDeath(battleContext);
+        });
     }
 
     private void onItemCommand() {
@@ -849,11 +1061,13 @@ public class BattleFragment extends Fragment {
         }
         clearPending();
         setHint("");
+        setCommandHighlight(CommandHighlight.ITEM);
 
         InventoryGridSync.reloadSharedGridFromManager(requireContext());
         List<ConsumableItem> usable = collectUsableBattleConsumables();
         if (usable.isEmpty()) {
             showFloatMsg("背包中没有可在战斗中使用的道具");
+            setCommandHighlight(CommandHighlight.NONE);
             return;
         }
 
@@ -867,16 +1081,35 @@ public class BattleFragment extends Fragment {
                 itemUseDialog = null;
             }
             clearPending();
-            pendingMode = PendingMode.PICK_SINGLE_ITEM;
-            pendingConsumableItem = item;
-            setHint("点击目标使用道具：" + item.getName());
+            if (battleConsumableNeedsMonsterTarget(item)) {
+                pendingMode = PendingMode.PICK_SINGLE_ITEM;
+                pendingConsumableItem = item;
+                setCommandHighlight(CommandHighlight.ITEM);
+                setHint("点击目标使用道具：" + item.getName());
+            } else {
+                battleContext.currentTarget = null;
+                if (!applyBattleConsumableUseCore(item)) {
+                    setHint("");
+                }
+            }
         });
         rv.setAdapter(adapterHolder[0]);
 
         itemUseDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setNegativeButton("关闭", (d, w) -> itemUseDialog = null)
                 .create();
+        content.findViewById(R.id.btn_battle_items_close).setOnClickListener(v -> {
+            if (itemUseDialog != null) {
+                itemUseDialog.dismiss();
+            }
+            itemUseDialog = null;
+        });
+        itemUseDialog.setOnDismissListener(d -> {
+            itemUseDialog = null;
+            if (pendingMode == PendingMode.NONE) {
+                setCommandHighlight(CommandHighlight.NONE);
+            }
+        });
         itemUseDialog.show();
         if (itemUseDialog.getWindow() != null) {
             itemUseDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -948,20 +1181,19 @@ public class BattleFragment extends Fragment {
             setHint("");
             return;
         }
-        boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
-        if (!ok) {
-            clearPending();
-            setHint("");
-            showFloatMsg("无法普攻（资源不足）");
-            return;
-        }
-        battleManager.checkDeath(battleContext);
         hideConfirmCancelButtons();
         mainHandler.postDelayed(() -> {
             if (!isAdded()) return;
             clearPending();
             setHint("");
-            afterPlayerActionUi();
+            afterPlayerActionUi(() -> {
+                boolean ok = battleManager.submitBattleAction(battleContext, BattleAction.normalAttack(player, m));
+                if (!ok) {
+                    showFloatMsg("无法普攻（资源不足）");
+                    return;
+                }
+                battleManager.checkDeath(battleContext);
+            });
         }, 350);
     }
 
@@ -1004,38 +1236,14 @@ public class BattleFragment extends Fragment {
             setHint("");
             return;
         }
-        if (!player.consumeActionPoints(1)) {
-            showFloatMsg("行动点不足");
-            clearPending();
-            setHint("");
-            return;
-        }
         battleContext.currentTarget = m;
-        boolean hasEffects = pendingConsumableItem.getEffects() != null
-                && !pendingConsumableItem.getEffects().isEmpty();
-        boolean ok;
-        if (hasEffects) {
-            ok = ConsumableManager.execute(player, battleContext, pendingConsumableItem, requireContext());
-        } else {
-            applyFallbackBattleConsumable(pendingConsumableItem);
-            ok = true;
-        }
+        boolean ok = applyBattleConsumableUseCore(pendingConsumableItem);
         if (!ok) {
-            player.setCurrentActionPoints(player.getCurrentActionPoints() + 1);
-            showFloatMsg("无法使用该道具");
             clearPending();
             setHint("");
             return;
         }
-        consumeOneFromBag(pendingConsumableItem, null);
         hideConfirmCancelButtons();
-        mainHandler.postDelayed(() -> {
-            if (!isAdded()) return;
-            clearPending();
-            setHint("");
-            afterPlayerActionUi();
-        }, 350);
-        showFloatMsg("已使用：" + pendingConsumableItem.getName());
     }
 
     private void onMonsterSlotClick(int index) {
@@ -1082,9 +1290,13 @@ public class BattleFragment extends Fragment {
         return true;
     }
 
-    /** 玩家行动后刷新 UI；需要玩家主动点击"结束回合"来推进。 */
-    private void afterPlayerActionUi() {
+    private void afterPlayerActionUi(@Nullable Runnable applyDamage) {
         animatePlayerAttack(() -> {
+            if (applyDamage != null) {
+                applyDamage.run();
+            }
+            feedbackMonsterDodgeAfterPlayerHit();
+        }, () -> {
             refreshBattleUi();
             if (battleContext.isBattleEnded) {
                 finishBattleAndExit();
@@ -1092,8 +1304,120 @@ public class BattleFragment extends Fragment {
         });
     }
 
-    private void animatePlayerAttack(Runnable onDone) {
+    /** 玩家攻击/技能等对怪物未命中时：怪物槽位上跳回落 + MISS 浮字 */
+    private void feedbackMonsterDodgeAfterPlayerHit() {
+        if (battleContext == null || !battleContext.isDodged) {
+            return;
+        }
+        BattleEntity target = battleContext.currentTarget;
+        if (!(target instanceof Monster)) {
+            return;
+        }
+        Monster m = (Monster) target;
+        int slotIdx = findMonsterSlotIndex(m);
+        if (slotIdx < 0) {
+            return;
+        }
+        showMonsterMissAtSlot(slotIdx);
+        animateMonsterDodge(slotIdx, null);
+    }
+
+    private void showMonsterMissAtSlot(int slotIdx) {
+        if (!isAdded() || damageNumberOverlay == null || monsterArea == null) {
+            return;
+        }
+        View sprite = monsterSpriteAnimTarget(slotIdx);
+        if (sprite == null) {
+            return;
+        }
+        int[] loc = new int[2];
+        sprite.getLocationOnScreen(loc);
+        int[] parentLoc = new int[2];
+        monsterArea.getLocationOnScreen(parentLoc);
+        int cx = loc[0] - parentLoc[0] + sprite.getWidth() / 2;
+        int cy = loc[1] - parentLoc[1] + sprite.getHeight() / 2;
+        damageNumberOverlay.showMissOffset(cx, cy);
+    }
+
+    /** 怪物攻击未命中玩家时：立绘先下沉再回位 + 白色 MISS 浮字 */
+    private void feedbackPlayerDodgeAfterMonsterHit() {
+        if (battleContext == null || !battleContext.isDodged || player == null) {
+            return;
+        }
+        BattleEntity target = battleContext.currentTarget;
+        if (target != player) {
+            return;
+        }
+        showPlayerMiss();
+        animatePlayerDodge(null);
+    }
+
+    private void showPlayerMiss() {
+        if (!isAdded() || tachieDamageOverlay == null || ivBattleTachie == null) {
+            return;
+        }
+        android.app.Activity act = getActivity();
+        if (act == null || act.isFinishing() || act.isDestroyed()) {
+            return;
+        }
+        int[] center = tachieOverlayCenterInDecor(act);
+        if (center == null) {
+            return;
+        }
+        tachieDamageOverlay.showMissOffset(center[0], center[1]);
+    }
+
+    @Nullable
+    private int[] tachieOverlayCenterInDecor(@NonNull android.app.Activity act) {
+        FrameLayout decor = (FrameLayout) act.getWindow().getDecorView();
+        int[] loc = new int[2];
+        ivBattleTachie.getLocationOnScreen(loc);
+        int[] parentLoc = new int[2];
+        decor.getLocationOnScreen(parentLoc);
+        int cx = loc[0] - parentLoc[0] + ivBattleTachie.getWidth() / 2;
+        int cy = loc[1] - parentLoc[1] + ivBattleTachie.getHeight() / 3;
+        return new int[]{cx, cy};
+    }
+
+    /** 玩家闪避：先下沉再回位（与怪物进攻动画同向，表示蹲闪） */
+    private void animatePlayerDodge(@Nullable Runnable onDone) {
         if (ivBattleTachie == null) {
+            if (onDone != null) {
+                onDone.run();
+            }
+            return;
+        }
+        ivBattleTachie.animate().cancel();
+        ivBattleTachie.setTranslationY(0f);
+        float density = ivBattleTachie.getResources().getDisplayMetrics().density;
+        float downOffset = 24f * density;
+
+        android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
+                ivBattleTachie, "translationY", 0f, downOffset);
+        down.setDuration(250);
+        down.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(
+                        ivBattleTachie, "translationY", downOffset, 0f);
+                up.setDuration(250);
+                up.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        if (onDone != null) {
+                            onDone.run();
+                        }
+                    }
+                });
+                up.start();
+            }
+        });
+        down.start();
+    }
+
+    private void animatePlayerAttack(@Nullable Runnable onPeak, @NonNull Runnable onDone) {
+        if (ivBattleTachie == null) {
+            if (onPeak != null) onPeak.run();
             onDone.run();
             return;
         }
@@ -1106,6 +1430,7 @@ public class BattleFragment extends Fragment {
         up.addListener(new android.animation.AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
+                if (onPeak != null) onPeak.run();
                 android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
                         ivBattleTachie, "translationY", -upOffset, 0f);
                 down.setDuration(250);
@@ -1157,6 +1482,13 @@ public class BattleFragment extends Fragment {
 
         btnSkill.setAlpha(1f);
         btnSkill.setEnabled(true);
+
+        if (btnBack != null) {
+            btnBack.setAlpha(1f);
+            btnBack.setEnabled(true);
+        }
+
+        applyCommandButtonStyles();
     }
 
     private void updateEndTurnButton() {
@@ -1217,20 +1549,25 @@ public class BattleFragment extends Fragment {
             if (isEndTurn) endTurnCooldown = false;
             if (m != null) {
                 int slotIdx = findMonsterSlotIndex(m);
-                animateMonsterAttack(m, slotIdx, () -> {
-                    refreshBattleUi();
-                    playerInputLocked = true;
-                    showRoundBanner(roundAfter, () -> {
-                        if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
-                            playerInputLocked = false;
-                            if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
-                            return;
-                        }
-                        playerInputLocked = false;
+                animateMonsterAttack(m, slotIdx,
+                    () -> {
+                        battleManager.executePendingMonsterAction(battleContext);
+                        feedbackPlayerDodgeAfterMonsterHit();
+                    },
+                    () -> {
                         refreshBattleUi();
-                        runMonsterTurnsStepped();
+                        playerInputLocked = true;
+                        showRoundBanner(roundAfter, () -> {
+                            if (!isAdded() || battleContext == null || battleContext.isBattleEnded) {
+                                playerInputLocked = false;
+                                if (battleContext != null && battleContext.isBattleEnded) finishBattleAndExit();
+                                return;
+                            }
+                            playerInputLocked = false;
+                            refreshBattleUi();
+                            runMonsterTurnsStepped();
+                        });
                     });
-                });
             } else {
                 playerInputLocked = true;
                 refreshBattleUi();
@@ -1254,35 +1591,85 @@ public class BattleFragment extends Fragment {
             return;
         }
         int slotIdx = findMonsterSlotIndex(m);
-        animateMonsterAttack(m, slotIdx, () -> {
-            refreshBattleUi();
-            if (playerDead) {
-                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
-                return;
-            }
-            if (battleContext.isBattleEnded) {
-                mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
-                return;
-            }
-            mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
-        });
+        animateMonsterAttack(m, slotIdx,
+            () -> {
+                battleManager.executePendingMonsterAction(battleContext);
+                feedbackPlayerDodgeAfterMonsterHit();
+            },
+            () -> {
+                refreshBattleUi();
+                if (playerDead) {
+                    mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                    return;
+                }
+                if (battleContext.isBattleEnded) {
+                    mainHandler.postDelayed(() -> finishBattleAndExit(), 400);
+                    return;
+                }
+                mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
+            });
     }
 
-    private void animateMonsterAttack(Monster m, int slotIdx, Runnable onDone) {
-        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) {
+    /** 怪物闪避：先上跳再落回（与玩家立绘攻击动画同向，表示躲开） */
+    private void animateMonsterDodge(int slotIdx, @Nullable Runnable onDone) {
+        View sprite = monsterSpriteAnimTarget(slotIdx);
+        if (sprite == null) {
+            if (onDone != null) {
+                onDone.run();
+            }
+            return;
+        }
+        float baseTranslationY = sprite.getTranslationY();
+        sprite.animate().cancel();
+        sprite.setTranslationY(baseTranslationY);
+        float density = sprite.getResources().getDisplayMetrics().density;
+        float upOffset = 24f * density;
+
+        android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(
+                sprite, "translationY", baseTranslationY, baseTranslationY - upOffset);
+        up.setDuration(250);
+        up.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
+                        sprite, "translationY", baseTranslationY - upOffset, baseTranslationY);
+                down.setDuration(250);
+                down.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        if (onDone != null) {
+                            onDone.run();
+                        }
+                    }
+                });
+                down.start();
+            }
+        });
+        up.start();
+    }
+
+    private void animateMonsterAttack(Monster m, int slotIdx, @Nullable Runnable onPeak, @NonNull Runnable onDone) {
+        View sprite = monsterSpriteAnimTarget(slotIdx);
+        if (sprite == null) {
+            if (onPeak != null) onPeak.run();
             onDone.run();
             return;
         }
-        View slot = slotRoots[slotIdx];
-        float density = slot.getResources().getDisplayMetrics().density;
+        float baseTranslationY = sprite.getTranslationY();
+        sprite.animate().cancel();
+        sprite.setTranslationY(baseTranslationY);
+        float density = sprite.getResources().getDisplayMetrics().density;
         float downOffset = 24f * density;
 
-        android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(slot, "translationY", 0f, downOffset);
+        android.animation.ObjectAnimator down = android.animation.ObjectAnimator.ofFloat(
+                sprite, "translationY", baseTranslationY, baseTranslationY + downOffset);
         down.setDuration(250);
         down.addListener(new android.animation.AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
-                android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(slot, "translationY", downOffset, 0f);
+                if (onPeak != null) onPeak.run();
+                android.animation.ObjectAnimator up = android.animation.ObjectAnimator.ofFloat(
+                        sprite, "translationY", baseTranslationY + downOffset, baseTranslationY);
                 up.setDuration(250);
                 up.addListener(new android.animation.AnimatorListenerAdapter() {
                     @Override
@@ -1305,6 +1692,27 @@ public class BattleFragment extends Fragment {
             if (slotM != null && slotM == m) return i;
         }
         return -1;
+    }
+
+    private boolean isLastHitCritical() {
+        return battleContext != null && battleContext.isCriticalHit;
+    }
+
+    /**
+     * 受击反馈：暴击时单行暴击数字 + 受击脉冲，否则普通伤害数字。
+     */
+    private void showHpDamageFeedback(
+            @NonNull DamageNumberOverlay overlay,
+            @NonNull View pulseTarget,
+            int cx,
+            int cy,
+            int damage) {
+        if (isLastHitCritical()) {
+            overlay.showCritDamageOffset(cx, cy, damage);
+            BattleCritVfx.playHitPulse(pulseTarget);
+        } else {
+            overlay.showDamageOffset(cx, cy, damage);
+        }
     }
 
     /**
@@ -1330,7 +1738,7 @@ public class BattleFragment extends Fragment {
                 if (delta > 0) {
                     tachieDamageOverlay.showHealOffset(cx, cy, delta);
                 } else {
-                    tachieDamageOverlay.showDamageOffset(cx, cy, -delta);
+                    showHpDamageFeedback(tachieDamageOverlay, ivBattleTachie, cx, cy, -delta);
                 }
             }
 
@@ -1374,18 +1782,18 @@ public class BattleFragment extends Fragment {
                     public void onHpChanged(int delta, int newHp) {
                         if (!isAdded() || damageNumberOverlay == null || monsterArea == null) return;
                         int slotIdx = findMonsterSlotIndex(m);
-                        if (slotIdx < 0 || slotIdx >= slotRoots.length || slotRoots[slotIdx] == null) return;
-                        View slot = slotRoots[slotIdx];
+                        View sprite = monsterSpriteAnimTarget(slotIdx);
+                        if (sprite == null) return;
                         int[] loc = new int[2];
-                        slot.getLocationOnScreen(loc);
+                        sprite.getLocationOnScreen(loc);
                         int[] parentLoc = new int[2];
                         monsterArea.getLocationOnScreen(parentLoc);
-                        int cx = loc[0] - parentLoc[0] + slot.getWidth() / 2;
-                        int cy = loc[1] - parentLoc[1];
+                        int cx = loc[0] - parentLoc[0] + sprite.getWidth() / 2;
+                        int cy = loc[1] - parentLoc[1] + sprite.getHeight() / 2;
                         if (delta > 0) {
                             damageNumberOverlay.showHealOffset(cx, cy, delta);
                         } else {
-                            damageNumberOverlay.showDamageOffset(cx, cy, -delta);
+                            showHpDamageFeedback(damageNumberOverlay, sprite, cx, cy, -delta);
                         }
                     }
 
@@ -1445,12 +1853,12 @@ public class BattleFragment extends Fragment {
             List<BaseBuff> buffs = player.getActiveBuffList();
             if (buffs != null && !buffs.isEmpty()) {
                 for (BaseBuff b : buffs) {
-                    String text = b.getBuffName() + " x" + b.getStackCount()
-                            + " · 剩" + b.getRemainingDuration() + "回合";
-                    addStatRow(buffContainer, text, "");
+                    if (b != null) {
+                        addBuffStatBlock(buffContainer, b);
+                    }
                 }
             } else {
-                addStatRow(buffContainer, "无Buff", "");
+                addStatRow(buffContainer, "无 Buff", "");
             }
         }
 
@@ -1472,6 +1880,23 @@ public class BattleFragment extends Fragment {
         row.setText(label + (value.isEmpty() ? "" : "：" + value));
         row.setPadding(0, 4, 0, 4);
         parent.addView(row);
+    }
+
+    private void addBuffStatBlock(@NonNull LinearLayout parent, @NonNull BaseBuff buff) {
+        TextView header = new TextView(requireContext());
+        header.setTextSize(13);
+        header.setTextColor(0xFFFFD54F);
+        header.setText(buff.getBuffName() + "  ×" + Math.max(1, buff.getStackCount())
+                + BuffUiText.durationSuffix(buff));
+        header.setPadding(0, 6, 0, 2);
+        parent.addView(header);
+
+        TextView effect = new TextView(requireContext());
+        effect.setTextSize(12);
+        effect.setTextColor(0xFFE0E0E0);
+        effect.setText(BuffUiText.effectDescription(buff));
+        effect.setPadding(0, 0, 0, 2);
+        parent.addView(effect);
     }
 
     private void addStatRowGreen(LinearLayout parent, String label, String value) {
@@ -1545,12 +1970,18 @@ public class BattleFragment extends Fragment {
             TextView defeatMsg = defeatRoot.findViewById(R.id.tv_treasure_alert_message);
             defeatTitle.setText("战斗失败");
             defeatMsg.setText("战斗失败！");
+            View defeatNeg = defeatRoot.findViewById(R.id.btn_treasure_alert_negative);
+            TextView defeatPos = defeatRoot.findViewById(R.id.btn_treasure_alert_positive);
+            defeatNeg.setVisibility(View.GONE);
+            defeatPos.setText("确定");
             AlertDialog defeatDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                     .setView(defeatRoot)
                     .setCancelable(false)
-                    .setPositiveButton("确定", (d, w) ->
-                            requireActivity().getSupportFragmentManager().popBackStackImmediate())
                     .create();
+            defeatPos.setOnClickListener(v -> {
+                defeatDlg.dismiss();
+                requireActivity().getSupportFragmentManager().popBackStackImmediate();
+            });
             defeatDlg.show();
             if (defeatDlg.getWindow() != null) {
                 defeatDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1880,14 +2311,20 @@ public class BattleFragment extends Fragment {
             TextView leaveMsg = leaveRoot.findViewById(R.id.tv_treasure_alert_message);
             leaveTitle.setText("未领取掉落物");
             leaveMsg.setText("还有 " + remaining + " 件掉落物未领取，确定要离开？未领取的道具将永久消失。");
+            View leaveNeg = leaveRoot.findViewById(R.id.btn_treasure_alert_negative);
+            TextView leavePos = leaveRoot.findViewById(R.id.btn_treasure_alert_positive);
+            leaveNeg.setVisibility(View.VISIBLE);
+            ((TextView) leaveNeg).setText("取消");
+            leavePos.setText("确定");
             AlertDialog leaveDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                     .setView(leaveRoot)
-                    .setPositiveButton("确定", (d, w) -> {
-                        dismissLootPanel();
-                        requireActivity().getSupportFragmentManager().popBackStackImmediate();
-                    })
-                    .setNegativeButton("取消", null)
                     .create();
+            leaveNeg.setOnClickListener(v -> leaveDlg.dismiss());
+            leavePos.setOnClickListener(v -> {
+                leaveDlg.dismiss();
+                dismissLootPanel();
+                requireActivity().getSupportFragmentManager().popBackStackImmediate();
+            });
             leaveDlg.show();
             if (leaveDlg.getWindow() != null) {
                 leaveDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -1939,7 +2376,7 @@ public class BattleFragment extends Fragment {
             title.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_gold_deep));
         }
 
-        body.setText(HtmlCompat.fromHtml(buildMonsterDetailHtml(m), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        HtmlRenderUtils.setHtmlText(body, buildMonsterDetailHtml(m));
 
         if (icon != null) {
             GameAssetIcons.bindMonster(requireContext(), icon, m.getEntityId(), R.drawable.ic_map);
@@ -1986,9 +2423,9 @@ public class BattleFragment extends Fragment {
             sb.append("<b>【词缀】</b><br>");
             for (BaseAffix affix : affixes) {
                 if (affix == null) continue;
-                String desc = affix.getDescription();
+                String desc = affix.getAffixName() + "：" + affix.getDescription();
                 if (desc == null || desc.isEmpty()) continue;
-                String colorHex = colorToHex(affix.getRarity() != null
+                String colorHex = HtmlRenderUtils.colorToHex(affix.getRarity() != null
                         ? affix.getRarity().getColor() : 0xFF888888);
                 sb.append("<font color=\"").append(colorHex).append("\">●</font> ");
                 sb.append(android.text.TextUtils.htmlEncode(desc)).append("<br>");
@@ -2003,9 +2440,13 @@ public class BattleFragment extends Fragment {
             for (BaseBuff b : buffs) {
                 if (b == null) continue;
                 int dur = b.getRemainingDuration();
+                if (dur > 0) {
                 sb.append("· ").append(b.getBuffName())
                         .append(" 层").append(b.getStackCount())
                         .append(" 剩").append(dur).append("回合<br>");
+                } else {
+                    sb.append("· ").append(b.getBuffName()).append(" 层").append(b.getStackCount()).append("<br>");
+                }
             }
         }
 
@@ -2044,10 +2485,6 @@ public class BattleFragment extends Fragment {
         if (Math.abs(v) > 0.0001f) sb.append(label).append("：").append(String.format("%.1f%%", v * 100f)).append("<br>");
     }
 
-    private static String colorToHex(int color) {
-        return String.format("#%06X", 0xFFFFFF & color);
-    }
-
     private String summarizeResult() {
         if (battleContext == null || battleContext.battleResult == null) {
             return "战斗结束";
@@ -2080,8 +2517,8 @@ public class BattleFragment extends Fragment {
 
         AlertDialog logDlg = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
                 .setView(content)
-                .setPositiveButton("关闭", null)
                 .create();
+        content.findViewById(R.id.btn_battle_log_close).setOnClickListener(v -> logDlg.dismiss());
         logDlg.show();
         if (logDlg.getWindow() != null) {
             logDlg.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -2221,10 +2658,17 @@ public class BattleFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull Vh h, int position) {
             BuffLine line = buffLines.get(position);
-            h.tv.setText(line.title);
-            View.OnClickListener openBuff = v -> showBuffDetailDialog(line.title, line.detail);
-            h.itemView.setOnClickListener(openBuff);
-            h.tv.setOnClickListener(openBuff);
+            h.name.setText(line.name);
+            if (line.placeholder) {
+                h.stacks.setVisibility(View.GONE);
+            } else {
+                h.stacks.setVisibility(View.VISIBLE);
+                h.stacks.setText(String.valueOf(line.stacks));
+            }
+            View.OnClickListener openBuff = v -> showBuffDetailDialog(line.name, line.detailBody);
+            h.itemView.setOnClickListener(line.placeholder ? null : openBuff);
+            h.name.setOnClickListener(line.placeholder ? null : openBuff);
+            h.stacks.setOnClickListener(line.placeholder ? null : openBuff);
         }
 
         @Override
@@ -2233,11 +2677,13 @@ public class BattleFragment extends Fragment {
         }
 
         class Vh extends RecyclerView.ViewHolder {
-            final TextView tv;
+            final TextView name;
+            final TextView stacks;
 
             Vh(@NonNull View itemView) {
                 super(itemView);
-                tv = itemView.findViewById(R.id.tv_battle_buff_row);
+                name = itemView.findViewById(R.id.tv_battle_buff_name);
+                stacks = itemView.findViewById(R.id.tv_battle_buff_stacks);
             }
         }
     }
