@@ -27,11 +27,20 @@ public class BenefitEventActivity extends AppCompatActivity {
     private LinearLayout llResultArea;
     private TextView tvResult;
     private Button btnContinue;
+    private TextView tvToolbarTitle;
+    private String eventKey;
+    private String chestName;
+    private String keyId;
+    private Rarity chestRarity;
+    private int goldMin, goldMax;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_benefit_hub);
+
+        eventKey = getIntent().getStringExtra("event_key");
+        if (eventKey == null) eventKey = "rest";
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
@@ -39,10 +48,48 @@ public class BenefitEventActivity extends AppCompatActivity {
         llResultArea = findViewById(R.id.ll_result_area);
         tvResult = findViewById(R.id.tv_result);
         btnContinue = findViewById(R.id.btn_continue);
+        tvToolbarTitle = findViewById(R.id.tv_toolbar_title);
 
-        findViewById(R.id.card_rest).setOnClickListener(v -> doRest());
+        View cardRest = findViewById(R.id.card_rest);
+        View cardChest = findViewById(R.id.card_chest);
 
-        findViewById(R.id.card_chest).setOnClickListener(v -> doChest());
+        if ("chest".equals(eventKey)) {
+            tvToolbarTitle.setText("营地宝箱");
+            cardRest.setVisibility(View.GONE);
+            rollChestType();
+            TextView tvChestTitle = findViewById(R.id.tv_chest_title);
+            tvChestTitle.setText("📦 " + chestName);
+            TextView tvChestDesc = findViewById(R.id.tv_chest_desc);
+            tvChestDesc.setText("营地角落里有一只" + chestName + "！需要" + getKeyName(keyId) + "才能开启。");
+            cardChest.setOnClickListener(v -> doChest());
+        } else {
+            tvToolbarTitle.setText("安全营地");
+            cardChest.setVisibility(View.GONE);
+            cardRest.setOnClickListener(v -> doRest());
+        }
+    }
+
+    private void rollChestType() {
+        double roll = Math.random();
+        if (roll < 0.10) {
+            chestName = "金宝箱";
+            keyId = "key_gold";
+            chestRarity = Rarity.EPIC;
+            goldMin = 1000;
+            goldMax = 2000;
+        } else if (roll < 0.30) {
+            chestName = "银宝箱";
+            keyId = "key_silver";
+            chestRarity = Rarity.RARE;
+            goldMin = 500;
+            goldMax = 1000;
+        } else {
+            chestName = "铜宝箱";
+            keyId = "key_copper";
+            chestRarity = Rarity.UNCOMMON;
+            goldMin = 200;
+            goldMax = 500;
+        }
     }
 
     private void doRest() {
@@ -58,31 +105,6 @@ public class BenefitEventActivity extends AppCompatActivity {
         Character ch = PlayerCharacterHolder.getOrCreate(this);
         List<Item> bag = ch.getBagItems();
 
-        double roll = Math.random();
-        String chestName, keyId;
-        Rarity rarity;
-        int goldMin, goldMax;
-
-        if (roll < 0.10) {
-            chestName = "金宝箱";
-            keyId = "key_gold";
-            rarity = Rarity.EPIC;
-            goldMin = 1000;
-            goldMax = 2000;
-        } else if (roll < 0.30) {
-            chestName = "银宝箱";
-            keyId = "key_silver";
-            rarity = Rarity.RARE;
-            goldMin = 500;
-            goldMax = 1000;
-        } else {
-            chestName = "铜宝箱";
-            keyId = "key_copper";
-            rarity = Rarity.UNCOMMON;
-            goldMin = 200;
-            goldMax = 500;
-        }
-
         ConsumableItem keyItem = findConsumableById(bag, keyId);
         if (keyItem == null) {
             showResult("营地中有一只" + chestName + "！\n\n❌ 你没有" + getKeyName(keyId) + "，无法打开宝箱。");
@@ -97,8 +119,8 @@ public class BenefitEventActivity extends AppCompatActivity {
 
         EquipmentManager em = EquipmentManager.getInstance(this);
         ItemManager im = ItemManager.getInstance(this);
-        int level = 5 + rarity.getId() * 5 + (int) (Math.random() * 11);
-        EquipItem equip = em.generateRandomEquip(level, rarity);
+        int level = 5 + chestRarity.getId() * 5 + (int) (Math.random() * 11);
+        EquipItem equip = em.generateRandomEquip(level, chestRarity);
         String equipName = equip != null ? equip.getName() + "（" + equip.getRarity().getDisplayName() + "）" : "一件装备";
         if (equip != null) InventoryManager.addItem(bag, equip);
 
@@ -111,7 +133,7 @@ public class BenefitEventActivity extends AppCompatActivity {
         sb.append("✅ 获得：").append(equipName).append("\n");
         sb.append("✅ 金币 +").append(gold).append("\n");
 
-        GemItem gem = im.getRandomGemByRarity(rarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
+        GemItem gem = im.getRandomGemByRarity(chestRarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
         if (gem != null) {
             InventoryManager.addItem(bag, gem);
             sb.append("✅ 获得：").append(gem.getName()).append("（").append(gem.getRarity().getDisplayName()).append("）");
