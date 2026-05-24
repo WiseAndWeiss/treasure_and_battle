@@ -92,6 +92,25 @@
         ]
       }
     ],
+    "wound_slash": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 18,
+        "position": "center",
+        "scale": 1.5,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/wound_slash/frame_1.png",
+          "icons/animation/wound_slash/frame_2.png",
+          "icons/animation/wound_slash/frame_3.png",
+          "icons/animation/wound_slash/frame_4.png",
+          "icons/animation/wound_slash/frame_5.png",
+          "icons/animation/wound_slash/frame_6.png"
+        ]
+      }
+    ],
     "fire_burst": [
       {
         "type": "TEXTURE_SET",
@@ -106,6 +125,25 @@
           "icons/animation/fire_burst/frame_2.png",
           "icons/animation/fire_burst/frame_3.png",
           "icons/animation/fire_burst/frame_4.png"
+        ]
+      }
+    ],
+    "poison": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 18,
+        "position": "center",
+        "scale": 1.5,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/poison/frame_1.png",
+          "icons/animation/poison/frame_2.png",
+          "icons/animation/poison/frame_3.png",
+          "icons/animation/poison/frame_4.png",
+          "icons/animation/poison/frame_5.png",
+          "icons/animation/poison/frame_6.png"
         ]
       }
     ],
@@ -125,6 +163,45 @@
           "icons/animation/enhance_shot/frame_4.png",
           "icons/animation/enhance_shot/frame_5.png",
           "icons/animation/enhance_shot/frame_6.png"
+        ]
+      }
+    ],
+    "strong_shot": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 15,
+        "position": "center",
+        "scale": 1.5,
+        "num": 5,
+        "texture_set": [
+          "icons/animation/strong_shot/frame_1.png",
+          "icons/animation/strong_shot/frame_2.png",
+          "icons/animation/strong_shot/frame_3.png",
+          "icons/animation/strong_shot/frame_4.png",
+          "icons/animation/strong_shot/frame_5.png"
+        ]
+      }
+    ],
+    "shot_rain": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "ENTIRE_FIELD",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "top",
+        "scale": 1.5,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/shot_rain/frame_1.png",
+          "icons/animation/shot_rain/frame_2.png",
+          "icons/animation/shot_rain/frame_3.png",
+          "icons/animation/shot_rain/frame_4.png",
+          "icons/animation/shot_rain/frame_5.png",
+          "icons/animation/shot_rain/frame_6.png",
+          "icons/animation/shot_rain/frame_7.png",
+          "icons/animation/shot_rain/frame_8.png"
         ]
       }
     ],
