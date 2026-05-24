@@ -458,12 +458,14 @@ public class MapFragment extends Fragment {
     private void initTimedTasks() {
         mGenerateEventRunnable = () -> {
             if (isDetached()) return;
+            applyRateSettings();
             int count = mEventManager.generateRandomEvents();
             if (count > 0) {
-                showFloatMsg("生成事件：" + count);
+                boolean showToast = mPrefs.getBoolean("showEventToast", true);
+                if (showToast) showFloatMsg("生成事件：" + count);
                 refreshEventIcons();
             }
-            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getGlobalConfig().getGenerateInterval());
+            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
         };
 
         mCheckExpireRunnable = () -> {
@@ -474,6 +476,32 @@ public class MapFragment extends Fragment {
             }
             mMainHandler.postDelayed(mCheckExpireRunnable, 1000);
         };
+    }
+
+    private void applyRateSettings() {
+        int rate = mPrefs.getInt("eventRate", 0);
+        long genInterval, battleExp, benefitExp, neutralExp;
+        if (rate == 1) {
+            genInterval = 60000; battleExp = 180000; benefitExp = 120000; neutralExp = 240000;
+        } else if (rate == 2) {
+            genInterval = 1800000; battleExp = 5400000; benefitExp = 4500000; neutralExp = 7200000;
+        } else {
+            genInterval = 10000; battleExp = 30000; benefitExp = 25000; neutralExp = 40000;
+        }
+        mEventManager.setOverrideGenerateInterval(genInterval);
+        mEventManager.setExpireOverrides(battleExp, benefitExp, neutralExp);
+
+        boolean pendingClear = mPrefs.getBoolean("pendingRateClear", false);
+        if (pendingClear) {
+            mPrefs.edit().putBoolean("pendingRateClear", false).apply();
+            mEventManager.clearAllEvents();
+            refreshEventIcons();
+            int count = mEventManager.generateRandomEvents();
+            if (count > 0) {
+                refreshEventIcons();
+                showFloatMsg("速率已切换，重新生成事件：" + count);
+            }
+        }
     }
 
     private void startTimedTasks() {

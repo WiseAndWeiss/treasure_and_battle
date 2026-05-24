@@ -7,6 +7,7 @@ import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 import com.google.gson.Gson;
@@ -28,6 +29,12 @@ public class EventManager {
     private Random mRandom = new Random();
     private LatLng mCurrentLatLng;
     private Monster mCurrentBattleMonster;
+    private BattleContext.SurpriseDirection mCurrentBattleSurprise = BattleContext.SurpriseDirection.NONE;
+
+    private long mOverrideGenerateInterval = -1;
+    private long mBattleExpireOverride = -1;
+    private long mBenefitExpireOverride = -1;
+    private long mNeutralExpireOverride = -1;
 
     public static class EventCircle {
         public Circle circle;
@@ -198,13 +205,36 @@ public class EventManager {
 
         while (it.hasNext()) {
             EventCircle e = it.next();
-            if (!e.isTriggered && now - e.createTime >= e.config.getExpireTime()) {
+            long expire = getEffectiveExpire(e.config.getType(), e.config.getExpireTime());
+            if (!e.isTriggered && now - e.createTime >= expire) {
                 e.circle.remove();
                 it.remove();
                 count++;
             }
         }
         return count;
+    }
+
+    private long getEffectiveExpire(String type, long original) {
+        if ("BATTLE".equals(type) && mBattleExpireOverride > 0) return mBattleExpireOverride;
+        if ("BENEFIT".equals(type) && mBenefitExpireOverride > 0) return mBenefitExpireOverride;
+        if ("NEUTRAL".equals(type) && mNeutralExpireOverride > 0) return mNeutralExpireOverride;
+        if ("UNKNOWN".equals(type) && mNeutralExpireOverride > 0) return mNeutralExpireOverride;
+        return original;
+    }
+
+    public long getEffectiveGenerateInterval() {
+        return mOverrideGenerateInterval > 0 ? mOverrideGenerateInterval : mEventConfig.getGlobal().getGenerateInterval();
+    }
+
+    public void setOverrideGenerateInterval(long ms) {
+        mOverrideGenerateInterval = ms;
+    }
+
+    public void setExpireOverrides(long battleMs, long benefitMs, long neutralMs) {
+        mBattleExpireOverride = battleMs;
+        mBenefitExpireOverride = benefitMs;
+        mNeutralExpireOverride = neutralMs;
     }
 
     public boolean checkEventInTriggerRange() {
