@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,7 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -63,15 +66,26 @@ public class ProfessionSelectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profession_select);
 
-        View root = findViewById(android.R.id.content);
-        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            int topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
-            v.setPadding(v.getPaddingLeft(), topInset, v.getPaddingRight(), bottomInset);
+        View header = findViewById(R.id.profession_header);
+        View body = findViewById(R.id.profession_body);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+
+        ViewCompat.setOnApplyWindowInsetsListener(header, (v, insets) -> {
+            Insets status = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            v.setPadding(v.getPaddingLeft(), status.top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        final int bodyPaddingBottom = body.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(body, (v, insets) -> {
+            Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
+                    bodyPaddingBottom + nav.bottom);
             return insets;
         });
 
         Typeface zpix = ResourcesCompat.getFont(this, R.font.zpix);
+        TextView tvToolbarTitle = findViewById(R.id.tv_toolbar_title);
 
         ivTachie = findViewById(R.id.iv_profession_tachie);
         tvName = findViewById(R.id.tv_profession_name);
@@ -82,11 +96,13 @@ public class ProfessionSelectActivity extends AppCompatActivity {
         TextView btnLeft = findViewById(R.id.btn_arrow_left);
         TextView btnRight = findViewById(R.id.btn_arrow_right);
         TextView btnConfirm = findViewById(R.id.btn_confirm_profession);
-        TextView btnBack = findViewById(R.id.btn_back);
+        ImageButton btnBack = findViewById(R.id.btn_back);
 
         btnLeft.setTypeface(zpix);
         btnRight.setTypeface(zpix);
-        btnBack.setTypeface(zpix);
+        if (zpix != null && tvToolbarTitle != null) {
+            tvToolbarTitle.setTypeface(zpix, Typeface.BOLD);
+        }
 
         Character ch = PlayerCharacterHolder.getOrCreate(this);
         etCharacterName.setText(ch.getName());

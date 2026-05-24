@@ -10,7 +10,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/panel_bag_equipment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="40"
         android:background="@drawable/bg_panel_treasure"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -176,14 +177,19 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_tachie"
             android:layout_width="0dp"
-            android:layout_height="192dp"
+            android:layout_height="0dp"
+            android:minHeight="96dp"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp"
             app:cardMaxElevation="0dp"
             app:cardBackgroundColor="@android:color/transparent"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintHeight_max="192dp"
+            app:layout_constraintBottom_toTopOf="@id/layout_tachie_info"
             app:layout_constraintStart_toStartOf="@id/guide_tachie_left"
             app:layout_constraintEnd_toStartOf="@id/guide_tachie_right"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -268,12 +274,15 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
             android:background="@drawable/bg_slot_treasure_fill"
             android:foreground="@drawable/bg_slot_treasure_stroke"
             android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_tachie_info"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_bias="1">
 
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="武器" android:textColor="@color/tb_text_main" android:textSize="13sp" />
@@ -285,6 +294,6 @@
         layout="@layout/include_bag_bottom_half"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="60" />
 
 </LinearLayout>
