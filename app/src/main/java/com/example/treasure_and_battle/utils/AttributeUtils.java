@@ -53,6 +53,15 @@ public class AttributeUtils {
         return finalAttr;
     }
 
+    public static AttributeSet getCharacterPercentBonuses(Character character) {
+        if (character == null) {
+            return new AttributeSet();
+        }
+        AttributeSet modifiers = new AttributeSet();
+        applyEquipmentBonusesFromCharacter(character, modifiers);
+        return modifiers;
+    }
+
     private static AttributeSet buildCharacterBaseAttributes(Character character) {
         AttributeSet base = new AttributeSet();
         base.strength = character.getAllocatedStrength();
@@ -148,6 +157,20 @@ public class AttributeUtils {
         finalAttr.lootRarityBonus += modifiers.lootRarityBonus;
         finalAttr.goldBonus += modifiers.goldBonus;
         finalAttr.expBonus += modifiers.expBonus;
+
+        finalAttr.percentStrength = modifiers.percentStrength;
+        finalAttr.percentAgility = modifiers.percentAgility;
+        finalAttr.percentIntelligence = modifiers.percentIntelligence;
+        finalAttr.percentSpirit = modifiers.percentSpirit;
+        finalAttr.percentPhysique = modifiers.percentPhysique;
+        finalAttr.percentLuck = modifiers.percentLuck;
+        finalAttr.percentMaxHp = modifiers.percentMaxHp;
+        finalAttr.percentMaxMp = modifiers.percentMaxMp;
+        finalAttr.percentPhysicalAtk = modifiers.percentPhysicalAtk;
+        finalAttr.percentPhysicalDef = modifiers.percentPhysicalDef;
+        finalAttr.percentMagicalAtk = modifiers.percentMagicalAtk;
+        finalAttr.percentMagicalDef = modifiers.percentMagicalDef;
+        finalAttr.percentSpeed = modifiers.percentSpeed;
 
         return finalAttr;
     }

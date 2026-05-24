@@ -58,4 +58,12 @@ public class SkillTree {
             unlockedLayer++;
         return true;
     }
+
+    public int resetAllSkills() {
+        int refund = usedPoints;
+        learnedSkills.clear();
+        usedPoints = 0;
+        unlockedLayer = 1;
+        return refund;
+    }
 }

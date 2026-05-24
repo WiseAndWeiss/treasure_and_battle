@@ -57,17 +57,13 @@ public class EquipTriggerBuffAffix extends BaseEquipAffix {
         }
 
         BuffManager buffManager = BuffManager.getInstance(owner.getContext());
-        String buffName = "未知状态";
-        for (int i = 0; i < resolvedStacks; i++) {
-            BaseBuff buff = buffManager.createBuffByTemplateId(buffTemplateId);
-            if (buff == null) {
-                return;
-            }
-            if (i == 0) {
-                buffName = buff.getBuffName();
-            }
-            buffManager.addBuff(targetEntity, buff);
+        BaseBuff buff = buffManager.createBuffByTemplateId(buffTemplateId);
+        if (buff == null) {
+            return;
         }
+        String buffName = buff.getBuffName();
+        buff.setStack(resolvedStacks);
+        buffManager.addBuff(targetEntity, buff);
 
         context.addLogWithMeta(
             com.example.treasure_and_battle.battle.log.LogType.AFFIX,

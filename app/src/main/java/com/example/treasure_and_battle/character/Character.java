@@ -159,6 +159,19 @@ public class Character {
         currentMp = Math.min(currentMp, after.maxMp);
     }
 
+    public void switchProfession(ProfessionType newProfessionType, Profession newProfession) {
+        resetAllTalentPoints();
+        int skillRefund = 0;
+        if (profession != null) {
+            skillRefund += profession.getActiveSkillTree().resetAllSkills();
+            skillRefund += profession.getPassiveSkillTree().resetAllSkills();
+            skillRefund += profession.getEventSkillTree().resetAllSkills();
+        }
+        skillPoints += skillRefund;
+        this.professionType = newProfessionType;
+        this.profession = newProfession;
+    }
+
     // ========== 装备 ==========
 
     public EquipItem equip(EquipItem item) {

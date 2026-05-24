@@ -11,6 +11,7 @@
     android:paddingBottom="11dp">
 
     <TextView
+        android:id="@+id/tv_battle_items_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"

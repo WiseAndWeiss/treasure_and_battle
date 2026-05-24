@@ -1,6 +1,7 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -62,6 +63,11 @@ public class SettingsFragment extends Fragment {
                     .hide(this)
                     .addToBackStack("battle")
                     .commit();
+        });
+
+        View btnProfession = view.findViewById(R.id.btn_profession_select);
+        btnProfession.setOnClickListener(v -> {
+            startActivity(new Intent(requireActivity(), ProfessionSelectActivity.class));
         });
 
         View btnBackToMain = view.findViewById(R.id.btn_back_to_main);
