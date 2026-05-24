@@ -1,7 +1,5 @@
 package com.example.treasure_and_battle.skill;
 
-import com.example.treasure_and_battle.model.common.TriggerType;
-
 import android.content.Context;
 import android.util.Log;
 
@@ -60,7 +58,7 @@ public class ConfigLoader {
      */
     private void loadConfig() {
         try {
-            InputStream is = context.getAssets().open("skill_config.json");
+            InputStream is = context.getAssets().open("configs/skill_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

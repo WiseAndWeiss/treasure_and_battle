@@ -74,7 +74,7 @@ public class BuffManager {
     // ====================== 1. 加载Buff模板（对应AffixManager的加载逻辑） ======================
     private void loadBuffTemplates() {
         try {
-            InputStream is = context.getAssets().open("buff_config.json");
+            InputStream is = context.getAssets().open("configs/buff_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

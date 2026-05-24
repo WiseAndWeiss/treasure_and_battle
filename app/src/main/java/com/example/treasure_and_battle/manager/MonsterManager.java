@@ -48,7 +48,7 @@ public class MonsterManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("monster_config.json");
+            InputStream is = context.getAssets().open("configs/monster_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
