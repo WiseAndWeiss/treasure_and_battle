@@ -71,7 +71,7 @@ public class EventManager {
 
     private void loadEventConfigFromAssets() {
         try {
-            InputStream is = mContext.getAssets().open("event_config.json");
+            InputStream is = mContext.getAssets().open("configs/event_config.json");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;

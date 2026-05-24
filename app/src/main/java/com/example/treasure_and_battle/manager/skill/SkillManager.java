@@ -57,7 +57,7 @@ public class SkillManager {
 
     // ====================== 1. 加载技能模板 ======================
     private void loadSkillTemplates() {
-        SkillDataLoader.loadInto(context, "skill_config.json",
+        SkillDataLoader.loadInto(context, "configs/skill_config.json",
                 templateMap, skillIdToTemplateIdMap);
     }
 
@@ -177,7 +177,7 @@ public class SkillManager {
      */
     private void loadSkillTreeTemplates() {
         try {
-            InputStream is = context.getAssets().open("skilltree_config.json");
+            InputStream is = context.getAssets().open("configs/skilltree_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

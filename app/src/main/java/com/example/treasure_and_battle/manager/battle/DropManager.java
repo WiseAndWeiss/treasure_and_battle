@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.manager.battle;
 
 import android.content.Context;
-import com.example.treasure_and_battle.character.Character;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
@@ -49,7 +49,7 @@ public class DropManager {
 
     private void loadLootPools() {
         try {
-            InputStream is = context.getAssets().open("loot_pool_config.json");
+            InputStream is = context.getAssets().open("configs/loot_pool_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

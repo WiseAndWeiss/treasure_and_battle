@@ -55,7 +55,7 @@ public class ItemManager {
 
     private void loadMaterialTemplates() {
         try {
-            InputStream is = context.getAssets().open("material_config.json");
+            InputStream is = context.getAssets().open("configs/material_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -76,7 +76,7 @@ public class ItemManager {
 
     private void loadConsumableTemplates() {
         try {
-            InputStream is = context.getAssets().open("consumable_config.json");
+            InputStream is = context.getAssets().open("configs/consumable_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -97,7 +97,7 @@ public class ItemManager {
 
     private void loadGemTemplates() {
         try {
-            InputStream is = context.getAssets().open("gem_config.json");
+            InputStream is = context.getAssets().open("configs/gem_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
