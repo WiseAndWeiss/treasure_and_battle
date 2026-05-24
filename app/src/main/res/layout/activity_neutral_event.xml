@@ -52,7 +52,9 @@
                     android:textColor="#FFD700"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:background="#22FFFFFF"
+                    android:padding="16dp" />
 
                 <TextView
                     android:id="@+id/tv_event_desc"
