@@ -166,6 +166,12 @@ public class Character {
 
     public void switchProfession(ProfessionType newProfessionType, Profession newProfession) {
         resetAllTalentPoints();
+        resetAllSkills();
+        this.professionType = newProfessionType;
+        this.profession = newProfession;
+    }
+
+    public void resetAllSkills() {
         int skillRefund = 0;
         if (profession != null) {
             skillRefund += profession.getActiveSkillTree().resetAllSkills();
@@ -173,8 +179,6 @@ public class Character {
             skillRefund += profession.getEventSkillTree().resetAllSkills();
         }
         skillPoints += skillRefund;
-        this.professionType = newProfessionType;
-        this.profession = newProfession;
     }
 
     // ========== 装备 ==========

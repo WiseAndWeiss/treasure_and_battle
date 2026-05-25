@@ -1,10 +1,12 @@
 package com.example.treasure_and_battle.manager.item;
 
 import android.content.Context;
+
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
+import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
@@ -16,23 +18,26 @@ import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Debu
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Effect;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Target;
 import com.example.treasure_and_battle.model.common.ValueType;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import java.util.List;
 
 public class ConsumableManager {
 
+    // ===================== 战斗内使用 =====================
+
     public static boolean execute(Player player, BattleContext ctx, ConsumableItem item, Context context) {
         if (player == null || item == null || item.getEffects() == null || item.getEffects().isEmpty()) return false;
 
         for (Effect effect : item.getEffects()) {
-            boolean ok = dispatch(player, ctx, item, effect, context);
+            boolean ok = dispatchInBattle(player, ctx, item, effect, context);
             if (!ok) return false;
         }
         return true;
     }
 
-    private static boolean dispatch(Player player, BattleContext ctx,
-                                     ConsumableItem item, Effect e, Context context) {
+    private static boolean dispatchInBattle(Player player, BattleContext ctx,
+                                             ConsumableItem item, Effect e, Context context) {
         if (e == null || e.type == null) return false;
         switch (e.type) {
             case HEAL_HP: return heal(player, ctx, item, e, context, true);
@@ -41,12 +46,85 @@ public class ConsumableManager {
             case BUFF:    return buff(player, ctx, e);
             case CLEANSE: return cleanse(player, ctx);
             case ESCAPE:  return escape(ctx);
-            case UTILITY: return true;
+            case UTILITY: return utilityInBattle(ctx, e);
             default:      return false;
         }
     }
 
-    // ========== HEAL ==========
+    // ===================== 战斗外使用 =====================
+
+    public static boolean executeOutBattle(Character character, ConsumableItem item, Context context) {
+        if (character == null || item == null || item.getEffects() == null || item.getEffects().isEmpty())
+            return false;
+
+        for (Effect effect : item.getEffects()) {
+            boolean ok = dispatchOutBattle(character, item, effect, context);
+            if (!ok) return false;
+        }
+        return true;
+    }
+
+    private static boolean dispatchOutBattle(Character character, ConsumableItem item, Effect e, Context context) {
+        if (e == null || e.type == null) return false;
+        switch (e.type) {
+            case HEAL_HP: return healOutBattle(character, item, e, true);
+            case HEAL_MP: return healOutBattle(character, item, e, false);
+            case UTILITY: return utilityOutBattle(character, item, e, context);
+            default:      return false;
+        }
+    }
+
+    // ===================== 局外 HEAL =====================
+
+    private static boolean healOutBattle(Character character, ConsumableItem item, Effect e, boolean isHp) {
+        AttributeSet attr = AttributeUtils.calculateCharacterAttributes(character);
+        int maxVal = isHp ? attr.maxHp : attr.maxMp;
+        boolean isPercent = "PERCENTAGE".equals(e.valueType);
+        int amount = isPercent ? (int) (maxVal * e.value / 100f) : (int) e.value;
+        amount = Math.max(1, amount);
+
+        if (isHp) {
+            character.setCurrentHp(Math.min(character.getCurrentHp() + amount, maxVal));
+        } else {
+            character.setCurrentMp(Math.min(character.getCurrentMp() + amount, maxVal));
+        }
+        return true;
+    }
+
+    // ===================== 局外 UTILITY =====================
+
+    private static boolean utilityOutBattle(Character character, ConsumableItem item, Effect e, Context context) {
+        String uid = e.utilityId;
+        if (uid == null) return false;
+
+        switch (uid) {
+            case "KEY_COPPER":
+            case "KEY_SILVER":
+            case "KEY_GOLD":
+                return true;
+            case "UNSOCKET_GEM":
+                return true;
+            case "POLISH_EQUIP":
+                return true;
+            case "RESET_TALENTS":
+                character.resetAllTalentPoints();
+                character.resetAllSkills();
+                return true;
+            case "REFRESH_EVENTS":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // ===================== 局内 UTILITY =====================
+
+    private static boolean utilityInBattle(BattleContext ctx, Effect e) {
+        return true;
+    }
+
+    // ===================== 局内 HEAL =====================
+
     private static boolean heal(Player player, BattleContext ctx, ConsumableItem item,
                                  Effect e, Context context, boolean isHp) {
         int maxVal = isHp ? player.getFinalAttributes().maxHp : player.getFinalAttributes().maxMp;
@@ -72,7 +150,8 @@ public class ConsumableManager {
         return true;
     }
 
-    // ========== DAMAGE ==========
+    // ===================== 局内 DAMAGE =====================
+
     private static boolean damage(Player player, BattleContext ctx, Effect e) {
         if (ctx == null) return false;
         AttributeSet attr = player.getFinalAttributes();
@@ -111,7 +190,8 @@ public class ConsumableManager {
         }
     }
 
-    // ========== BUFF ==========
+    // ===================== 局内 BUFF =====================
+
     private static boolean buff(Player player, BattleContext ctx, Effect e) {
         if (ctx == null || e.buffs == null) return false;
         BuffManager bm = BuffManager.getInstance(player.getContext());
@@ -127,7 +207,8 @@ public class ConsumableManager {
         return true;
     }
 
-    // ========== CLEANSE ==========
+    // ===================== 局内 CLEANSE =====================
+
     private static boolean cleanse(Player player, BattleContext ctx) {
         if (ctx == null) return false;
         BuffManager.getInstance(player.getContext()).dispelBuffs(player, false, true);
@@ -135,7 +216,8 @@ public class ConsumableManager {
         return true;
     }
 
-    // ========== ESCAPE ==========
+    // ===================== 局内 ESCAPE =====================
+
     private static boolean escape(BattleContext ctx) {
         if (ctx == null) return false;
         ctx.isBattleEnded = true;
