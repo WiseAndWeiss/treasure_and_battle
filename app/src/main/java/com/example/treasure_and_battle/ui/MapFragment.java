@@ -205,7 +205,7 @@ public class MapFragment extends Fragment {
         });
         popupContent.addView(btnClear);
 
-        addDebugSectionLabel(popupContent, "具体小事件（立即生成）");
+        addDebugSectionLabel(popupContent, "具体小事件（立即进入）");
 
         EventConfig.EventItem[] allItems = mEventManager.getEventItems();
         for (EventConfig.EventItem item : allItems) {
@@ -231,11 +231,17 @@ public class MapFragment extends Fragment {
             }
             for (EventConfig.EventSubItem sub : subs) {
                 Button btn = makeDebugButton(type + "：" + sub.getName(), typeColor);
-                final EventConfig.EventItem finalItem = item;
-                final EventConfig.EventSubItem finalSub = sub;
+                final String fType = type;
+                final EventConfig.EventSubItem fSub = sub;
                 btn.setOnClickListener(b -> {
                     hideDebugPopup();
-                    generateSpecificEvent(finalItem, finalSub);
+                    if ("BATTLE".equals(fType)) {
+                        openBattlePage();
+                    } else if ("BENEFIT".equals(fType)) {
+                        handleBenefitAction(fSub);
+                    } else if ("NEUTRAL".equals(fType)) {
+                        openNeutralEventPage(fSub);
+                    }
                 });
                 popupContent.addView(btn);
             }
@@ -545,8 +551,13 @@ public class MapFragment extends Fragment {
                 .commit();
     }
 
-    private void handleBenefitAction() {
+    private void handleBenefitAction(EventConfig.EventSubItem sub) {
         Intent intent = new Intent(getActivity(), BenefitEventActivity.class);
+        if (sub != null) {
+            intent.putExtra("event_key", sub.getKey());
+            intent.putExtra("event_name", sub.getName());
+            intent.putExtra("event_desc", sub.getDesc());
+        }
         startActivity(intent);
     }
 
@@ -676,8 +687,8 @@ public class MapFragment extends Fragment {
             mBattleTriggerPosition = mEventManager.getCurrentLatLng();
             showFloatMsg("即将进入战斗...");
             startBattleCountdown();
-        } else if ("BENEFIT".equals(type) || "benefit_hub".equals(sub != null ? sub.getKey() : "")) {
-            handleBenefitAction();
+        } else if ("BENEFIT".equals(type)) {
+            handleBenefitAction(sub);
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
             showFloatMsg("增益事件，你可以在此回复生命、增强力量或打开宝箱");
@@ -879,11 +890,6 @@ public class MapFragment extends Fragment {
             tvEventDesc.setText("描述：???");
             tvEventReward.setText("奖励：???");
             tvEventRisk.setText("风险：???");
-        } else if ("BENEFIT".equals(item.getType())) {
-            tvEventName.setText("增益事件");
-            tvEventDesc.setText("描述：你可以在此回复生命、增强力量或打开宝箱");
-            tvEventReward.setText("奖励：生命恢复 / 力量提升 / 随机宝藏");
-            tvEventRisk.setText("风险：无");
         } else if (sub != null) {
             tvEventName.setText(sub.getName());
             tvEventDesc.setText("描述：" + sub.getDesc());
@@ -904,7 +910,7 @@ public class MapFragment extends Fragment {
         if (sub == null) return "BATTLE";
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
-        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key)) return "BENEFIT";
+        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key) || "rest".equals(key) || "chest".equals(key)) return "BENEFIT";
         if ("merchant".equals(key) || "traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)

@@ -47,11 +47,13 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 按内容高度占位，与背包页「装备栏 wrap + 背包 weight=1」同理，让下方背包区域吃满剩余高度 -->
+    <!-- 商人区略小、背包区略大（与背包页装备:背包 40:60 同思路，交易无装备栏故商人再收一点） -->
     <LinearLayout
+        android:id="@+id/panel_trade_merchant"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_weight="35"
         android:background="@drawable/bg_panel_treasure"
         android:orientation="vertical"
         android:padding="10dp">
@@ -67,10 +69,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_merchant"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false"
-            android:overScrollMode="never" />
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="ifContentScrolls" />
     </LinearLayout>
 
     <include
@@ -79,5 +82,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_weight="1" />
+        android:layout_weight="65" />
 </LinearLayout>

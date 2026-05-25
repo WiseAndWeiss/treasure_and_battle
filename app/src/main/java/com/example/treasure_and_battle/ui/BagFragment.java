@@ -109,6 +109,18 @@ public class BagFragment extends Fragment {
     private final Map<Integer, EquipItem> equippedItems = new HashMap<>();
     private final Map<Integer, String> equipSlotDefaultTexts = new HashMap<>();
     private int bagCellSizePx;
+    private int equipSlotSizePx;
+    private static final int[] EQUIP_SLOT_VIEW_IDS = {
+            R.id.slot_weapon,
+            R.id.slot_helmet,
+            R.id.slot_chest,
+            R.id.slot_leggings,
+            R.id.slot_boots,
+            R.id.slot_necklace,
+            R.id.slot_bracelet,
+            R.id.slot_ring_left,
+            R.id.slot_ring_right
+    };
     private int lastDragCenterX = -1;
     private int lastDragCenterY = -1;
     private static final String DRAG_LABEL_EQUIP_FROM_SLOT = "equip_from_slot";
@@ -166,8 +178,10 @@ public class BagFragment extends Fragment {
             bagBottomHalfRoot.setClipToPadding(false);
         }
         bagCellSizePx = 0;
+        equipSlotSizePx = 0;
 
         bindEquipSlots(view);
+        setupEquipSlotSizing(view);
 
         ivTachie = view.findViewById(R.id.iv_tachie);
         ivTachie.setOnClickListener(v -> {
@@ -565,7 +579,78 @@ public class BagFragment extends Fragment {
         } else if (sizeChanged) {
             adapter.notifyItemRangeChanged(0, adapter.getItemCount(), "CELL_SIZE");
         }
+        applyEquipSlotSizeIfReady();
         return true;
+    }
+
+    private void setupEquipSlotSizing(View root) {
+        if (bagEquipmentPanel == null) {
+            return;
+        }
+        bagEquipmentPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                applyEquipSlotSizeIfReady();
+            }
+        });
+        View leftColumn = root.findViewById(R.id.container_left_armors);
+        if (leftColumn == null) {
+            applyEquipSlotSizeIfReady();
+            return;
+        }
+        if (applyEquipSlotSizeIfReady()) {
+            return;
+        }
+        leftColumn.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (applyEquipSlotSizeIfReady()) {
+                    leftColumn.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyEquipSlotSizeIfReady() {
+        View leftColumn = getView() != null ? getView().findViewById(R.id.container_left_armors) : null;
+        if (leftColumn == null) {
+            return false;
+        }
+        int colW = leftColumn.getWidth();
+        int colH = leftColumn.getHeight();
+        if (colW <= 0 || colH <= 0) {
+            return false;
+        }
+        int resolved = BagGridCellSizer.resolveEquipSlotSizeAlignedToBag(
+                getResources().getDisplayMetrics(), colW, colH, bagCellSizePx);
+        if (resolved <= 0) {
+            return false;
+        }
+        if (resolved == equipSlotSizePx) {
+            return true;
+        }
+        equipSlotSizePx = resolved;
+        for (int slotId : EQUIP_SLOT_VIEW_IDS) {
+            View slot = equipSlotViews.get(slotId);
+            if (slot == null) {
+                continue;
+            }
+            ViewGroup.LayoutParams lp = slot.getLayoutParams();
+            if (lp == null) {
+                continue;
+            }
+            lp.width = resolved;
+            lp.height = resolved;
+            slot.setLayoutParams(lp);
+        }
+        refreshAllEquipSlotViews();
+        return true;
+    }
+
+    private void refreshAllEquipSlotViews() {
+        for (Map.Entry<Integer, View> entry : equipSlotViews.entrySet()) {
+            updateEquipSlotView(entry.getKey(), equippedItems.get(entry.getKey()));
+        }
     }
 
     private void setupEquipToBagDropListener() {
@@ -1347,7 +1432,13 @@ public class BagFragment extends Fragment {
         TextView placeholder = new TextView(requireContext());
         placeholder.setText(text);
         placeholder.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_main));
-        placeholder.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        float labelSp = 11f;
+        if (equipSlotSizePx > 0) {
+            int refPx = BagGridCellSizer.dpToPx(getResources().getDisplayMetrics(), 58);
+            labelSp = 11f * equipSlotSizePx / Math.max(refPx, 1);
+            labelSp = Math.max(9f, Math.min(12f, labelSp));
+        }
+        placeholder.setTextSize(TypedValue.COMPLEX_UNIT_SP, labelSp);
         placeholder.setGravity(Gravity.CENTER);
         slotLayout.setGravity(Gravity.CENTER);
         slotLayout.addView(placeholder, new LinearLayout.LayoutParams(
@@ -1549,12 +1640,12 @@ public class BagFragment extends Fragment {
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
-        popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        popupMenu.getMenu().add(0, 1, 1, "查看详情");
         if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
-            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+            popupMenu.getMenu().add(0, 4, 2, "拆卸宝石");
         }
-        popupMenu.getMenu().add(0, 3, 0, "丢弃");
+        popupMenu.getMenu().add(0, 3, 3, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {

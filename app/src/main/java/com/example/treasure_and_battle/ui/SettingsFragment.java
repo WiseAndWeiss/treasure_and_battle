@@ -84,47 +84,63 @@ public class SettingsFragment extends Fragment {
         });
 
         View btnSaveGame = view.findViewById(R.id.btn_save_game);
-        btnSaveGame.setOnClickListener(v -> {
-            SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_SAVE,
-                    new SaveSelectDialog.OnSaveActionListener() {
-                        @Override
-                        public void onLoadSave(Character character) {}
+        if (btnSaveGame != null) {
+            btnSaveGame.setOnClickListener(v -> {
+                SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_SAVE,
+                        new SaveSelectDialog.OnSaveActionListener() {
+                            @Override
+                            public void onLoadSave(Character character) {}
 
-                        @Override
-                        public void onSaveComplete() {
-                            FloatMsgOverlay.showFloatMsg(requireContext(), "存档成功");
-                        }
-                    });
-        });
+                            @Override
+                            public void onSaveComplete() {
+                                FloatMsgOverlay.showFloatMsg(requireContext(), "存档成功");
+                            }
+                        });
+            });
+        }
 
         View btnLoadGame = view.findViewById(R.id.btn_load_game);
-        btnLoadGame.setOnClickListener(v -> {
-            SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_LOAD,
-                    new SaveSelectDialog.OnSaveActionListener() {
-                        @Override
-                        public void onLoadSave(Character character) {
-                            PlayerCharacterHolder.restoreFrom(character);
-                            FloatMsgOverlay.showFloatMsg(requireContext(), "读档成功");
-                        }
+        if (btnLoadGame != null) {
+            btnLoadGame.setOnClickListener(v -> {
+                SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_LOAD,
+                        new SaveSelectDialog.OnSaveActionListener() {
+                            @Override
+                            public void onLoadSave(Character character) {
+                                PlayerCharacterHolder.restoreFrom(character);
+                                FloatMsgOverlay.showFloatMsg(requireContext(), "读档成功");
+                            }
 
-                        @Override
-                        public void onSaveComplete() {}
-                    });
-        });
+                            @Override
+                            public void onSaveComplete() {}
+                        });
+            });
+        }
 
-        view.findViewById(R.id.btn_debug_gain_exp).setOnClickListener(v ->
-                DebugCharacterGrants.grantExp(requireContext(), 500_000));
-        view.findViewById(R.id.btn_debug_gain_talent).setOnClickListener(v ->
-                DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
-        view.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v ->
-                DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+        View btnDebugExp = view.findViewById(R.id.btn_debug_gain_exp);
+        if (btnDebugExp != null) {
+            btnDebugExp.setOnClickListener(v ->
+                    DebugCharacterGrants.grantExp(requireContext(), 500_000));
+        }
+        View btnDebugTalent = view.findViewById(R.id.btn_debug_gain_talent);
+        if (btnDebugTalent != null) {
+            btnDebugTalent.setOnClickListener(v ->
+                    DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
+        }
+        View btnDebugSkill = view.findViewById(R.id.btn_debug_gain_skill);
+        if (btnDebugSkill != null) {
+            btnDebugSkill.setOnClickListener(v ->
+                    DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+        }
 
-        view.findViewById(R.id.btn_dev_seed_items).setOnClickListener(v -> {
-            InventoryManager.clearAll(PlayerCharacterHolder.getOrCreate(requireContext()).getBagItems());
-            InventoryGridSync.seedDemoItems(requireContext());
-            InventoryGridSync.reloadSharedGridFromManager(requireContext());
-            FloatMsgOverlay.showFloatMsg(requireContext(), "已填充测试物品");
-        });
+        View btnDevSeedItems = view.findViewById(R.id.btn_dev_seed_items);
+        if (btnDevSeedItems != null) {
+            btnDevSeedItems.setOnClickListener(v -> {
+                InventoryManager.clearAll(PlayerCharacterHolder.getOrCreate(requireContext()).getBagItems());
+                InventoryGridSync.seedDemoItems(requireContext());
+                InventoryGridSync.reloadSharedGridFromManager(requireContext());
+                FloatMsgOverlay.showFloatMsg(requireContext(), "已填充测试物品");
+            });
+        }
 
         return view;
     }

@@ -2,16 +2,17 @@ package com.example.treasure_and_battle.ui;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,8 +21,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,9 +57,9 @@ public class NeutralEventActivity extends AppCompatActivity {
     private LinearLayout llActionArea;
     private LinearLayout llResultArea;
     private TextView tvResult;
-    private Button btnContinue;
-    private Button btnAction1;
-    private Button btnAction2;
+    private TextView btnContinue;
+    private TextView btnAction1;
+    private TextView btnAction2;
 
     private int caveStep = 0;
     private int[] caveHpLoss = new int[4];
@@ -78,19 +79,6 @@ public class NeutralEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_neutral_event);
-
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-
-        View root = findViewById(android.R.id.content);
-        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            View btnBack = findViewById(R.id.btn_back);
-            int topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-            android.widget.FrameLayout.LayoutParams lp =
-                    (android.widget.FrameLayout.LayoutParams) btnBack.getLayoutParams();
-            lp.topMargin = topInset + (int)(12 * getResources().getDisplayMetrics().density);
-            btnBack.setLayoutParams(lp);
-            return WindowInsetsCompat.CONSUMED;
-        });
 
         btnContinue = findViewById(R.id.btn_continue);
         btnContinue.setOnClickListener(v -> finish());
@@ -225,12 +213,12 @@ public class NeutralEventActivity extends AppCompatActivity {
                     int roll = (int) (Math.random() * 100);
                     if (roll < 40) {
                         ch.addGold(200);
-                        showResult("🎉 恭喜！你赢了！\n\n✅ 获得双倍回报：200金币！（当前金币：" + ch.getGold() + "）");
+                        showResult("恭喜！你赢了！\n\n 获得双倍回报：200金币！（当前金币：" + ch.getGold() + "）");
                     } else if (roll < 70) {
                         ch.addGold(100);
-                        showResult("😐 平局！你的100金币退还给你。（当前金币：" + ch.getGold() + "）");
+                        showResult("平局！你的100金币退还给你。（当前金币：" + ch.getGold() + "）");
                     } else {
-                        showResult("😞 你输了...100金币血本无归。（当前金币：" + ch.getGold() + "）");
+                        showResult("你输了...100金币血本无归。（当前金币：" + ch.getGold() + "）");
                     }
                     switchToForwardButton();
                 });
@@ -281,7 +269,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                     Rarity rarity = rarities[(int) (Math.random() * rarities.length)];
 
                     int roll = (int) (Math.random() * 3);
-                    StringBuilder sb = new StringBuilder("🎁 打开盲盒！\n\n");
+                    StringBuilder sb = new StringBuilder("打开盲盒！\n\n");
 
                     if (roll == 0) {
                         EquipItem equip = em.generateRandomEquip((int) (5 + Math.random() * 21), rarity);
@@ -342,26 +330,46 @@ public class NeutralEventActivity extends AppCompatActivity {
         }
     }
 
-    private Button addActionButton(String text, int bgColor, View.OnClickListener listener) {
-        Button btn = new Button(this);
+    private TextView addActionButton(String text, int bgColor, View.OnClickListener listener) {
+        TextView btn = new TextView(this);
         btn.setText(text);
-        btn.setTextSize(12);
-        btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor(bgColor);
-        int pad = (int) (9 * getResources().getDisplayMetrics().density);
-        btn.setPadding(pad, pad, pad, pad);
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        btn.setTypeface(btn.getTypeface(), android.graphics.Typeface.BOLD);
+        btn.setTextColor(ContextCompat.getColor(this, isSecondaryActionColor(bgColor)
+                ? R.color.tb_text_main : R.color.tb_bg_dark));
+        btn.setBackgroundResource(isSecondaryActionColor(bgColor)
+                ? R.drawable.bg_panel_treasure : R.drawable.bg_tab_active);
+        btn.setGravity(Gravity.CENTER);
+        btn.setClickable(true);
+        btn.setFocusable(true);
         btn.setAllCaps(false);
+        btn.setLineSpacing(dpToPx(4f), 1f);
+
+        int minH = dpToPx(48);
+        int hPad = dpToPx(12);
+        int vPad = dpToPx(14);
+        btn.setMinHeight(minH);
+        btn.setPadding(hPad, vPad, hPad, vPad);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        int margin = (int) (3 * getResources().getDisplayMetrics().density);
+        int margin = dpToPx(4);
         params.setMargins(0, margin, 0, margin);
         btn.setLayoutParams(params);
         btn.setOnClickListener(listener);
 
         llActionArea.addView(btn);
         return btn;
+    }
+
+    private int dpToPx(float dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private static boolean isSecondaryActionColor(int bgColor) {
+        return bgColor == 0xFF888888 || bgColor == 0xFFAAAAAA;
     }
 
     private void showResult(String text) {
@@ -373,9 +381,23 @@ public class NeutralEventActivity extends AppCompatActivity {
     private void switchToForwardButton() {
         if (btnContinue != null) {
             btnContinue.setText("前进");
-            btnContinue.setBackgroundColor(0xFF4CAF50);
-            btnContinue.setTextColor(0xFFFFFFFF);
+            btnContinue.setBackgroundResource(R.drawable.bg_tab_active);
+            btnContinue.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
             btnContinue.setOnClickListener(v -> finish());
+        }
+    }
+
+    private void switchToBattleButton() {
+        if (btnContinue != null) {
+            btnContinue.setText("被迫进入战斗");
+            btnContinue.setBackgroundResource(R.drawable.bg_tab_active);
+            btnContinue.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+            btnContinue.setOnClickListener(v -> {
+                Intent r = new Intent();
+                r.putExtra("open_battle", true);
+                setResult(RESULT_OK, r);
+                finish();
+            });
         }
     }
 
@@ -530,7 +552,7 @@ public class NeutralEventActivity extends AppCompatActivity {
                 ch.addGold(goldReward);
 
                 String resultText = "你慷慨地赠送了" + match.getName()
-                        + "，旅人感激不尽！\n\n✅ 获得金币 ×" + goldReward;
+                        + "，旅人感激不尽！\n\n 获得金币 ×" + goldReward;
                 showResult(resultText);
                 switchToForwardButton();
             });
@@ -585,15 +607,17 @@ public class NeutralEventActivity extends AppCompatActivity {
         gridView.findViewById(R.id.btn_grid_close).setOnClickListener(v -> gridDialog.dismiss());
 
         rv.setLayoutManager(new GridLayoutManager(this, 2));
-        rv.setAdapter(new EquipGridAdapter(equipItems, equip -> {
+        EquipGridAdapter equipAdapter = new EquipGridAdapter(equipItems, equip -> {
             gridDialog.dismiss();
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> showReforgeDialog(equip));
-        }));
+        });
 
         gridDialog.setContentView(gridView);
         gridDialog.setCancelable(true);
         gridDialog.setCanceledOnTouchOutside(true);
         gridDialog.show();
+        applyTransparentDialogWindow(gridDialog);
+        scheduleDialogItemGrid(rv, equipAdapter, equipAdapter::setGridLayout);
     }
 
     private void showGemUpgradeDialog() {
@@ -623,7 +647,7 @@ public class NeutralEventActivity extends AppCompatActivity {
         gridView.findViewById(R.id.btn_grid_close).setOnClickListener(v -> gridDialog.dismiss());
 
         rv.setLayoutManager(new GridLayoutManager(this, 2));
-        rv.setAdapter(new GemGridAdapter(gemItems, gem -> {
+        GemGridAdapter gemAdapter = new GemGridAdapter(gemItems, gem -> {
             gridDialog.dismiss();
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                 int currentRarityId = gem.getRarity().getId();
@@ -639,22 +663,111 @@ public class NeutralEventActivity extends AppCompatActivity {
                     return;
                 }
 
-                InventoryManager.removeItem(bag, gem);
+                gem.setCount(gem.getCount() - 1);
+                if (gem.getCount() <= 0) InventoryManager.removeItem(bag, gem);
                 InventoryManager.addItem(bag, upgraded);
 
-                String resultText = "雕像散发出耀眼的金色光芒...\n\n✅ "
+                String resultText = "雕像散发出耀眼的金色光芒...\n\n"
                         + gem.getName() + "（" + gem.getRarity().getDisplayName()
                         + "）已升级为\n" + upgraded.getName() + "（"
                         + upgraded.getRarity().getDisplayName() + "）！";
                 showResult(resultText);
                 switchToForwardButton();
             });
-        }));
+        });
 
         gridDialog.setContentView(gridView);
         gridDialog.setCancelable(true);
         gridDialog.setCanceledOnTouchOutside(true);
         gridDialog.show();
+        applyTransparentDialogWindow(gridDialog);
+        scheduleDialogItemGrid(rv, gemAdapter, gemAdapter::setGridLayout);
+    }
+
+    private void applyTransparentDialogWindow(Dialog dialog) {
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+    }
+
+    private void scheduleDialogItemGrid(RecyclerView rv, RecyclerView.Adapter<?> adapter,
+            java.util.function.BiConsumer<Integer, Integer> setGridLayout) {
+        rv.setVisibility(View.INVISIBLE);
+        rv.setHasFixedSize(true);
+        rv.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                int contentWidth = rv.getWidth() - rv.getPaddingLeft() - rv.getPaddingRight();
+                if (contentWidth <= 0) {
+                    return true;
+                }
+                int sizePx = BagGridCellSizer.resolveDialogGridSquareSizePx(
+                        getResources().getDisplayMetrics(), contentWidth);
+                if (sizePx <= 0) {
+                    return true;
+                }
+                setGridLayout.accept(contentWidth, sizePx);
+                if (rv.getAdapter() == null) {
+                    rv.setAdapter(adapter);
+                    rv.getViewTreeObserver().removeOnPreDrawListener(this);
+                    rv.setVisibility(View.VISIBLE);
+                    return false;
+                }
+                return true;
+            }
+        });
+    }
+
+    private static RecyclerView.LayoutParams newSquareGridCellLp(
+            android.content.Context context, int squarePx, int recyclerWidthPx) {
+        int spacing = BagGridCellSizer.dpToPx(
+                context.getResources().getDisplayMetrics(), BagGridCellSizer.CELL_SPACING_DP);
+        int inset = recyclerWidthPx > 0
+                ? BagGridCellSizer.dialogGridCellHorizontalInsetPx(recyclerWidthPx, squarePx)
+                : spacing;
+        int columnWidth = recyclerWidthPx > 0
+                ? BagGridCellSizer.dialogGridColumnWidthPx(recyclerWidthPx)
+                : squarePx + spacing * 2;
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(squarePx, squarePx);
+        lp.leftMargin = inset;
+        lp.rightMargin = Math.max(0, columnWidth - squarePx - inset);
+        lp.topMargin = spacing;
+        lp.bottomMargin = spacing;
+        return lp;
+    }
+
+    private static void applySquareGridCellLayout(View itemView, int squarePx, int recyclerWidthPx) {
+        if (squarePx <= 0) {
+            return;
+        }
+        android.content.Context context = itemView.getContext();
+        int spacing = BagGridCellSizer.dpToPx(
+                context.getResources().getDisplayMetrics(), BagGridCellSizer.CELL_SPACING_DP);
+        int inset = recyclerWidthPx > 0
+                ? BagGridCellSizer.dialogGridCellHorizontalInsetPx(recyclerWidthPx, squarePx)
+                : spacing;
+        int columnWidth = recyclerWidthPx > 0
+                ? BagGridCellSizer.dialogGridColumnWidthPx(recyclerWidthPx)
+                : squarePx + spacing * 2;
+        int rightInset = Math.max(0, columnWidth - squarePx - inset);
+        ViewGroup.LayoutParams raw = itemView.getLayoutParams();
+        if (!(raw instanceof RecyclerView.LayoutParams)) {
+            return;
+        }
+        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) raw;
+        if (lp.width == squarePx && lp.height == squarePx
+                && lp.leftMargin == inset && lp.rightMargin == rightInset
+                && lp.topMargin == spacing && lp.bottomMargin == spacing) {
+            return;
+        }
+        lp.width = squarePx;
+        lp.height = squarePx;
+        lp.leftMargin = inset;
+        lp.rightMargin = rightInset;
+        lp.topMargin = spacing;
+        lp.bottomMargin = spacing;
+        itemView.setLayoutParams(lp);
     }
 
     private void buildAltarActions() {
@@ -698,72 +811,48 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         Dialog d = new Dialog(this);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundResource(R.drawable.bg_panel_treasure);
-        int pad = dpToPx(12);
-        root.setPadding(pad, pad, pad, pad);
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_altar_sacrifice, null);
+        int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.66);
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int dialogWidth = Math.min((int) (screenWidth * 0.82f), dpToPx(340));
+        d.setContentView(content, new ViewGroup.LayoutParams(dialogWidth, dialogHeight));
+        Window window = d.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(window.getAttributes());
+            lp.width = dialogWidth;
+            lp.height = dialogHeight;
+            lp.gravity = Gravity.CENTER;
+            window.setAttributes(lp);
+        }
 
-        FrameLayout header = new FrameLayout(this);
-        header.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-        header.setMinimumHeight(dpToPx(40));
-        TextView tvTitle = new TextView(this);
-        tvTitle.setText("挑选物品献祭（总数≤3件，材料不可选）");
-        tvTitle.setTextColor(getResources().getColor(R.color.tb_gold_deep, null));
-        tvTitle.setTextSize(16);
-        tvTitle.setPadding(0, 0, dpToPx(36), 0);
-        FrameLayout.LayoutParams tp = new FrameLayout.LayoutParams(-1, -2);
-        tp.gravity = android.view.Gravity.CENTER_VERTICAL;
-        header.addView(tvTitle, tp);
-        TextView btnClose = new TextView(this);
-        btnClose.setText("×");
-        btnClose.setTextColor(getResources().getColor(R.color.tb_gold_deep, null));
-        btnClose.setTextSize(24);
-        btnClose.setGravity(android.view.Gravity.CENTER);
-        TypedValue ov = new TypedValue();
-        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ov, true);
-        btnClose.setBackgroundResource(ov.resourceId);
-        btnClose.setWidth(dpToPx(36));
-        btnClose.setHeight(dpToPx(36));
-        FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(-2, -2);
-        cp.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
-        btnClose.setOnClickListener(v -> d.dismiss());
-        header.addView(btnClose, cp);
-        root.addView(header);
+        TextView tvCounter = content.findViewById(R.id.tv_sacrifice_counter);
+        TextView btnConfirm = content.findViewById(R.id.btn_sacrifice_confirm);
+        TextView btnCancel = content.findViewById(R.id.btn_sacrifice_cancel);
+        RecyclerView rv = content.findViewById(R.id.rv_sacrifice_grid);
+        content.findViewById(R.id.btn_altar_close).setOnClickListener(v -> d.dismiss());
+        btnCancel.setOnClickListener(v -> d.dismiss());
 
-        TextView tvCounter = new TextView(this);
-        tvCounter.setText(eligible.isEmpty() ? "⚠ 无可献祭物品" : "已选 0 / 3 — 请挑选≤3件同类型同品质的物品");
-        tvCounter.setTextColor(eligible.isEmpty() ? 0xFFE53935 : 0xFFFF9800);
-        tvCounter.setTextSize(14);
-        tvCounter.setPadding(0, 0, 0, dpToPx(8));
-        tvCounter.setGravity(android.view.Gravity.CENTER);
-        root.addView(tvCounter);
+        tvCounter.setText(eligible.isEmpty()
+                ? "无可献祭物品（材料不可选）"
+                : "已选 0 / 3 — 请挑选同类型同品质的物品");
+        tvCounter.setTextColor(ContextCompat.getColor(this,
+                eligible.isEmpty() ? R.color.tb_text_sub : R.color.tb_gold));
+        styleSacrificeConfirmButton(btnConfirm, false);
 
         int[] sacrificeCounts = new int[eligible.size()];
         int[] totalCount = {0};
 
-        RecyclerView rv = new RecyclerView(this);
         rv.setLayoutManager(new GridLayoutManager(this, 2));
-        rv.setLayoutParams(new LinearLayout.LayoutParams(-1, 0, 1));
-
-        LinearLayout bb = new LinearLayout(this);
-        bb.setOrientation(LinearLayout.HORIZONTAL);
-        bb.setGravity(android.view.Gravity.CENTER);
-        bb.setPadding(0, dpToPx(12), 0, 0);
-        bb.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-
-        Button btnConfirm = new Button(this);
-        btnConfirm.setText("献祭物品");
-        btnConfirm.setTextColor(0xFFFFFFFF);
-        btnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
-        btnConfirm.setEnabled(false);
-        btnConfirm.setTextSize(15);
+        rv.setClipToPadding(true);
+        rv.setClipChildren(true);
+        rv.setNestedScrollingEnabled(true);
         btnConfirm.setOnClickListener(v -> {
             int total = totalCount[0];
             if (total < 1 || total > 3) return;
             if (!isSacCountsValid(eligible, sacrificeCounts)) {
                 tvCounter.setText("选中的物品类型或品质不一致！");
-                tvCounter.setTextColor(0xFFE53935);
+                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
                 return;
             }
             d.dismiss();
@@ -784,36 +873,29 @@ public class NeutralEventActivity extends AppCompatActivity {
             Item reward = genReward(first.getType(), toR);
             String rd = reward != null ? (reward.getName() + "（" + reward.getRarity().getDisplayName() + "）") : "什么都没有";
             if (reward != null) InventoryManager.addItem(bag, reward);
-            showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→获得：" + rd);
+            showResult("祭坛散发出耀眼的光芒！\n 献祭" + total + "件→获得：" + rd);
             switchToForwardButton();
         });
-        btnConfirm.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1));
-        bb.addView(btnConfirm);
 
-        Button btnCancel = new Button(this);
-        btnCancel.setText("取消");
-        btnCancel.setTextColor(0xFFFFFFFF);
-        btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF666666));
-        btnCancel.setTextSize(15);
-        LinearLayout.LayoutParams canP = new LinearLayout.LayoutParams(0, -2, 1);
-        canP.setMargins(dpToPx(6), 0, 0, 0);
-        btnCancel.setLayoutParams(canP);
-        btnCancel.setOnClickListener(v -> d.dismiss());
-        bb.addView(btnCancel);
-
-        Button fBtnConfirm = btnConfirm;
+        TextView fBtnConfirm = btnConfirm;
         Runnable updateV = () -> {
             int t = totalCount[0];
-            if (t == 0) { tvCounter.setText("已选 0 / 3 — 请挑选≤3件同类型同品质的物品"); tvCounter.setTextColor(0xFFFF9800); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
-            else if (!isSacCountsValid(eligible, sacrificeCounts)) { tvCounter.setText("已选 " + t + " / 3 ❌ 类型或品质不一致"); tvCounter.setTextColor(0xFFE53935); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
-            else {
+            if (t == 0) {
+                tvCounter.setText("已选 0 / 3 — 请挑选同类型同品质的物品");
+                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_gold));
+                styleSacrificeConfirmButton(fBtnConfirm, false);
+            } else if (!isSacCountsValid(eligible, sacrificeCounts)) {
+                tvCounter.setText("已选 " + t + " / 3 — 类型或品质不一致");
+                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
+                styleSacrificeConfirmButton(fBtnConfirm, false);
+            } else {
                 Item fi = null;
                 for (int i = 0; i < sacrificeCounts.length; i++)
                     if (sacrificeCounts[i] > 0) { fi = eligible.get(i); break; }
-                tvCounter.setText("已选 " + t + " / 3 ✅ " + (fi != null ? fi.getRarity().getDisplayName() + nameForType(fi.getType()) + " — 品质统一！" : ""));
-                tvCounter.setTextColor(0xFF4CAF50);
-                fBtnConfirm.setEnabled(t >= 1);
-                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(t >= 1 ? 0xFFFF9800 : 0xFF888888));
+                tvCounter.setText("已选 " + t + " / 3 — "
+                        + (fi != null ? fi.getRarity().getDisplayName() + nameForType(fi.getType()) + "，品质统一" : ""));
+                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_gold_deep));
+                styleSacrificeConfirmButton(fBtnConfirm, t >= 1);
             }
         };
 
@@ -846,24 +928,67 @@ public class NeutralEventActivity extends AppCompatActivity {
                 ar[0].notifyItemChanged(idx);
                 return;
             }
-            String[] opts = new String[n];
-            for (int k = 0; k < n; k++) opts[k] = String.valueOf(k + 1);
-            new android.app.AlertDialog.Builder(NeutralEventActivity.this)
-                    .setTitle("选择献祭数量（最多" + n + "件）")
-                    .setItems(opts, (dia, which) -> {
-                        sacrificeCounts[idx] = which + 1;
-                        totalCount[0] += which + 1;
-                        updateV.run();
-                        ar[0].notifyItemChanged(idx);
-                    })
-                    .show();
+            showSacrificeQuantityPicker(n, qty -> {
+                sacrificeCounts[idx] = qty;
+                totalCount[0] += qty;
+                updateV.run();
+                ar[0].notifyItemChanged(idx);
+            });
         });
-        rv.setAdapter(ar[0]);
-        root.addView(rv);
-        root.addView(bb);
-        d.setContentView(root);
         d.setCancelable(true);
         d.show();
+        applyTransparentDialogWindow(d);
+        scheduleDialogItemGrid(rv, ar[0], ar[0]::setGridLayout);
+    }
+
+    private void showSacrificeQuantityPicker(int maxQty, java.util.function.IntConsumer onPick) {
+        Dialog pick = new Dialog(this);
+        pick.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_sacrifice_quantity, null);
+        TextView tvTitle = content.findViewById(R.id.tv_quantity_title);
+        LinearLayout llOptions = content.findViewById(R.id.ll_quantity_options);
+        tvTitle.setText("选择献祭数量（最多" + maxQty + "件）");
+        int margin = dpToPx(6);
+        for (int q = 1; q <= maxQty; q++) {
+            TextView opt = new TextView(this);
+            opt.setText(q + " 件");
+            opt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            opt.setTypeface(opt.getTypeface(), android.graphics.Typeface.BOLD);
+            opt.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+            opt.setBackgroundResource(R.drawable.bg_tab_active);
+            opt.setGravity(Gravity.CENTER);
+            opt.setClickable(true);
+            opt.setFocusable(true);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(44));
+            if (q > 1) lp.topMargin = margin;
+            int qty = q;
+            opt.setOnClickListener(v -> {
+                pick.dismiss();
+                onPick.accept(qty);
+            });
+            llOptions.addView(opt, lp);
+        }
+        TextView btnCancel = content.findViewById(R.id.btn_quantity_cancel);
+        LinearLayout.LayoutParams cancelLp = (LinearLayout.LayoutParams) btnCancel.getLayoutParams();
+        cancelLp.topMargin = margin;
+        btnCancel.setLayoutParams(cancelLp);
+        btnCancel.setOnClickListener(v -> pick.dismiss());
+        pick.setContentView(content);
+        pick.setCancelable(true);
+        pick.show();
+        applyTransparentDialogWindow(pick);
+    }
+
+    private void styleSacrificeConfirmButton(TextView btn, boolean enabled) {
+        btn.setEnabled(enabled);
+        if (enabled) {
+            btn.setBackgroundResource(R.drawable.bg_tab_active);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+        } else {
+            btn.setBackgroundResource(R.drawable.bg_tab_idle);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
+        }
     }
 
     private boolean isSacCountsValid(List<Item> items, int[] counts) {
@@ -904,13 +1029,13 @@ public class NeutralEventActivity extends AppCompatActivity {
                     int g = 300 + (int)(Math.random() * 701); ch.addGold(g);
                     GemItem gm = ItemManager.getInstance(this).getRandomGemByRarity(Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE);
                     if (gm != null) InventoryManager.addItem(ch.getBagItems(), gm);
-                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n✅ 金币+" + g + "\n✅ 获得：" + (gm != null ? gm.getName() : "宝石"));
+                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n 金币+" + g + "\n 获得：" + (gm != null ? gm.getName() : "宝石"));
                     switchToForwardButton();
                 } else {
                     int pts = 2 + (int)(Math.random() * 3); ch.addSkillPoints(pts);
                     ConsumableItem pt = ItemManager.getInstance(this).getRandomConsumableByRarity(Rarity.UNCOMMON);
                     if (pt != null) InventoryManager.addItem(ch.getBagItems(), pt);
-                    showResult("元素试炼：符文亮起，破解成功！\n✅ 技能点+" + pts + "\n✅ 获得：" + (pt != null ? pt.getName() : "药水"));
+                    showResult("元素试炼：符文亮起，破解成功！\n 技能点+" + pts + "\n 获得：" + (pt != null ? pt.getName() : "药水"));
                     switchToForwardButton();
                 }
             });
@@ -968,7 +1093,7 @@ public class NeutralEventActivity extends AppCompatActivity {
         if (reward == null) reward = EquipmentManager.getInstance(this).generateRandomEquip(lv, rr);
         if (reward == null) return "水面泛起涟漪，什么都没发生...\n（当前金币：" + ch.getGold() + "）";
         InventoryManager.addItem(ch.getBagItems(), reward);
-        return "古井涌出" + rr.getDisplayName() + "光芒！\n✅ 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）\n（当前金币：" + ch.getGold() + "）";
+        return "古井涌出" + rr.getDisplayName() + "光芒！\n 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）\n（当前金币：" + ch.getGold() + "）";
     }
 
     private void buildCursedChestActions() {
@@ -978,11 +1103,7 @@ public class NeutralEventActivity extends AppCompatActivity {
             EventManager.getInstance(getApplicationContext()).setCurrentBattleMonster(monster);
             EventManager.getInstance(getApplicationContext()).setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
             showResult("紫黑色雾气喷涌而出！\n\n" + monster.getName() + "从暗处扑来，怪物获得了先手攻击！");
-            if (btnContinue != null) {
-                btnContinue.setText("被迫进入战斗");
-                btnContinue.setBackgroundColor(0xFFE53935);
-                btnContinue.setOnClickListener(v2 -> { Intent r = new Intent(); r.putExtra("open_battle", true); setResult(RESULT_OK, r); finish(); });
-            }
+            switchToBattleButton();
         });
         addActionButton("就此离开", 0xFF888888, v -> { showResult("你绕过了散发不祥气息的宝箱。"); switchToForwardButton(); });
     }
@@ -993,90 +1114,242 @@ public class NeutralEventActivity extends AppCompatActivity {
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
         View content = LayoutInflater.from(this).inflate(R.layout.dialog_equip_reforge, null);
         d.setContentView(content);
-        Window w = d.getWindow();
+        final Window w = d.getWindow();
         if (w != null) {
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
             lp.copyFrom(w.getAttributes());
-            lp.width = -1;
-            lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.66);
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
             w.setAttributes(lp);
-            w.setBackgroundDrawableResource(android.R.color.transparent);
         }
+        View reforgeRoot = content.findViewById(R.id.reforge_dialog_root);
         ImageView ivPreview = content.findViewById(R.id.iv_equip_preview);
         TextView tvName = content.findViewById(R.id.tv_equip_name);
         TextView tvRarity = content.findViewById(R.id.tv_equip_rarity);
         TextView tvLevel = content.findViewById(R.id.tv_equip_level);
         LinearLayout llAffixList = content.findViewById(R.id.ll_affix_list);
         ScrollView svAffix = content.findViewById(R.id.sv_affix_container);
-        Button btnAction = content.findViewById(R.id.btn_reforge_action);
-        Button btnCancel = content.findViewById(R.id.btn_reforge_cancel);
+        TextView btnAction = content.findViewById(R.id.btn_reforge_action);
+        TextView btnCancel = content.findViewById(R.id.btn_reforge_cancel);
         boolean[] hasReforged = {false};
         int[] selIdx = {-1};
+        final BaseAffix[] previousAffixAtSelected = {null};
         GameAssetIcons.bindItem(this, ivPreview, targetEquip);
         tvName.setText(targetEquip.getName());
-        tvName.setTextSize(18);
-        tvRarity.setText(targetEquip.getRarity().name());
+        tvRarity.setText(targetEquip.getRarity().getDisplayName());
         tvRarity.setTextColor(targetEquip.getRarity().getColor());
         tvLevel.setText("Lv." + targetEquip.getLevel());
-        tvLevel.setTextSize(14);
-        btnAction.setText("请选择要重炼的词条");
-        btnAction.setEnabled(false);
-        btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+        styleReforgeActionButton(btnAction, false, false);
+        View.OnClickListener dismissIfNotDone = v -> {
+            if (!hasReforged[0]) d.dismiss();
+        };
+        content.findViewById(R.id.btn_reforge_close).setOnClickListener(dismissIfNotDone);
         final RefineClick[] cbRef = {null};
-        cbRef[0] = idx -> { selIdx[0] = idx; btnAction.setEnabled(true); btnAction.setText("重炼此词条"); btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF9C27B0)); updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0]); };
-        updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0]);
+        cbRef[0] = idx -> {
+            selIdx[0] = idx;
+            styleReforgeActionButton(btnAction, true, false);
+            updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0],
+                    previousAffixAtSelected[0]);
+            fitReforgeAffixScrollHeight(svAffix, llAffixList, reforgeRoot, w);
+        };
+        updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, cbRef[0],
+                previousAffixAtSelected[0]);
+        fitReforgeAffixScrollHeight(svAffix, llAffixList, reforgeRoot, w);
         btnAction.setOnClickListener(v -> {
-            if (hasReforged[0]) { d.dismiss(); showResult("装备重炼完成！"); switchToForwardButton(); return; }
+            if (hasReforged[0]) {
+                d.dismiss();
+                showResult("装备重炼完成！");
+                switchToForwardButton();
+                return;
+            }
             int idx = selIdx[0];
             if (idx < 0 || idx >= targetEquip.getAffixes().size()) return;
+            BaseAffix oldAffix = targetEquip.getAffixes().get(idx);
             BaseEquipAffix newAffix = EquipAffixManager.getInstance(this).generateSingleAffixForEquipment(targetEquip);
-            if (newAffix != null) targetEquip.getAffixes().set(idx, newAffix);
-            updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, null);
-            svAffix.fullScroll(View.FOCUS_DOWN);
-            btnAction.setText("确定");
-            btnAction.setEnabled(true);
-            btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
+            if (newAffix != null) {
+                previousAffixAtSelected[0] = oldAffix;
+                targetEquip.getAffixes().set(idx, newAffix);
+            }
+            hasReforged[0] = true;
+            updateRefineList(llAffixList, targetEquip.getAffixes(), selIdx, hasReforged, null,
+                    previousAffixAtSelected[0]);
+            fitReforgeAffixScrollHeight(svAffix, llAffixList, reforgeRoot, w);
+            svAffix.post(() -> svAffix.fullScroll(View.FOCUS_DOWN));
+            styleReforgeActionButton(btnAction, true, true);
             btnCancel.setVisibility(View.GONE);
             LinearLayout.LayoutParams lp2 = (LinearLayout.LayoutParams) btnAction.getLayoutParams();
-            lp2.setMargins(0, lp2.topMargin, 0, lp2.bottomMargin);
+            lp2.setMarginStart(0);
+            lp2.setMarginEnd(0);
             btnAction.setLayoutParams(lp2);
-            hasReforged[0] = true;
         });
-        btnCancel.setOnClickListener(v -> { if (!hasReforged[0]) d.dismiss(); });
+        btnCancel.setOnClickListener(dismissIfNotDone);
         d.show();
+        applyTransparentDialogWindow(d);
+    }
+
+    private void fitReforgeAffixScrollHeight(ScrollView sv, LinearLayout affixList, View root, Window window) {
+        if (sv == null || affixList == null || root == null) return;
+        final int maxDialogPx = (int) (getResources().getDisplayMetrics().heightPixels * 0.66f);
+        root.post(() -> {
+            int width = sv.getWidth() > 0 ? sv.getWidth() : root.getWidth();
+            affixList.measure(
+                    View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            int affixH = affixList.getMeasuredHeight() + sv.getPaddingTop() + sv.getPaddingBottom();
+
+            ViewGroup.LayoutParams svLp = sv.getLayoutParams();
+            svLp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            sv.setLayoutParams(svLp);
+            root.requestLayout();
+            root.post(() -> {
+                int otherH = root.getHeight() - sv.getHeight();
+                int maxScrollH = Math.max(dpToPx(48), maxDialogPx - otherH);
+                if (affixH > maxScrollH) {
+                    svLp.height = maxScrollH;
+                } else {
+                    svLp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                }
+                sv.setLayoutParams(svLp);
+                root.requestLayout();
+                if (window != null) {
+                    root.post(() -> {
+                        int h = root.getHeight();
+                        WindowManager.LayoutParams lp = window.getAttributes();
+                        lp.height = h > maxDialogPx ? maxDialogPx : WindowManager.LayoutParams.WRAP_CONTENT;
+                        window.setAttributes(lp);
+                    });
+                }
+            });
+        });
+    }
+
+    private void styleReforgeActionButton(TextView btn, boolean enabled, boolean confirm) {
+        if (confirm) {
+            btn.setEnabled(true);
+            btn.setText("确定");
+            btn.setBackgroundResource(R.drawable.bg_tab_active);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+        } else if (enabled) {
+            btn.setEnabled(true);
+            btn.setText("重炼此词条");
+            btn.setBackgroundResource(R.drawable.bg_tab_active);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+        } else {
+            btn.setEnabled(false);
+            btn.setText("请选择要重炼的词条");
+            btn.setBackgroundResource(R.drawable.bg_tab_idle);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
+        }
     }
 
     private interface RefineClick { void onClick(int index); }
 
+    private static String formatAffixLine(BaseAffix affix) {
+        return (affix != null ? affix.getAffixName() : "???") + "："
+                + (affix != null ? affix.getDescription() : "...");
+    }
+
+    private static int affixDotColor(BaseAffix affix) {
+        return (affix != null && affix.getRarity() != null)
+                ? affix.getRarity().getColor()
+                : 0xFF888888;
+    }
+
+    private LinearLayout createAffixLineRow(BaseAffix affix, int textColor, boolean strikethrough) {
+        LinearLayout lineRow = new LinearLayout(this);
+        lineRow.setOrientation(LinearLayout.HORIZONTAL);
+        lineRow.setGravity(Gravity.CENTER_VERTICAL);
+        lineRow.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        TextView dot = new TextView(this);
+        dot.setText("●");
+        dot.setTextColor(affixDotColor(affix));
+        dot.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        lineRow.addView(dot);
+
+        TextView line = new TextView(this);
+        line.setText(formatAffixLine(affix));
+        line.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        line.setTextColor(strikethrough ? ColorUtils.setAlphaComponent(textColor, 170) : textColor);
+        if (strikethrough) {
+            line.setPaintFlags(line.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        LinearLayout.LayoutParams lineLp = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        lineLp.setMarginStart(dpToPx(8));
+        line.setLayoutParams(lineLp);
+        lineRow.addView(line);
+        return lineRow;
+    }
+
     private void updateRefineList(LinearLayout container, List<? extends BaseAffix> affixes,
-            int[] selIdx, boolean[] hasReforged, RefineClick cb) {
+            int[] selIdx, boolean[] hasReforged, RefineClick cb, BaseAffix previousAffixAtSelected) {
         container.removeAllViews();
-        int padH = dpToPx(4), padV = dpToPx(10);
+        int pad = dpToPx(10);
         if (affixes == null || affixes.isEmpty()) {
-            TextView tv = new TextView(this); tv.setText("(无词条)"); tv.setTextSize(13); tv.setTextColor(0xFF888888);
-            tv.setPadding(padH, padV, padH, padV); container.addView(tv); return;
+            TextView tv = new TextView(this);
+            tv.setText("(无词条)");
+            tv.setTextSize(13);
+            tv.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
+            tv.setPadding(pad, pad, pad, pad);
+            container.addView(tv);
+            return;
         }
         boolean done = hasReforged[0];
         int sel = selIdx[0];
-        String[] colors = {"#E53935", "#FF9800", "#FDD835", "#4CAF50", "#2196F3"};
         for (int i = 0; i < affixes.size(); i++) {
             int idx = i;
             BaseAffix a = affixes.get(i);
+            boolean selected = idx == sel;
+            boolean showReforgeCompare = done && selected && previousAffixAtSelected != null;
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setPadding(padH, padV, padH, padV);
-            row.setBackgroundColor(idx == sel ? (done ? 0x334CAF50 : 0x33FFC107) : 0x0AFFFFFF);
-            TextView dot = new TextView(this);
-            dot.setText(idx == sel && done ? "★" : "●");
-            dot.setTextColor(android.graphics.Color.parseColor(colors[i % colors.length]));
-            dot.setTextSize(10);
-            row.addView(dot);
-            TextView line = new TextView(this);
-            line.setText((a != null ? a.getAffixName() : "???") + "：" + (a != null ? a.getDescription() : "..."));
-            line.setTextSize(14);
-            line.setTextColor(0xFFDDDDDD);
-            line.setPadding(dpToPx(8), 0, 0, 0);
-            row.addView(line);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            rowLp.topMargin = dpToPx(4);
+            row.setLayoutParams(rowLp);
+            row.setPadding(pad, pad, pad, pad);
+            if (selected) {
+                row.setBackgroundResource(R.drawable.bg_tab_active);
+            } else {
+                row.setBackgroundResource(R.drawable.bg_panel_treasure_fill_only);
+                row.setForeground(ContextCompat.getDrawable(this, R.drawable.bg_panel_treasure_stroke_only));
+            }
+            int textColor = ContextCompat.getColor(this,
+                    selected ? R.color.tb_bg_dark : R.color.tb_text_main);
+
+            if (showReforgeCompare) {
+                LinearLayout compareCol = new LinearLayout(this);
+                compareCol.setOrientation(LinearLayout.VERTICAL);
+                compareCol.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                compareCol.addView(createAffixLineRow(previousAffixAtSelected, textColor, true));
+                LinearLayout newRow = createAffixLineRow(a, textColor, false);
+                LinearLayout.LayoutParams newRowLp = (LinearLayout.LayoutParams) newRow.getLayoutParams();
+                newRowLp.topMargin = dpToPx(4);
+                newRow.setLayoutParams(newRowLp);
+                compareCol.addView(newRow);
+                row.addView(compareCol);
+            } else {
+                int dotColor = affixDotColor(a);
+                TextView dot = new TextView(this);
+                dot.setText("●");
+                dot.setTextColor(dotColor);
+                dot.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                row.addView(dot);
+
+                TextView line = new TextView(this);
+                line.setText(formatAffixLine(a));
+                line.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                line.setTextColor(textColor);
+                LinearLayout.LayoutParams lineLp = new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                lineLp.setMarginStart(dpToPx(8));
+                line.setLayoutParams(lineLp);
+                row.addView(line);
+            }
             if (!done && cb != null) row.setOnClickListener(v -> cb.onClick(idx));
             container.addView(row);
         }
@@ -1085,24 +1358,32 @@ public class NeutralEventActivity extends AppCompatActivity {
     static class EquipGridAdapter extends RecyclerView.Adapter<EquipGridAdapter.VH> {
         final List<EquipItem> items;
         final OnEquipClickListener listener;
+        private int recyclerWidthPx;
+        private int squareSizePx;
 
         interface OnEquipClickListener { void onClick(EquipItem item); }
 
         EquipGridAdapter(List<EquipItem> items, OnEquipClickListener l) { this.items = items; this.listener = l; }
 
+        void setGridLayout(int recyclerWidthPx, int squareSizePx) {
+            if (recyclerWidthPx > 0) {
+                this.recyclerWidthPx = recyclerWidthPx;
+            }
+            if (squareSizePx > 0) {
+                this.squareSizePx = squareSizePx;
+            }
+        }
+
         @Override
         public VH onCreateViewHolder(ViewGroup p, int vt) {
             View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_equip_select, p, false);
-            int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, p.getContext().getResources().getDisplayMetrics());
-            RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(-1, sz);
-            int sp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, p.getContext().getResources().getDisplayMetrics());
-            lp.setMargins(sp, sp, sp, sp);
-            v.setLayoutParams(lp);
+            v.setLayoutParams(newSquareGridCellLp(p.getContext(), squareSizePx, recyclerWidthPx));
             return new VH(v);
         }
 
         @Override
         public void onBindViewHolder(VH holder, int pos) {
+            applySquareGridCellLayout(holder.itemView, squareSizePx, recyclerWidthPx);
             EquipItem equip = items.get(pos);
             holder.tvName.setText(equip.getName());
             holder.tvName.setTextSize(14);
@@ -1127,6 +1408,8 @@ public class NeutralEventActivity extends AppCompatActivity {
     private static class GemGridAdapter extends RecyclerView.Adapter<GemGridAdapter.VH> {
         private final List<GemItem> items;
         private final OnGemClickListener listener;
+        private int recyclerWidthPx;
+        private int squareSizePx;
 
         interface OnGemClickListener {
             void onClick(GemItem item);
@@ -1137,19 +1420,37 @@ public class NeutralEventActivity extends AppCompatActivity {
             this.listener = listener;
         }
 
+        void setGridLayout(int recyclerWidthPx, int squareSizePx) {
+            if (recyclerWidthPx > 0) {
+                this.recyclerWidthPx = recyclerWidthPx;
+            }
+            if (squareSizePx > 0) {
+                this.squareSizePx = squareSizePx;
+            }
+        }
+
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_gem_select, parent, false);
+            v.setLayoutParams(newSquareGridCellLp(parent.getContext(), squareSizePx, recyclerWidthPx));
             return new VH(v);
         }
 
         @Override
         public void onBindViewHolder(VH holder, int position) {
+            applySquareGridCellLayout(holder.itemView, squareSizePx, recyclerWidthPx);
             GemItem gem = items.get(position);
             holder.tvRarity.setText(gem.getRarity().getDisplayName());
             holder.tvRarity.setTextColor(gem.getRarity().getColor());
             GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, gem);
+            int c = gem.getCount();
+            if (c > 1) {
+                holder.tvCount.setVisibility(View.VISIBLE);
+                holder.tvCount.setText("×" + c);
+            } else {
+                holder.tvCount.setVisibility(View.GONE);
+            }
             holder.bgColor.setBackgroundTintList(null);
             android.graphics.drawable.Drawable bg = holder.bgColor.getBackground();
             if (bg != null) {
@@ -1168,13 +1469,14 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         static class VH extends RecyclerView.ViewHolder {
             View bgColor;
-            TextView tvRarity;
+            TextView tvRarity, tvCount;
             ImageView ivIcon;
 
             VH(View v) {
                 super(v);
                 bgColor = v.findViewById(R.id.bg_item_color);
                 tvRarity = v.findViewById(R.id.tv_item_rarity);
+                tvCount = v.findViewById(R.id.tv_bag_stack_count);
                 ivIcon = v.findViewById(R.id.iv_item_icon);
             }
         }
@@ -1189,6 +1491,8 @@ public class NeutralEventActivity extends AppCompatActivity {
         final int[] counts;
         final int[] totalCount;
         final OnSacrificeListener listener;
+        private int recyclerWidthPx;
+        private int squareSizePx;
 
         interface OnSacrificeListener { void onToggle(int index, boolean isStacked); }
 
@@ -1196,19 +1500,25 @@ public class NeutralEventActivity extends AppCompatActivity {
             this.items = items; this.counts = counts; this.totalCount = totalCount; this.listener = l;
         }
 
+        void setGridLayout(int recyclerWidthPx, int squareSizePx) {
+            if (recyclerWidthPx > 0) {
+                this.recyclerWidthPx = recyclerWidthPx;
+            }
+            if (squareSizePx > 0) {
+                this.squareSizePx = squareSizePx;
+            }
+        }
+
         @Override
         public VH onCreateViewHolder(ViewGroup p, int vt) {
             View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_equip_select, p, false);
-            int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, p.getContext().getResources().getDisplayMetrics());
-            RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, sz);
-            int sp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, p.getContext().getResources().getDisplayMetrics());
-            lp.setMargins(sp, sp, sp, sp);
-            v.setLayoutParams(lp);
+            v.setLayoutParams(newSquareGridCellLp(p.getContext(), squareSizePx, recyclerWidthPx));
             return new VH(v);
         }
 
         @Override
         public void onBindViewHolder(VH holder, int pos) {
+            applySquareGridCellLayout(holder.itemView, squareSizePx, recyclerWidthPx);
             Item item = items.get(pos);
             GameAssetIcons.bindItem(holder.itemView.getContext(), holder.ivIcon, item);
             if (item instanceof EquipItem) {
@@ -1260,11 +1570,11 @@ public class NeutralEventActivity extends AppCompatActivity {
                 selectOverlay.setVisibility(View.GONE);
                 ((FrameLayout) v).addView(selectOverlay, new FrameLayout.LayoutParams(-1, -1));
                 selBadge = new TextView(v.getContext());
-                selBadge.setTextColor(0xFFFFFFFF);
-                selBadge.setTextSize(12);
+                selBadge.setTextColor(ContextCompat.getColor(v.getContext(), R.color.tb_bg_dark));
+                selBadge.setTextSize(11);
                 selBadge.setTypeface(v.getContext().getResources().getFont(R.font.zpix));
                 selBadge.setGravity(android.view.Gravity.CENTER);
-                selBadge.setBackgroundColor(0xFFE53935);
+                selBadge.setBackgroundResource(R.drawable.bg_tab_active);
                 int sz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, v.getContext().getResources().getDisplayMetrics());
                 FrameLayout.LayoutParams bp = new FrameLayout.LayoutParams(sz, sz);
                 bp.gravity = android.view.Gravity.TOP | android.view.Gravity.START;

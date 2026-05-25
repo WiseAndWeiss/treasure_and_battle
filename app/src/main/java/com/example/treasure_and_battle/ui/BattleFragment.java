@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -61,7 +62,6 @@ import com.example.treasure_and_battle.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.utils.HtmlRenderUtils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.IOException;
@@ -167,7 +167,7 @@ public class BattleFragment extends Fragment {
     private CommandHighlight commandHighlight = CommandHighlight.NONE;
     private TextView btnConfirm;
     private TextView btnCancel;
-    private BottomSheetDialog statsSheet;
+    private AlertDialog statsDialog;
 
     private PendingMode pendingMode = PendingMode.NONE;
     private ActiveSkill pendingActiveSkill;
@@ -212,6 +212,10 @@ public class BattleFragment extends Fragment {
 
     private DamageNumberOverlay damageNumberOverlay;
     private FrameLayout monsterArea;
+    @Nullable
+    private View monsterFormation;
+    private int battleSlotWidthPx;
+    private int battleSlotHeightPx;
     private DamageNumberOverlay tachieDamageOverlay;
     private AlertDialog itemUseDialog;
     private boolean playerInputLocked;
@@ -316,6 +320,8 @@ public class BattleFragment extends Fragment {
         rvBuffs.setAdapter(buffAdapter);
 
         monsterArea = view.findViewById(R.id.monster_area);
+        monsterFormation = view.findViewById(R.id.monster_formation);
+        setupMonsterSlotSizing();
         loadRandomBattleBackground(view);
         disableViewGroupClipping(monsterArea);
         for (View slotRoot : slotRoots) {
@@ -363,6 +369,94 @@ public class BattleFragment extends Fragment {
 
         if (battleContext != null && battleContext.isBattleEnded) {
             scheduleFinishBattleAfterViewReady(view);
+        }
+    }
+
+    private void setupMonsterSlotSizing() {
+        if (monsterFormation == null) {
+            return;
+        }
+        scheduleMonsterSlotSizeApply();
+        monsterFormation.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                applyMonsterSlotSizesIfReady();
+            }
+        });
+    }
+
+    private void scheduleMonsterSlotSizeApply() {
+        if (monsterFormation == null) {
+            return;
+        }
+        if (applyMonsterSlotSizesIfReady()) {
+            return;
+        }
+        monsterFormation.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (applyMonsterSlotSizesIfReady()) {
+                    monsterFormation.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyMonsterSlotSizesIfReady() {
+        if (monsterFormation == null) {
+            return false;
+        }
+        int width = monsterFormation.getWidth()
+                - monsterFormation.getPaddingLeft() - monsterFormation.getPaddingRight();
+        int height = monsterFormation.getHeight()
+                - monsterFormation.getPaddingTop() - monsterFormation.getPaddingBottom();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+        BattleMonsterSlotSizer.SlotSize size = BattleMonsterSlotSizer.resolve(
+                getResources().getDisplayMetrics(), width, height);
+        if (size == null) {
+            return false;
+        }
+        if (size.widthPx == battleSlotWidthPx && size.heightPx == battleSlotHeightPx) {
+            return true;
+        }
+        battleSlotWidthPx = size.widthPx;
+        battleSlotHeightPx = size.heightPx;
+        for (int i = 0; i < slotRoots.length; i++) {
+            View root = slotRoots[i];
+            if (root == null) {
+                continue;
+            }
+            ViewGroup.LayoutParams lp = root.getLayoutParams();
+            if (lp == null) {
+                continue;
+            }
+            lp.width = battleSlotWidthPx;
+            lp.height = battleSlotHeightPx;
+            root.setLayoutParams(lp);
+            View spriteHost = root.findViewById(R.id.fl_monster_sprite);
+            if (spriteHost != null) {
+                ViewGroup.LayoutParams slp = spriteHost.getLayoutParams();
+                if (slp != null) {
+                    slp.height = size.spriteHeightPx;
+                    spriteHost.setLayoutParams(slp);
+                }
+            }
+            slotDisplayScaleApplied[i] = false;
+        }
+        monsterFormation.post(this::reapplyMonsterIconDisplayScalesAfterLayout);
+        return true;
+    }
+
+    private void reapplyMonsterIconDisplayScalesAfterLayout() {
+        for (int i = 0; i < slotRoots.length; i++) {
+            if (slotRoots[i] == null || monsterAtSlot(i) == null) {
+                continue;
+            }
+            slotDisplayScaleApplied[i] = false;
+            applyMonsterIconDisplayScale(i);
+            slotDisplayScaleApplied[i] = true;
         }
     }
 
@@ -747,42 +841,49 @@ public class BattleFragment extends Fragment {
         }
     }
 
-    private void resolveMonsterIconLayoutSize(int slotIndex, @NonNull ImageView icon, @NonNull int[] outSize) {
-        int w = icon.getWidth();
-        int h = icon.getHeight();
-        if (w > 0 && h > 0) {
-            outSize[0] = w;
-            outSize[1] = h;
-            return;
-        }
-        View root = slotRoots[slotIndex];
-        if (root != null) {
-            View host = root.findViewById(R.id.fl_monster_sprite);
-            if (host != null && host.getWidth() > 0 && host.getHeight() > 0) {
-                outSize[0] = host.getWidth();
-                outSize[1] = host.getHeight();
-                return;
-            }
-        }
-        float density = icon.getResources().getDisplayMetrics().density;
-        outSize[0] = Math.round(148f * density);
-        outSize[1] = Math.round(108f * density);
-    }
-
     private void applyMonsterIconDisplayScale(int i) {
         ImageView icon = slotIcons[i];
         if (icon == null) {
             return;
         }
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        int[] size = new int[2];
-        resolveMonsterIconLayoutSize(i, icon, size);
-        icon.setPivotX(size[0] / 2f);
-        icon.setPivotY(size[1]);
+        View root = slotRoots[i];
+        View host = root != null ? root.findViewById(R.id.fl_monster_sprite) : null;
+        View layoutProbe = host != null ? host : icon;
+        Runnable apply = () -> applyMonsterIconDisplayScaleNow(i);
+        if (layoutProbe.getWidth() > 0 && layoutProbe.getHeight() > 0) {
+            apply.run();
+        } else {
+            layoutProbe.post(apply);
+        }
+    }
+
+    /** 须在 ImageView / 立绘容器完成 layout 后调用，否则 pivot 会偏导致立绘看起来偏右/偏左。 */
+    private void applyMonsterIconDisplayScaleNow(int i) {
+        ImageView icon = slotIcons[i];
+        if (icon == null) {
+            return;
+        }
+        int w = icon.getWidth();
+        int h = icon.getHeight();
+        if (w <= 0 || h <= 0) {
+            View root = slotRoots[i];
+            View host = root != null ? root.findViewById(R.id.fl_monster_sprite) : null;
+            if (host != null) {
+                w = host.getWidth();
+                h = host.getHeight();
+            }
+        }
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        icon.setPivotX(w * 0.5f);
+        icon.setPivotY(h);
         icon.setScaleX(MONSTER_ICON_DISPLAY_SCALE);
         icon.setScaleY(MONSTER_ICON_DISPLAY_SCALE);
         float offsetPx = MONSTER_ICON_DISPLAY_OFFSET_Y_DP
                 * icon.getResources().getDisplayMetrics().density;
+        icon.setTranslationX(0f);
         icon.setTranslationY(offsetPx);
     }
 
@@ -1988,7 +2089,7 @@ public class BattleFragment extends Fragment {
 
     private void onTachieClick() {
         if (player == null) return;
-        if (statsSheet != null && statsSheet.isShowing()) return;
+        if (statsDialog != null && statsDialog.isShowing()) return;
 
         ScaleAnimation anim = new ScaleAnimation(
                 1.0f, 1.05f, 1.0f, 1.05f,
@@ -2003,12 +2104,14 @@ public class BattleFragment extends Fragment {
                 .inflate(R.layout.dialog_battle_stats, null, false);
         populateStatsSheet(sheetView);
 
-        statsSheet = new BottomSheetDialog(requireContext());
-        statsSheet.setContentView(sheetView);
-        statsSheet.setCanceledOnTouchOutside(true);
-        statsSheet.show();
-        if (statsSheet.getWindow() != null) {
-            statsSheet.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        statsDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(sheetView)
+                .create();
+        statsDialog.setCanceledOnTouchOutside(true);
+        sheetView.findViewById(R.id.btn_battle_stats_close).setOnClickListener(v -> statsDialog.dismiss());
+        statsDialog.show();
+        if (statsDialog.getWindow() != null) {
+            statsDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
     }
 
@@ -2094,9 +2197,10 @@ public class BattleFragment extends Fragment {
         if (ivBattleTachie != null) {
             ivBattleTachie.setImageDrawable(null);
         }
-        if (statsSheet != null && statsSheet.isShowing()) {
-            statsSheet.dismiss();
+        if (statsDialog != null && statsDialog.isShowing()) {
+            statsDialog.dismiss();
         }
+        statsDialog = null;
         if (battleManager != null) {
             battleManager.setMonsterActListener(null);
         }
@@ -2654,8 +2758,13 @@ public class BattleFragment extends Fragment {
                                 in.getName(), in.getType().name(), in.getApCost(), in.getMpCost()));
                         if (in.getType() == ActionIntent.IntentType.SKILL) {
                             ActiveSkill skill = m.getMonsterSkill(in.getActionRefId());
-                            if (skill != null && skill.getDetailedDesc() != null && !skill.getDetailedDesc().isEmpty()) {
-                                sb.append("  <small><i>").append(android.text.TextUtils.htmlEncode(skill.getDetailedDesc())).append("</i></small><br>");
+                            if (skill != null) {
+                                String formattedDesc = skill.getFormattedDetailedDesc();
+                                if (formattedDesc != null && !formattedDesc.isEmpty()) {
+                                    sb.append("  <small><i>")
+                                            .append(android.text.TextUtils.htmlEncode(formattedDesc))
+                                            .append("</i></small><br>");
+                                }
                             }
                         }
                     } else {

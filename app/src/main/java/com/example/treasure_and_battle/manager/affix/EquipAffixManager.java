@@ -191,14 +191,14 @@ public class EquipAffixManager {
                 if (template == null) return null;
             }
 
-            EquipAffixTemplate.RarityParam param = resolveRarityParam(template, targetRarity);
+            EquipAffixTemplate.RarityParam param = resolveRarityParamExactOrMax(template, targetRarity);
             if (param == null) return null;
 
             float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
             EquipCategory[] categories = getCategoriesFromTemplate(template);
 
-            BaseEquipAffix affix = EquipAffixFactory.create(template,
-                    Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+            BaseEquipAffix affix = EquipAffixFactory.create(
+                    template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
                     categories, randomValue, param);
             if (affix != null) {
                 return affix;
