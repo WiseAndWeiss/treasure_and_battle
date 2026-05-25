@@ -49,6 +49,7 @@ import com.example.treasure_and_battle.utils.GameAssetIcons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.io.InputStream;
 
 public class NeutralEventActivity extends AppCompatActivity {
@@ -684,24 +685,23 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         if (eligibleCount >= 3) {
             boolean hasValidCombo = false;
-            ItemType[] checkTypes = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
             Rarity[] checkRarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE};
-            outer:
-            for (ItemType t : checkTypes)
-                for (Rarity r : checkRarities)
-                    if (countItemsByTypeAndRarity(bag, t, r) >= 3) { hasValidCombo = true; break outer; }
+            for (Rarity r : checkRarities)
+                if (countItemsByRarity(bag, r) >= 3) { hasValidCombo = true; break; }
 
             if (hasValidCombo) addActionButton("挑选献祭物品", 0xFFFF9800, v -> showAltarSacrificeDialog());
-            else addActionButton("没有足够的同类型同品质物品", 0xFF888888, v -> { showResult("祭坛需要3件相同类型相同品质的物品才能献祭。"); switchToForwardButton(); });
+            else addActionButton("没有足够的同品质物品", 0xFF888888, v -> { showResult("祭坛需要3件相同品质的物品才能献祭。"); switchToForwardButton(); });
         } else {
             addActionButton("可献祭物品不足3件", 0xFF888888, v -> { showResult("你背包中可献祭的物品不足3件（材料不可献祭）。"); switchToForwardButton(); });
         }
         addActionButton("转身离开", 0xFF888888, v -> { showResult("你对祭坛默默祈祷，然后离开了。"); switchToForwardButton(); });
     }
 
-    private int countItemsByTypeAndRarity(List<Item> bag, ItemType type, Rarity rarity) {
+    private int countItemsByRarity(List<Item> bag, Rarity rarity) {
         int count = 0;
-        for (Item item : bag) if (item != null && item.getType() == type && item.getRarity() == rarity) count += item.getCount();
+        for (Item item : bag)
+            if (item != null && item.getType() != ItemType.MATERIAL && item.getRarity() == rarity)
+                count += item.getCount();
         return count;
     }
 
@@ -775,9 +775,20 @@ public class NeutralEventActivity extends AppCompatActivity {
         btnConfirm.setTextSize(15);
         btnConfirm.setOnClickListener(v -> {
             int total = totalCount[0];
-            if (total < 1 || total > 3) return;
+            if (total != 3) return;
             if (!isSacCountsValid(eligible, sacrificeCounts)) {
-                tvCounter.setText("选中的物品类型或品质不一致！");
+                tvCounter.setText("选中的物品品质不一致！");
+                tvCounter.setTextColor(0xFFE53935);
+                return;
+            }
+            Item first = null;
+            for (int i = 0; i < sacrificeCounts.length; i++)
+                if (sacrificeCounts[i] > 0) { first = eligible.get(i); break; }
+            if (first == null) return;
+            Rarity fromR = first.getRarity();
+            Rarity toR = Rarity.fromId(fromR.getId() + 1);
+            if (toR == null) {
+                tvCounter.setText("已达到最高品质，无法升阶！");
                 tvCounter.setTextColor(0xFFE53935);
                 return;
             }
@@ -789,14 +800,8 @@ public class NeutralEventActivity extends AppCompatActivity {
                 item.setCount(item.getCount() - n);
                 if (item.getCount() <= 0) InventoryManager.removeItem(bag, item);
             }
-            Item first = null;
-            for (int i = 0; i < sacrificeCounts.length; i++)
-                if (sacrificeCounts[i] > 0) { first = eligible.get(i); break; }
-            if (first == null) return;
-            Rarity fromR = first.getRarity();
-            Rarity toR = Rarity.fromId(fromR.getId() + 1);
-            if (toR == null) { showResult("已达到最高品质。"); switchToForwardButton(); return; }
-            Item reward = genReward(first.getType(), toR);
+            ItemType rewardType = pickRewardTypeByWeight(eligible, sacrificeCounts);
+            Item reward = genReward(rewardType, toR);
             String rd = reward != null ? (reward.getName() + "（" + reward.getRarity().getDisplayName() + "）") : "什么都没有";
             if (reward != null) InventoryManager.addItem(bag, reward);
             showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→获得：" + rd);
@@ -819,16 +824,37 @@ public class NeutralEventActivity extends AppCompatActivity {
         Button fBtnConfirm = btnConfirm;
         Runnable updateV = () -> {
             int t = totalCount[0];
-            if (t == 0) { tvCounter.setText("已选 0 / 3 — 请挑选≤3件同类型同品质的物品"); tvCounter.setTextColor(0xFFFF9800); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
-            else if (!isSacCountsValid(eligible, sacrificeCounts)) { tvCounter.setText("已选 " + t + " / 3 ❌ 类型或品质不一致"); tvCounter.setTextColor(0xFFE53935); fBtnConfirm.setEnabled(false); fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888)); }
-            else {
+            if (t == 0) {
+                tvCounter.setText("已选 0 / 3 — 请挑选3件相同品质的物品");
+                tvCounter.setTextColor(0xFFFF9800);
+                fBtnConfirm.setEnabled(false);
+                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+            } else if (!isSacCountsValid(eligible, sacrificeCounts)) {
+                tvCounter.setText("已选 " + t + " / 3 ❌ 品质不一致");
+                tvCounter.setTextColor(0xFFE53935);
+                fBtnConfirm.setEnabled(false);
+                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+            } else {
                 Item fi = null;
                 for (int i = 0; i < sacrificeCounts.length; i++)
                     if (sacrificeCounts[i] > 0) { fi = eligible.get(i); break; }
-                tvCounter.setText("已选 " + t + " / 3 ✅ " + (fi != null ? fi.getRarity().getDisplayName() + nameForType(fi.getType()) + " — 品质统一！" : ""));
-                tvCounter.setTextColor(0xFF4CAF50);
-                fBtnConfirm.setEnabled(t >= 1);
-                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(t >= 1 ? 0xFFFF9800 : 0xFF888888));
+                Rarity toR = fi != null ? Rarity.fromId(fi.getRarity().getId() + 1) : null;
+                if (toR == null) {
+                    tvCounter.setText("已选 " + t + " / 3 ⚠ 已达最高品质，无法升阶");
+                    tvCounter.setTextColor(0xFFE53935);
+                    fBtnConfirm.setEnabled(false);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+                } else if (t != 3) {
+                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 需要恰好3件");
+                    tvCounter.setTextColor(0xFFFF9800);
+                    fBtnConfirm.setEnabled(false);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+                } else {
+                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 品质统一！");
+                    tvCounter.setTextColor(0xFF4CAF50);
+                    fBtnConfirm.setEnabled(true);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF9800));
+                }
             }
         };
 
@@ -887,12 +913,29 @@ public class NeutralEventActivity extends AppCompatActivity {
             if (counts[i] <= 0) continue;
             if (first == null) { first = items.get(i); continue; }
             Item t = items.get(i);
-            if (t.getType() != first.getType() || t.getRarity() != first.getRarity()) return false;
+            if (t.getRarity() != first.getRarity()) return false;
         }
         return first != null;
     }
 
     private String nameForType(ItemType t) { return t == ItemType.EQUIPMENT ? "装备" : t == ItemType.CONSUMABLE ? "药水" : t == ItemType.GEM ? "宝石" : "物品"; }
+
+    private ItemType pickRewardTypeByWeight(List<Item> items, int[] counts) {
+        int equipCount = 0, consumableCount = 0, gemCount = 0;
+        for (int i = 0; i < counts.length; i++) {
+            if (counts[i] <= 0) continue;
+            Item item = items.get(i);
+            if (item.getType() == ItemType.EQUIPMENT) equipCount += counts[i];
+            else if (item.getType() == ItemType.CONSUMABLE) consumableCount += counts[i];
+            else if (item.getType() == ItemType.GEM) gemCount += counts[i];
+        }
+        int totalWeight = equipCount + consumableCount + gemCount;
+        if (totalWeight == 0) return ItemType.EQUIPMENT;
+        int roll = new Random().nextInt(totalWeight);
+        if (roll < equipCount) return ItemType.EQUIPMENT;
+        if (roll < equipCount + consumableCount) return ItemType.CONSUMABLE;
+        return ItemType.GEM;
+    }
 
     private Item genReward(ItemType type, Rarity r) {
         if (type == ItemType.EQUIPMENT) return EquipmentManager.getInstance(this).generateRandomEquip(5 + r.getId() * 8, r);
