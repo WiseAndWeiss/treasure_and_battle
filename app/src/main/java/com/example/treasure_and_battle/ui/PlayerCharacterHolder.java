@@ -13,6 +13,11 @@ public final class PlayerCharacterHolder {
 
     private PlayerCharacterHolder() {}
 
+    @androidx.annotation.Nullable
+    public static synchronized Character get(@NonNull Context context) {
+        return instance;
+    }
+
     @NonNull
     public static synchronized Character getOrCreate(@NonNull Context context) {
         if (instance == null) {

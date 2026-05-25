@@ -17,6 +17,7 @@ import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 
 public class SettingsFragment extends Fragment {
 
@@ -117,6 +118,13 @@ public class SettingsFragment extends Fragment {
                 DebugCharacterGrants.grantTalentPoints(requireContext(), 20));
         view.findViewById(R.id.btn_debug_gain_skill).setOnClickListener(v ->
                 DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+
+        view.findViewById(R.id.btn_dev_seed_items).setOnClickListener(v -> {
+            InventoryManager.clearAll(PlayerCharacterHolder.getOrCreate(requireContext()).getBagItems());
+            InventoryGridSync.seedDemoItems(requireContext());
+            InventoryGridSync.reloadSharedGridFromManager(requireContext());
+            FloatMsgOverlay.showFloatMsg(requireContext(), "已填充测试物品");
+        });
 
         return view;
     }

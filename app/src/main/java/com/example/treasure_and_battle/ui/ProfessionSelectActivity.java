@@ -1,5 +1,6 @@
 package com.example.treasure_and_battle.ui;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -55,6 +56,7 @@ public class ProfessionSelectActivity extends AppCompatActivity {
     private SkillPreviewAdapter adapter;
     private int currentTabIndex;
     private EditText etCharacterName;
+    private boolean isNewGame;
 
     private final List<SkillPreviewRow> currentSkillList = new ArrayList<>();
 
@@ -62,6 +64,8 @@ public class ProfessionSelectActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profession_select);
+
+        isNewGame = "new_game".equals(getIntent().getStringExtra("mode"));
 
         View root = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
@@ -125,10 +129,22 @@ public class ProfessionSelectActivity extends AppCompatActivity {
                 FloatMsgOverlay.showFloatMsg(this, "角色名需包含2~8个中文字符");
                 return;
             }
+
+            ProfessionType chosenType = PROFESSIONS[currentIndex];
+
+            if (isNewGame) {
+                Character newCh = new Character(1, name, chosenType, getApplicationContext());
+                PlayerCharacterHolder.restoreFrom(newCh);
+                FloatMsgOverlay.showFloatMsg(this, "冒险开始！职业: " + chosenType.name());
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+                return;
+            }
+
             ch.setName(name);
             Profession newProfession = ProfessionManager.getInstance(this)
-                    .createProfession(PROFESSIONS[currentIndex]);
-            ch.switchProfession(PROFESSIONS[currentIndex], newProfession);
+                    .createProfession(chosenType);
+            ch.switchProfession(chosenType, newProfession);
             FloatMsgOverlay.showFloatMsg(this, "已切换职业: " + newProfession.getProfessionName());
             finish();
         });

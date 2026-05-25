@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
     android:background="@drawable/bg_screen_treasure">
 
     <TextView
@@ -13,281 +12,313 @@
         android:text="设置"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginTop="8dp"
-        android:textColor="@color/tb_gold"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/tb_gold" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_panel_treasure"
-        android:padding="14dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp"
+        android:fillViewport="false"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_show_map_poi"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="显示地图自带地名/建筑图标"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            app:thumbTint="@color/tb_switch_thumb"
-            app:trackTint="@color/tb_switch_track"/>
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="关闭后地图将更干净，避免与游戏事件图标重叠。"
-            android:textSize="12sp"
-            android:textColor="@color/tb_text_sub"
-            android:lineSpacingExtra="2dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_panel_treasure"
+                android:padding="14dp">
 
-        <TextView
-            android:id="@+id/btn_open_trade"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="交易（临时入口）"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_show_map_poi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="显示地图自带地名/建筑图标"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    app:thumbTint="@color/tb_switch_thumb"
+                    app:trackTint="@color/tb_switch_track" />
 
-        <TextView
-            android:id="@+id/btn_open_battle"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="战斗界面（演示）"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="关闭后地图将更干净，避免与游戏事件图标重叠。"
+                    android:textSize="12sp"
+                    android:textColor="@color/tb_text_sub"
+                    android:lineSpacingExtra="2dp" />
 
-        <TextView
-            android:id="@+id/btn_profession_select"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="职业选择"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/btn_open_trade"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="交易（临时入口）"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/btn_back_to_main"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="返回主页面"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/btn_open_battle"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="战斗界面（演示）"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/btn_save_game"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="保存游戏"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/btn_profession_select"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="职业选择"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/btn_load_game"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_tab_idle"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="读取游戏"
-            android:textColor="@color/tb_text_main"
-            android:textSize="16sp" />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/btn_back_to_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="返回主页面"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#E0E0E0"
-        android:layout_marginVertical="12dp"/>
+                <TextView
+                    android:id="@+id/btn_save_game"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="保存游戏"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="开发者选项"
-        android:textSize="16sp"
-        android:textColor="#888888"
-        android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:id="@+id/btn_load_game"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tab_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="读取游戏"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_debug"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="调试功能"
-        android:textColor="@color/tb_text_main"
-        android:textSize="16sp"
-        android:padding="10dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginVertical="12dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="开启后地图页面将出现/调试功能/按钮，可在当前位置生成测试事件。"
-        android:textColor="#888888"
-        android:textSize="12sp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开发者选项"
+                android:textSize="16sp"
+                android:textColor="#888888"
+                android:layout_marginBottom="8dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#E0E0E0"
-        android:layout_marginVertical="12dp"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="调试功能"
+                android:textColor="@color/tb_text_main"
+                android:textSize="16sp"
+                android:padding="10dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="事件生成速率"
-        android:textSize="16sp"
-        android:textColor="#888888"
-        android:layout_marginBottom="10dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="开启后地图页面将出现/调试功能/按钮，可在当前位置生成测试事件。"
+                android:textColor="#888888"
+                android:textSize="12sp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="10dp" />
 
-    <RadioGroup
-        android:id="@+id/rg_event_rate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginVertical="12dp" />
 
-        <RadioButton
-            android:id="@+id/rb_rate_fast"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="快速（10秒/批，事件30秒~40秒过期）"
-            android:textColor="@color/tb_text_main"
-            android:textSize="14sp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="事件生成速率"
+                android:textSize="16sp"
+                android:textColor="#888888"
+                android:layout_marginBottom="10dp" />
 
-        <RadioButton
-            android:id="@+id/rb_rate_normal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="普通（1分钟/批，事件2分钟~4分钟过期）"
-            android:textColor="@color/tb_text_main"
-            android:textSize="14sp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"/>
+            <RadioGroup
+                android:id="@+id/rg_event_rate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/rb_rate_slow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="慢速（30分钟/批，事件75分钟~120分钟过期）"
-            android:textColor="@color/tb_text_main"
-            android:textSize="14sp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"/>
-    </RadioGroup>
+                <RadioButton
+                    android:id="@+id/rb_rate_fast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="快速（10秒/批，事件30秒~40秒过期）"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="14sp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="切换速率将清空当前地图事件并重新生成。"
-        android:textColor="#888888"
-        android:textSize="12sp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="16dp"/>
+                <RadioButton
+                    android:id="@+id/rb_rate_normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="普通（1分钟/批，事件2分钟~4分钟过期）"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="14sp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_event_toast"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="事件生成提示"
-        android:textColor="@color/tb_text_main"
-        android:textSize="16sp"
-        android:padding="10dp"/>
+                <RadioButton
+                    android:id="@+id/rb_rate_slow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="慢速（30分钟/批，事件75分钟~120分钟过期）"
+                    android:textColor="@color/tb_text_main"
+                    android:textSize="14sp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp" />
+            </RadioGroup>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="关闭后事件生成时将不再弹出浮动提示。"
-        android:textColor="#888888"
-        android:textSize="12sp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="10dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="切换速率将清空当前地图事件并重新生成。"
+                android:textColor="#888888"
+                android:textSize="12sp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="16dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_panel_treasure"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="10dp">
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_event_toast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="事件生成提示"
+                android:textColor="@color/tb_text_main"
+                android:textSize="16sp"
+                android:padding="10dp" />
 
-        <TextView
-            android:id="@+id/btn_debug_gain_exp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="+500000经验"
-            android:textColor="@color/tb_battle"
-            android:textSize="13sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="关闭后事件生成时将不再弹出浮动提示。"
+                android:textColor="#888888"
+                android:textSize="12sp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="10dp" />
 
-        <TextView
-            android:id="@+id/btn_debug_gain_talent"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="+20天赋点"
-            android:textColor="@color/tb_battle"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_panel_treasure"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="10dp">
 
-        <TextView
-            android:id="@+id/btn_debug_gain_skill"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="+20技能点"
-            android:textColor="@color/tb_battle"
-            android:textSize="13sp" />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/btn_debug_gain_exp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="+500000经验"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="13sp" />
 
+                <TextView
+                    android:id="@+id/btn_debug_gain_talent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="+20天赋点"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/btn_debug_gain_skill"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="+20技能点"
+                    android:textColor="@color/tb_battle"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btn_dev_seed_items"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_tab_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="设置测试物品"
+                android:textColor="@color/tb_battle"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
