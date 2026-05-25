@@ -1635,12 +1635,12 @@ public class BagFragment extends Fragment {
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
-        popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        popupMenu.getMenu().add(0, 1, 1, "查看详情");
         if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
-            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+            popupMenu.getMenu().add(0, 4, 2, "拆卸宝石");
         }
-        popupMenu.getMenu().add(0, 3, 0, "丢弃");
+        popupMenu.getMenu().add(0, 3, 3, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {

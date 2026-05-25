@@ -126,4 +126,34 @@ public final class BagGridCellSizer {
         int totalCellWidth = (squareSizePx + cellPad * 2 + spacing * 2) * MERCHANT_COLUMNS;
         return Math.max((recyclerWidthPx - totalCellWidth) / 2, 0);
     }
+
+    /** 事件弹窗内 2 列物品选择格（祝福 / 祭坛 / 重炼）。 */
+    public static final int DIALOG_GRID_COLUMNS = 2;
+
+    /**
+     * 根据 RecyclerView 宽度计算正方形边长。
+     * @return 0 表示宽度尚未量好
+     */
+    public static int resolveDialogGridSquareSizePx(DisplayMetrics dm, int recyclerWidthPx) {
+        if (recyclerWidthPx <= 0) {
+            return 0;
+        }
+        int spacing = dpToPx(dm, CELL_SPACING_DP);
+        int horizontalSpace = spacing * 2 * DIALOG_GRID_COLUMNS;
+        int squareByWidth = (recyclerWidthPx - horizontalSpace) / DIALOG_GRID_COLUMNS;
+        int maxSquare = dpToPx(dm, CELL_MAX_DP);
+        int minSquare = dpToPx(dm, CELL_MIN_DP);
+        int resolved = Math.min(maxSquare, Math.max(minSquare, squareByWidth));
+        return resolved > 0 ? resolved : 0;
+    }
+
+    public static int dialogGridColumnWidthPx(int recyclerWidthPx) {
+        return recyclerWidthPx / DIALOG_GRID_COLUMNS;
+    }
+
+    /** 正方形格子在列内水平居中时的左侧 inset。 */
+    public static int dialogGridCellHorizontalInsetPx(int recyclerWidthPx, int squarePx) {
+        int columnWidth = dialogGridColumnWidthPx(recyclerWidthPx);
+        return Math.max(0, (columnWidth - squarePx) / 2);
+    }
 }
