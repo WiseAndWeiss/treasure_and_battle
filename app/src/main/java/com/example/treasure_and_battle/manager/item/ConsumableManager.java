@@ -9,6 +9,8 @@ import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.battle.DamageManager;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
+import com.example.treasure_and_battle.consumable.utility.UtilityHandlerRegistry;
+
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
@@ -46,7 +48,8 @@ public class ConsumableManager {
             case BUFF:    return buff(player, ctx, e);
             case CLEANSE: return cleanse(player, ctx);
             case ESCAPE:  return escape(ctx);
-            case UTILITY: return utilityInBattle(ctx, e);
+            case UTILITY_PASSIVE:
+            case UTILITY_ACTIVE: return utilityInBattle(ctx, e);
             default:      return false;
         }
     }
@@ -69,7 +72,8 @@ public class ConsumableManager {
         switch (e.type) {
             case HEAL_HP: return healOutBattle(character, item, e, true);
             case HEAL_MP: return healOutBattle(character, item, e, false);
-            case UTILITY: return utilityOutBattle(character, item, e, context);
+            case UTILITY_PASSIVE:
+            case UTILITY_ACTIVE: return utilityOutBattle(character, item, e, context);
             default:      return false;
         }
     }
@@ -96,25 +100,7 @@ public class ConsumableManager {
     private static boolean utilityOutBattle(Character character, ConsumableItem item, Effect e, Context context) {
         String uid = e.utilityId;
         if (uid == null) return false;
-
-        switch (uid) {
-            case "KEY_COPPER":
-            case "KEY_SILVER":
-            case "KEY_GOLD":
-                return true;
-            case "UNSOCKET_GEM":
-                return true;
-            case "POLISH_EQUIP":
-                return true;
-            case "RESET_TALENTS":
-                character.resetAllTalentPoints();
-                character.resetAllSkills();
-                return true;
-            case "REFRESH_EVENTS":
-                return true;
-            default:
-                return false;
-        }
+        return UtilityHandlerRegistry.execute(uid, character, item, e, context);
     }
 
     // ===================== 局内 UTILITY =====================
