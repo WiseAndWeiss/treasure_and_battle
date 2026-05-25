@@ -2,11 +2,15 @@ package com.example.treasure_and_battle.ui;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
@@ -26,7 +30,7 @@ public class BenefitEventActivity extends AppCompatActivity {
     private LinearLayout llChoiceArea;
     private LinearLayout llResultArea;
     private TextView tvResult;
-    private Button btnContinue;
+    private TextView btnContinue;
     private TextView tvToolbarTitle;
     private String eventKey;
     private String chestName;
@@ -38,6 +42,24 @@ public class BenefitEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_benefit_hub);
+
+        View header = findViewById(R.id.benefit_header);
+        View body = findViewById(R.id.benefit_body);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+
+        ViewCompat.setOnApplyWindowInsetsListener(header, (v, insets) -> {
+            Insets status = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            v.setPadding(v.getPaddingLeft(), status.top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        final int bodyPaddingBottom = body.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(body, (v, insets) -> {
+            Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
+                    bodyPaddingBottom + nav.bottom);
+            return insets;
+        });
 
         eventKey = getIntent().getStringExtra("event_key");
         if (eventKey == null) eventKey = "rest";
@@ -58,7 +80,7 @@ public class BenefitEventActivity extends AppCompatActivity {
             cardRest.setVisibility(View.GONE);
             rollChestType();
             TextView tvChestTitle = findViewById(R.id.tv_chest_title);
-            tvChestTitle.setText("📦 " + chestName);
+            tvChestTitle.setText(chestName);
             TextView tvChestDesc = findViewById(R.id.tv_chest_desc);
             tvChestDesc.setText("营地角落里有一只" + chestName + "！需要" + getKeyName(keyId) + "才能开启。");
             cardChest.setOnClickListener(v -> doChest());
@@ -97,7 +119,7 @@ public class BenefitEventActivity extends AppCompatActivity {
         int heal = (int) (ch.getBaseMaxHp() * 0.3);
         int newHp = Math.min(ch.getCurrentHp() + heal, ch.getBaseMaxHp());
         ch.setCurrentHp(newHp);
-        showResult("你靠在篝火旁休息，伤势恢复了。\n\n✅ 生命值 +" + heal + "（当前：" + ch.getCurrentHp() + "/" + ch.getBaseMaxHp() + "）");
+        showResult("你靠在篝火旁休息，伤势恢复了。\n\n生命值 +" + heal + "（当前：" + ch.getCurrentHp() + "/" + ch.getBaseMaxHp() + "）");
         switchToForwardButton();
     }
 
@@ -107,7 +129,7 @@ public class BenefitEventActivity extends AppCompatActivity {
 
         ConsumableItem keyItem = findConsumableById(bag, keyId);
         if (keyItem == null) {
-            showResult("营地中有一只" + chestName + "！\n\n❌ 你没有" + getKeyName(keyId) + "，无法打开宝箱。");
+            showResult("营地中有一只" + chestName + "！\n\n你没有" + getKeyName(keyId) + "，无法打开宝箱。");
             switchToForwardButton();
             return;
         }
@@ -130,13 +152,13 @@ public class BenefitEventActivity extends AppCompatActivity {
         StringBuilder sb = new StringBuilder();
         sb.append("营地中有一只").append(chestName).append("！\n");
         sb.append("你使用").append(getKeyName(keyId)).append("打开了宝箱！\n\n");
-        sb.append("✅ 获得：").append(equipName).append("\n");
-        sb.append("✅ 金币 +").append(gold).append("\n");
+        sb.append("获得：").append(equipName).append("\n");
+        sb.append("金币 +").append(gold).append("\n");
 
         GemItem gem = im.getRandomGemByRarity(chestRarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
         if (gem != null) {
             InventoryManager.addItem(bag, gem);
-            sb.append("✅ 获得：").append(gem.getName()).append("（").append(gem.getRarity().getDisplayName()).append("）");
+            sb.append("获得：").append(gem.getName()).append("（").append(gem.getRarity().getDisplayName()).append("）");
         }
 
         showResult(sb.toString());
@@ -167,8 +189,6 @@ public class BenefitEventActivity extends AppCompatActivity {
     private void switchToForwardButton() {
         if (btnContinue != null) {
             btnContinue.setText("前进");
-            btnContinue.setBackgroundColor(0xFF4CAF50);
-            btnContinue.setTextColor(0xFFFFFFFF);
             btnContinue.setOnClickListener(v -> finish());
         }
     }

@@ -152,8 +152,8 @@ public class ItemMenuProviderTest {
 
     @Test
     public void testItemAction_DefaultConstructor_NoHint() {
-        ItemAction action = new ItemAction("查看", true, item -> {});
-        assertEquals("查看", action.getDisplayText());
+        ItemAction action = new ItemAction("查看详情", true, item -> {});
+        assertEquals("查看详情", action.getDisplayText());
     }
 
     @Test
@@ -217,7 +217,7 @@ public class ItemMenuProviderTest {
         EquipmentMenuProvider provider = new EquipmentMenuProvider(
                 equipCallback, null, viewCallback, discardCallback);
         List<ItemAction> actions = provider.getActions(testEquipItem);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertTrue(actions.get(1).enabled);
         actions.get(1).action.accept(testEquipItem);
         assertEquals(testEquipItem, lastViewed.get());
@@ -240,7 +240,7 @@ public class ItemMenuProviderTest {
                 equipCallback, null, viewCallback, discardCallback);
         List<ItemAction> actions = provider.getActions(testEquipItem);
         assertEquals("装备", actions.get(0).name);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertEquals("丢弃", actions.get(2).name);
     }
 
@@ -289,7 +289,7 @@ public class ItemMenuProviderTest {
     public void testConsumableMenuProvider_ViewAction() {
         ConsumableMenuProvider provider = new ConsumableMenuProvider(useCallback, viewCallback, discardCallback);
         List<ItemAction> actions = provider.getActions(testConsumableOutBattle);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertTrue(actions.get(1).enabled);
         actions.get(1).action.accept(testConsumableOutBattle);
         assertEquals(testConsumableOutBattle, lastViewed.get());
@@ -310,7 +310,7 @@ public class ItemMenuProviderTest {
         ConsumableMenuProvider provider = new ConsumableMenuProvider(useCallback, viewCallback, discardCallback);
         List<ItemAction> actions = provider.getActions(testConsumableOutBattle);
         assertEquals("使用", actions.get(0).name);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertEquals("丢弃", actions.get(2).name);
     }
 
@@ -346,7 +346,7 @@ public class ItemMenuProviderTest {
         GemMenuProvider provider = new GemMenuProvider(g -> {}, viewCallback, discardCallback, true);
         List<ItemAction> actions = provider.getActions(testGemItem);
         assertEquals("镶嵌(战斗禁用)", actions.get(0).name);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertEquals("丢弃", actions.get(2).name);
     }
 
@@ -391,7 +391,7 @@ public class ItemMenuProviderTest {
     public void testMaterialMenuProvider_ActionOrder() {
         MaterialMenuProvider provider = new MaterialMenuProvider(viewCallback, discardCallback);
         List<ItemAction> actions = provider.getActions(testMaterialItem);
-        assertEquals("查看", actions.get(0).name);
+        assertEquals("查看详情", actions.get(0).name);
         assertEquals("丢弃", actions.get(1).name);
     }
 
@@ -418,7 +418,7 @@ public class ItemMenuProviderTest {
         List<ItemAction> actions = factory.getActions(testEquipItem);
         assertEquals(3, actions.size());
         assertEquals("装备", actions.get(0).name);
-        assertEquals("查看", actions.get(1).name);
+        assertEquals("查看详情", actions.get(1).name);
         assertEquals("丢弃", actions.get(2).name);
     }
 
@@ -458,7 +458,7 @@ public class ItemMenuProviderTest {
 
         List<ItemAction> actions = factory.getActions(testMaterialItem);
         assertEquals(2, actions.size());
-        assertEquals("查看", actions.get(0).name);
+        assertEquals("查看详情", actions.get(0).name);
         assertEquals("丢弃", actions.get(1).name);
     }
 
@@ -503,7 +503,7 @@ public class ItemMenuProviderTest {
         assertEquals("镶嵌(战斗禁用)", gemActions.get(0).name);
 
         List<ItemAction> matActions = factory.getActions(testMaterialItem);
-        assertEquals("查看", matActions.get(0).name);
+        assertEquals("查看详情", matActions.get(0).name);
     }
 
     // ====================== Equipment 动态状态测试 ======================
@@ -622,12 +622,12 @@ public class ItemMenuProviderTest {
             List<ItemAction> actions = providers.get(i).getActions(items.get(i));
             boolean viewFound = false;
             for (ItemAction action : actions) {
-                if ("查看".equals(action.name)) {
-                    assertTrue("查看按钮应始终可用", action.enabled);
+                if ("查看详情".equals(action.name)) {
+                    assertTrue("查看详情按钮应始终可用", action.enabled);
                     viewFound = true;
                 }
             }
-            assertTrue("应包含查看按钮: " + providers.get(i).getClass().getSimpleName(), viewFound);
+            assertTrue("应包含查看详情按钮: " + providers.get(i).getClass().getSimpleName(), viewFound);
         }
     }
 
@@ -677,7 +677,7 @@ public class ItemMenuProviderTest {
             assertFalse("菜单不应为空", actions.isEmpty());
             int lastIndex = actions.size() - 1;
             assertEquals("最后一项应为丢弃", "丢弃", actions.get(lastIndex).name);
-            assertEquals("倒数第二项应为查看", "查看", actions.get(lastIndex - 1).name);
+            assertEquals("倒数第二项应为查看详情", "查看详情", actions.get(lastIndex - 1).name);
         }
     }
 }

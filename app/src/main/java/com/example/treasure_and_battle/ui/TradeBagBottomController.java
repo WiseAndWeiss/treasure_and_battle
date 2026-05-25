@@ -896,7 +896,7 @@ public final class TradeBagBottomController {
 
         private void showItemMenu(View view, int realPosition, Item item) {
             PopupMenu popupMenu = new PopupMenu(host.requireContext(), view);
-            popupMenu.getMenu().add(0, 1, 0, "查看描述");
+            popupMenu.getMenu().add(0, 1, 0, "查看详情");
             popupMenu.getMenu().add(0, 2, 0, "出售");
             popupMenu.getMenu().add(0, 3, 0, "丢弃");
 

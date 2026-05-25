@@ -625,7 +625,7 @@ public class TradeFragment extends Fragment {
             return;
         }
         PopupMenu menu = new PopupMenu(requireContext(), anchor);
-        menu.getMenu().add(0, 1, 0, "查看描述");
+        menu.getMenu().add(0, 1, 0, "查看详情");
         menu.getMenu().add(0, 2, 0, "购买");
         menu.setOnMenuItemClickListener(mi -> {
             if (mi.getItemId() == 1) {

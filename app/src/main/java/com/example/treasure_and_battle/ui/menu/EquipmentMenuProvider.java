@@ -29,7 +29,7 @@ public class EquipmentMenuProvider implements ItemMenuProvider {
         EquipItem eq = (EquipItem) item;
         List<ItemAction> actions = new ArrayList<>();
         actions.add(new ItemAction("装备", true, i -> equipCallback.accept((EquipItem) i)));
-        actions.add(new ItemAction("查看", true, viewCallback));
+        actions.add(new ItemAction("查看详情", true, viewCallback));
         if (eq.getSocketedGems() != null && !eq.getSocketedGems().isEmpty() && unsocketCallback != null) {
             actions.add(new ItemAction("拆卸宝石", true, i -> unsocketCallback.accept((EquipItem) i)));
         }

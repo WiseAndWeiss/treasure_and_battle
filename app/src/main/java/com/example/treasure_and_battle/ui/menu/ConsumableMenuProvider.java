@@ -29,7 +29,7 @@ public class ConsumableMenuProvider implements ItemMenuProvider {
         actions.add(new ItemAction("使用", canUseOutBattle,
                 canUseOutBattle ? i -> useCallback.accept((ConsumableItem) i) : i -> {},
                 canUseOutBattle ? null : "(局外禁用)"));
-        actions.add(new ItemAction("查看", true, viewCallback));
+        actions.add(new ItemAction("查看详情", true, viewCallback));
         actions.add(new ItemAction("丢弃", true, discardCallback));
         return actions;
     }
