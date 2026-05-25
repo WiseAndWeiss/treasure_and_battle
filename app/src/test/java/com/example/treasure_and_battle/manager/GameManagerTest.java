@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(sdk = 33, manifest = Config.NONE)
 public class GameManagerTest {
 
     private Context context;
@@ -222,7 +222,7 @@ public class GameManagerTest {
     public void testStartGame_AfterLoad_CharacterRestored() {
         Character ch = createTestCharacter();
         ch.addGold(5000);
-        ch.gainExp(ch.getExpToNextLevel() * 3);
+        ch.gainExp(ch.getExpToNextLevel() * 15);
         gameManager.startGame(ch);
         gameManager.triggerAutoSave();
 

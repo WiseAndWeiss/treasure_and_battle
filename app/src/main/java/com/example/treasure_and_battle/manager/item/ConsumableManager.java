@@ -22,7 +22,7 @@ import java.util.List;
 public class ConsumableManager {
 
     public static boolean execute(Player player, BattleContext ctx, ConsumableItem item, Context context) {
-        if (player == null || item == null || item.getEffects() == null) return false;
+        if (player == null || item == null || item.getEffects() == null || item.getEffects().isEmpty()) return false;
 
         for (Effect effect : item.getEffects()) {
             boolean ok = dispatch(player, ctx, item, effect, context);
@@ -33,6 +33,7 @@ public class ConsumableManager {
 
     private static boolean dispatch(Player player, BattleContext ctx,
                                      ConsumableItem item, Effect e, Context context) {
+        if (e == null || e.type == null) return false;
         switch (e.type) {
             case HEAL_HP: return heal(player, ctx, item, e, context, true);
             case HEAL_MP: return heal(player, ctx, item, e, context, false);

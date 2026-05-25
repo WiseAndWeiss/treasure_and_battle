@@ -30,6 +30,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
@@ -94,6 +95,10 @@ class AffixTypeAdapterFactory implements TypeAdapterFactory {
 
         @Override
         public BaseAffix read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
             JsonObject obj = gson.fromJson(in, JsonObject.class);
             if (obj == null) return null;
             String type = obj.get("_type").getAsString();

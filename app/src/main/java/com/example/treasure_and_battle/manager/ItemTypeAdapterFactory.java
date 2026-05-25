@@ -9,14 +9,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
@@ -37,44 +34,8 @@ class ItemTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         Class<?> raw = type.getRawType();
-        if (!Item.class.isAssignableFrom(raw)) return null;
-
-        if (raw == Item.class || CLASS_MAP.containsValue(raw)) {
-            return (TypeAdapter<T>) new ItemTypeAdapter(gson);
-        }
-
-        if (raw == EquipItem.class || raw == ConsumableItem.class
-                || raw == MaterialItem.class || raw == GemItem.class) {
-            return (TypeAdapter<T>) new ConcreteItemAdapter<>(gson, (Class<? extends Item>) raw);
-        }
-
-        return null;
-    }
-
-    private static class ConcreteItemAdapter<T extends Item> extends TypeAdapter<T> {
-        private final Gson gson;
-        private final Class<T> clazz;
-
-        ConcreteItemAdapter(Gson gson, Class<T> clazz) {
-            this.gson = gson;
-            this.clazz = clazz;
-        }
-
-        @Override
-        public void write(JsonWriter out, T value) throws IOException {
-            if (value == null) { out.nullValue(); return; }
-            JsonElement tree = gson.toJsonTree(value, value.getClass());
-            JsonObject obj = tree.getAsJsonObject();
-            obj.addProperty("_type", value.getClass().getSimpleName());
-            gson.toJson(obj, out);
-        }
-
-        @Override
-        public T read(JsonReader in) throws IOException {
-            JsonObject obj = gson.fromJson(in, JsonObject.class);
-            if (obj == null) return null;
-            return gson.fromJson(obj, clazz);
-        }
+        if (raw != Item.class) return null;
+        return (TypeAdapter<T>) new ItemTypeAdapter(gson);
     }
 
     private static class ItemTypeAdapter extends TypeAdapter<Item> {
@@ -98,6 +59,10 @@ class ItemTypeAdapterFactory implements TypeAdapterFactory {
 
         @Override
         public Item read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
             JsonObject obj = gson.fromJson(in, JsonObject.class);
             if (obj == null) return null;
             String type = obj.get("_type").getAsString();
