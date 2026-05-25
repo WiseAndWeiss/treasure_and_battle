@@ -753,8 +753,9 @@
       ]
     },
     {
-      "templateId":6110,
-      "affixName":"智力强化",
+      "templateId": 6110,
+      "affixName": "智力强化",
+      "descriptionFormat": "智力 +%.0f%%",
       "triggerType": "PERMANENT",
       "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
@@ -770,8 +771,9 @@
       ]
     },
     {
-      "templateId":6111,
-      "affixName":"精神强化",
+      "templateId": 6111,
+      "affixName": "精神强化",
+      "descriptionFormat": "精神 +%.0f%%",
       "triggerType": "PERMANENT",
       "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
@@ -787,8 +789,9 @@
       ]
     },
     {
-      "templateId":6112,
-      "affixName":"体魄强化",
+      "templateId": 6112,
+      "affixName": "体魄强化",
+      "descriptionFormat": "体魄 +%.0f%%",
       "triggerType": "PERMANENT",
       "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",
@@ -804,8 +807,9 @@
       ]
     },
     {
-      "templateId":6113,
-      "affixName":"幸运强化",
+      "templateId": 6113,
+      "affixName": "幸运强化",
+      "descriptionFormat": "幸运 +%.0f%%",
       "triggerType": "PERMANENT",
       "allowCategories": ["ACCESSORY"],
       "affixClass": "com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix",

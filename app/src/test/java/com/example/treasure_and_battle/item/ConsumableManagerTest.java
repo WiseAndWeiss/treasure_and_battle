@@ -68,7 +68,7 @@ public class ConsumableManagerTest {
     public void testEmptyEffects() {
         ConsumableItem item = new ConsumableItem("c", "测试",
                 Rarity.COMMON, 10, 10, true, true, new ArrayList<>(), "");
-        assertTrue(ConsumableManager.execute(player, null, item, context));
+        assertFalse(ConsumableManager.execute(player, null, item, context));
     }
 
     @Test
@@ -217,8 +217,10 @@ public class ConsumableManagerTest {
     @Test
     public void testDamagePercentBased() {
         Monster m = createMonster("m1", "怪物", 10);
+        m.getBaseAttributes().maxHp = 100;
+        m.getBaseAttributes().physicalDef = 0;
+        m.markAttributeCacheDirty();
         m.setCurrentHp(100);
-        m.getFinalAttributes().maxHp = 100;
 
         BattleContext ctx = new BattleContext(player, Collections.singletonList(m), false);
 

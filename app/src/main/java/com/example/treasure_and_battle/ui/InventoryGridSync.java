@@ -37,7 +37,6 @@ public final class InventoryGridSync {
      */
     public static synchronized List<Item> getSharedBagGrid(@Nullable Context context) {
         if (sharedBagGrid == null) {
-            seedDemoIfEmpty(context);
             sharedBagGrid = newGridFilledFromCharacter(context);
         }
         return sharedBagGrid;
@@ -53,15 +52,11 @@ public final class InventoryGridSync {
         return grid;
     }
 
-    /** 管理器为空时写入综合测试物品集：装备(8部位) + 材料(4种含堆叠) + 宝石(2种) + 消耗品(4种含堆叠) */
-    public static void seedDemoIfEmpty(@Nullable Context context) {
-        if (context == null) {
-            return;
-        }
-        Character ch = PlayerCharacterHolder.getOrCreate(context);
-        if (ch == null || !InventoryManager.isEmpty(ch.getBagItems())) {
-            return;
-        }
+    /** 向当前角色背包写入测试物品集 */
+    public static void seedDemoItems(@Nullable Context context) {
+        if (context == null) return;
+        Character ch = PlayerCharacterHolder.get(context);
+        if (ch == null) return;
         List<Item> bag = ch.getBagItems();
 
         EquipmentManager em = EquipmentManager.getInstance(context);
