@@ -13,6 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -28,6 +29,9 @@ import com.example.treasure_and_battle.manager.item.InventoryManager;
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
+    private RadioGroup rgRate;
+    private RadioButton rbFast, rbNormal, rbSlow;
+    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +52,21 @@ public class SettingsFragment extends Fragment {
         switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
+        
+        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
+        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
+        switchToast.setChecked(showToast);
+        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
+        });
+
+        rbFast = view.findViewById(R.id.rb_rate_fast);
+        rbNormal = view.findViewById(R.id.rb_rate_normal);
+        rbSlow = view.findViewById(R.id.rb_rate_slow);
+        rgRate = view.findViewById(R.id.rg_event_rate);
+
+        savedRate = sharedPrefs.getInt("eventRate", 0);
+        selectRadioSilently(savedRate);
         
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
