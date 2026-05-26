@@ -2,9 +2,11 @@ package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -47,6 +49,10 @@ public class TradeFragment extends Fragment {
 
     private TextView tvGold;
     private TradeBagBottomController tradeBagBottom;
+    @Nullable
+    private RecyclerView rvMerchant;
+    private int merchantSquareSizePx;
+    private boolean merchantGridReady;
     @Nullable
     private MerchantAdapter merchantAdapter;
 
@@ -159,18 +165,12 @@ public class TradeFragment extends Fragment {
 
         buildMerchantListings();
 
-        RecyclerView rv = view.findViewById(R.id.rv_merchant);
-        rv.setHasFixedSize(true);
-        rv.setNestedScrollingEnabled(false);
-        GridLayoutManager glm = new GridLayoutManager(requireContext(), MERCHANT_COLUMNS) {
-            @Override
-            public boolean canScrollVertically() {
-                return false;
-            }
-        };
-        rv.setLayoutManager(glm);
+        rvMerchant = view.findViewById(R.id.rv_merchant);
+        rvMerchant.setVisibility(View.INVISIBLE);
+        rvMerchant.setHasFixedSize(true);
+        rvMerchant.setLayoutManager(new GridLayoutManager(requireContext(), MERCHANT_COLUMNS));
         merchantAdapter = new MerchantAdapter();
-        rv.setAdapter(merchantAdapter);
+        setupMerchantGridCellSizing();
     }
 
     @Override
@@ -324,6 +324,74 @@ public class TradeFragment extends Fragment {
             return;
         }
         tvGold.setText("金币：" + tradeCharacter().getGold());
+    }
+
+    private void setupMerchantGridCellSizing() {
+        if (rvMerchant == null) {
+            return;
+        }
+        rvMerchant.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                applyMerchantGridCellSizeIfReady();
+            }
+        });
+        scheduleMerchantGridCellSizeApply();
+    }
+
+    private void scheduleMerchantGridCellSizeApply() {
+        if (rvMerchant == null) {
+            return;
+        }
+        rvMerchant.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (!applyMerchantGridCellSizeIfReady()) {
+                    return true;
+                }
+                if (!merchantGridReady) {
+                    merchantGridReady = true;
+                    rvMerchant.getViewTreeObserver().removeOnPreDrawListener(this);
+                    rvMerchant.requestLayout();
+                    return false;
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyMerchantGridCellSizeIfReady() {
+        if (rvMerchant == null || merchantAdapter == null) {
+            return false;
+        }
+        int width = rvMerchant.getWidth()
+                - rvMerchant.getPaddingLeft() - rvMerchant.getPaddingRight();
+        int height = rvMerchant.getHeight()
+                - rvMerchant.getPaddingTop() - rvMerchant.getPaddingBottom();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        int resolved = BagGridCellSizer.resolveMerchantSquareSizePx(dm, width, height);
+        if (resolved <= 0) {
+            return false;
+        }
+
+        boolean sizeChanged = resolved != merchantSquareSizePx;
+        merchantSquareSizePx = resolved;
+        merchantAdapter.setSquareSizePx(merchantSquareSizePx);
+
+        if (rvMerchant.getAdapter() == null) {
+            rvMerchant.setAdapter(merchantAdapter);
+            rvMerchant.setVisibility(View.VISIBLE);
+        } else if (sizeChanged) {
+            merchantAdapter.notifyItemRangeChanged(0, merchantAdapter.getItemCount(), "CELL_SIZE");
+        }
+        return true;
+    }
+
+    private int dpToPx(int dp) {
+        return BagGridCellSizer.dpToPx(getResources().getDisplayMetrics(), dp);
     }
 
     private int computeMaxPurchasableQty(@NonNull MerchantListing listing) {
@@ -495,15 +563,70 @@ public class TradeFragment extends Fragment {
 
     private class MerchantAdapter extends RecyclerView.Adapter<MerchantAdapter.Vh> {
 
+        private int squareSizePx = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        void setSquareSizePx(int squareSizePx) {
+            this.squareSizePx = squareSizePx;
+        }
+
+        private int itemHeightPx() {
+            if (squareSizePx <= 0) {
+                return ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+            return BagGridCellSizer.merchantItemHeightPx(getResources().getDisplayMetrics(), squareSizePx);
+        }
+
+        private void applyCellLayoutParams(@NonNull Vh h) {
+            if (squareSizePx <= 0) {
+                return;
+            }
+            ViewGroup.LayoutParams itemLp = h.itemView.getLayoutParams();
+            int targetHeight = itemHeightPx();
+            if (itemLp instanceof RecyclerView.LayoutParams) {
+                RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) itemLp;
+                if (p.height != targetHeight) {
+                    p.height = targetHeight;
+                    h.itemView.setLayoutParams(p);
+                }
+            }
+            ViewGroup.LayoutParams squareLp = h.merchantSlotSquare.getLayoutParams();
+            if (squareLp.width != squareSizePx || squareLp.height != squareSizePx) {
+                squareLp.width = squareSizePx;
+                squareLp.height = squareSizePx;
+                h.merchantSlotSquare.setLayoutParams(squareLp);
+            }
+        }
+
         @NonNull
         @Override
         public Vh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_merchant_cell, parent, false);
+            int spacing = dpToPx(BagGridCellSizer.MERCHANT_CELL_SPACING_DP);
+            int height = itemHeightPx();
+            RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    height > 0 ? height : ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(spacing, spacing, spacing, spacing);
+            row.setLayoutParams(params);
             return new Vh(row);
         }
 
         @Override
+        public void onBindViewHolder(@NonNull Vh h, int position, @NonNull List<Object> payloads) {
+            if (payloads.isEmpty()) {
+                onBindViewHolder(h, position);
+                return;
+            }
+            for (Object payload : payloads) {
+                if ("CELL_SIZE".equals(payload)) {
+                    applyCellLayoutParams(h);
+                }
+            }
+        }
+
+        @Override
         public void onBindViewHolder(@NonNull Vh h, int position) {
+            applyCellLayoutParams(h);
             MerchantListing listing = listings.get(position);
             Item item = listing.sample;
             boolean stackSale = listing.canPickQuantity();
