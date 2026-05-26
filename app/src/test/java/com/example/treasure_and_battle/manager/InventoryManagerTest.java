@@ -143,6 +143,44 @@ public class InventoryManagerTest {
         assertEquals("m2", bag.get(1).getId());
     }
 
+    @Test
+    public void testAutoStackInPlaceMergesScatteredStacks() {
+        bag.set(0, createMaterial("mat_a", 20));
+        bag.set(5, createMaterial("mat_a", 30));
+        bag.set(10, createMaterial("mat_a", 15));
+        assertEquals(3, InventoryManager.countOccupied(bag));
+
+        assertTrue(InventoryManager.autoStackInPlace(bag));
+        assertEquals(1, InventoryManager.countOccupied(bag));
+        assertEquals(65, bag.get(0).getCount());
+    }
+
+    @Test
+    public void testAutoStackInPlaceRespectsMaxStack() {
+        bag.set(0, createMaterial("mat_a", 80));
+        bag.set(3, createMaterial("mat_a", 50));
+        InventoryManager.autoStackInPlace(bag);
+        assertEquals(2, InventoryManager.countOccupied(bag));
+        assertEquals(99, bag.get(0).getCount());
+        assertEquals(31, bag.get(1).getCount());
+    }
+
+    @Test
+    public void testOrganizeBagStacksThenCompactsForward() {
+        bag.set(4, createMaterial("mat_a", 10));
+        bag.set(12, createMaterial("mat_a", 5));
+        bag.set(20, createMaterial("mat_b", 3));
+
+        InventoryManager.organizeBag(bag);
+
+        assertEquals(2, InventoryManager.countOccupied(bag));
+        assertEquals("mat_a", bag.get(0).getId());
+        assertEquals(15, bag.get(0).getCount());
+        assertEquals("mat_b", bag.get(1).getId());
+        assertEquals(3, bag.get(1).getCount());
+        assertEquals(null, bag.get(2));
+    }
+
     private MaterialItem createMaterial(String id, int count) {
         MaterialItem item = new MaterialItem(id, "测试材料",
                 Rarity.COMMON, 5, 99, "来源");

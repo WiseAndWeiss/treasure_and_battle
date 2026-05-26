@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.Item;
@@ -265,9 +266,10 @@ public final class TradeBagBottomController {
         btnPrevPage.setOnClickListener(v -> goPrevPage());
         btnNextPage.setOnClickListener(v -> goNextPage());
         btnCompactBag.setOnClickListener(v -> {
-            compactAllItemsForward();
+            InventoryManager.organizeBag(allItems);
             adapter.notifyDataSetChanged();
-            showFloatMsg("已向前整理背包");
+            InventoryGridSync.flushSharedGridToManager(host.requireContext());
+            showFloatMsg("已整理并堆叠背包");
         });
         btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
@@ -417,28 +419,6 @@ public final class TradeBagBottomController {
         }
     }
 
-    private void compactAllItemsForward() {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        List<Item> nonEmptyItems = new ArrayList<>();
-        int emptyCount = 0;
-
-        for (int i = 0; i < bagCapacity; i++) {
-            Item item = allItems.get(i);
-            if (item == null) {
-                emptyCount++;
-            } else {
-                nonEmptyItems.add(item);
-            }
-        }
-
-        int writeIndex = 0;
-        for (Item item : nonEmptyItems) {
-            allItems.set(writeIndex++, item);
-        }
-        for (int i = 0; i < emptyCount; i++) {
-            allItems.set(writeIndex++, null);
-        }
-    }
 
     private void updateFilterButtonText() {
         if (btnFilterSlot == null) return;
