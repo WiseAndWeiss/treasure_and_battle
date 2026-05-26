@@ -25,6 +25,7 @@ import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 
@@ -56,11 +57,15 @@ public final class TradeBagBottomController {
     private final int itemsPerPage = 25;
     @Nullable
     private EquipSlot currentFilterSlot = null;
+    private boolean canSellItems = true;
+    @Nullable
+    private List<ItemType> itemTypeFilter = null;
     private static final int BAG_GRID_COLUMNS = BagGridCellSizer.GRID_COLUMNS;
     private static final int BAG_GRID_ROWS = BagGridCellSizer.GRID_ROWS;
     private static final int BAG_CELL_SPACING_DP = BagGridCellSizer.CELL_SPACING_DP;
 
     private List<Item> allItems;
+    private List<Item> displayItems;
 
     // 拖动翻页控制
     private Handler edgeScrollHandler = new Handler(Looper.getMainLooper());
@@ -112,11 +117,37 @@ public final class TradeBagBottomController {
 
     private void initDummyData() {
         allItems = InventoryGridSync.getSharedBagGrid(host.requireContext());
+        displayItems = allItems;
+    }
+
+    private void rebuildDisplayItems() {
+        if (itemTypeFilter == null || itemTypeFilter.isEmpty()) {
+            displayItems = allItems;
+            return;
+        }
+        List<Item> compacted = new ArrayList<>();
+        for (Item item : allItems) {
+            if (item != null && itemTypeFilter.contains(item.getType())) {
+                compacted.add(item);
+            }
+        }
+        while (compacted.size() < allItems.size()) {
+            compacted.add(null);
+        }
+        displayItems = compacted;
+    }
+
+    private int findRealPositionInAllItems(@NonNull Item item) {
+        for (int i = 0; i < allItems.size(); i++) {
+            if (allItems.get(i) == item) return i;
+        }
+        return -1;
     }
 
     /** 从 {@link InventoryManager} 刷新网格显示（与背包页共用数据时调用） */
     public void reloadFromInventory() {
         InventoryGridSync.reloadSharedGridFromManager(host.requireContext());
+        rebuildDisplayItems();
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -128,6 +159,7 @@ public final class TradeBagBottomController {
         for (int i = 0; i < cap; i++) {
             if (allItems.get(i) == null) {
                 allItems.set(i, item);
+                rebuildDisplayItems();
                 if (adapter != null) {
                     adapter.notifyDataSetChanged();
                 }
@@ -153,6 +185,34 @@ public final class TradeBagBottomController {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void setCanSell(boolean canSell) {
+        this.canSellItems = canSell;
+    }
+
+    public void setItemTypeFilter(@Nullable List<ItemType> types) {
+        this.itemTypeFilter = types;
+        rebuildDisplayItems();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void sellPlayerItem(int displayPosition, Item item) {
+        if (!canSellItems) {
+            showFloatMsg("小贩表示不需要这些东西，你无法出售");
+            return;
+        }
+        int realPos = findRealPositionInAllItems(item);
+        if (realPos < 0) return;
+        SellItemDialog.show(host.requireActivity(), allItems, realPos, item,
+                () -> {
+                    rebuildDisplayItems();
+                    InventoryGridSync.flushSharedGridToManager(host.requireContext());
+                    adapter.notifyDataSetChanged();
+                },
+                host::addGoldFromSell);
     }
 
     private void setupRecyclerView() {
@@ -266,6 +326,7 @@ public final class TradeBagBottomController {
         btnNextPage.setOnClickListener(v -> goNextPage());
         btnCompactBag.setOnClickListener(v -> {
             compactAllItemsForward();
+            rebuildDisplayItems();
             adapter.notifyDataSetChanged();
             showFloatMsg("已向前整理背包");
         });
@@ -471,6 +532,7 @@ public final class TradeBagBottomController {
     }
 
     private boolean canDisplayByCurrentFilter(@Nullable Item item) {
+        if (item == null) return false;
         if (currentFilterSlot == null) return true;
         if (!(item instanceof EquipItem)) return false;
         EquipSlot itemSlot = ((EquipItem) item).getSlot();
@@ -484,10 +546,10 @@ public final class TradeBagBottomController {
                 int uiPos = viewHolder.getAdapterPosition();
                 if (uiPos == RecyclerView.NO_POSITION) return makeMovementFlags(0, 0);
                 int realPos = (currentPage - 1) * itemsPerPage + uiPos;
-                if (realPos < 0 || realPos >= allItems.size()
-                        || allItems.get(realPos) == null
-                        || !canDisplayByCurrentFilter(allItems.get(realPos))) {
-                    return makeMovementFlags(0, 0); // 空格子禁止拖拽
+                if (realPos < 0 || realPos >= displayItems.size()
+                        || displayItems.get(realPos) == null
+                        || !canDisplayByCurrentFilter(displayItems.get(realPos))) {
+                    return makeMovementFlags(0, 0);
                 }
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
                 return makeMovementFlags(dragFlags, 0);
@@ -545,10 +607,16 @@ public final class TradeBagBottomController {
                         int realTo = (currentPage - 1) * itemsPerPage + dragToUiPosition;
 
                         if (!handledEquipDrop && realFrom != realTo) {
-                            // 纯粹地交换原目标格和新目标格的数据
-                            Item temp = allItems.get(realFrom);
-                            allItems.set(realFrom, allItems.get(realTo));
-                            allItems.set(realTo, temp);
+                            Item itemFrom = (realFrom >= 0 && realFrom < displayItems.size()) ? displayItems.get(realFrom) : null;
+                            Item itemTo = (realTo >= 0 && realTo < displayItems.size()) ? displayItems.get(realTo) : null;
+                            int realFromIdx = itemFrom != null ? findRealPositionInAllItems(itemFrom) : -1;
+                            int realToIdx = itemTo != null ? findRealPositionInAllItems(itemTo) : -1;
+                            if (realFromIdx >= 0 && realToIdx >= 0) {
+                                Item temp = allItems.get(realFromIdx);
+                                allItems.set(realFromIdx, allItems.get(realToIdx));
+                                allItems.set(realToIdx, temp);
+                            }
+                            rebuildDisplayItems();
                         }
                     }
 
@@ -844,8 +912,8 @@ public final class TradeBagBottomController {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             applyCellLayoutParams(holder);
             int realPosition = (currentPage - 1) * itemsPerPage + position;
-            Item sourceItem = allItems.get(realPosition);
-            Item item = canDisplayByCurrentFilter(sourceItem) ? sourceItem : null;
+            Item rawItem = realPosition < displayItems.size() ? displayItems.get(realPosition) : null;
+            final Item item = (rawItem != null && !canDisplayByCurrentFilter(rawItem)) ? null : rawItem;
 
             holder.itemView.setScaleX(1.0f);
             holder.itemView.setScaleY(1.0f);
@@ -906,18 +974,17 @@ public final class TradeBagBottomController {
                         ItemDetailDialog.show(host.requireContext(), item);
                         break;
                     case 2:
-                        SellItemDialog.show(host.requireActivity(), allItems, realPosition, item,
-                                () -> {
-                                    InventoryGridSync.flushSharedGridToManager(host.requireContext());
-                                    adapter.notifyDataSetChanged();
-                                },
-                                host::addGoldFromSell);
+                        sellPlayerItem(realPosition, item);
                         break;
                     case 3:
-                        allItems.set(realPosition, null);
-                        InventoryGridSync.flushSharedGridToManager(host.requireContext());
-                        adapter.notifyDataSetChanged();
-                        showFloatMsg("已丢弃" + item.getName());
+                        int realIdx = findRealPositionInAllItems(item);
+                        if (realIdx >= 0) {
+                            allItems.set(realIdx, null);
+                            rebuildDisplayItems();
+                            InventoryGridSync.flushSharedGridToManager(host.requireContext());
+                            adapter.notifyDataSetChanged();
+                            showFloatMsg("已丢弃" + item.getName());
+                        }
                         break;
                 }
                 return true;

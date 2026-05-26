@@ -1008,9 +1008,15 @@ public class MapFragment extends Fragment {
         if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("open_trade")) {
                 FragmentManager fm = requireActivity().getSupportFragmentManager();
+                TradeFragment tradeFrag = new TradeFragment();
+                if (data.hasExtra("merchant_type")) {
+                    Bundle args = new Bundle();
+                    args.putString("merchant_type", data.getStringExtra("merchant_type"));
+                    tradeFrag.setArguments(args);
+                }
                 fm.beginTransaction()
                         .setReorderingAllowed(true)
-                        .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                        .add(R.id.fragment_container, tradeFrag, TradeFragment.TAG)
                         .hide(MapFragment.this)
                         .addToBackStack("trade")
                         .commit();

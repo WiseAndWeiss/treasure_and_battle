@@ -139,6 +139,15 @@ public class EquipmentManager {
         return generateEquip(template.getTemplateId(), level, rarity);
     }
 
+    public int getTemplateIdByEquipId(String equipId) {
+        for (Map.Entry<Integer, EquipTemplate> entry : templateMap.entrySet()) {
+            if (entry.getValue().getEquipId().equals(equipId)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
     // ====================== 武器属性 ======================
 
     private void applyWeaponAttributes(AttributeSet attrs, String weaponTypeStr, double finalPower) {

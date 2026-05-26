@@ -56,6 +56,18 @@ public class EquipItem extends Item {
         return socketedGems.remove(index);
     }
 
+    public EquipItem deepCopy() {
+        EquipItem copy = new EquipItem(getId(), getName(), getRarity(), getBaseValue(), level, slot);
+        copy.baseAttributes = this.baseAttributes.clone();
+        copy.rawBaseAttributes = this.rawBaseAttributes != null ? this.rawBaseAttributes.clone() : null;
+        copy.finalAttributes = this.finalAttributes.clone();
+        copy.affixes = new ArrayList<>(this.affixes);
+        copy.maxSockets = this.maxSockets;
+        copy.socketedGems = new ArrayList<>(this.socketedGems);
+        copy.setIconResId(getIconResId());
+        return copy;
+    }
+
     public AttributeSet getTotalGemBonuses() {
         AttributeSet total = new AttributeSet();
         EquipCategory cat = slot.getCategory();

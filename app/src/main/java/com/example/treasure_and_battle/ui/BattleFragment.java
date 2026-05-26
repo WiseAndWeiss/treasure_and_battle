@@ -65,7 +65,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -128,16 +127,11 @@ public class BattleFragment extends Fragment {
         void onPick(ActiveSkill skill);
     }
 
-    /** 小史莱姆 templateId=1001；演示战 5 格：0/1/3/4 为小史莱姆，2 为森林狼 */
-    private static final int SLIME_SMALL_TEMPLATE_ID = 1001;
-    private static final int[] MONSTER_TEMPLATE_IDS = {
-            SLIME_SMALL_TEMPLATE_ID,
-            SLIME_SMALL_TEMPLATE_ID,
-            2002,
-            SLIME_SMALL_TEMPLATE_ID,
-            SLIME_SMALL_TEMPLATE_ID
-    };
+    private static final int BATTLE_SLOT_COUNT = 5;
+    private static final List<String> recentRaceIds = new ArrayList<>();
+    private static final int RACE_COOLDOWN_SIZE = 3;
     private static final int[] MONSTER_SLOT_INDEX = {0, 1, 2, 3, 4};
+    private int poolIndex = -1;
     private static final int[] MONSTER_ICONS = {
             R.drawable.ic_map,
             R.drawable.ic_map,
@@ -225,6 +219,9 @@ public class BattleFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        if (args != null) poolIndex = args.getInt("poolIndex", -1);
+
         battleManager = BattleManager.getInstance(requireContext());
         battleManager.setMonsterActListener(new com.example.treasure_and_battle.manager.battle.BattleManager.MonsterActListener() {
             @Override
@@ -490,9 +487,36 @@ public class BattleFragment extends Fragment {
             em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.NONE);
         } else {
             MonsterManager mm = MonsterManager.getInstance(requireContext());
-            for (int i = 0; i < 5; i++) monsters.add(null);
-            for (int k = 0; k < MONSTER_SLOT_INDEX.length && k < MONSTER_TEMPLATE_IDS.length; k++) {
-                Monster m = mm.createMonsterByTemplateId(MONSTER_TEMPLATE_IDS[k]);
+            for (int i = 0; i < BATTLE_SLOT_COUNT; i++) monsters.add(null);
+
+            int playerLevel = ch.getLevel();
+            Random rng = new Random();
+            List<Integer> batch;
+
+            if (poolIndex >= 0) {
+                List<String> allRaces = mm.getAvailableRaces();
+                String race = allRaces.get(rng.nextInt(allRaces.size()));
+                batch = mm.generateMonstersFromPool(poolIndex, race, rng);
+            } else {
+                batch = mm.generateMonsterBatch(playerLevel, BATTLE_SLOT_COUNT,
+                        rng, recentRaceIds);
+            }
+
+            List<Monster> generated = mm.createMonstersFromTemplateIds(batch, playerLevel);
+
+            if (!batch.isEmpty() && !generated.isEmpty()) {
+                String selectedRace = mm.getTemplate(batch.get(0)) != null
+                        ? mm.getTemplate(batch.get(0)).getRaceId() : null;
+                if (selectedRace != null) {
+                    recentRaceIds.add(selectedRace);
+                    while (recentRaceIds.size() > RACE_COOLDOWN_SIZE) {
+                        recentRaceIds.remove(0);
+                    }
+                }
+            }
+
+            for (int k = 0; k < MONSTER_SLOT_INDEX.length && k < generated.size(); k++) {
+                Monster m = generated.get(k);
                 if (m != null) monsters.set(MONSTER_SLOT_INDEX[k], m);
             }
         }
