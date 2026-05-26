@@ -152,8 +152,10 @@ public class DropManagerTest {
 
     @Test
     public void testClaimAllPartialFailure() {
-        for (int i = 0; i < 50; i++) {
-            InventoryManager.addItem(bag, new MaterialItem("fill_" + i, "填充",
+        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
+        List<Item> ownerBag = player.owner.getBagItems();
+        for (int i = 0; i < InventoryManager.BAG_SLOTS; i++) {
+            InventoryManager.addItem(ownerBag, new MaterialItem("fill_" + i, "填充",
                     Rarity.COMMON, 5, 99, "来源"));
         }
 
@@ -162,7 +164,6 @@ public class DropManagerTest {
         MaterialItem item2 = new MaterialItem("test_2", "测试2",
                 Rarity.COMMON, 5, 99, "来源");
 
-        Player player = new Player("p", context); player.owner = new Character(0, "test", ProfessionType.WARRIOR, context);
         BattleContext ctx = new BattleContext(player, new ArrayList<>(), false);
         ctx.pendingLoot = new ArrayList<>(Arrays.asList(item1, item2));
 

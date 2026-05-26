@@ -64,9 +64,16 @@ public class EquipAttributeAffix extends BaseEquipAffix {
 
     @Override
     public String getDescription() {
-        if (valueType == ValueType.PERCENTAGE) {
-            return String.format(description, affixValue * 100);
+        if (description == null) {
+            return "";
         }
-        return String.format(description, affixValue);
+        try {
+            if (valueType == ValueType.PERCENTAGE) {
+                return String.format(description, affixValue * 100);
+            }
+            return String.format(description, affixValue);
+        } catch (RuntimeException e) {
+            return description;
+        }
     }
 }

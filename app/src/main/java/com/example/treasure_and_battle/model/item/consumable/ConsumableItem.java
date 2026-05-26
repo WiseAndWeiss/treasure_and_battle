@@ -13,7 +13,7 @@ public class ConsumableItem extends Item {
     private List<Effect> effects;
 
     public enum EffectType {
-        HEAL_HP, HEAL_MP, DAMAGE, BUFF, CLEANSE, ESCAPE, UTILITY
+        HEAL_HP, HEAL_MP, DAMAGE, BUFF, CLEANSE, ESCAPE, UTILITY_PASSIVE, UTILITY_ACTIVE
     }
 
     public enum Target {
@@ -24,7 +24,7 @@ public class ConsumableItem extends Item {
         public int buffTemplateId;
         public int stacks;
         public int duration;
-        public String valueType; // "FLAT" or "PERCENTAGE"
+        public String valueType;
 
         public BuffEntry() {}
     }
@@ -40,7 +40,7 @@ public class ConsumableItem extends Item {
         public EffectType type;
         public Target target;
         public float value;
-        public String valueType; // "FLAT" or "PERCENTAGE"
+        public String valueType;
         public int shieldDuration;
         public String utilityId;
         public List<BuffEntry> buffs;
@@ -66,4 +66,12 @@ public class ConsumableItem extends Item {
     public boolean isUsableInBattle() { return usableInBattle; }
     public boolean isUsableOutBattle() { return usableOutBattle; }
     public List<Effect> getEffects() { return effects; }
+
+    public boolean isAnyPassiveUtility() {
+        if (effects == null) return false;
+        for (Effect e : effects) {
+            if (e.type == EffectType.UTILITY_PASSIVE) return true;
+        }
+        return false;
+    }
 }
