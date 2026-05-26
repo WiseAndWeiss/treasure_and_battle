@@ -19,7 +19,7 @@ class MaterialMenuProvider implements ItemMenuProvider {
     @Override
     public List<ItemAction> getActions(Item item) {
         List<ItemAction> actions = new ArrayList<>();
-        actions.add(new ItemAction("查看", true, viewCallback));
+        actions.add(new ItemAction("查看详情", true, viewCallback));
         actions.add(new ItemAction("丢弃", true, discardCallback));
         return actions;
     }

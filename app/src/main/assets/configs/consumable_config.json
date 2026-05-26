@@ -1,4 +1,4 @@
-﻿{
+{
   "consumable_templates": [
     {
       "consumableId": "potion_hp_small",
@@ -412,7 +412,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_PASSIVE",
           "utilityId": "KEY_COPPER"
         }
       ],
@@ -428,7 +428,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_PASSIVE",
           "utilityId": "KEY_SILVER"
         }
       ],
@@ -444,7 +444,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_PASSIVE",
           "utilityId": "KEY_GOLD"
         }
       ],
@@ -460,7 +460,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_PASSIVE",
           "utilityId": "UNSOCKET_GEM"
         }
       ],
@@ -476,7 +476,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_PASSIVE",
           "utilityId": "POLISH_EQUIP"
         }
       ],
@@ -492,7 +492,7 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
+          "type": "UTILITY_ACTIVE",
           "utilityId": "RESET_TALENTS"
         }
       ],
@@ -508,8 +508,8 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
-          "utilityId": "REFRESH_EVENTS"
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_RANDOM_EVENTS"
         }
       ],
       "description": "使用后刷新3个随机事件点"
@@ -524,8 +524,8 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
-          "utilityId": "REFRESH_EVENTS"
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_MONSTER_EVENT"
         }
       ],
       "description": "使用后必定刷新1个怪物事件"
@@ -540,8 +540,8 @@
       "usableOutBattle": true,
       "effects": [
         {
-          "type": "UTILITY",
-          "utilityId": "REFRESH_EVENTS"
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_TREASURE_EVENT"
         }
       ],
       "description": "使用后必定刷新1个宝藏事件"

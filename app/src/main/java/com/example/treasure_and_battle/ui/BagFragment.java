@@ -1,7 +1,10 @@
 package com.example.treasure_and_battle.ui;
 
+import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.Canvas;
@@ -55,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class BagFragment extends Fragment {
 
@@ -141,6 +145,7 @@ public class BagFragment extends Fragment {
 
     private ImageView ivTachie;
     private boolean tachieJumpCooldown;
+    private final Random tachieAnimRandom = new Random();
     private TextView tvTachieName;
     private TextView tvTachieLevel;
     private ProgressBar pbTachieExp;
@@ -182,25 +187,25 @@ public class BagFragment extends Fragment {
         ivTachie.setOnClickListener(v -> {
             if (tachieJumpCooldown) return;
             tachieJumpCooldown = true;
-            float density = ivTachie.getResources().getDisplayMetrics().density;
-            float jumpUp = -24f * density;
-            ObjectAnimator up = ObjectAnimator.ofFloat(ivTachie, "translationY", 0f, jumpUp);
-            up.setDuration(150);
-            ObjectAnimator down = ObjectAnimator.ofFloat(ivTachie, "translationY", jumpUp, 0f);
-            down.setDuration(200);
-            up.addListener(new AnimatorListenerAdapter() {
+
+            int roll = tachieAnimRandom.nextInt(4);
+            Animator anim;
+            if (roll == 0) {
+                anim = createRotateAnim(ivTachie, 360f);
+            } else if (roll == 1) {
+                anim = createRotateAnim(ivTachie, -360f);
+            } else if (roll == 2) {
+                anim = createFlipAnim(ivTachie);
+            } else {
+                anim = createJumpAnim(ivTachie);
+            }
+            anim.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationEnd(android.animation.Animator animation) {
-                    down.start();
-                }
-            });
-            down.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(android.animation.Animator animation) {
+                public void onAnimationEnd(Animator animation) {
                     tachieJumpCooldown = false;
                 }
             });
-            up.start();
+            anim.start();
         });
         tvTachieName = view.findViewById(R.id.tv_tachie_name);
         tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
@@ -463,8 +468,8 @@ public class BagFragment extends Fragment {
             showUnsocketGemDialog(equipItem);
         });
         menuProviderFactory.registerConsumable(consumableItem -> {
-            Player player = PlayerCharacterHolder.getOrCreate(getContext()).generatePlayer();
-            boolean success = ConsumableManager.execute(player, null, consumableItem, getContext());
+            Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+            boolean success = ConsumableManager.executeOutBattle(ch, consumableItem, getContext());
             if (success) {
                 if (consumableItem.getCount() > 1) {
                     consumableItem.setCount(consumableItem.getCount() - 1);
@@ -1635,12 +1640,12 @@ public class BagFragment extends Fragment {
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
-        popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        popupMenu.getMenu().add(0, 1, 1, "查看详情");
         if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
-            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+            popupMenu.getMenu().add(0, 4, 2, "拆卸宝石");
         }
-        popupMenu.getMenu().add(0, 3, 0, "丢弃");
+        popupMenu.getMenu().add(0, 3, 3, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {
@@ -1952,6 +1957,7 @@ public class BagFragment extends Fragment {
             for (int i = 0; i < actions.size(); i++) {
                 ItemAction action = actions.get(i);
                 popupMenu.getMenu().add(0, i, i, action.getDisplayText());
+                popupMenu.getMenu().getItem(i).setEnabled(action.enabled);
             }
 
             popupMenu.setOnMenuItemClickListener(menuItem -> {
@@ -1988,5 +1994,42 @@ public class BagFragment extends Fragment {
     private void showFloatMsg(String text) {
         if (!isAdded() || getActivity() == null) return;
         FloatMsgOverlay.showFloatMsg(getActivity(), text);
+    }
+
+    private Animator createRotateAnim(View target, float degrees) {
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(target, "rotation", target.getRotation(), target.getRotation() + degrees);
+        rotate.setDuration(500);
+        return rotate;
+    }
+
+    private Animator createFlipAnim(View target) {
+        ValueAnimator flip = ValueAnimator.ofFloat(0f, 1f);
+        flip.setDuration(600);
+        flip.addUpdateListener(animation -> {
+            float fraction = animation.getAnimatedFraction();
+            float scaleX = (float) Math.cos(fraction * Math.PI * 2);
+            target.setScaleX(Math.abs(scaleX) < 0.01f ? 0.01f : scaleX);
+        });
+        AnimatorListenerAdapter glitchListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                target.setScaleX(1f);
+            }
+        };
+        flip.addListener(glitchListener);
+        return flip;
+    }
+
+    private Animator createJumpAnim(View target) {
+        float density = target.getResources().getDisplayMetrics().density;
+        float jumpUp = -24f * density;
+        ObjectAnimator up = ObjectAnimator.ofFloat(target, "translationY", 0f, jumpUp);
+        up.setDuration(150);
+        ObjectAnimator down = ObjectAnimator.ofFloat(target, "translationY", jumpUp, 0f);
+        down.setDuration(200);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playSequentially(up, down);
+        return set;
     }
 }

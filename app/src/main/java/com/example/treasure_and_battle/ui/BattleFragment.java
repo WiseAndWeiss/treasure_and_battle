@@ -43,6 +43,7 @@ import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.EventManager;
+import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
@@ -537,6 +538,7 @@ public class BattleFragment extends Fragment {
         if (battleContext != null && !battleContext.isBattleEnded && player != null && player.owner != null) {
             player.owner.syncFromPlayer(player);
         }
+        GameManager.getInstance(requireContext()).triggerAutoSave();
         requireActivity().getSupportFragmentManager().popBackStackImmediate();
     }
 
@@ -1326,6 +1328,7 @@ public class BattleFragment extends Fragment {
                 player.owner.syncFromPlayer(player);
             }
             BattleSessionHolder.clear();
+            GameManager.getInstance(requireContext()).triggerAutoSave();
             showFloatMsg(escaped ? "逃跑成功" : "战斗结束");
             requireActivity().getSupportFragmentManager().popBackStackImmediate();
             return;
@@ -2268,6 +2271,7 @@ public class BattleFragment extends Fragment {
                 player.owner.syncFromPlayer(player);
             }
             BattleSessionHolder.clear();
+            GameManager.getInstance(requireContext()).triggerAutoSave();
             showFloatMsg(summarizeResult());
             View defeatRoot = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
             TextView defeatTitle = defeatRoot.findViewById(R.id.tv_treasure_alert_title);
@@ -2302,6 +2306,7 @@ public class BattleFragment extends Fragment {
             player.owner.syncFromPlayer(player);
         }
         BattleSessionHolder.clear();
+        GameManager.getInstance(requireContext()).triggerAutoSave();
 
         int finalGold = battleContext.rewardGold;
         int finalExp = battleContext.rewardExp;

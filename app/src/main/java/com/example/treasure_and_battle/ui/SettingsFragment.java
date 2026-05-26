@@ -13,7 +13,6 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,13 +20,14 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.GameManager;
+import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
-    private RadioGroup rgRate;
-    private RadioButton rbFast, rbNormal, rbSlow;
-    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,22 +48,7 @@ public class SettingsFragment extends Fragment {
         switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
-
-        rbFast = view.findViewById(R.id.rb_rate_fast);
-        rbNormal = view.findViewById(R.id.rb_rate_normal);
-        rbSlow = view.findViewById(R.id.rb_rate_slow);
-        rgRate = view.findViewById(R.id.rg_event_rate);
-
-        savedRate = sharedPrefs.getInt("eventRate", 0);
-        selectRadioSilently(savedRate);
-
-        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
-        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
-        switchToast.setChecked(showToast);
-        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
-        });
-
+        
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
@@ -85,9 +70,45 @@ public class SettingsFragment extends Fragment {
 
         View btnBackToMain = view.findViewById(R.id.btn_back_to_main);
         btnBackToMain.setOnClickListener(v -> {
-            startActivity(new android.content.Intent(requireActivity(), EntryActivity.class));
+            Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+            GameManager.getInstance(requireContext()).triggerAutoSave();
+            PlayerCharacterHolder.clear();
+            startActivity(new Intent(requireActivity(), EntryActivity.class));
             requireActivity().finish();
         });
+
+        View btnSaveGame = view.findViewById(R.id.btn_save_game);
+        if (btnSaveGame != null) {
+            btnSaveGame.setOnClickListener(v -> {
+                SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_SAVE,
+                        new SaveSelectDialog.OnSaveActionListener() {
+                            @Override
+                            public void onLoadSave(Character character) {}
+
+                            @Override
+                            public void onSaveComplete() {
+                                FloatMsgOverlay.showFloatMsg(requireContext(), "存档成功");
+                            }
+                        });
+            });
+        }
+
+        View btnLoadGame = view.findViewById(R.id.btn_load_game);
+        if (btnLoadGame != null) {
+            btnLoadGame.setOnClickListener(v -> {
+                SaveSelectDialog.show(requireContext(), SaveSelectDialog.MODE_LOAD,
+                        new SaveSelectDialog.OnSaveActionListener() {
+                            @Override
+                            public void onLoadSave(Character character) {
+                                PlayerCharacterHolder.restoreFrom(character);
+                                FloatMsgOverlay.showFloatMsg(requireContext(), "读档成功");
+                            }
+
+                            @Override
+                            public void onSaveComplete() {}
+                        });
+            });
+        }
 
         View btnDebugExp = view.findViewById(R.id.btn_debug_gain_exp);
         if (btnDebugExp != null) {
@@ -103,6 +124,16 @@ public class SettingsFragment extends Fragment {
         if (btnDebugSkill != null) {
             btnDebugSkill.setOnClickListener(v ->
                     DebugCharacterGrants.grantSkillPoints(requireContext(), 20));
+        }
+
+        View btnDevSeedItems = view.findViewById(R.id.btn_dev_seed_items);
+        if (btnDevSeedItems != null) {
+            btnDevSeedItems.setOnClickListener(v -> {
+                InventoryManager.clearAll(PlayerCharacterHolder.getOrCreate(requireContext()).getBagItems());
+                InventoryGridSync.seedDemoItems(requireContext());
+                InventoryGridSync.reloadSharedGridFromManager(requireContext());
+                FloatMsgOverlay.showFloatMsg(requireContext(), "已填充测试物品");
+            });
         }
 
         return view;

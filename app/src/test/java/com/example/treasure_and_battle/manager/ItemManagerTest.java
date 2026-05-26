@@ -53,10 +53,10 @@ public class ItemManagerTest {
 
     @Test
     public void testCreateItem_Gem() {
-        Item item = itemManager.createItem("ruby_普通");
+        Item item = itemManager.createItem("ruby_common");
         assertNotNull(item);
         assertTrue(item instanceof GemItem);
-        assertEquals("ruby_普通", item.getId());
+        assertEquals("ruby_common", item.getId());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ItemManagerTest {
 
     @Test
     public void testCreateGem_Valid() {
-        GemItem item = itemManager.createGem("ruby_普通");
+        GemItem item = itemManager.createGem("ruby_common");
         assertNotNull(item);
         assertEquals("普通红宝石", item.getName());
         assertEquals("RUBY", item.getGemType());
@@ -171,7 +171,7 @@ public class ItemManagerTest {
 
     @Test
     public void testGetGemTemplate() {
-        assertNotNull(itemManager.getGemTemplate("ruby_普通"));
+        assertNotNull(itemManager.getGemTemplate("ruby_common"));
     }
 
     @Test

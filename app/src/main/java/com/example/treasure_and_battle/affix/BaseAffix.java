@@ -50,7 +50,16 @@ public abstract class BaseAffix {
     // ====================== 通用Getter方法（只读，不允许修改词缀基础属性） ======================
     public int getAffixId() { return affixId; }
     public String getAffixName() { return affixName; }
-    public String getDescription() { return String.format(description, affixValue); }
+    public String getDescription() {
+        if (description == null) {
+            return "";
+        }
+        try {
+            return String.format(description, affixValue);
+        } catch (RuntimeException e) {
+            return description;
+        }
+    }
     public Rarity getRarity() { return rarity; }
     public TriggerType getTriggerType() { return triggerType; }
     public int[] getAllowSlots() { return allowSlots; }
