@@ -143,12 +143,23 @@ public class MonsterManager {
         public final String description;
         public final int[] raritySlots;
 
+        public final int monsterCount;
+        public final int maxRarity;
+
         public MonsterPool(int[] raritySlots) {
             this.raritySlots = raritySlots;
-            StringBuilder sb = new StringBuilder("[");
+            int cnt = 0, mx = 0;
+            for (int r : raritySlots) {
+                if (r >= 0) { cnt++; if (r > mx) mx = r; }
+            }
+            this.monsterCount = cnt;
+            this.maxRarity = mx;
+
+            StringBuilder sb = new StringBuilder("×").append(cnt).append("  [");
             for (int i = 0; i < raritySlots.length; i++) {
+                if (raritySlots[i] == -1) break;
                 if (i > 0) sb.append(",");
-                sb.append(raritySlots[i] == -1 ? "9" : String.valueOf(raritySlots[i]));
+                sb.append(raritySlots[i]);
             }
             sb.append("]");
             this.description = sb.toString();
@@ -159,182 +170,80 @@ public class MonsterManager {
 
     private static final List<MonsterPool> MONSTER_POOLS = new ArrayList<>();
     static {
-        // === cate(1) ===
         MONSTER_POOLS.add(new MonsterPool(new int[]{0,E,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{1,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,E,E}));
-
-        // === cate(2) ===
         MONSTER_POOLS.add(new MonsterPool(new int[]{2,E,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{3,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,3,E,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{4,E,E,E,E}));
+
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,E,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,0}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,1}));
-
-        // === cate(3) ===
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,4,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,3,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,4,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,1}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,1}));
-
-        // === cate(4) ===
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,4,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{3,4,E,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,4,E,E}));
+
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,E,E}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,2}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,3,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,3,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,4,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,4,E,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,E,E}));
+
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,3,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,3,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,3,4,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,4,4,E}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,4,E}));
+
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,0}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,1}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,1}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,1}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,1}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,1}));
-
-        // === cate(5) ===
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,2,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,3}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,2}));
-
-        // === cate(6) ===
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,4,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,4,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,2,2}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,2}));
-
-        // === cate(7) ===
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,4,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,4,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,2,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,2,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,2,2,2,3}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,3}));
         MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,2,2,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,3,3}));
-
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,3}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,3,4}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,4}));
+        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,4,4}));
     }
 
     public static int getPoolCount() { return MONSTER_POOLS.size(); }
     public static String getPoolDescription(int index) { return MONSTER_POOLS.get(index).description; }
     public static String getPoolDifficultyCategory(int index) {
-        if (index < 5) return "cate(1)";
-        if (index < 16) return "cate(2)";
-        if (index < 38) return "cate(3)";
-        if (index < 64) return "cate(4)";
-        if (index < 94) return "cate(5)";
-        if (index < 123) return "cate(6)";
-        return "cate(7)";
+        MonsterPool pool = MONSTER_POOLS.get(index);
+        int m = pool.monsterCount;
+        int r = pool.maxRarity;
+        if (m == 1 && r <= 1) return "简单";
+        if (m <= 2 && r <= 1) return "一般";
+        if (m <= 3 && r <= 2) return "挑战";
+        if (r == 3) return "困难";
+        return "灾难";
     }
 
     public List<Integer> generateMonstersFromPool(int poolIndex, String raceId, Random rng) {
@@ -387,14 +296,23 @@ public class MonsterManager {
     }
 
     private int pickPoolByWeight(Random rng) {
+        int size = MONSTER_POOLS.size();
         int roll = rng.nextInt(100);
-        if (roll < 20) return rng.nextInt(5);                      // cate(1): 0-4
-        if (roll < 40) return 5  + rng.nextInt(11);               // cate(2): 5-15
-        if (roll < 60) return 16 + rng.nextInt(22);               // cate(3): 16-37
-        if (roll < 80) return 38 + rng.nextInt(26);               // cate(4): 38-63
-        if (roll < 90) return 64 + rng.nextInt(30);               // cate(5): 64-93
-        if (roll < 95) return 94 + rng.nextInt(29);               // cate(6): 94-122
-        return 123 + rng.nextInt(27);                             // cate(7): 123-149
+        int maxR;
+        if (roll < 25) maxR = 0;
+        else if (roll < 50) maxR = 1;
+        else if (roll < 75) maxR = 2;
+        else if (roll < 90) maxR = 3;
+        else maxR = 4;
+
+        List<Integer> candidates = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            if (MONSTER_POOLS.get(i).maxRarity == maxR) candidates.add(i);
+        }
+        if (candidates.isEmpty()) {
+            for (int i = 0; i < size; i++) candidates.add(i);
+        }
+        return candidates.get(rng.nextInt(candidates.size()));
     }
 
     private double calculateMonsterBasePower(int level) {

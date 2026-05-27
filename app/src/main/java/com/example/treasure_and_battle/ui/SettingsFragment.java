@@ -24,7 +24,12 @@ import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.Item;
+
+import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
@@ -155,6 +160,11 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        View btnFillBag = view.findViewById(R.id.btn_fill_bag);
+        if (btnFillBag != null) {
+            btnFillBag.setOnClickListener(v -> fillBag());
+        }
+
         return view;
     }
 
@@ -181,8 +191,14 @@ public class SettingsFragment extends Fragment {
                     .setMessage(msg)
                     .setPositiveButton("确认", (d, which) -> {
                         savedRate = newRate;
-                        sharedPrefs.edit().putInt("eventRate", savedRate)
-                                .putBoolean("pendingRateClear", true).apply();
+                        sharedPrefs.edit().putInt("eventRate", savedRate).apply();
+                        FragmentManager fm = getParentFragmentManager();
+                        for (Fragment f : fm.getFragments()) {
+                            if (f instanceof MapFragment && f.isAdded()) {
+                                ((MapFragment) f).resetEventsAndTimers();
+                                break;
+                            }
+                        }
                     })
                     .setNegativeButton("取消", (d, which) -> selectRadioSilently(savedRate))
                     .setOnCancelListener(d -> selectRadioSilently(savedRate))
@@ -257,5 +273,27 @@ public class SettingsFragment extends Fragment {
         return (int) android.util.TypedValue.applyDimension(
                 android.util.TypedValue.COMPLEX_UNIT_DIP, dp,
                 requireContext().getResources().getDisplayMetrics());
+    }
+
+    private void fillBag() {
+        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
+        List<Item> bag = ch.getBagItems();
+        InventoryManager.clearAll(bag);
+
+        EquipmentManager em = EquipmentManager.getInstance(requireContext());
+        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC, Rarity.LEGENDARY};
+        int slot = 0;
+        while (slot < InventoryManager.BAG_SLOTS) {
+            for (Rarity r : rarities) {
+                if (slot >= InventoryManager.BAG_SLOTS) break;
+                int lv = 5 + (slot % 21);
+                if (InventoryManager.addItem(bag, em.generateRandomEquip(lv, r))) {
+                    slot++;
+                }
+            }
+        }
+
+        InventoryGridSync.reloadSharedGridFromManager(requireContext());
+        FloatMsgOverlay.showFloatMsg(requireContext(), "已填满 125 格背包");
     }
 }

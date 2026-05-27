@@ -243,9 +243,10 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "monster_camp":
                 btnAction1 = addActionButton("偷袭怪物", 0xFFE53935, v -> {
-                    Monster monster = MonsterManager.getInstance(this).createRandomMonster();
                     EventManager em = EventManager.getInstance(getApplicationContext());
-                    em.setCurrentBattleMonster(monster);
+                    if (em.getCurrentBattleMonster() == null) {
+                        em.setCurrentBattleMonster(MonsterManager.getInstance(this).createRandomMonster());
+                    }
                     em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.PLAYER_SURPRISE);
                     Intent result = new Intent();
                     result.putExtra("open_battle", true);
@@ -606,7 +607,8 @@ public class NeutralEventActivity extends AppCompatActivity {
         }
 
         addActionButton(btn1Text, btn1Color, btn1Listener);
-        addActionButton("你感到害怕，选择离开", 0xFF888888, v -> {
+        if (caveStep < 3) {
+            addActionButton("你感到害怕，选择离开", 0xFF888888, v -> {
             StringBuilder sb = new StringBuilder("你感到害怕，转身离开了洞穴。\n\n");
             if (caveStep >= 1) {
                 sb.append("本次探险获得：\n");
@@ -626,6 +628,7 @@ public class NeutralEventActivity extends AppCompatActivity {
             showResult(sb.toString());
             switchToForwardButton();
         });
+        }
     }
 
     private void buildTravelerActions() {
@@ -673,7 +676,7 @@ public class NeutralEventActivity extends AppCompatActivity {
             ch.addGold(goldReward);
 
             String resultText = "你慷慨地赠送了" + match.getName()
-                    + "，旅人感激不尽！\n\n✅ 获得金币 ×" + goldReward;
+                    + "，旅人感激不尽！\n\n获得金币 ×" + goldReward;
             showResult(resultText);
             switchToForwardButton();
         });
@@ -1267,9 +1270,12 @@ public class NeutralEventActivity extends AppCompatActivity {
     private void buildCursedChestActions() {
         llActionArea.removeAllViews();
         addActionButton("打开宝箱", 0xFF9C27B0, v -> {
-            Monster monster = MonsterManager.getInstance(this).createRandomMonster();
-            EventManager.getInstance(getApplicationContext()).setCurrentBattleMonster(monster);
-            EventManager.getInstance(getApplicationContext()).setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
+            EventManager em = EventManager.getInstance(getApplicationContext());
+            if (em.getCurrentBattleMonster() == null) {
+                em.setCurrentBattleMonster(MonsterManager.getInstance(this).createRandomMonster());
+            }
+            em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
+            Monster monster = em.getCurrentBattleMonster();
             showResult("紫黑色雾气喷涌而出！\n\n" + monster.getName() + "从暗处扑来，怪物获得了先手攻击！");
             switchToBattleButton();
         });
