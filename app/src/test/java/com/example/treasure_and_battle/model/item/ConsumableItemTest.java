@@ -43,7 +43,7 @@ public class ConsumableItemTest {
         assertNotNull(ConsumableItem.EffectType.valueOf("BUFF"));
         assertNotNull(ConsumableItem.EffectType.valueOf("CLEANSE"));
         assertNotNull(ConsumableItem.EffectType.valueOf("ESCAPE"));
-        assertNotNull(ConsumableItem.EffectType.valueOf("UTILITY"));
+        assertNotNull(ConsumableItem.EffectType.valueOf("UTILITY_PASSIVE"));
     }
 
     @Test
@@ -177,7 +177,7 @@ public class ConsumableItemTest {
 
     @Test
     public void testEffectWithUtilityId() {
-        ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.UTILITY);
+        ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.UTILITY_PASSIVE);
         e.utilityId = "KEY_COPPER";
 
         ConsumableItem item = new ConsumableItem("key", "钥匙",

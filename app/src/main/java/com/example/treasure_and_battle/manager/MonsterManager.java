@@ -241,7 +241,7 @@ public class MonsterManager {
         int r = pool.maxRarity;
         if (m == 1 && r <= 1) return "简单";
         if (m <= 2 && r <= 1) return "一般";
-        if (m <= 3 && r <= 2) return "挑战";
+        if ((m <= 3 && r <= 2) || (m == 5 && r == 0)) return "挑战";
         if (r == 3) return "困难";
         return "灾难";
     }
