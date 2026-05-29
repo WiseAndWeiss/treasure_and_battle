@@ -283,12 +283,7 @@ public class MapFragment extends Fragment {
         Button btnBattlePage = makeDebugButton("进入战斗页面", 0xFF4CAF50);
         btnBattlePage.setOnClickListener(b -> {
             hideDebugPopup();
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                    .hide(MapFragment.this)
-                    .addToBackStack("battle")
-                    .commit();
+            startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
         });
         popupContent.addView(btnBattlePage);
 
@@ -632,12 +627,7 @@ public class MapFragment extends Fragment {
     }
 
     private void openBattlePage() {
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                .hide(MapFragment.this)
-                .addToBackStack("battle")
-                .commit();
+        startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
     }
 
     private void handleBenefitAction(EventConfig.EventSubItem sub) {
@@ -1172,13 +1162,7 @@ public class MapFragment extends Fragment {
                         .addToBackStack("trade")
                         .commit();
             } else if (data.hasExtra("open_battle")) {
-                FragmentManager fm = requireActivity().getSupportFragmentManager();
-                fm.beginTransaction()
-                        .setReorderingAllowed(true)
-                        .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                        .hide(MapFragment.this)
-                        .addToBackStack("battle")
-                        .commit();
+                startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
             }
         }
     }

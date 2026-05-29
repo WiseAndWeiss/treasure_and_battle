@@ -83,6 +83,7 @@ public class BattleContext {
     public boolean isHit;
     public boolean isDodged;
     public DamageSource damageSource;
+    public int shieldAbsorbed;
 
     // ====================== 怪物意图（回合开始统一下达，含看破+执行标记） ======================
     /** entityId → 本轮揭示的意图列表 */
@@ -196,6 +197,7 @@ public class BattleContext {
         this.isCriticalHit = false;
         this.isHit = true;
         this.isDodged = false;
+        this.shieldAbsorbed = 0;
     }
 
     // ====================== 战斗结果枚举 ======================

@@ -7,36 +7,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.SaveManager;
-import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
-import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.Item;
-
-import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
-    private RadioGroup rgRate;
-    private RadioButton rbFast, rbNormal, rbSlow;
-    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,21 +43,6 @@ public class SettingsFragment extends Fragment {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
         
-        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
-        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
-        switchToast.setChecked(showToast);
-        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
-        });
-
-        rbFast = view.findViewById(R.id.rb_rate_fast);
-        rbNormal = view.findViewById(R.id.rb_rate_normal);
-        rbSlow = view.findViewById(R.id.rb_rate_slow);
-        rgRate = view.findViewById(R.id.rg_event_rate);
-
-        savedRate = sharedPrefs.getInt("eventRate", 0);
-        selectRadioSilently(savedRate);
-        
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
@@ -85,7 +55,9 @@ public class SettingsFragment extends Fragment {
         });
 
         View btnBattle = view.findViewById(R.id.btn_open_battle);
-        btnBattle.setOnClickListener(v -> showPoolSelectionDialog());
+        btnBattle.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
+        });
 
         View btnProfession = view.findViewById(R.id.btn_profession_select);
         btnProfession.setOnClickListener(v -> {
@@ -160,140 +132,6 @@ public class SettingsFragment extends Fragment {
             });
         }
 
-        View btnFillBag = view.findViewById(R.id.btn_fill_bag);
-        if (btnFillBag != null) {
-            btnFillBag.setOnClickListener(v -> fillBag());
-        }
-
         return view;
-    }
-
-    private int checkedId2Rate(int checkedId) {
-        if (checkedId == R.id.rb_rate_fast) return 0;
-        if (checkedId == R.id.rb_rate_normal) return 1;
-        return 2;
-    }
-
-    private void selectRadioSilently(int rate) {
-        rgRate.setOnCheckedChangeListener(null);
-        if (rate == 1) rbNormal.setChecked(true);
-        else if (rate == 2) rbSlow.setChecked(true);
-        else rbFast.setChecked(true);
-        rgRate.setOnCheckedChangeListener((group, checkedId) -> {
-            int newRate = checkedId2Rate(checkedId);
-            if (newRate == savedRate) return;
-            String msg;
-            if (newRate == 0) msg = "确认为快速（10秒/批）？\n将清空当前地图事件并重新生成。";
-            else if (newRate == 1) msg = "确认为普通（1分钟/批）？\n将清空当前地图事件并重新生成。";
-            else msg = "确认为慢速（30分钟/批）？\n将清空当前地图事件并重新生成。";
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("是否确认更换速率")
-                    .setMessage(msg)
-                    .setPositiveButton("确认", (d, which) -> {
-                        savedRate = newRate;
-                        sharedPrefs.edit().putInt("eventRate", savedRate).apply();
-                        FragmentManager fm = getParentFragmentManager();
-                        for (Fragment f : fm.getFragments()) {
-                            if (f instanceof MapFragment && f.isAdded()) {
-                                ((MapFragment) f).resetEventsAndTimers();
-                                break;
-                            }
-                        }
-                    })
-                    .setNegativeButton("取消", (d, which) -> selectRadioSilently(savedRate))
-                    .setOnCancelListener(d -> selectRadioSilently(savedRate))
-                    .show();
-        });
-    }
-
-    private void showPoolSelectionDialog() {
-        ScrollView sv = new ScrollView(requireContext());
-        LinearLayout root = new LinearLayout(requireContext());
-        root.setOrientation(LinearLayout.VERTICAL);
-        int pad = dpToPx(12);
-        root.setPadding(pad, pad, pad, pad);
-
-        String[] categories = {"简单", "一般", "挑战", "困难", "灾难", "试炼"};
-        int[] catColors = {0xFF4CAF50, 0xFF2196F3, 0xFFFF9800, 0xFFE53935, 0xFF9C27B0, 0xFF000000};
-
-        int poolCount = MonsterManager.getPoolCount();
-        String lastCat = "";
-        for (int i = 0; i < poolCount; i++) {
-            String cat = MonsterManager.getPoolDifficultyCategory(i);
-            if (!cat.equals(lastCat)) {
-                lastCat = cat;
-                int catIdx = java.util.Arrays.asList(categories).indexOf(cat);
-                TextView tvCat = new TextView(requireContext());
-                tvCat.setText("━━━ " + cat + " ━━━");
-                tvCat.setTextSize(16);
-                tvCat.setTextColor(catIdx >= 0 ? catColors[catIdx] : 0xFFFFFFFF);
-                tvCat.setPadding(0, dpToPx(10), 0, dpToPx(4));
-                root.addView(tvCat);
-            }
-            final int idx = i;
-            TextView tvPool = new TextView(requireContext());
-            tvPool.setText(MonsterManager.getPoolDescription(i));
-            tvPool.setTextSize(14);
-            tvPool.setTextColor(0xFFFFFFFF);
-            tvPool.setBackgroundResource(R.drawable.bg_tab_idle);
-            tvPool.setClickable(true);
-            tvPool.setFocusable(true);
-            tvPool.setGravity(android.view.Gravity.CENTER);
-            tvPool.setPadding(dpToPx(10), dpToPx(8), dpToPx(10), dpToPx(8));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, dpToPx(3), 0, dpToPx(3));
-            tvPool.setLayoutParams(lp);
-            tvPool.setOnClickListener(v -> openBattleWithPool(idx));
-            root.addView(tvPool);
-        }
-        sv.addView(root);
-        new AlertDialog.Builder(requireContext())
-                .setTitle("选择怪物阵容")
-                .setView(sv)
-                .setNegativeButton("取消", null)
-                .show();
-    }
-
-    private void openBattleWithPool(int idx) {
-        FragmentManager fm = requireActivity().getSupportFragmentManager();
-        fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
-        FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
-        if (orphan != null) ft.remove(orphan);
-        BattleFragment frag = new BattleFragment();
-        Bundle args = new Bundle();
-        args.putInt("poolIndex", idx);
-        frag.setArguments(args);
-        ft.add(R.id.fragment_container, frag, BattleFragment.TAG)
-                .hide(this).addToBackStack("battle").commit();
-    }
-
-    private int dpToPx(int dp) {
-        return (int) android.util.TypedValue.applyDimension(
-                android.util.TypedValue.COMPLEX_UNIT_DIP, dp,
-                requireContext().getResources().getDisplayMetrics());
-    }
-
-    private void fillBag() {
-        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
-        List<Item> bag = ch.getBagItems();
-        InventoryManager.clearAll(bag);
-
-        EquipmentManager em = EquipmentManager.getInstance(requireContext());
-        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC, Rarity.LEGENDARY};
-        int slot = 0;
-        while (slot < InventoryManager.BAG_SLOTS) {
-            for (Rarity r : rarities) {
-                if (slot >= InventoryManager.BAG_SLOTS) break;
-                int lv = 5 + (slot % 21);
-                if (InventoryManager.addItem(bag, em.generateRandomEquip(lv, r))) {
-                    slot++;
-                }
-            }
-        }
-
-        InventoryGridSync.reloadSharedGridFromManager(requireContext());
-        FloatMsgOverlay.showFloatMsg(requireContext(), "已填满 125 格背包");
     }
 }
