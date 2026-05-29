@@ -8,6 +8,7 @@ public class MonsterTemplate {
     private String name;
     private int level;
     private int rarityId;
+    private String raceId;
 
     private int strength;
     private int agility;
@@ -59,6 +60,7 @@ public class MonsterTemplate {
     public String getName() { return name; }
     public int getLevel() { return level; }
     public int getRarityId() { return rarityId; }
+    public String getRaceId() { return raceId; }
     public int getStrength() { return strength; }
     public int getAgility() { return agility; }
     public int getIntelligence() { return intelligence; }

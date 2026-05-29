@@ -68,6 +68,8 @@ public class MapFragment extends Fragment {
     private Runnable mCheckExpireRunnable;
     private Runnable mBattleCountdownRunnable;
     private Runnable mDebugCountdownRunnable;
+    private Runnable mEventCountdownRunnable;
+    private long mNextGenerateTime;
 
     private static final int REQ_NEUTRAL_EVENT = 1002;
 
@@ -91,6 +93,7 @@ public class MapFragment extends Fragment {
     private TextView mCountdownNumber;
     private LatLng mBattleTriggerPosition;
     private boolean mIsProcessingNeutral;
+    private TextView mEventCountdownText;
 
     private FrameLayout mCircleAnimOverlay;
     private boolean mIsPlayingCircleAnim = false;
@@ -155,6 +158,8 @@ public class MapFragment extends Fragment {
         mMapRoot.addView(btnDebug, params);
 
         btnDebug.setOnClickListener(v -> showDebugPopup());
+
+        addEventCountdownOverlay();
     }
 
     private void initDebugPopup() {
@@ -204,6 +209,27 @@ public class MapFragment extends Fragment {
             }
         });
         popupContent.addView(btnClear);
+
+        addDebugSectionLabel(popupContent, "事件控制");
+
+        Button btnClearAll = makeDebugButton("清空地图所有事件", 0xFFFF5722);
+        btnClearAll.setOnClickListener(b -> {
+            hideDebugPopup();
+            mEventManager.clearAllEvents();
+            refreshEventIcons();
+            showFloatMsg("已清空地图所有事件");
+        });
+        popupContent.addView(btnClearAll);
+
+        Button btnPause = makeDebugButton(mEventManager.isPaused() ? "恢复事件生成" : "暂停事件生成",
+                mEventManager.isPaused() ? 0xFF4CAF50 : 0xFFFF9800);
+        btnPause.setOnClickListener(b -> {
+            boolean paused = !mEventManager.isPaused();
+            mEventManager.setPaused(paused);
+            hideDebugPopup();
+            showFloatMsg(paused ? "已暂停事件生成" : "已恢复事件生成");
+        });
+        popupContent.addView(btnPause);
 
         addDebugSectionLabel(popupContent, "具体小事件（立即进入）");
 
@@ -353,6 +379,27 @@ public class MapFragment extends Fragment {
         isDebugPopupShowing = true;
     }
 
+    private void addEventCountdownOverlay() {
+        mEventCountdownText = new TextView(requireContext());
+        mEventCountdownText.setTextSize(12);
+        mEventCountdownText.setTextColor(0xFFFFFFFF);
+        mEventCountdownText.setBackgroundColor(0x80000000);
+        int pad = (int) (6 * getResources().getDisplayMetrics().density);
+        mEventCountdownText.setPadding(pad * 2, pad, pad * 2, pad);
+        mEventCountdownText.setVisibility(View.GONE);
+
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                ConstraintLayout.LayoutParams.WRAP_CONTENT);
+        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        int topMargin = (int) (80 * getResources().getDisplayMetrics().density);
+        int startMargin = (int) (16 * getResources().getDisplayMetrics().density);
+        params.setMargins(startMargin, topMargin, 0, 0);
+
+        mMapRoot.addView(mEventCountdownText, params);
+    }
+
     private void hideDebugPopup() {
         if (isDebugPopupShowing) {
             mDebugPopup.setVisibility(View.GONE);
@@ -398,9 +445,21 @@ public class MapFragment extends Fragment {
                 .strokeColor(target.getStrokeColorInt())
                 .strokeWidth(4)
                 .fillColor(target.getFillColorInt()));
+        if (circle == null) return;
 
         EventManager.EventCircle ec = new EventManager.EventCircle(circle, mEventManager.getCurrentLatLng(), target);
         ec.selectedSubEvent = sub;
+
+        if ("BATTLE".equals(target.getType())) {
+            ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(target.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+            }
+        }
+
         mEventManager.addDebugEvent(ec);
         refreshEventIcons();
 
@@ -421,9 +480,21 @@ public class MapFragment extends Fragment {
                 .strokeColor(target.getStrokeColorInt())
                 .strokeWidth(4)
                 .fillColor(target.getFillColorInt()));
+        if (circle == null) return;
 
         EventManager.EventCircle ec = new EventManager.EventCircle(circle, pos, target);
         ec.selectedSubEvent = sub;
+
+        if ("BATTLE".equals(target.getType())) {
+            ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(target.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+            }
+        }
+
         mEventManager.addDebugEvent(ec);
         refreshEventIcons();
 
@@ -466,35 +537,50 @@ public class MapFragment extends Fragment {
     private void initTimedTasks() {
         mGenerateEventRunnable = () -> {
             if (isDetached()) return;
-            applyRateSettings();
-            int count = mEventManager.generateRandomEvents();
-            if (count > 0) {
-                boolean showToast = mPrefs.getBoolean("showEventToast", true);
-                if (showToast) showFloatMsg("生成事件：" + count);
-                refreshEventIcons();
+            try {
+                applyRateSettings();
+                int count = mEventManager.generateRandomEvents();
+                if (count > 0) {
+                    boolean showToast = mPrefs.getBoolean("showEventToast", true);
+                    if (showToast) showFloatMsg("生成事件：" + count);
+                    refreshEventIcons();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("MapFragment", "generateEvents error", e);
             }
-            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
+            long interval = mEventManager.getEffectiveGenerateInterval();
+            mNextGenerateTime = System.currentTimeMillis() + interval;
+            mMainHandler.postDelayed(mGenerateEventRunnable, interval);
+        };
+
+        mEventCountdownRunnable = () -> {
+            if (isDetached()) return;
+            boolean showToast = mPrefs.getBoolean("showEventToast", true);
+            if (showToast && mEventCountdownText != null) {
+                long remaining = mNextGenerateTime - System.currentTimeMillis();
+                if (remaining <= 0) {
+                    mEventCountdownText.setText("事件即将生成...");
+                } else {
+                    long mins = remaining / 60000;
+                    long secs = (remaining % 60000) / 1000;
+                    mEventCountdownText.setText("距离下次事件生成：" + mins + "分" + secs + "秒");
+                }
+                mEventCountdownText.setVisibility(mEventManager.isPaused() ? View.GONE : View.VISIBLE);
+            } else if (mEventCountdownText != null) {
+                mEventCountdownText.setVisibility(View.GONE);
+            }
+            mMainHandler.postDelayed(mEventCountdownRunnable, 1000);
         };
 
         mCheckExpireRunnable = () -> {
             if (isDetached()) return;
-            boolean pendingClear = mPrefs.getBoolean("pendingRateClear", false);
-            if (pendingClear) {
-                mPrefs.edit().putBoolean("pendingRateClear", false).apply();
-                applyRateSettings();
-                mEventManager.clearAllEvents();
-                refreshEventIcons();
-                int count = mEventManager.generateRandomEvents();
+            try {
+                int count = mEventManager.checkExpiredEvents();
                 if (count > 0) {
                     refreshEventIcons();
-                    showFloatMsg("速率已切换，重新生成事件：" + count);
                 }
-                mMainHandler.removeCallbacks(mGenerateEventRunnable);
-                mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getEffectiveGenerateInterval());
-            }
-            int count = mEventManager.checkExpiredEvents();
-            if (count > 0) {
-                refreshEventIcons();
+            } catch (Exception e) {
+                android.util.Log.e("MapFragment", "checkExpired error", e);
             }
             mMainHandler.postDelayed(mCheckExpireRunnable, 1000);
         };
@@ -517,8 +603,11 @@ public class MapFragment extends Fragment {
     private void startTimedTasks() {
         mMainHandler.removeCallbacks(mGenerateEventRunnable);
         mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
         mMainHandler.postDelayed(mGenerateEventRunnable, 1000);
         mMainHandler.post(mCheckExpireRunnable);
+        mMainHandler.post(mEventCountdownRunnable);
     }
 
     private void startBattleCountdown() {
@@ -694,6 +783,12 @@ public class MapFragment extends Fragment {
             showFloatMsg("增益事件，你可以在此回复生命、增强力量或打开宝箱");
         } else if ("NEUTRAL".equals(type)) {
             mIsProcessingNeutral = true;
+            if (ec.monster != null && sub != null) {
+                String subKey = sub.getKey();
+                if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                    mEventManager.setCurrentBattleMonster(ec.monster);
+                }
+            }
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
             openNeutralEventPage(sub);
@@ -885,6 +980,9 @@ public class MapFragment extends Fragment {
         EventConfig.EventItem item = eventCircle.config;
         EventConfig.EventSubItem sub = eventCircle.selectedSubEvent;
 
+        StringBuilder descBuilder = new StringBuilder();
+        StringBuilder extraBuilder = new StringBuilder();
+
         if ("UNKNOWN".equals(item.getType())) {
             tvEventName.setText("未知事件");
             tvEventDesc.setText("描述：???");
@@ -892,7 +990,16 @@ public class MapFragment extends Fragment {
             tvEventRisk.setText("风险：???");
         } else if (sub != null) {
             tvEventName.setText(sub.getName());
-            tvEventDesc.setText("描述：" + sub.getDesc());
+            descBuilder.append(sub.getDesc());
+
+            if (eventCircle.monster != null && eventCircle.monster.getName() != null) {
+                extraBuilder.append("\n【守卫】").append(eventCircle.monster.getName())
+                        .append("（").append(eventCircle.monster.getRarity().getDisplayName()).append("）");
+            }
+
+            String desc = descBuilder.toString();
+            if (extraBuilder.length() > 0) desc += extraBuilder.toString();
+            tvEventDesc.setText("描述：" + desc);
             tvEventReward.setText("奖励：" + sub.getReward());
             tvEventRisk.setText("风险：" + sub.getRisk());
         } else {
@@ -900,6 +1007,12 @@ public class MapFragment extends Fragment {
             tvEventDesc.setText("描述：暂无信息");
             tvEventReward.setText("奖励：暂无信息");
             tvEventRisk.setText("风险：暂无信息");
+        }
+
+        LatLng currentPos = mEventManager.getCurrentLatLng();
+        if (currentPos != null) {
+            double dist = com.example.treasure_and_battle.utils.GeoUtils.calculateDistance(currentPos, eventCircle.position);
+            tvEventRisk.setText(tvEventRisk.getText() + "  |  距离：" + Math.round(dist) + "m");
         }
 
         mEventPopup.setVisibility(View.VISIBLE);
@@ -933,11 +1046,41 @@ public class MapFragment extends Fragment {
         super.onResume();
         mMapView.onResume();
         mIsProcessingNeutral = false;
+        refreshEventIcons();
         refreshDebugButton();
+        restartTimersIfNeeded();
         if (mWasInEvent) {
             mWasInEvent = false;
             GameManager.getInstance(requireContext()).triggerAutoSave();
         }
+    }
+
+    private void restartTimersIfNeeded() {
+        mMainHandler.removeCallbacks(mGenerateEventRunnable);
+        mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mMainHandler.post(mGenerateEventRunnable);
+        mMainHandler.post(mCheckExpireRunnable);
+        if (mNextGenerateTime == 0 || mNextGenerateTime < System.currentTimeMillis()) {
+            mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
+        }
+        mMainHandler.post(mEventCountdownRunnable);
+    }
+
+    public void resetEventsAndTimers() {
+        applyRateSettings();
+        mEventManager.clearAllEvents();
+        refreshEventIcons();
+        int count = mEventManager.generateRandomEvents();
+        if (count > 0) {
+            refreshEventIcons();
+            showFloatMsg("速率已切换，生成事件：" + count);
+        }
+        mMainHandler.removeCallbacks(mGenerateEventRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
+        mMainHandler.post(mGenerateEventRunnable);
+        mMainHandler.post(mEventCountdownRunnable);
     }
 
     @Override
@@ -959,6 +1102,7 @@ public class MapFragment extends Fragment {
         mMapView.onPause();
         mMainHandler.removeCallbacks(mGenerateEventRunnable);
         mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
         if (mBattleCountdownRunnable != null) {
             mMainHandler.removeCallbacks(mBattleCountdownRunnable);
             mBattleCountdownRunnable = null;
@@ -1015,9 +1159,15 @@ public class MapFragment extends Fragment {
         if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("open_trade")) {
                 FragmentManager fm = requireActivity().getSupportFragmentManager();
+                TradeFragment tradeFrag = new TradeFragment();
+                if (data.hasExtra("merchant_type")) {
+                    Bundle args = new Bundle();
+                    args.putString("merchant_type", data.getStringExtra("merchant_type"));
+                    tradeFrag.setArguments(args);
+                }
                 fm.beginTransaction()
                         .setReorderingAllowed(true)
-                        .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                        .add(R.id.fragment_container, tradeFrag, TradeFragment.TAG)
                         .hide(MapFragment.this)
                         .addToBackStack("trade")
                         .commit();

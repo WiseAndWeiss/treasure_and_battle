@@ -316,7 +316,7 @@ public class ConsumableManagerTest {
 
     @Test
     public void testUtilityEffect() {
-        ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.UTILITY);
+        ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.UTILITY_PASSIVE);
         e.utilityId = "KEY_COPPER";
 
         ConsumableItem item = new ConsumableItem("key", "钥匙",

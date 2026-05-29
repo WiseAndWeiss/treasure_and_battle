@@ -36,6 +36,7 @@ public class EventManager {
     private long mBattleExpireOverride = -1;
     private long mBenefitExpireOverride = -1;
     private long mNeutralExpireOverride = -1;
+    private boolean mPaused = false;
 
     public static class EventCircle {
         public Circle circle;
@@ -127,6 +128,7 @@ public class EventManager {
     // ==========================
     public int generateRandomEvents() {
         if (mCurrentLatLng == null || mAMap == null || mEventConfig == null) return 0;
+        if (mPaused) return 0;
 
         EventConfig.GlobalConfig global = mEventConfig.getGlobal();
         int availableCount = global.getMaxCount() - mEventCircleList.size();
@@ -185,12 +187,19 @@ public class EventManager {
                     .strokeColor(eventType.getStrokeColorInt())
                     .strokeWidth(4)
                     .fillColor(eventType.getFillColorInt()));
+            if (circle == null) continue;
 
             mEventCircleList.add(new EventCircle(circle, finalPos, eventType));
             EventCircle ec = mEventCircleList.get(mEventCircleList.size() - 1);
             ec.selectedSubEvent = pickRandomSubEvent(eventType);
             if ("BATTLE".equals(eventType.getType())) {
                 ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
+            if ("NEUTRAL".equals(eventType.getType()) && ec.selectedSubEvent != null) {
+                String subKey = ec.selectedSubEvent.getKey();
+                if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                    ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+                }
             }
             createdCount++;
         }
@@ -206,9 +215,14 @@ public class EventManager {
 
         while (it.hasNext()) {
             EventCircle e = it.next();
+            if (e.circle == null) {
+                it.remove();
+                count++;
+                continue;
+            }
             long expire = getEffectiveExpire(e.config.getType(), e.config.getExpireTime());
             if (!e.isTriggered && now - e.createTime >= expire) {
-                e.circle.remove();
+                if (mAMap != null) e.circle.remove();
                 it.remove();
                 count++;
             }
@@ -227,6 +241,9 @@ public class EventManager {
     public long getEffectiveGenerateInterval() {
         return mOverrideGenerateInterval > 0 ? mOverrideGenerateInterval : mEventConfig.getGlobal().getGenerateInterval();
     }
+
+    public boolean isPaused() { return mPaused; }
+    public void setPaused(boolean paused) { mPaused = paused; }
 
     public void setOverrideGenerateInterval(long ms) {
         mOverrideGenerateInterval = ms;
@@ -282,7 +299,6 @@ public class EventManager {
         }
 
         EventCircle target = unknownCircles.get(mRandom.nextInt(unknownCircles.size()));
-        target.circle.remove();
 
         EventConfig.EventItem eventTypes = findEventConfigByType(resolveUnknownType());
         if (eventTypes == null) {
@@ -290,15 +306,27 @@ public class EventManager {
         }
 
         EventConfig.EventSubItem sub = pickRandomSubEvent(eventTypes);
+
         target.config = eventTypes;
         target.selectedSubEvent = sub;
+        target.isTriggered = false;
+        target.createTime = System.currentTimeMillis();
+        target.monster = null;
 
-        target.circle = mAMap.addCircle(new CircleOptions()
-                .center(target.position)
-                .radius(eventTypes.getRadius())
-                .strokeColor(eventTypes.getStrokeColorInt())
-                .strokeWidth(4)
-                .fillColor(eventTypes.getFillColorInt()));
+        target.circle.setRadius(eventTypes.getRadius());
+        target.circle.setStrokeColor(eventTypes.getStrokeColorInt());
+        target.circle.setStrokeWidth(4);
+        target.circle.setFillColor(eventTypes.getFillColorInt());
+
+        if ("BATTLE".equals(eventTypes.getType())) {
+            target.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(eventTypes.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                target.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
+        }
 
         return "占卜成功！一个未知事件被揭示为：" + (sub != null ? sub.getName() : eventTypes.getType());
     }
