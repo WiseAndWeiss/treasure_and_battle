@@ -231,7 +231,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:text="结束回合"
+                android:text="结束行动"
                 android:textColor="@color/tb_bg_dark"
                 android:textSize="15sp"
                 android:textStyle="bold"

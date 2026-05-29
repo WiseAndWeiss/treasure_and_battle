@@ -56,6 +56,23 @@ public class BattleManager {
         this.monsterActListener = listener;
     }
 
+    public interface ShieldAbsorbListener {
+        void onShieldAbsorbed(BattleEntity target, int amount);
+    }
+
+    @Nullable
+    private ShieldAbsorbListener shieldAbsorbListener;
+
+    public void setShieldAbsorbListener(@Nullable ShieldAbsorbListener listener) {
+        this.shieldAbsorbListener = listener;
+    }
+
+    public void notifyShieldAbsorbed(BattleEntity target, int amount) {
+        if (shieldAbsorbListener != null) {
+            shieldAbsorbListener.onShieldAbsorbed(target, amount);
+        }
+    }
+
     private BattleManager(Context context) {
         this.context = context.getApplicationContext();
     }
@@ -262,7 +279,7 @@ public class BattleManager {
         boolean hasMore = prepareMonsterAction(ctx, actingMonster);
         if (!hasMore) {
             ctx.actionOrderIndex++;
-            ctx.monsterIntentStepIndex.remove(actingMonster.getEntityId());
+            ctx.monsterIntentStepIndex.remove(actingMonster.getBattleKey());
         }
         return actingMonster;
     }
@@ -311,7 +328,7 @@ public class BattleManager {
                 boolean seen = RandomUtils.checkProbability((float) seeThroughChance);
                 revealed.add(new RevealedIntent(intent, seen));
             }
-            ctx.monsterRevealedIntents.put(m.getEntityId(), revealed);
+            ctx.monsterRevealedIntents.put(m.getBattleKey(), revealed);
 
             ctx.addLog(LogType.DODGE_CRIT,
                     "【意图看破判定】vs[%s] 看破率:%.1f%% 意图数:%d",
@@ -475,13 +492,13 @@ public class BattleManager {
 
     // ====================== 7. 怪物行动阶段（UI驱动：改为逐步执行） ======================
     private boolean prepareMonsterAction(BattleContext ctx, Monster m) {
-        List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
+        List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getBattleKey());
         if (revealed == null || revealed.isEmpty()) {
             ctx.pendingMonsterAction = BattleAction.normalAttack(m, ctx.player);
             return false;
         }
 
-        Integer stepIdxObj = ctx.monsterIntentStepIndex.get(m.getEntityId());
+        Integer stepIdxObj = ctx.monsterIntentStepIndex.get(m.getBattleKey());
         int idx = (stepIdxObj == null) ? 0 : stepIdxObj;
 
         if (idx < 0 || idx >= revealed.size()) {
@@ -497,7 +514,7 @@ public class BattleManager {
 
         int nextIdx = idx + 1;
         boolean hasMore = nextIdx < revealed.size();
-        ctx.monsterIntentStepIndex.put(m.getEntityId(), hasMore ? nextIdx : -1);
+        ctx.monsterIntentStepIndex.put(m.getBattleKey(), hasMore ? nextIdx : -1);
 
         return hasMore;
     }

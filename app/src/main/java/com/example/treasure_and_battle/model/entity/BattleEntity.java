@@ -184,6 +184,7 @@ public abstract class BattleEntity {
 
     // ====================== 简单 Getters & Setters（仅保留必要的） ======================
     public String getEntityId() { return entityId; }
+    public String getBattleKey() { return entityId + "@" + Integer.toHexString(System.identityHashCode(this)); }
     public String getName() { return name; }
     public Context getContext() { return context; }
     public void setName(String name) { this.name = name; }

@@ -245,11 +245,18 @@ public class DamageManager {
 
         boolean hadShieldBefore = ShieldBuff.hasShield(target);
 
+        int beforeShield = incomingDamage;
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
             if (!(buff instanceof ShieldBuff)) continue;
             if (remainingDamage <= 0) break;
             remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
+        }
+
+        ctx.shieldAbsorbed = beforeShield - remainingDamage;
+
+        if (ctx.shieldAbsorbed > 0) {
+            BattleManager.getInstance(context).notifyShieldAbsorbed(target, ctx.shieldAbsorbed);
         }
 
         boolean hasShieldAfter = ShieldBuff.hasShield(target);
