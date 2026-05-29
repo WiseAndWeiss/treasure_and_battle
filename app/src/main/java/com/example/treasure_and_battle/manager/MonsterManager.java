@@ -109,7 +109,6 @@ public class MonsterManager {
         for (MonsterTemplate t : templateMap.values()) {
             String r = t.getRaceId();
             if (r == null || r.isEmpty() || races.contains(r)) continue;
-            if ("BANDIT".equals(r) || "CULTIST".equals(r)) continue;
             races.add(r);
         }
         return races;
@@ -137,124 +136,40 @@ public class MonsterManager {
         return max;
     }
 
-    // ====================== 怪物池（30种预设阵容） ======================
+    public int getMaxRarityForRace(String raceId) {
+        List<MonsterTemplate> templates = getTemplatesByRace().get(raceId);
+        if (templates == null || templates.isEmpty()) return 0;
+        return getMaxRarityInRace(templates);
+    }
 
-    public static class MonsterPool {
-        public final String description;
-        public final int[] raritySlots;
-
-        public final int monsterCount;
-        public final int maxRarity;
-
-        public MonsterPool(int[] raritySlots) {
-            this.raritySlots = raritySlots;
-            int cnt = 0, mx = 0;
-            for (int r : raritySlots) {
-                if (r >= 0) { cnt++; if (r > mx) mx = r; }
-            }
-            this.monsterCount = cnt;
-            this.maxRarity = mx;
-
-            StringBuilder sb = new StringBuilder("×").append(cnt).append("  [");
-            for (int i = 0; i < raritySlots.length; i++) {
-                if (raritySlots[i] == -1) break;
-                if (i > 0) sb.append(",");
-                sb.append(raritySlots[i]);
-            }
-            sb.append("]");
-            this.description = sb.toString();
+    public List<Monster> createMonstersFromTemplateIds(List<Integer> templateIds, int playerLevel) {
+        List<Monster> monsters = new ArrayList<>();
+        for (int tid : templateIds) {
+            Monster m = playerLevel > 0
+                    ? createMonsterWithLevelScaling(tid, playerLevel)
+                    : createMonsterByTemplateId(tid);
+            if (m != null) monsters.add(m);
         }
+        return monsters;
     }
 
-    private static final int E = -1;
+    // ====================== 调试批次生成 ======================
 
-    private static final List<MonsterPool> MONSTER_POOLS = new ArrayList<>();
-    static {
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,E,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,E,E,E,E}));
-
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,4,E,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,E,E,E}));
-
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,4,E,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,E,E}));
-
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,1,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,2,2,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,3,3,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,4,4,E}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,4,E}));
-
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,0}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,0,1}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,0,1,1}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,0,1,1,1}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,1}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{0,1,1,1,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,1,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,2}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{1,1,2,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,2,2,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,3}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{2,2,3,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{3,3,3,3,4}));
-        MONSTER_POOLS.add(new MonsterPool(new int[]{4,4,4,4,4}));
-    }
-
-    public static int getPoolCount() { return MONSTER_POOLS.size(); }
-    public static String getPoolDescription(int index) { return MONSTER_POOLS.get(index).description; }
-    public static String getPoolDifficultyCategory(int index) {
-        MonsterPool pool = MONSTER_POOLS.get(index);
-        int m = pool.monsterCount;
-        int r = pool.maxRarity;
-        if (m == 1 && r <= 1) return "简单";
-        if (m <= 2 && r <= 1) return "一般";
-        if ((m <= 3 && r <= 2) || (m == 5 && r == 0)) return "挑战";
-        if (r == 3) return "困难";
-        return "灾难";
-    }
-
-    public List<Integer> generateMonstersFromPool(int poolIndex, String raceId, Random rng) {
-        Map<String, List<MonsterTemplate>> raceMap = getTemplatesByRace();
-        List<MonsterTemplate> raceTemplates = raceMap.get(raceId);
+    public List<Integer> generateDebugBatch(String raceId, int maxRarity, int count, Random rng) {
+        List<MonsterTemplate> raceTemplates = getTemplatesByRace().get(raceId);
         if (raceTemplates == null || raceTemplates.isEmpty()) return Collections.emptyList();
 
-        MonsterPool pool = MONSTER_POOLS.get(poolIndex);
+        int raceMaxRarity = getMaxRarityInRace(raceTemplates);
+        int effectiveMax = Math.min(maxRarity, raceMaxRarity);
+        double[] fullDist = raceMaxRarity <= 2 ? RARITY_DIST_3 : RARITY_DIST_5;
+        double[] cappedDist = new double[effectiveMax + 1];
+        double total = 0;
+        for (int i = 0; i < cappedDist.length; i++) { cappedDist[i] = fullDist[i]; total += cappedDist[i]; }
+        if (total > 0) for (int i = 0; i < cappedDist.length; i++) cappedDist[i] /= total;
+
+        int[] raritySeq = generateRaritySequence(count, cappedDist, rng);
         List<Integer> templateIds = new ArrayList<>();
-        for (int rarityId : pool.raritySlots) {
-            if (rarityId == E) continue;
+        for (int rarityId : raritySeq) {
             List<MonsterTemplate> candidates = getTemplatesOfRarity(raceTemplates, rarityId);
             if (candidates.isEmpty()) {
                 for (int lowerR = rarityId - 1; lowerR >= 0; lowerR--) {
@@ -268,15 +183,35 @@ public class MonsterManager {
         return templateIds;
     }
 
-    public List<Monster> createMonstersFromTemplateIds(List<Integer> templateIds, int playerLevel) {
-        List<Monster> monsters = new ArrayList<>();
-        for (int tid : templateIds) {
-            Monster m = playerLevel > 0
-                    ? createMonsterWithLevelScaling(tid, playerLevel)
-                    : createMonsterByTemplateId(tid);
-            if (m != null) monsters.add(m);
+    // ====================== 概率分布生成系统 ======================
+
+    private static final double[] COUNT_DISTRIBUTION = {0.10, 0.20, 0.30, 0.25, 0.15};
+
+    private static final double[] RARITY_DIST_5 = {0.45, 0.30, 0.15, 0.07, 0.03};
+    private static final double[] RARITY_DIST_3 = {0.50, 0.35, 0.15};
+
+    private int weightedPick(double[] dist, Random rng) {
+        double roll = rng.nextDouble();
+        double acc = 0;
+        for (int i = 0; i < dist.length; i++) {
+            acc += dist[i];
+            if (roll < acc) return i;
         }
-        return monsters;
+        return dist.length - 1;
+    }
+
+    private int[] generateRaritySequence(int count, double[] dist, Random rng) {
+        int[] seq = new int[count];
+        seq[0] = weightedPick(dist, rng);
+        for (int i = 1; i < count; i++) {
+            int cap = seq[i - 1];
+            double[] sub = new double[cap + 1];
+            double total = 0;
+            for (int j = 0; j <= cap; j++) { sub[j] = dist[j]; total += dist[j]; }
+            if (total > 0) for (int j = 0; j <= cap; j++) sub[j] /= total;
+            seq[i] = weightedPick(sub, rng);
+        }
+        return seq;
     }
 
     public List<Integer> generateMonsterBatch(int playerLevel, int slotCount, Random rng,
@@ -291,28 +226,27 @@ public class MonsterManager {
         }
 
         String selectedRace = availableRaces.get(rng.nextInt(availableRaces.size()));
-        int poolIndex = pickPoolByWeight(rng);
-        return generateMonstersFromPool(poolIndex, selectedRace, rng);
-    }
+        List<MonsterTemplate> raceTemplates = getTemplatesByRace().get(selectedRace);
+        if (raceTemplates == null || raceTemplates.isEmpty()) return Collections.emptyList();
 
-    private int pickPoolByWeight(Random rng) {
-        int size = MONSTER_POOLS.size();
-        int roll = rng.nextInt(100);
-        int maxR;
-        if (roll < 25) maxR = 0;
-        else if (roll < 50) maxR = 1;
-        else if (roll < 75) maxR = 2;
-        else if (roll < 90) maxR = 3;
-        else maxR = 4;
+        int raceMaxRarity = getMaxRarityInRace(raceTemplates);
+        double[] rarityDist = raceMaxRarity <= 2 ? RARITY_DIST_3 : RARITY_DIST_5;
+        int count = weightedPick(COUNT_DISTRIBUTION, rng) + 1;
+        int[] raritySeq = generateRaritySequence(count, rarityDist, rng);
 
-        List<Integer> candidates = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            if (MONSTER_POOLS.get(i).maxRarity == maxR) candidates.add(i);
+        List<Integer> templateIds = new ArrayList<>();
+        for (int rarityId : raritySeq) {
+            List<MonsterTemplate> candidates = getTemplatesOfRarity(raceTemplates, rarityId);
+            if (candidates.isEmpty()) {
+                for (int lowerR = rarityId - 1; lowerR >= 0; lowerR--) {
+                    candidates = getTemplatesOfRarity(raceTemplates, lowerR);
+                    if (!candidates.isEmpty()) break;
+                }
+            }
+            if (candidates.isEmpty()) candidates = raceTemplates;
+            templateIds.add(candidates.get(rng.nextInt(candidates.size())).getTemplateId());
         }
-        if (candidates.isEmpty()) {
-            for (int i = 0; i < size; i++) candidates.add(i);
-        }
-        return candidates.get(rng.nextInt(candidates.size()));
+        return templateIds;
     }
 
     private double calculateMonsterBasePower(int level) {

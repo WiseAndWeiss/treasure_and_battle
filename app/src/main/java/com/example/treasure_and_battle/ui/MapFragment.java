@@ -44,12 +44,15 @@ import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.manager.EventManager;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.model.entity.MonsterTemplate;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MapFragment extends Fragment {
 
@@ -754,6 +757,8 @@ public class MapFragment extends Fragment {
         mWasInEvent = true;
         String type = ec.config.getType();
         EventConfig.EventSubItem sub = ec.selectedSubEvent;
+        MonsterManager mm = MonsterManager.getInstance(getContext());
+        int playerLevel = PlayerCharacterHolder.getOrCreate(requireContext()).getLevel();
 
         if ("UNKNOWN".equals(type)) {
             sub = mEventManager.resolveUnknownEvent();
@@ -767,8 +772,16 @@ public class MapFragment extends Fragment {
             Monster battleMonster;
             if (ec.monster != null) {
                 battleMonster = ec.monster;
+            } else if (ec.previewTemplateIds != null && ec.previewTemplateIds.length > 0) {
+                List<Integer> ids = new ArrayList<>();
+                for (int tid : ec.previewTemplateIds) ids.add(tid);
+                List<Monster> batch = mm.createMonstersFromTemplateIds(ids, playerLevel);
+                battleMonster = batch.isEmpty() ? null : batch.get(0);
+                if (batch.size() > 1) {
+                    mEventManager.setCurrentBattleMonsters(batch);
+                }
             } else {
-                battleMonster = MonsterManager.getInstance(getContext()).createRandomMonster();
+                battleMonster = mm.createRandomMonster();
             }
             mEventManager.setCurrentBattleMonster(battleMonster);
             mEventManager.removeEventCircle(ec);
@@ -992,7 +1005,21 @@ public class MapFragment extends Fragment {
             tvEventName.setText(sub.getName());
             descBuilder.append(sub.getDesc());
 
-            if (eventCircle.monster != null && eventCircle.monster.getName() != null) {
+            boolean isBattle = "BATTLE".equals(item.getType())
+                    || (sub.getKey() != null && sub.getKey().startsWith("battle_"));
+
+            if (isBattle && eventCircle.previewTemplateIds == null) {
+                generateBattlePreview(eventCircle);
+            }
+
+            if (eventCircle.previewMonsterNames != null && eventCircle.previewMonsterNames.length > 0) {
+                extraBuilder.append("\n\n【怪物阵容】共").append(eventCircle.previewMonsterNames.length)
+                        .append("只：");
+                for (int i = 0; i < eventCircle.previewMonsterNames.length; i++) {
+                    extraBuilder.append("\n  · ").append(eventCircle.previewMonsterNames[i])
+                            .append("（").append(eventCircle.previewMonsterRarities[i]).append("）");
+                }
+            } else if (eventCircle.monster != null && eventCircle.monster.getName() != null) {
                 extraBuilder.append("\n【守卫】").append(eventCircle.monster.getName())
                         .append("（").append(eventCircle.monster.getRarity().getDisplayName()).append("）");
             }
@@ -1017,6 +1044,31 @@ public class MapFragment extends Fragment {
 
         mEventPopup.setVisibility(View.VISIBLE);
         isPopupShowing = true;
+    }
+
+    private void generateBattlePreview(EventManager.EventCircle ec) {
+        MonsterManager mm = MonsterManager.getInstance(getContext());
+        Random rng = new Random();
+        int playerLevel = PlayerCharacterHolder.getOrCreate(requireContext()).getLevel();
+        List<Integer> batch = mm.generateMonsterBatch(playerLevel, 5, rng, null);
+        if (batch.isEmpty()) return;
+
+        ec.previewTemplateIds = new int[batch.size()];
+        ec.previewMonsterNames = new String[batch.size()];
+        ec.previewMonsterRarities = new String[batch.size()];
+
+        for (int i = 0; i < batch.size(); i++) {
+            ec.previewTemplateIds[i] = batch.get(i);
+            MonsterTemplate t = mm.getTemplate(batch.get(i));
+            if (t != null) {
+                ec.previewMonsterNames[i] = t.getName();
+                Rarity r = Rarity.fromId(t.getRarityId());
+                ec.previewMonsterRarities[i] = r != null ? r.getDisplayName() : "未知";
+            } else {
+                ec.previewMonsterNames[i] = "???";
+                ec.previewMonsterRarities[i] = "???";
+            }
+        }
     }
 
     private String determineSubEventCategory(EventConfig.EventSubItem sub) {

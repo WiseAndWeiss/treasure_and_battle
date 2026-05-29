@@ -7,11 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
@@ -85,7 +82,7 @@ public class SettingsFragment extends Fragment {
         });
 
         View btnBattle = view.findViewById(R.id.btn_open_battle);
-        btnBattle.setOnClickListener(v -> showPoolSelectionDialog());
+        btnBattle.setOnClickListener(v -> showDebugBattleDialog());
 
         View btnProfession = view.findViewById(R.id.btn_profession_select);
         btnProfession.setOnClickListener(v -> {
@@ -206,56 +203,42 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    private void showPoolSelectionDialog() {
-        ScrollView sv = new ScrollView(requireContext());
-        LinearLayout root = new LinearLayout(requireContext());
-        root.setOrientation(LinearLayout.VERTICAL);
-        int pad = dpToPx(12);
-        root.setPadding(pad, pad, pad, pad);
-
-        String[] categories = {"简单", "一般", "挑战", "困难", "灾难", "试炼"};
-        int[] catColors = {0xFF4CAF50, 0xFF2196F3, 0xFFFF9800, 0xFFE53935, 0xFF9C27B0, 0xFF000000};
-
-        int poolCount = MonsterManager.getPoolCount();
-        String lastCat = "";
-        for (int i = 0; i < poolCount; i++) {
-            String cat = MonsterManager.getPoolDifficultyCategory(i);
-            if (!cat.equals(lastCat)) {
-                lastCat = cat;
-                int catIdx = java.util.Arrays.asList(categories).indexOf(cat);
-                TextView tvCat = new TextView(requireContext());
-                tvCat.setText("━━━ " + cat + " ━━━");
-                tvCat.setTextSize(16);
-                tvCat.setTextColor(catIdx >= 0 ? catColors[catIdx] : 0xFFFFFFFF);
-                tvCat.setPadding(0, dpToPx(10), 0, dpToPx(4));
-                root.addView(tvCat);
-            }
-            final int idx = i;
-            TextView tvPool = new TextView(requireContext());
-            tvPool.setText(MonsterManager.getPoolDescription(i));
-            tvPool.setTextSize(14);
-            tvPool.setTextColor(0xFFFFFFFF);
-            tvPool.setBackgroundResource(R.drawable.bg_tab_idle);
-            tvPool.setClickable(true);
-            tvPool.setFocusable(true);
-            tvPool.setGravity(android.view.Gravity.CENTER);
-            tvPool.setPadding(dpToPx(10), dpToPx(8), dpToPx(10), dpToPx(8));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, dpToPx(3), 0, dpToPx(3));
-            tvPool.setLayoutParams(lp);
-            tvPool.setOnClickListener(v -> openBattleWithPool(idx));
-            root.addView(tvPool);
-        }
-        sv.addView(root);
+    private void showDebugBattleDialog() {
+        MonsterManager mm = MonsterManager.getInstance(requireContext());
+        List<String> races = mm.getAvailableRacesForBattle();
+        String[] raceNames = races.toArray(new String[0]);
         new AlertDialog.Builder(requireContext())
-                .setTitle("选择怪物阵容")
-                .setView(sv)
+                .setTitle("选择怪物种族")
+                .setItems(raceNames, (d, which) -> showRarityDialog(raceNames[which]))
                 .setNegativeButton("取消", null)
                 .show();
     }
 
-    private void openBattleWithPool(int idx) {
+    private void showRarityDialog(String raceId) {
+        MonsterManager mm = MonsterManager.getInstance(requireContext());
+        int maxR = mm.getMaxRarityForRace(raceId);
+        String[] rarityNames = new String[maxR + 1];
+        for (int i = 0; i <= maxR; i++) {
+            Rarity r = Rarity.fromId(i);
+            rarityNames[i] = r != null ? r.getDisplayName() : "Lv." + i;
+        }
+        new AlertDialog.Builder(requireContext())
+                .setTitle("选择最高稀有度（" + raceId + "）")
+                .setItems(rarityNames, (d, which) -> showCountDialog(raceId, which))
+                .setNegativeButton("返回", null)
+                .show();
+    }
+
+    private void showCountDialog(String raceId, int maxRarity) {
+        String[] countNames = {"1 只", "2 只", "3 只", "4 只", "5 只"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("选择怪物数量")
+                .setItems(countNames, (d, which) -> openBattleWithDebug(raceId, maxRarity, which + 1))
+                .setNegativeButton("返回", null)
+                .show();
+    }
+
+    private void openBattleWithDebug(String raceId, int maxRarity, int count) {
         FragmentManager fm = requireActivity().getSupportFragmentManager();
         fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
@@ -263,16 +246,12 @@ public class SettingsFragment extends Fragment {
         if (orphan != null) ft.remove(orphan);
         BattleFragment frag = new BattleFragment();
         Bundle args = new Bundle();
-        args.putInt("poolIndex", idx);
+        args.putString("debugRaceId", raceId);
+        args.putInt("debugMaxRarity", maxRarity);
+        args.putInt("debugCount", count);
         frag.setArguments(args);
         ft.add(R.id.fragment_container, frag, BattleFragment.TAG)
                 .hide(this).addToBackStack("battle").commit();
-    }
-
-    private int dpToPx(int dp) {
-        return (int) android.util.TypedValue.applyDimension(
-                android.util.TypedValue.COMPLEX_UNIT_DIP, dp,
-                requireContext().getResources().getDisplayMetrics());
     }
 
     private void fillBag() {

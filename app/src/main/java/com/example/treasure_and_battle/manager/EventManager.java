@@ -30,6 +30,7 @@ public class EventManager {
     private Random mRandom = new Random();
     private LatLng mCurrentLatLng;
     private Monster mCurrentBattleMonster;
+    private java.util.List<Monster> mCurrentBattleMonsters;
     private BattleContext.SurpriseDirection mCurrentBattleSurprise = BattleContext.SurpriseDirection.NONE;
 
     private long mOverrideGenerateInterval = -1;
@@ -46,6 +47,9 @@ public class EventManager {
         public EventConfig.EventItem config;
         public EventConfig.EventSubItem selectedSubEvent;
         public Monster monster;
+        public int[] previewTemplateIds;
+        public String[] previewMonsterNames;
+        public String[] previewMonsterRarities;
 
         public EventCircle(Circle circle, LatLng position, EventConfig.EventItem config) {
             this.circle = circle;
@@ -468,6 +472,14 @@ public class EventManager {
 
     public Monster getCurrentBattleMonster() {
         return mCurrentBattleMonster;
+    }
+
+    public void setCurrentBattleMonsters(java.util.List<Monster> monsters) {
+        mCurrentBattleMonsters = monsters;
+    }
+
+    public java.util.List<Monster> getCurrentBattleMonsters() {
+        return mCurrentBattleMonsters;
     }
 
     public void setCurrentBattleSurprise(BattleContext.SurpriseDirection surprise) {

@@ -133,7 +133,9 @@ public class BattleFragment extends Fragment {
     private static final List<String> recentRaceIds = new ArrayList<>();
     private static final int RACE_COOLDOWN_SIZE = 3;
     private static final int[] MONSTER_SLOT_INDEX = {0, 1, 2, 3, 4};
-    private int poolIndex = -1;
+    private String debugRaceId = null;
+    private int debugMaxRarity = -1;
+    private int debugCount = -1;
     private static final int[] MONSTER_ICONS = {
             R.drawable.ic_map,
             R.drawable.ic_map,
@@ -226,7 +228,13 @@ public class BattleFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
-        if (args != null) poolIndex = args.getInt("poolIndex", -1);
+        if (args != null) {
+            debugRaceId = args.getString("debugRaceId");
+            if (debugRaceId != null) {
+                debugMaxRarity = args.getInt("debugMaxRarity", -1);
+                debugCount = args.getInt("debugCount", -1);
+            }
+        }
 
         battleManager = BattleManager.getInstance(requireContext());
         battleManager.setMonsterActListener(new com.example.treasure_and_battle.manager.battle.BattleManager.MonsterActListener() {
@@ -575,9 +583,16 @@ public class BattleFragment extends Fragment {
         EventManager em = EventManager.getInstance(requireContext());
         Monster reservedMonster = em.getCurrentBattleMonster();
         BattleContext.SurpriseDirection surprise = em.getCurrentBattleSurprise();
+        List<Monster> preGeneratedMonsters = em.getCurrentBattleMonsters();
 
         List<Monster> monsters = new ArrayList<>();
-        if (reservedMonster != null && surprise != BattleContext.SurpriseDirection.NONE) {
+        if (preGeneratedMonsters != null && !preGeneratedMonsters.isEmpty()) {
+            for (int i = 0; i < BATTLE_SLOT_COUNT; i++) monsters.add(null);
+            for (int k = 0; k < MONSTER_SLOT_INDEX.length && k < preGeneratedMonsters.size(); k++) {
+                monsters.set(MONSTER_SLOT_INDEX[k], preGeneratedMonsters.get(k));
+            }
+            em.setCurrentBattleMonsters(null);
+        } else if (reservedMonster != null && surprise != BattleContext.SurpriseDirection.NONE) {
             for (int i = 0; i < 5; i++) monsters.add(null);
             monsters.set(1, reservedMonster);
             em.setCurrentBattleMonster(null);
@@ -590,10 +605,8 @@ public class BattleFragment extends Fragment {
             Random rng = new Random();
             List<Integer> batch;
 
-            if (poolIndex >= 0) {
-                List<String> allRaces = mm.getAvailableRaces();
-                String race = allRaces.get(rng.nextInt(allRaces.size()));
-                batch = mm.generateMonstersFromPool(poolIndex, race, rng);
+            if (debugRaceId != null) {
+                batch = mm.generateDebugBatch(debugRaceId, debugMaxRarity, debugCount, rng);
             } else {
                 batch = mm.generateMonsterBatch(playerLevel, BATTLE_SLOT_COUNT,
                         rng, recentRaceIds);
