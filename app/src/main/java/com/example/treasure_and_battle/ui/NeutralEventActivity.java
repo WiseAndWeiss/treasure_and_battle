@@ -45,10 +45,12 @@ import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.utils.AttributeUtils;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.io.InputStream;
 
 public class NeutralEventActivity extends AppCompatActivity {
@@ -129,6 +131,62 @@ public class NeutralEventActivity extends AppCompatActivity {
         if (eventKey == null) return;
 
         switch (eventKey) {
+            case "wandering_vendor":
+                btnAction1 = addActionButton("查看商品", 0xFF2196F3, v -> {
+                    Intent result = new Intent();
+                    result.putExtra("open_trade", true);
+                    result.putExtra("merchant_type", "WANDERING_VENDOR");
+                    setResult(RESULT_OK, result);
+                    finish();
+                });
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你离开了流浪商贩的摊位。");
+                    switchToForwardButton();
+                });
+                break;
+
+            case "equipment_merchant":
+                btnAction1 = addActionButton("查看装备", 0xFF2196F3, v -> {
+                    Intent result = new Intent();
+                    result.putExtra("open_trade", true);
+                    result.putExtra("merchant_type", "EQUIPMENT_MERCHANT");
+                    setResult(RESULT_OK, result);
+                    finish();
+                });
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你离开了装备商人的店铺。");
+                    switchToForwardButton();
+                });
+                break;
+
+            case "caravan":
+                btnAction1 = addActionButton("查看商队货物", 0xFF2196F3, v -> {
+                    Intent result = new Intent();
+                    result.putExtra("open_trade", true);
+                    result.putExtra("merchant_type", "CARAVAN");
+                    setResult(RESULT_OK, result);
+                    finish();
+                });
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你目送商队继续赶路。");
+                    switchToForwardButton();
+                });
+                break;
+
+            case "material_merchant":
+                btnAction1 = addActionButton("查看货物", 0xFF2196F3, v -> {
+                    Intent result = new Intent();
+                    result.putExtra("open_trade", true);
+                    result.putExtra("merchant_type", "MATERIAL_MERCHANT");
+                    setResult(RESULT_OK, result);
+                    finish();
+                });
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你离开了材料商人的摊位。");
+                    switchToForwardButton();
+                });
+                break;
+
             case "merchant":
                 btnAction1 = addActionButton("进入商店交易", 0xFF2196F3, v -> {
                     Intent result = new Intent();
@@ -154,7 +212,19 @@ public class NeutralEventActivity extends AppCompatActivity {
                         switchToForwardButton();
                         return;
                     }
-                    showResult("你消耗了500金币，天赋点和技能点已重置！（当前金币：" + ch.getGold() + "）");
+                    int oldTalent = ch.getTalentPoints();
+                    int oldSkill = ch.getSkillPoints();
+                    ch.resetAllTalentPoints();
+                    int skillRefund = 0;
+                    if (ch.getProfession() != null) {
+                        skillRefund += ch.getProfession().getActiveSkillTree().resetAllSkills();
+                        skillRefund += ch.getProfession().getPassiveSkillTree().resetAllSkills();
+                        skillRefund += ch.getProfession().getEventSkillTree().resetAllSkills();
+                    }
+                    ch.addSkillPoints(skillRefund);
+                    int newTalent = ch.getTalentPoints();
+                    int newSkill = ch.getSkillPoints();
+                    showResult("你消耗了500金币，天赋点和技能点已重置！\n\n返还天赋点：+" + (newTalent - oldTalent) + "\n返还技能点：+" + (newSkill - oldSkill) + "\n当前金币：" + ch.getGold());
                     switchToForwardButton();
                 });
                 btnAction2 = addActionButton("离开", 0xFF888888, v -> {
@@ -173,9 +243,10 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "monster_camp":
                 btnAction1 = addActionButton("偷袭怪物", 0xFFE53935, v -> {
-                    Monster monster = MonsterManager.getInstance(this).createRandomMonster();
                     EventManager em = EventManager.getInstance(getApplicationContext());
-                    em.setCurrentBattleMonster(monster);
+                    if (em.getCurrentBattleMonster() == null) {
+                        em.setCurrentBattleMonster(MonsterManager.getInstance(this).createRandomMonster());
+                    }
                     em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.PLAYER_SURPRISE);
                     Intent result = new Intent();
                     result.putExtra("open_battle", true);
@@ -274,27 +345,42 @@ public class NeutralEventActivity extends AppCompatActivity {
                     if (roll == 0) {
                         EquipItem equip = em.generateRandomEquip((int) (5 + Math.random() * 21), rarity);
                         if (equip != null) {
-                            InventoryManager.addItem(ch.getBagItems(), equip);
-                            sb.append("获得装备：").append(equip.getName())
-                                    .append("\n品质：").append(equip.getRarity().getDisplayName());
+                            if (InventoryManager.addItem(ch.getBagItems(), equip)) {
+                                sb.append("获得装备：").append(equip.getName())
+                                        .append("\n品质：").append(equip.getRarity().getDisplayName());
+                            } else {
+                                sb.append("获得装备：").append(equip.getName())
+                                        .append("\n品质：").append(equip.getRarity().getDisplayName())
+                                        .append("\n⚠ 但背包已满！");
+                            }
                         } else {
                             sb.append("盲盒是空的...你被骗了！200金币打水漂。");
                         }
                     } else if (roll == 1) {
                         ConsumableItem consumable = im.getRandomConsumableByRarity(rarity);
                         if (consumable != null) {
-                            InventoryManager.addItem(ch.getBagItems(), consumable);
-                            sb.append("获得药水：").append(consumable.getName())
-                                    .append("\n品质：").append(consumable.getRarity().getDisplayName());
+                            if (InventoryManager.addItem(ch.getBagItems(), consumable)) {
+                                sb.append("获得药水：").append(consumable.getName())
+                                        .append("\n品质：").append(consumable.getRarity().getDisplayName());
+                            } else {
+                                sb.append("获得药水：").append(consumable.getName())
+                                        .append("\n品质：").append(consumable.getRarity().getDisplayName())
+                                        .append("\n⚠ 但背包已满！");
+                            }
                         } else {
                             sb.append("盲盒是空的...你被骗了！200金币打水漂。");
                         }
                     } else {
                         GemItem gem = im.getRandomGemByRarity(rarity);
                         if (gem != null) {
-                            InventoryManager.addItem(ch.getBagItems(), gem);
-                            sb.append("获得宝石：").append(gem.getName())
-                                    .append("\n品质：").append(gem.getRarity().getDisplayName());
+                            if (InventoryManager.addItem(ch.getBagItems(), gem)) {
+                                sb.append("获得宝石：").append(gem.getName())
+                                        .append("\n品质：").append(gem.getRarity().getDisplayName());
+                            } else {
+                                sb.append("获得宝石：").append(gem.getName())
+                                        .append("\n品质：").append(gem.getRarity().getDisplayName())
+                                        .append("\n⚠ 但背包已满！");
+                            }
                         } else {
                             sb.append("盲盒是空的...你被骗了！200金币打水漂。");
                         }
@@ -410,7 +496,7 @@ public class NeutralEventActivity extends AppCompatActivity {
         int btn1Color = 0xFFFF9800;
 
         if (caveStep == 0) {
-            caveHpLoss[0] = 10 + (int) (Math.random() * 21);
+            caveHpLoss[0] = (ch.getCurrentHp() + 9) / 10;
             ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
             EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
             Rarity r = Math.random() < 0.5 ? Rarity.COMMON : Rarity.UNCOMMON;
@@ -421,17 +507,24 @@ public class NeutralEventActivity extends AppCompatActivity {
                 if (caveItem1 == null) caveItem1 = im.getRandomGemByRarity(r);
             }
             caveItemDesc[0] = caveItem1 != null ? caveItem1.getName() : "一件宝物";
-            if (caveItem1 != null) {
-                InventoryManager.addItem(ch.getBagItems(), caveItem1);
+            if (caveItem1 != null && !InventoryManager.addItem(ch.getBagItems(), caveItem1)) {
+                caveItemDesc[0] = caveItem1.getName() + "（背包已满，未能获得）";
+                caveItem1 = null;
             }
-            btn1Text = "你不小心擦破了皮肤，但是你找到了一件宝物（-" + caveHpLoss[0] + "点生命，获得" + caveItemDesc[0] + "）";
-            btn1Listener = v -> {
-                caveStep = 1;
-                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[0]));
-                buildCaveTreasureActions();
-            };
+            if (ch.getCurrentHp() <= caveHpLoss[0]) {
+                btn1Text = "血量太低，你已经无法继续往前走了";
+                btn1Color = 0xFF888888;
+                btn1Listener = v -> {};
+            } else {
+                btn1Text = "你不小心擦破了皮肤，但是你找到了一件宝物（-" + caveHpLoss[0] + "点生命，获得" + caveItemDesc[0] + "）";
+                btn1Listener = v -> {
+                    caveStep = 1;
+                    ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[0]));
+                    buildCaveTreasureActions();
+                };
+            }
         } else if (caveStep == 1) {
-            caveHpLoss[1] = 20 + (int) (Math.random() * 31);
+            caveHpLoss[1] = (AttributeUtils.calculateCharacterAttributes(ch).maxHp + 7) / 8;
             ItemManager im = ItemManager.getInstance(NeutralEventActivity.this);
             EquipmentManager em = EquipmentManager.getInstance(NeutralEventActivity.this);
             Rarity r = Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE;
@@ -442,23 +535,36 @@ public class NeutralEventActivity extends AppCompatActivity {
                 if (caveItem2 == null) caveItem2 = im.getRandomGemByRarity(r);
             }
             caveItemDesc[1] = caveItem2 != null ? caveItem2.getName() : "一件宝物";
-            if (caveItem2 != null) {
-                InventoryManager.addItem(ch.getBagItems(), caveItem2);
+            if (caveItem2 != null && !InventoryManager.addItem(ch.getBagItems(), caveItem2)) {
+                caveItemDesc[1] = caveItem2.getName() + "（背包已满，未能获得）";
+                caveItem2 = null;
             }
-            btn1Text = "你进一步深入探索，虽然受了点伤，但是你找到了一件宝物（-" + caveHpLoss[1] + "点生命，获得" + caveItemDesc[1] + "）";
-            btn1Listener = v -> {
-                caveStep = 2;
-                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[1]));
-                buildCaveTreasureActions();
-            };
+            if (ch.getCurrentHp() <= caveHpLoss[1]) {
+                btn1Text = "血量太低，你已经无法继续往前走了";
+                btn1Color = 0xFF888888;
+                btn1Listener = v -> {};
+            } else {
+                btn1Text = "你进一步深入探索，虽然受了点伤，但是你找到了一件宝物（-" + caveHpLoss[1] + "点生命，获得" + caveItemDesc[1] + "）";
+                btn1Listener = v -> {
+                    caveStep = 2;
+                    ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[1]));
+                    buildCaveTreasureActions();
+                };
+            }
         } else if (caveStep == 2) {
-            caveHpLoss[2] = 30 + (int) (Math.random() * 41);
-            btn1Text = "你即将走到洞穴最深处，但仍坚持继续探索（-" + caveHpLoss[2] + "点生命）";
-            btn1Listener = v -> {
-                caveStep = 3;
-                ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[2]));
-                buildCaveTreasureActions();
-            };
+            caveHpLoss[2] = (AttributeUtils.calculateCharacterAttributes(ch).maxHp + 5) / 6;
+            if (ch.getCurrentHp() <= caveHpLoss[2]) {
+                btn1Text = "血量太低，你已经无法继续往前走了";
+                btn1Color = 0xFF888888;
+                btn1Listener = v -> {};
+            } else {
+                btn1Text = "你即将走到洞穴最深处，但仍坚持继续探索（-" + caveHpLoss[2] + "点生命）";
+                btn1Listener = v -> {
+                    caveStep = 3;
+                    ch.setCurrentHp(Math.max(1, ch.getCurrentHp() - caveHpLoss[2]));
+                    buildCaveTreasureActions();
+                };
+            }
         } else {
             int roll = (int) (Math.random() * 2);
             if (roll == 0) {
@@ -485,7 +591,10 @@ public class NeutralEventActivity extends AppCompatActivity {
                 }
                 String bonusName = bonusItem != null ? bonusItem.getName() : "一份神秘的战利品";
                 if (bonusItem != null) {
-                    InventoryManager.addItem(ch.getBagItems(), bonusItem);
+                    if (!InventoryManager.addItem(ch.getBagItems(), bonusItem)) {
+                        bonusName = bonusItem.getName() + "（背包已满，未能获得）";
+                        bonusItem = null;
+                    }
                 }
                 btn1Text = "你找到了不知谁遗弃的珠宝，你发财了！（金币+" + gold + "，获得" + bonusName + "）";
                 btn1Color = 0xFF4CAF50;
@@ -498,7 +607,8 @@ public class NeutralEventActivity extends AppCompatActivity {
         }
 
         addActionButton(btn1Text, btn1Color, btn1Listener);
-        addActionButton("你感到害怕，选择离开", 0xFF888888, v -> {
+        if (caveStep < 3) {
+            addActionButton("你感到害怕，选择离开", 0xFF888888, v -> {
             StringBuilder sb = new StringBuilder("你感到害怕，转身离开了洞穴。\n\n");
             if (caveStep >= 1) {
                 sb.append("本次探险获得：\n");
@@ -518,17 +628,36 @@ public class NeutralEventActivity extends AppCompatActivity {
             showResult(sb.toString());
             switchToForwardButton();
         });
+        }
     }
 
     private void buildTravelerActions() {
         llActionArea.removeAllViews();
 
-        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC};
-        Rarity reqRarity = rarities[(int) (Math.random() * rarities.length)];
-        travelerRequiredRarityId = reqRarity.getId();
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
 
-        ItemType[] types = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
-        travelerRequiredType = types[(int) (Math.random() * types.length)];
+        List<Item> eligibleItems = new ArrayList<>();
+        ItemType[] allowedTypes = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
+        java.util.Set<ItemType> allowedSet = new java.util.HashSet<>(java.util.Arrays.asList(allowedTypes));
+        for (Item item : bag) {
+            if (item != null && allowedSet.contains(item.getType()) && item.getCount() > 0) {
+                eligibleItems.add(item);
+            }
+        }
+
+        if (eligibleItems.isEmpty()) {
+            addActionButton("很可惜，你无法帮助他", 0xFF888888, v -> {
+                showResult("你的背包中没有可赠送的物品，旅人失望地离开了。");
+                switchToForwardButton();
+            });
+            return;
+        }
+
+        Item match = eligibleItems.get((int) (Math.random() * eligibleItems.size()));
+
+        travelerRequiredRarityId = match.getRarity().getId();
+        travelerRequiredType = match.getType();
 
         String typeName;
         switch (travelerRequiredType) {
@@ -538,43 +667,23 @@ public class NeutralEventActivity extends AppCompatActivity {
             default: typeName = "物品"; break;
         }
 
-        travelerRequestDesc = "一件" + reqRarity.getDisplayName() + "品质的" + typeName;
+        travelerRequestDesc = "一件" + match.getRarity().getDisplayName() + "品质的" + typeName;
 
-        Character ch = PlayerCharacterHolder.getOrCreate(this);
-        List<Item> bag = ch.getBagItems();
-        Item match = findMatchingItem(bag, travelerRequiredRarityId, travelerRequiredType);
+        btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
+            InventoryManager.removeItem(bag, match);
+            int goldReward = 50 + (travelerRequiredRarityId + 1) * 50
+                    + (int) (Math.random() * ((travelerRequiredRarityId + 1) * 100 + 1));
+            ch.addGold(goldReward);
 
-        if (match != null) {
-            btnAction1 = addActionButton("帮助旅人", 0xFF4CAF50, v -> {
-                InventoryManager.removeItem(bag, match);
-                int goldReward = 50 + (travelerRequiredRarityId + 1) * 50
-                        + (int) (Math.random() * ((travelerRequiredRarityId + 1) * 100 + 1));
-                ch.addGold(goldReward);
-
-                String resultText = "你慷慨地赠送了" + match.getName()
-                        + "，旅人感激不尽！\n\n 获得金币 ×" + goldReward;
-                showResult(resultText);
-                switchToForwardButton();
-            });
-            btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
-                showResult("你匆匆走过，没有理会旅人求助的目光。");
-                switchToForwardButton();
-            });
-        } else {
-            btnAction1 = addActionButton("很可惜，你无法帮助他", 0xFF888888, v -> {
-                showResult("你的背包中没有" + travelerRequestDesc + "，旅人失望地离开了。");
-                switchToForwardButton();
-            });
-        }
-    }
-
-    private Item findMatchingItem(List<Item> bag, int minRarityId, ItemType type) {
-        for (Item item : bag) {
-            if (item != null && item.getType() == type && item.getRarity().getId() >= minRarityId) {
-                return item;
-            }
-        }
-        return null;
+            String resultText = "你慷慨地赠送了" + match.getName()
+                    + "，旅人感激不尽！\n\n获得金币 ×" + goldReward;
+            showResult(resultText);
+            switchToForwardButton();
+        });
+        btnAction2 = addActionButton("无视旅人", 0xFF888888, v -> {
+            showResult("你匆匆走过，没有理会旅人求助的目光。");
+            switchToForwardButton();
+        });
     }
 
     private void showEquipmentSelectionDialog() {
@@ -665,7 +774,13 @@ public class NeutralEventActivity extends AppCompatActivity {
 
                 gem.setCount(gem.getCount() - 1);
                 if (gem.getCount() <= 0) InventoryManager.removeItem(bag, gem);
-                InventoryManager.addItem(bag, upgraded);
+                if (!InventoryManager.addItem(bag, upgraded)) {
+                    gem.setCount(gem.getCount() + 1);
+                    if (gem.getCount() == 1) InventoryManager.addItem(bag, gem);
+                    showResult("宝石升级失败：背包已满！\n\n请先清理背包后再来升级。");
+                    switchToForwardButton();
+                    return;
+                }
 
                 String resultText = "雕像散发出耀眼的金色光芒...\n\n"
                         + gem.getName() + "（" + gem.getRarity().getDisplayName()
@@ -782,24 +897,23 @@ public class NeutralEventActivity extends AppCompatActivity {
 
         if (eligibleCount >= 3) {
             boolean hasValidCombo = false;
-            ItemType[] checkTypes = {ItemType.EQUIPMENT, ItemType.CONSUMABLE, ItemType.GEM};
             Rarity[] checkRarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE};
-            outer:
-            for (ItemType t : checkTypes)
-                for (Rarity r : checkRarities)
-                    if (countItemsByTypeAndRarity(bag, t, r) >= 3) { hasValidCombo = true; break outer; }
+            for (Rarity r : checkRarities)
+                if (countItemsByRarity(bag, r) >= 3) { hasValidCombo = true; break; }
 
             if (hasValidCombo) addActionButton("挑选献祭物品", 0xFFFF9800, v -> showAltarSacrificeDialog());
-            else addActionButton("没有足够的同类型同品质物品", 0xFF888888, v -> { showResult("祭坛需要3件相同类型相同品质的物品才能献祭。"); switchToForwardButton(); });
+            else addActionButton("没有足够的同品质物品", 0xFF888888, v -> { showResult("祭坛需要3件相同品质的物品才能献祭。"); switchToForwardButton(); });
         } else {
             addActionButton("可献祭物品不足3件", 0xFF888888, v -> { showResult("你背包中可献祭的物品不足3件（材料不可献祭）。"); switchToForwardButton(); });
         }
         addActionButton("转身离开", 0xFF888888, v -> { showResult("你对祭坛默默祈祷，然后离开了。"); switchToForwardButton(); });
     }
 
-    private int countItemsByTypeAndRarity(List<Item> bag, ItemType type, Rarity rarity) {
+    private int countItemsByRarity(List<Item> bag, Rarity rarity) {
         int count = 0;
-        for (Item item : bag) if (item != null && item.getType() == type && item.getRarity() == rarity) count += item.getCount();
+        for (Item item : bag)
+            if (item != null && item.getType() != ItemType.MATERIAL && item.getRarity() == rarity)
+                count += item.getCount();
         return count;
     }
 
@@ -849,19 +963,11 @@ public class NeutralEventActivity extends AppCompatActivity {
         rv.setNestedScrollingEnabled(true);
         btnConfirm.setOnClickListener(v -> {
             int total = totalCount[0];
-            if (total < 1 || total > 3) return;
+            if (total != 3) return;
             if (!isSacCountsValid(eligible, sacrificeCounts)) {
-                tvCounter.setText("选中的物品类型或品质不一致！");
-                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
+                tvCounter.setText("选中的物品品质不一致！");
+                tvCounter.setTextColor(0xFFE53935);
                 return;
-            }
-            d.dismiss();
-            for (int i = 0; i < sacrificeCounts.length; i++) {
-                int n = sacrificeCounts[i];
-                if (n <= 0) continue;
-                Item item = eligible.get(i);
-                item.setCount(item.getCount() - n);
-                if (item.getCount() <= 0) InventoryManager.removeItem(bag, item);
             }
             Item first = null;
             for (int i = 0; i < sacrificeCounts.length; i++)
@@ -869,11 +975,39 @@ public class NeutralEventActivity extends AppCompatActivity {
             if (first == null) return;
             Rarity fromR = first.getRarity();
             Rarity toR = Rarity.fromId(fromR.getId() + 1);
-            if (toR == null) { showResult("已达到最高品质。"); switchToForwardButton(); return; }
-            Item reward = genReward(first.getType(), toR);
+            if (toR == null) {
+                tvCounter.setText("已达到最高品质，无法升阶！");
+                tvCounter.setTextColor(0xFFE53935);
+                return;
+            }
+            d.dismiss();
+            int[][] rollback = new int[sacrificeCounts.length][2];
+            for (int i = 0; i < sacrificeCounts.length; i++) {
+                int n = sacrificeCounts[i];
+                rollback[i][0] = n;
+                if (n <= 0) continue;
+                Item item = eligible.get(i);
+                rollback[i][1] = item.getCount();
+                item.setCount(item.getCount() - n);
+                if (item.getCount() <= 0) InventoryManager.removeItem(bag, item);
+            }
+            ItemType rewardType = pickRewardTypeByWeight(eligible, sacrificeCounts);
+            Item reward = genReward(rewardType, toR);
             String rd = reward != null ? (reward.getName() + "（" + reward.getRarity().getDisplayName() + "）") : "什么都没有";
-            if (reward != null) InventoryManager.addItem(bag, reward);
-            showResult("祭坛散发出耀眼的光芒！\n 献祭" + total + "件→获得：" + rd);
+            if (reward != null && !InventoryManager.addItem(bag, reward)) {
+                for (int i = 0; i < rollback.length; i++) {
+                    int n = rollback[i][0];
+                    if (n <= 0) continue;
+                    Item item = eligible.get(i);
+                    item.setCount(rollback[i][1]);
+                    if (n == rollback[i][1]) InventoryManager.addItem(bag, item);
+                }
+                showResult("祭坛光芒闪烁了一下就熄灭了...\n\n⚠ 背包已满，无法获得献祭奖励！物品已归还。");
+            } else if (reward != null) {
+                showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→获得：" + rd);
+            } else {
+                showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→但什么都没有发生...");
+            }
             switchToForwardButton();
         });
 
@@ -881,21 +1015,36 @@ public class NeutralEventActivity extends AppCompatActivity {
         Runnable updateV = () -> {
             int t = totalCount[0];
             if (t == 0) {
-                tvCounter.setText("已选 0 / 3 — 请挑选同类型同品质的物品");
-                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_gold));
-                styleSacrificeConfirmButton(fBtnConfirm, false);
+                tvCounter.setText("已选 0 / 3 — 请挑选3件相同品质的物品");
+                tvCounter.setTextColor(0xFFFF9800);
+                fBtnConfirm.setEnabled(false);
+                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
             } else if (!isSacCountsValid(eligible, sacrificeCounts)) {
-                tvCounter.setText("已选 " + t + " / 3 — 类型或品质不一致");
-                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_text_sub));
-                styleSacrificeConfirmButton(fBtnConfirm, false);
+                tvCounter.setText("已选 " + t + " / 3 ❌ 品质不一致");
+                tvCounter.setTextColor(0xFFE53935);
+                fBtnConfirm.setEnabled(false);
+                fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
             } else {
                 Item fi = null;
                 for (int i = 0; i < sacrificeCounts.length; i++)
                     if (sacrificeCounts[i] > 0) { fi = eligible.get(i); break; }
-                tvCounter.setText("已选 " + t + " / 3 — "
-                        + (fi != null ? fi.getRarity().getDisplayName() + nameForType(fi.getType()) + "，品质统一" : ""));
-                tvCounter.setTextColor(ContextCompat.getColor(this, R.color.tb_gold_deep));
-                styleSacrificeConfirmButton(fBtnConfirm, t >= 1);
+                Rarity toR = fi != null ? Rarity.fromId(fi.getRarity().getId() + 1) : null;
+                if (toR == null) {
+                    tvCounter.setText("已选 " + t + " / 3 ⚠ 已达最高品质，无法升阶");
+                    tvCounter.setTextColor(0xFFE53935);
+                    fBtnConfirm.setEnabled(false);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+                } else if (t != 3) {
+                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 需要恰好3件");
+                    tvCounter.setTextColor(0xFFFF9800);
+                    fBtnConfirm.setEnabled(false);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
+                } else {
+                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 品质统一！");
+                    tvCounter.setTextColor(0xFF4CAF50);
+                    fBtnConfirm.setEnabled(true);
+                    fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF9800));
+                }
             }
         };
 
@@ -997,12 +1146,29 @@ public class NeutralEventActivity extends AppCompatActivity {
             if (counts[i] <= 0) continue;
             if (first == null) { first = items.get(i); continue; }
             Item t = items.get(i);
-            if (t.getType() != first.getType() || t.getRarity() != first.getRarity()) return false;
+            if (t.getRarity() != first.getRarity()) return false;
         }
         return first != null;
     }
 
     private String nameForType(ItemType t) { return t == ItemType.EQUIPMENT ? "装备" : t == ItemType.CONSUMABLE ? "药水" : t == ItemType.GEM ? "宝石" : "物品"; }
+
+    private ItemType pickRewardTypeByWeight(List<Item> items, int[] counts) {
+        int equipCount = 0, consumableCount = 0, gemCount = 0;
+        for (int i = 0; i < counts.length; i++) {
+            if (counts[i] <= 0) continue;
+            Item item = items.get(i);
+            if (item.getType() == ItemType.EQUIPMENT) equipCount += counts[i];
+            else if (item.getType() == ItemType.CONSUMABLE) consumableCount += counts[i];
+            else if (item.getType() == ItemType.GEM) gemCount += counts[i];
+        }
+        int totalWeight = equipCount + consumableCount + gemCount;
+        if (totalWeight == 0) return ItemType.EQUIPMENT;
+        int roll = new Random().nextInt(totalWeight);
+        if (roll < equipCount) return ItemType.EQUIPMENT;
+        if (roll < equipCount + consumableCount) return ItemType.CONSUMABLE;
+        return ItemType.GEM;
+    }
 
     private Item genReward(ItemType type, Rarity r) {
         if (type == ItemType.EQUIPMENT) return EquipmentManager.getInstance(this).generateRandomEquip(5 + r.getId() * 8, r);
@@ -1028,14 +1194,18 @@ public class NeutralEventActivity extends AppCompatActivity {
                 else if (ai == 1) {
                     int g = 300 + (int)(Math.random() * 701); ch.addGold(g);
                     GemItem gm = ItemManager.getInstance(this).getRandomGemByRarity(Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE);
-                    if (gm != null) InventoryManager.addItem(ch.getBagItems(), gm);
-                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n 金币+" + g + "\n 获得：" + (gm != null ? gm.getName() : "宝石"));
+                    boolean gmAdded = gm != null && InventoryManager.addItem(ch.getBagItems(), gm);
+                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n✅ 金币+" + g
+                            + (gm != null ? "\n✅ 获得：" + gm.getName() : "")
+                            + (gm != null && !gmAdded ? "\n⚠ 但背包已满！" : ""));
                     switchToForwardButton();
                 } else {
                     int pts = 2 + (int)(Math.random() * 3); ch.addSkillPoints(pts);
                     ConsumableItem pt = ItemManager.getInstance(this).getRandomConsumableByRarity(Rarity.UNCOMMON);
-                    if (pt != null) InventoryManager.addItem(ch.getBagItems(), pt);
-                    showResult("元素试炼：符文亮起，破解成功！\n 技能点+" + pts + "\n 获得：" + (pt != null ? pt.getName() : "药水"));
+                    boolean ptAdded = pt != null && InventoryManager.addItem(ch.getBagItems(), pt);
+                    showResult("元素试炼：符文亮起，破解成功！\n✅ 技能点+" + pts
+                            + (pt != null ? "\n✅ 获得：" + pt.getName() : "")
+                            + (pt != null && !ptAdded ? "\n⚠ 但背包已满！" : ""));
                     switchToForwardButton();
                 }
             });
@@ -1092,16 +1262,20 @@ public class NeutralEventActivity extends AppCompatActivity {
         else reward = ItemManager.getInstance(this).getRandomGemByRarity(rr);
         if (reward == null) reward = EquipmentManager.getInstance(this).generateRandomEquip(lv, rr);
         if (reward == null) return "水面泛起涟漪，什么都没发生...\n（当前金币：" + ch.getGold() + "）";
-        InventoryManager.addItem(ch.getBagItems(), reward);
-        return "古井涌出" + rr.getDisplayName() + "光芒！\n 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）\n（当前金币：" + ch.getGold() + "）";
+        boolean added = InventoryManager.addItem(ch.getBagItems(), reward);
+        return "古井涌出" + rr.getDisplayName() + "光芒！\n✅ 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）"
+                + (added ? "" : "\n⚠ 但背包已满！") + "\n（当前金币：" + ch.getGold() + "）";
     }
 
     private void buildCursedChestActions() {
         llActionArea.removeAllViews();
         addActionButton("打开宝箱", 0xFF9C27B0, v -> {
-            Monster monster = MonsterManager.getInstance(this).createRandomMonster();
-            EventManager.getInstance(getApplicationContext()).setCurrentBattleMonster(monster);
-            EventManager.getInstance(getApplicationContext()).setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
+            EventManager em = EventManager.getInstance(getApplicationContext());
+            if (em.getCurrentBattleMonster() == null) {
+                em.setCurrentBattleMonster(MonsterManager.getInstance(this).createRandomMonster());
+            }
+            em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.MONSTER_SURPRISE);
+            Monster monster = em.getCurrentBattleMonster();
             showResult("紫黑色雾气喷涌而出！\n\n" + monster.getName() + "从暗处扑来，怪物获得了先手攻击！");
             switchToBattleButton();
         });

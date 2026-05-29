@@ -10,6 +10,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,15 +26,20 @@ import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
+import com.example.treasure_and_battle.manager.item.ItemManager;
 import com.example.treasure_and_battle.model.common.Rarity;
+import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.ItemType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
-import com.example.treasure_and_battle.model.item.Item;
+import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.item.material.MaterialItem;
+import com.example.treasure_and_battle.model.merchant.MerchantConfig;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TradeFragment extends Fragment {
 
@@ -52,6 +58,8 @@ public class TradeFragment extends Fragment {
     private MerchantAdapter merchantAdapter;
 
     private final List<MerchantListing> listings = new ArrayList<>();
+    private MerchantConfig.Type merchantType = null;
+    private final Random merchantRng = new Random();
 
     @FunctionalInterface
     private interface PurchaseFactory {
@@ -97,19 +105,18 @@ public class TradeFragment extends Fragment {
             }
         }
 
-        /** 装备不显示；可堆叠在售为「×数量」；售罄/非堆叠为 null 不展示角标 */
         @Nullable
         String stackBadgeTextForCell() {
-            if (!canPickQuantity()) {
-                return null;
-            }
             if (isSoldOut()) {
-                return null;
+                return "售罄";
             }
             if (infiniteStock) {
-                return "×∞";
+                return canPickQuantity() ? "×∞" : null;
             }
-            return "×" + stockRemaining;
+            if (canPickQuantity()) {
+                return "×" + stockRemaining;
+            }
+            return stockRemaining > 1 ? "×" + stockRemaining : null;
         }
     }
 
@@ -139,8 +146,23 @@ public class TradeFragment extends Fragment {
                 requireActivity().getSupportFragmentManager().popBackStack());
         refreshGoldLabel();
 
+        Bundle args = getArguments();
+        if (args != null && args.containsKey("merchant_type")) {
+            try {
+                merchantType = MerchantConfig.Type.valueOf(args.getString("merchant_type"));
+            } catch (IllegalArgumentException ignored) {
+                merchantType = null;
+            }
+        }
+
         View bagSection = view.findViewById(R.id.trade_bag_bottom_section);
         tradeBagBottom = new TradeBagBottomController(this, bagSection);
+
+        if (merchantType != null) {
+            List<ItemType> filterTypes = MerchantConfig.getPlayerBagFilterTypes(merchantType);
+            tradeBagBottom.setItemTypeFilter(filterTypes);
+            tradeBagBottom.setCanSell(MerchantConfig.canSell(merchantType));
+        }
 
         buildMerchantListings();
 
@@ -180,47 +202,102 @@ public class TradeFragment extends Fragment {
         return Math.max(1, Math.round(unitSellPriceForListing(sample) * 2.2f));
     }
 
-    /** 固定 2×4 格：只保留前 {@link #MERCHANT_SLOT_COUNT} 条上架数据 */
+    /** 固定 2×4 格：动态生成商人商品 */
     private void buildMerchantListings() {
         listings.clear();
-        EquipmentManager em = EquipmentManager.getInstance(requireContext());
 
-        addEquipListing(em, 3001, 2, Rarity.COMMON, 1);
-        addEquipListing(em, 3002, 4, Rarity.COMMON, 1);
-        addEquipListing(em, 3003, 5, Rarity.UNCOMMON, 1);
-
-        addConsumableShop("shop_hp_s", "小型治疗药水", Rarity.COMMON, 15, 24,
-                true, true, "恢复少量生命值。", android.R.drawable.ic_menu_day, 60);
-        addConsumableShop("shop_mp_s", "小型法力药水", Rarity.COMMON, 18, 24,
-                true, true, "恢复少量法力值。", android.R.drawable.ic_menu_compass, 60);
-        addConsumableShop("shop_hp_m", "中型治疗药水", Rarity.UNCOMMON, 45, 16,
-                true, true, "恢复中量生命值。", android.R.drawable.ic_menu_recent_history, 32);
-
-        addMaterialShop("shop_iron_sand", "粗铁砂", Rarity.COMMON, 8, 99, "商店补给", android.R.drawable.ic_menu_edit, 99);
-        addMaterialShop("shop_arcane_dust", "奥术粉尘", Rarity.UNCOMMON, 40, 50, "商店补给", R.drawable.ic_map, 48);
+        if (merchantType != null) {
+            buildDynamicMerchantListings();
+        } else {
+            buildDefaultMerchantListings();
+        }
 
         if (listings.size() > MERCHANT_SLOT_COUNT) {
             listings.subList(MERCHANT_SLOT_COUNT, listings.size()).clear();
         }
     }
 
-    private void addConsumableShop(String id, String name, Rarity rarity, int baseValue, int maxStack,
-                                   boolean inBattle, boolean outBattle, String description, int iconResId, int merchantStock) {
-        ConsumableItem sample = new ConsumableItem(id, name, rarity, baseValue, maxStack,
-                inBattle, outBattle, new ArrayList<>(), description);
-        sample.setIconResId(iconResId);
-        sample.setCount(1);
-        int price = unitBuyPriceForListing(sample);
-        listings.add(MerchantListing.finiteStock(sample, price, c -> consumableShopUnit(sample), merchantStock));
+    private void buildDynamicMerchantListings() {
+        EquipmentManager em = EquipmentManager.getInstance(requireContext());
+        ItemManager im = ItemManager.getInstance(requireContext());
+        List<MerchantConfig.MerchantSlot> slots = MerchantConfig.generateSlots(merchantType, merchantRng);
+
+        for (MerchantConfig.MerchantSlot slot : slots) {
+            Rarity rarity = slot.rarity;
+            ItemType type = slot.itemType;
+            int level = 5 + merchantRng.nextInt(21);
+
+            if (type == ItemType.EQUIPMENT) {
+                EquipItem eq = em.generateRandomEquip(level, rarity);
+                if (eq != null) {
+                    int price = unitBuyPriceForListing(eq);
+                    listings.add(MerchantListing.finiteStock(eq, price,
+                            c -> eq.deepCopy(), 1));
+                }
+            } else if (type == ItemType.GEM) {
+                GemItem gem = im.getRandomGemByRarity(rarity);
+                if (gem != null) {
+                    int price = unitBuyPriceForListing(gem);
+                    int stock = 1 + merchantRng.nextInt(5);
+                    final String gemId = gem.getId();
+                    listings.add(MerchantListing.finiteStock(gem, price,
+                            c -> ItemManager.getInstance(c).createGem(gemId), stock));
+                }
+            } else if (type == ItemType.CONSUMABLE) {
+                ConsumableItem cons = im.getRandomConsumableByRarity(rarity);
+                if (cons != null) {
+                    int price = unitBuyPriceForListing(cons);
+                    int stock = 1 + merchantRng.nextInt(8);
+                    final String consId = cons.getId();
+                    listings.add(MerchantListing.finiteStock(cons, price,
+                            c -> ItemManager.getInstance(c).createConsumable(consId), stock));
+                }
+            }
+        }
     }
 
-    private void addMaterialShop(String id, String name, Rarity rarity, int baseValue, int maxStack,
-                                 String dropFrom, int iconResId, int merchantStock) {
-        MaterialItem sample = new MaterialItem(id, name, rarity, baseValue, maxStack, dropFrom);
-        sample.setIconResId(iconResId);
+    private void buildDefaultMerchantListings() {
+        EquipmentManager em = EquipmentManager.getInstance(requireContext());
+
+        // 装备（equip_config.json）
+        addEquipListing(em, 1001, 2, Rarity.COMMON, 1);
+        addEquipListing(em, 4001, 2, Rarity.COMMON, 1);
+        addEquipListing(em, 3001, 2, Rarity.COMMON, 1);
+
+        // 消耗品（consumable_config.json）
+        addConsumableListing(im, "potion_hp_small", 30);
+        addConsumableListing(im, "potion_mp_small", 30);
+        addConsumableListing(im, "potion_hp_medium", 20);
+
+        // 材料（material_config.json）
+        addMaterialListing(im, "slime_gel_common", 99);
+        addMaterialListing(im, "wolf_fang", 99);
+
+        if (listings.size() > MERCHANT_SLOT_COUNT) {
+            listings.subList(MERCHANT_SLOT_COUNT, listings.size()).clear();
+        }
+    }
+
+    private void addConsumableListing(@NonNull ItemManager im, @NonNull String consumableId, int merchantStock) {
+        ConsumableItem sample = im.createConsumable(consumableId);
+        if (sample == null) {
+            return;
+        }
         sample.setCount(1);
         int price = unitBuyPriceForListing(sample);
-        listings.add(MerchantListing.finiteStock(sample, price, c -> materialShopUnit(sample), merchantStock));
+        listings.add(MerchantListing.finiteStock(sample, price,
+                c -> shopConsumableUnit(c, consumableId), merchantStock));
+    }
+
+    private void addMaterialListing(@NonNull ItemManager im, @NonNull String materialId, int merchantStock) {
+        MaterialItem sample = im.createMaterial(materialId);
+        if (sample == null) {
+            return;
+        }
+        sample.setCount(1);
+        int price = unitBuyPriceForListing(sample);
+        listings.add(MerchantListing.finiteStock(sample, price,
+                c -> shopMaterialUnit(c, materialId), merchantStock));
     }
 
     private void addEquipListing(EquipmentManager em, int templateId, int level, Rarity rarity, int shopStock) {
@@ -230,23 +307,24 @@ public class TradeFragment extends Fragment {
         }
         int price = unitBuyPriceForListing(eq);
         listings.add(MerchantListing.finiteStock(eq, price,
-                c -> EquipmentManager.getInstance(c).generateEquip(templateId, level, rarity), shopStock));
+                c -> eq.deepCopy(), shopStock));
     }
 
-    private static MaterialItem materialShopUnit(MaterialItem proto) {
-        MaterialItem m = new MaterialItem(proto.getId(), proto.getName(), proto.getRarity(), proto.getBaseValue(),
-                proto.getMaxStack(), proto.getDropFrom());
-        m.setIconResId(proto.getIconResId());
-        m.setCount(1);
+    @Nullable
+    private static MaterialItem shopMaterialUnit(@NonNull Context ctx, @NonNull String materialId) {
+        MaterialItem m = ItemManager.getInstance(ctx).createMaterial(materialId);
+        if (m != null) {
+            m.setCount(1);
+        }
         return m;
     }
 
-    private static ConsumableItem consumableShopUnit(ConsumableItem proto) {
-        ConsumableItem c = new ConsumableItem(proto.getId(), proto.getName(), proto.getRarity(), proto.getBaseValue(),
-                proto.getMaxStack(), proto.isUsableInBattle(), proto.isUsableOutBattle(),
-                new ArrayList<>(proto.getEffects()), proto.getDescription());
-        c.setIconResId(proto.getIconResId());
-        c.setCount(1);
+    @Nullable
+    private static ConsumableItem shopConsumableUnit(@NonNull Context ctx, @NonNull String consumableId) {
+        ConsumableItem c = ItemManager.getInstance(ctx).createConsumable(consumableId);
+        if (c != null) {
+            c.setCount(1);
+        }
         return c;
     }
 
@@ -450,32 +528,34 @@ public class TradeFragment extends Fragment {
         TextView tvInfo = root.findViewById(R.id.tv_buy_unit_and_stock);
         TextView tvQty = root.findViewById(R.id.tv_buy_quantity);
         TextView tvTotal = root.findViewById(R.id.tv_buy_total);
-        View btnMinus = root.findViewById(R.id.btn_qty_minus);
-        View btnPlus = root.findViewById(R.id.btn_qty_plus);
+        SeekBar seek = root.findViewById(R.id.seek_buy_quantity);
 
         tvName.setText(listing.sample.getName());
         String stockStr = listing.infiniteStock ? "库存：充足（不限量）" : ("库存剩余：" + listing.stockRemaining);
         tvInfo.setText("单价 " + listing.unitBuyPrice + " 金/个 · " + stockStr + " · 单格最多堆叠 " + listing.sample.getMaxStack());
 
-        final int[] qtyHolder = {1};
+        int safeMax = Math.max(1, maxQty);
+        seek.setMax(safeMax - 1);
+        seek.setProgress(0);
+
         Runnable refresh = () -> {
-            tvQty.setText(String.valueOf(qtyHolder[0]));
-            int t = listing.unitBuyPrice * qtyHolder[0];
-            tvTotal.setText("合计 " + t + " 金");
+            int qty = seek.getProgress() + 1;
+            tvQty.setText(String.valueOf(qty));
+            tvTotal.setText("合计 " + (listing.unitBuyPrice * qty) + " 金");
         };
         refresh.run();
 
-        btnMinus.setOnClickListener(v -> {
-            if (qtyHolder[0] > 1) {
-                qtyHolder[0]--;
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 refresh.run();
             }
-        });
-        btnPlus.setOnClickListener(v -> {
-            if (qtyHolder[0] < maxQty) {
-                qtyHolder[0]++;
-                refresh.run();
-            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog);
@@ -483,7 +563,7 @@ public class TradeFragment extends Fragment {
         AlertDialog dialog = builder.create();
         root.findViewById(R.id.btn_merchant_buy_cancel).setOnClickListener(v -> dialog.dismiss());
         root.findViewById(R.id.btn_merchant_buy_confirm).setOnClickListener(v -> {
-            tryPurchaseWithQuantity(listing, qtyHolder[0]);
+            tryPurchaseWithQuantity(listing, seek.getProgress() + 1);
             dialog.dismiss();
         });
         dialog.show();

@@ -56,10 +56,42 @@
       "triggerDistance": 50,
       "subEvents": [
         {
+          "key": "wandering_vendor",
+          "name": "流浪商贩",
+          "desc": "遇到一位流浪商贩，出售品质不高于罕见的装备、宝石和药水",
+          "reward": "可购买打折商品",
+          "risk": "消耗金币",
+          "label": "查看商品"
+        },
+        {
+          "key": "equipment_merchant",
+          "name": "装备商人",
+          "desc": "遇到一位装备商人，专门出售各类装备",
+          "reward": "购买装备",
+          "risk": "消耗金币",
+          "label": "查看装备"
+        },
+        {
+          "key": "caravan",
+          "name": "商队",
+          "desc": "遇到一支商队，出售高品质装备、宝石和药水",
+          "reward": "购买高品质商品",
+          "risk": "消耗金币",
+          "label": "查看货物"
+        },
+        {
+          "key": "material_merchant",
+          "name": "材料商人",
+          "desc": "遇到一位材料商人，出售宝石和药水，回收材料",
+          "reward": "购买和出售材料",
+          "risk": "消耗金币",
+          "label": "查看货物"
+        },
+        {
           "key": "merchant",
-          "name": "商人",
-          "desc": "遇到流浪商人，可低价购买折扣道具",
-          "reward": "折扣道具（5折）",
+          "name": "商人（旧）",
+          "desc": "通用商人（向后兼容）",
+          "reward": "可购买折扣道具",
           "risk": "消耗少量金币",
           "label": "交易"
         },

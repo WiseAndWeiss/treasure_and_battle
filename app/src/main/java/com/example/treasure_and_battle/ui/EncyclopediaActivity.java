@@ -279,11 +279,7 @@ public class EncyclopediaActivity extends AppCompatActivity {
             }
 
             ViewGroup.LayoutParams lp = holder.ivIcon.getLayoutParams();
-            if (category == CATEGORY_POTION || category == CATEGORY_CONSUMABLE) {
-                lp.height = (int) (50 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
-            } else {
-                lp.height = (int) (100 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
-            }
+            lp.height = (int) (50 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
             holder.ivIcon.setLayoutParams(lp);
 
             Rarity rarity = Rarity.fromId(rarityId);

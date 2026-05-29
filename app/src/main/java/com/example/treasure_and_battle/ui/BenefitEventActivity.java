@@ -142,23 +142,43 @@ public class BenefitEventActivity extends AppCompatActivity {
         EquipmentManager em = EquipmentManager.getInstance(this);
         ItemManager im = ItemManager.getInstance(this);
         int level = 5 + chestRarity.getId() * 5 + (int) (Math.random() * 11);
-        EquipItem equip = em.generateRandomEquip(level, chestRarity);
-        String equipName = equip != null ? equip.getName() + "（" + equip.getRarity().getDisplayName() + "）" : "一件装备";
-        if (equip != null) InventoryManager.addItem(bag, equip);
-
         int gold = goldMin + (int) (Math.random() * (goldMax - goldMin + 1));
         ch.addGold(gold);
 
+        boolean bagFull = false;
         StringBuilder sb = new StringBuilder();
         sb.append("营地中有一只").append(chestName).append("！\n");
         sb.append("你使用").append(getKeyName(keyId)).append("打开了宝箱！\n\n");
-        sb.append("获得：").append(equipName).append("\n");
-        sb.append("金币 +").append(gold).append("\n");
+
+        EquipItem equip = em.generateRandomEquip(level, chestRarity);
+        if (equip != null) {
+            if (InventoryManager.addItem(bag, equip)) {
+                sb.append("✅ 获得：").append(equip.getName())
+                        .append("（").append(equip.getRarity().getDisplayName()).append("）\n");
+            } else {
+                bagFull = true;
+                sb.append("⚠ 获得：").append(equip.getName())
+                        .append("（").append(equip.getRarity().getDisplayName()).append("）但背包已满！\n");
+            }
+        } else {
+            sb.append("✅ 获得：一件装备\n");
+        }
+        sb.append("✅ 金币 +").append(gold).append("\n");
 
         GemItem gem = im.getRandomGemByRarity(chestRarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
         if (gem != null) {
-            InventoryManager.addItem(bag, gem);
-            sb.append("获得：").append(gem.getName()).append("（").append(gem.getRarity().getDisplayName()).append("）");
+            if (InventoryManager.addItem(bag, gem)) {
+                sb.append("✅ 获得：").append(gem.getName())
+                        .append("（").append(gem.getRarity().getDisplayName()).append("）");
+            } else {
+                bagFull = true;
+                sb.append("⚠ 获得：").append(gem.getName())
+                        .append("（").append(gem.getRarity().getDisplayName()).append("）但背包已满！");
+            }
+        }
+
+        if (bagFull) {
+            sb.append("\n\n⚠ 背包已满，部分物品无法放入！");
         }
 
         showResult(sb.toString());
