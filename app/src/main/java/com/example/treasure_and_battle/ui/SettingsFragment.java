@@ -56,17 +56,7 @@ public class SettingsFragment extends Fragment {
 
         View btnBattle = view.findViewById(R.id.btn_open_battle);
         btnBattle.setOnClickListener(v -> {
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
-            FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
-            if (orphan != null) {
-                ft.remove(orphan);
-            }
-            ft.add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                    .hide(this)
-                    .addToBackStack("battle")
-                    .commit();
+            startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
         });
 
         View btnProfession = view.findViewById(R.id.btn_profession_select);

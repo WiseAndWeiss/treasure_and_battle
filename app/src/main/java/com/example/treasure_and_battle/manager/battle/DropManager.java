@@ -74,7 +74,7 @@ public class DropManager {
         if (ctx == null || ctx.monsters == null) return drops;
 
         for (Monster monster : ctx.monsters) {
-            if (monster == null) continue;
+            if (monster == null || monster.isEscaped()) continue;
             drops.addAll(generateDropsForMonster(monster, ctx.player));
         }
 

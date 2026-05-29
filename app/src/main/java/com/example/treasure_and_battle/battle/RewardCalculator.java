@@ -15,7 +15,7 @@ public class RewardCalculator {
         int baseExp = 0;
         int monsterLevel = player.getLevel();
         for (Monster m : monsters) {
-            if (m == null) continue;
+            if (m == null || m.isEscaped()) continue;
             baseExp += m.getExpReward();
             monsterLevel = Math.max(monsterLevel, m.getLevel());
         }
@@ -32,7 +32,7 @@ public class RewardCalculator {
     public static int calculateGold(Player player, List<Monster> monsters) {
         int baseGold = 0;
         for (Monster m : monsters) {
-            if (m == null) continue;
+            if (m == null || m.isEscaped()) continue;
             baseGold += m.getGoldReward();
         }
         return (int) (baseGold * player.getFinalAttributes().goldBonus);

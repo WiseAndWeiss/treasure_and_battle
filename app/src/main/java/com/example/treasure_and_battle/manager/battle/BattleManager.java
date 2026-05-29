@@ -562,6 +562,10 @@ public class BattleManager {
 
     // ====================== 11. 玩家逃跑 ======================
     public boolean executePlayerEscape(BattleContext ctx) {
+        return executePlayerEscape(ctx, true);
+    }
+
+    public boolean executePlayerEscape(BattleContext ctx, boolean doChaseOnFail) {
         ctx.addLog(LogType.ACTION, "玩家尝试逃跑...");
 
         if (!ctx.player.consumeActionPoints(1)) {
@@ -591,9 +595,18 @@ public class BattleManager {
             return true;
         } else {
             ctx.addLog(LogType.ACTION, "逃跑失败，遭到怪物追击。");
-            executeNormalAttack(ctx, fastestMonster, ctx.player);
+            if (doChaseOnFail) {
+                executeNormalAttack(ctx, fastestMonster, ctx.player);
+            }
             return false;
         }
+    }
+
+    public List<Monster> getAliveMonstersBySpeed(BattleContext ctx) {
+        List<Monster> alive = new ArrayList<>(ctx.getAliveMonsters());
+        alive.sort((a, b) -> Integer.compare(
+                b.getFinalAttributes().speed, a.getFinalAttributes().speed));
+        return alive;
     }
 
     // ====================== 12. 普通攻击 ======================
@@ -822,7 +835,14 @@ public class BattleManager {
         } else if (ctx.battleResult == BattleContext.BattleResult.DEFEAT) {
             ctx.player.setCurrentHp(1);
             ctx.player.setDead(false);
-            ctx.addLog(LogType.RESULT, "战斗失败，已扣除部分金币，保留1点生命值。");
+            int goldLoss = 0;
+            if (ctx.player.owner != null) {
+                int currentGold = ctx.player.owner.getGold();
+                goldLoss = Math.max(1, currentGold / 2);
+                ctx.player.owner.spendGold(goldLoss);
+            }
+            ctx.rewardGold = -goldLoss;
+            ctx.addLog(LogType.RESULT, "战斗失败，损失 %d 金币，保留1点生命值。", goldLoss);
         } else if (ctx.battleResult == BattleContext.BattleResult.ESCAPED) {
             ctx.addLog(LogType.RESULT, "战斗结束：玩家成功逃跑。\n");
         } else if (ctx.battleResult == BattleContext.BattleResult.MONSTER_ESCAPED) {
