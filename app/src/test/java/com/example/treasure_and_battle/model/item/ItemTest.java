@@ -61,9 +61,9 @@ public class ItemTest {
 
     @Test
     public void testCanStackFalseWhenMaxStackIsOne() {
-        GemItem gem = new GemItem("gem_1", "宝石",
-                Rarity.COMMON, 50, "RUBY");
-        assertFalse(gem.canStack());
+        EquipItem equip = new EquipItem("eq_2", "装备",
+                Rarity.COMMON, 100, 1, EquipSlot.WEAPON);
+        assertFalse(equip.canStack());
     }
 
     @Test

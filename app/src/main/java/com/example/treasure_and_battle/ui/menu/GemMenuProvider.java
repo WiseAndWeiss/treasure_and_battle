@@ -33,7 +33,7 @@ class GemMenuProvider implements ItemMenuProvider {
             actions.add(new ItemAction("镶嵌", true,
                     i -> gemSocketCallback.accept((GemItem) i)));
         }
-        actions.add(new ItemAction("查看", true, viewCallback));
+        actions.add(new ItemAction("查看详情", true, viewCallback));
         actions.add(new ItemAction("丢弃", true, discardCallback));
         return actions;
     }

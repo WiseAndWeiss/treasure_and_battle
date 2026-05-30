@@ -6,7 +6,9 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 import com.google.gson.Gson;
@@ -28,6 +30,14 @@ public class EventManager {
     private Random mRandom = new Random();
     private LatLng mCurrentLatLng;
     private Monster mCurrentBattleMonster;
+    private java.util.List<Monster> mCurrentBattleMonsters;
+    private BattleContext.SurpriseDirection mCurrentBattleSurprise = BattleContext.SurpriseDirection.NONE;
+
+    private long mOverrideGenerateInterval = -1;
+    private long mBattleExpireOverride = -1;
+    private long mBenefitExpireOverride = -1;
+    private long mNeutralExpireOverride = -1;
+    private boolean mPaused = false;
 
     public static class EventCircle {
         public Circle circle;
@@ -37,6 +47,9 @@ public class EventManager {
         public EventConfig.EventItem config;
         public EventConfig.EventSubItem selectedSubEvent;
         public Monster monster;
+        public int[] previewTemplateIds;
+        public String[] previewMonsterNames;
+        public String[] previewMonsterRarities;
 
         public EventCircle(Circle circle, LatLng position, EventConfig.EventItem config) {
             this.circle = circle;
@@ -71,7 +84,7 @@ public class EventManager {
 
     private void loadEventConfigFromAssets() {
         try {
-            InputStream is = mContext.getAssets().open("event_config.json");
+            InputStream is = mContext.getAssets().open("configs/event_config.json");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
@@ -119,6 +132,7 @@ public class EventManager {
     // ==========================
     public int generateRandomEvents() {
         if (mCurrentLatLng == null || mAMap == null || mEventConfig == null) return 0;
+        if (mPaused) return 0;
 
         EventConfig.GlobalConfig global = mEventConfig.getGlobal();
         int availableCount = global.getMaxCount() - mEventCircleList.size();
@@ -177,12 +191,19 @@ public class EventManager {
                     .strokeColor(eventType.getStrokeColorInt())
                     .strokeWidth(4)
                     .fillColor(eventType.getFillColorInt()));
+            if (circle == null) continue;
 
             mEventCircleList.add(new EventCircle(circle, finalPos, eventType));
             EventCircle ec = mEventCircleList.get(mEventCircleList.size() - 1);
             ec.selectedSubEvent = pickRandomSubEvent(eventType);
             if ("BATTLE".equals(eventType.getType())) {
                 ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
+            if ("NEUTRAL".equals(eventType.getType()) && ec.selectedSubEvent != null) {
+                String subKey = ec.selectedSubEvent.getKey();
+                if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                    ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+                }
             }
             createdCount++;
         }
@@ -198,13 +219,44 @@ public class EventManager {
 
         while (it.hasNext()) {
             EventCircle e = it.next();
-            if (!e.isTriggered && now - e.createTime >= e.config.getExpireTime()) {
-                e.circle.remove();
+            if (e.circle == null) {
+                it.remove();
+                count++;
+                continue;
+            }
+            long expire = getEffectiveExpire(e.config.getType(), e.config.getExpireTime());
+            if (!e.isTriggered && now - e.createTime >= expire) {
+                if (mAMap != null) e.circle.remove();
                 it.remove();
                 count++;
             }
         }
         return count;
+    }
+
+    private long getEffectiveExpire(String type, long original) {
+        if ("BATTLE".equals(type) && mBattleExpireOverride > 0) return mBattleExpireOverride;
+        if ("BENEFIT".equals(type) && mBenefitExpireOverride > 0) return mBenefitExpireOverride;
+        if ("NEUTRAL".equals(type) && mNeutralExpireOverride > 0) return mNeutralExpireOverride;
+        if ("UNKNOWN".equals(type) && mNeutralExpireOverride > 0) return mNeutralExpireOverride;
+        return original;
+    }
+
+    public long getEffectiveGenerateInterval() {
+        return mOverrideGenerateInterval > 0 ? mOverrideGenerateInterval : mEventConfig.getGlobal().getGenerateInterval();
+    }
+
+    public boolean isPaused() { return mPaused; }
+    public void setPaused(boolean paused) { mPaused = paused; }
+
+    public void setOverrideGenerateInterval(long ms) {
+        mOverrideGenerateInterval = ms;
+    }
+
+    public void setExpireOverrides(long battleMs, long benefitMs, long neutralMs) {
+        mBattleExpireOverride = battleMs;
+        mBenefitExpireOverride = benefitMs;
+        mNeutralExpireOverride = neutralMs;
     }
 
     public boolean checkEventInTriggerRange() {
@@ -251,7 +303,6 @@ public class EventManager {
         }
 
         EventCircle target = unknownCircles.get(mRandom.nextInt(unknownCircles.size()));
-        target.circle.remove();
 
         EventConfig.EventItem eventTypes = findEventConfigByType(resolveUnknownType());
         if (eventTypes == null) {
@@ -259,15 +310,27 @@ public class EventManager {
         }
 
         EventConfig.EventSubItem sub = pickRandomSubEvent(eventTypes);
+
         target.config = eventTypes;
         target.selectedSubEvent = sub;
+        target.isTriggered = false;
+        target.createTime = System.currentTimeMillis();
+        target.monster = null;
 
-        target.circle = mAMap.addCircle(new CircleOptions()
-                .center(target.position)
-                .radius(eventTypes.getRadius())
-                .strokeColor(eventTypes.getStrokeColorInt())
-                .strokeWidth(4)
-                .fillColor(eventTypes.getFillColorInt()));
+        target.circle.setRadius(eventTypes.getRadius());
+        target.circle.setStrokeColor(eventTypes.getStrokeColorInt());
+        target.circle.setStrokeWidth(4);
+        target.circle.setFillColor(eventTypes.getFillColorInt());
+
+        if ("BATTLE".equals(eventTypes.getType())) {
+            target.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(eventTypes.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                target.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
+        }
 
         return "占卜成功！一个未知事件被揭示为：" + (sub != null ? sub.getName() : eventTypes.getType());
     }
@@ -409,6 +472,22 @@ public class EventManager {
 
     public Monster getCurrentBattleMonster() {
         return mCurrentBattleMonster;
+    }
+
+    public void setCurrentBattleMonsters(java.util.List<Monster> monsters) {
+        mCurrentBattleMonsters = monsters;
+    }
+
+    public java.util.List<Monster> getCurrentBattleMonsters() {
+        return mCurrentBattleMonsters;
+    }
+
+    public void setCurrentBattleSurprise(BattleContext.SurpriseDirection surprise) {
+        mCurrentBattleSurprise = surprise;
+    }
+
+    public BattleContext.SurpriseDirection getCurrentBattleSurprise() {
+        return mCurrentBattleSurprise;
     }
 
     public List<EventCircle> getEventCircleList() {

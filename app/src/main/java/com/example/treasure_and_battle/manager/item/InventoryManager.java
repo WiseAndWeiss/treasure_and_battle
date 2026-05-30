@@ -121,4 +121,74 @@ public class InventoryManager {
             bag.set(i, null);
         }
     }
+
+    /**
+     * 将可堆叠且 id 相同的物品合并到靠前格子里（多轮扫描直到稳定）。
+     *
+     * @return 是否发生过合并
+     */
+    public static boolean autoStackInPlace(List<Item> bag) {
+        if (bag == null || bag.isEmpty()) {
+            return false;
+        }
+        boolean changed = false;
+        boolean mergedThisPass;
+        do {
+            mergedThisPass = false;
+            for (int i = 0; i < bag.size(); i++) {
+                Item dst = bag.get(i);
+                if (dst == null || !dst.canStack() || dst.getCount() >= dst.getMaxStack()) {
+                    continue;
+                }
+                for (int j = i + 1; j < bag.size(); j++) {
+                    Item src = bag.get(j);
+                    if (src == null || !dst.getId().equals(src.getId())) {
+                        continue;
+                    }
+                    int move = Math.min(dst.getMaxStack() - dst.getCount(), src.getCount());
+                    if (move <= 0) {
+                        continue;
+                    }
+                    dst.setCount(dst.getCount() + move);
+                    if (move == src.getCount()) {
+                        bag.set(j, null);
+                    } else {
+                        src.setCount(src.getCount() - move);
+                    }
+                    mergedThisPass = true;
+                    changed = true;
+                    if (dst.getCount() >= dst.getMaxStack()) {
+                        break;
+                    }
+                }
+            }
+        } while (mergedThisPass);
+        return changed;
+    }
+
+    /** 非空物品前移，尾部补空位 */
+    public static void compactForward(List<Item> bag) {
+        if (bag == null || bag.isEmpty()) {
+            return;
+        }
+        List<Item> nonEmpty = new ArrayList<>();
+        for (Item item : bag) {
+            if (item != null) {
+                nonEmpty.add(item);
+            }
+        }
+        int write = 0;
+        for (Item item : nonEmpty) {
+            bag.set(write++, item);
+        }
+        while (write < bag.size()) {
+            bag.set(write++, null);
+        }
+    }
+
+    /** 先堆叠同类可堆叠物品，再向前紧凑 */
+    public static void organizeBag(List<Item> bag) {
+        autoStackInPlace(bag);
+        compactForward(bag);
+    }
 }

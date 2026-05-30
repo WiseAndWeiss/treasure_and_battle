@@ -30,6 +30,10 @@ public final class DamageNumberOverlay {
     private static final int AP_COLOR = 0xFFFFCA28;
     private static final int MISS_COLOR = 0xFFFFFFFF;
     private static final int CRIT_LABEL_COLOR = 0xFFFFD54F;
+    private static final int AFFIX_TRIGGER_COLOR = 0xFFFFFFFF;
+    private static final int BUFF_TRIGGER_COLOR = 0xFF8BC34A;
+    private static final int SKILL_TRIGGER_COLOR = 0xFF42A5F5;
+    private static final int SHIELD_COLOR = 0xFFEEEEEE;
     private static final int RANDOM_OFFSET_DP = 20;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -88,6 +92,13 @@ public final class DamageNumberOverlay {
 
     public void showMiss(int xCenterPx, int yCenterPx) {
         show(xCenterPx, yCenterPx, "MISS", MISS_COLOR, 18f);
+    }
+
+    public void showShieldAbsorbOffset(int xCenterPx, int yCenterPx, int amount) {
+        float density = anchor != null ? anchor.getResources().getDisplayMetrics().density : 3f;
+        int ox = random.nextInt((int) (RANDOM_OFFSET_DP * density)) - (int) (RANDOM_OFFSET_DP * density / 2);
+        int oy = random.nextInt((int) (RANDOM_OFFSET_DP * density)) - (int) (RANDOM_OFFSET_DP * density / 2);
+        show(xCenterPx + ox, yCenterPx + oy, "-" + amount + " 护盾", SHIELD_COLOR);
     }
 
     /** 暴击伤害：单行「暴击! -x HP」，伤害部分与普通扣血格式一致 */
@@ -155,6 +166,22 @@ public final class DamageNumberOverlay {
 
     public void show(int xCenterPx, int yCenterPx, String text, int color) {
         show(xCenterPx, yCenterPx, text, color, 16f);
+    }
+
+    public void showAffixTrigger(int xCenterPx, int yCenterPx, String affixName) {
+        show(xCenterPx, yCenterPx, "触发词缀 " + affixName, AFFIX_TRIGGER_COLOR, 13f);
+    }
+
+    public void showBuffTrigger(int xCenterPx, int yCenterPx, String buffName) {
+        show(xCenterPx, yCenterPx, "触发Buff " + buffName, BUFF_TRIGGER_COLOR, 13f);
+    }
+
+    public void showSkillTrigger(int xCenterPx, int yCenterPx, String skillName) {
+        show(xCenterPx, yCenterPx, "触发技能 " + skillName, SKILL_TRIGGER_COLOR, 13f);
+    }
+
+    public void showTriggerText(int xCenterPx, int yCenterPx, String fullText, int color) {
+        show(xCenterPx, yCenterPx, fullText, color, 13f);
     }
 
     private void show(int xCenterPx, int yCenterPx, String text, int color, float textSizeSp) {

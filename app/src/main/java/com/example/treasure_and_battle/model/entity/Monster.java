@@ -33,6 +33,8 @@ public class Monster extends BattleEntity {
     // 专用于动画系统的唯一ID
     private String animationUniqueId;
 
+    private boolean escaped;
+
     public Monster(String entityId, String name, int level, Rarity rarity,
                    int strength, int agility, int intelligence,
                    int spirit, int physique, int luck,
@@ -254,4 +256,7 @@ public class Monster extends BattleEntity {
             skill.decreaseCooldown();
         }
     }
+
+    public boolean isEscaped() { return escaped; }
+    public void setEscaped(boolean escaped) { this.escaped = escaped; }
 }

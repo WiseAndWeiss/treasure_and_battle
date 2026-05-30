@@ -53,7 +53,7 @@ public class EquipmentManagerTest {
     public void testGenerateEquip_BasicFields() {
         EquipItem item = manager.generateEquip(1001, 10, Rarity.COMMON);
         assertNotNull(item);
-        assertEquals("equip_weapon_sword_red", item.getId());
+        assertEquals("sword_red", item.getId());
         assertEquals("赤铁剑", item.getName());
         assertEquals(Rarity.COMMON, item.getRarity());
         assertEquals(10, item.getLevel());

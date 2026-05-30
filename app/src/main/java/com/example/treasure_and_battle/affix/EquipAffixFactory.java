@@ -3,8 +3,16 @@ package com.example.treasure_and_battle.affix;
 import com.example.treasure_and_battle.model.common.TriggerType;
 
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBattleStartAoeDamageAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerCritReduceApAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerOnKillRecoverAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerPurifyAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRecoverAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRoundStartRecoverAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastRecoverMpAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastReduceCdAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerThornsAffix;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 
@@ -66,6 +74,54 @@ public class EquipAffixFactory {
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
                     actualRarity, triggerType, categories, randomValue,
                     recoverResourceType, recoverValueType, recoverValue, damageToRecoverRatio);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBattleStartAoeDamageAffix".equals(affixClass)) {
+            return new EquipTriggerBattleStartAoeDamageAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerOnKillRecoverAffix".equals(affixClass)) {
+            return new EquipTriggerOnKillRecoverAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerRoundStartRecoverAffix".equals(affixClass)) {
+            return new EquipTriggerRoundStartRecoverAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerPurifyAffix".equals(affixClass)) {
+            return new EquipTriggerPurifyAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerCritReduceApAffix".equals(affixClass)) {
+            return new EquipTriggerCritReduceApAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerThornsAffix".equals(affixClass)) {
+            return new EquipTriggerThornsAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastRecoverMpAffix".equals(affixClass)) {
+            return new EquipTriggerSkillCastRecoverMpAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerSkillCastReduceCdAffix".equals(affixClass)) {
+            return new EquipTriggerSkillCastReduceCdAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue);
         }
 
         return null;

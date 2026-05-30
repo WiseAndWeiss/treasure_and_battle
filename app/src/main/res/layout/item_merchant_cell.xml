@@ -3,16 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="3dp">
+    android:padding="2dp">
 
-    <!-- 宽度随列均分，高度 = 宽度，保证正方形 -->
+    <!-- 尺寸由 TradeFragment 按商人区可用空间自适应 -->
     <FrameLayout
         android:id="@+id/merchant_slot_square"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:foreground="@drawable/bg_slot_treasure_stroke"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bg_slot_treasure_fill"
-            android:padding="4dp">
+            android:padding="2dp">
 
             <ImageView
                 android:id="@+id/iv_item_icon"
@@ -32,7 +31,6 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
-                android:adjustViewBounds="true"
                 android:contentDescription="@null"
                 android:padding="2dp"
                 android:scaleType="fitCenter" />
@@ -43,12 +41,17 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
                 android:textColor="@color/tb_slot_level_text"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:shadowColor="#B3000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="3.5" />
 
-            <!-- 可堆叠商品：右下角数量角标，如 ×5（装备不显示） -->
             <TextView
                 android:id="@+id/tv_merchant_stock"
                 android:layout_width="wrap_content"
@@ -75,11 +78,13 @@
         android:id="@+id/tv_merchant_price"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="1"
         android:text="0"
         android:textColor="@color/tb_gold"
-        android:textSize="13sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

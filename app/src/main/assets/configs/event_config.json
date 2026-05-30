@@ -1,0 +1,223 @@
+{
+  "events": [
+    {
+      "type": "BATTLE",
+      "weight": 45,
+      "radius": 50,
+      "strokeColor": "#FFFF0000",
+      "fillColor": "#30FF0000",
+      "expireTime": 30000,
+      "triggerDistance": 70,
+      "subEvents": [
+        {
+          "key": "battle_encounter",
+          "name": "遭遇怪物",
+          "desc": "前方出现了一只怪物，准备战斗！",
+          "reward": "经验值、金币、随机掉落",
+          "risk": "战斗失败可能受到惩罚",
+          "label": "进入战斗"
+        }
+      ]
+    },
+    {
+      "type": "BENEFIT",
+      "weight": 15,
+      "radius": 20,
+      "strokeColor": "#FF00FF00",
+      "fillColor": "#3000FF00",
+      "expireTime": 25000,
+      "triggerDistance": 60,
+      "subEvents": [
+        {
+          "key": "rest",
+          "name": "安全营地",
+          "desc": "路旁出现一处安全营地，你可以在篝火旁休息恢复状态",
+          "reward": "恢复30%最大生命值",
+          "risk": "无",
+          "label": "进入休息"
+        },
+        {
+          "key": "chest",
+          "name": "营地宝箱",
+          "desc": "营地的角落里发现了一只宝箱，10%金/20%银/70%铜",
+          "reward": "开启宝箱获得装备、金币等奖励",
+          "risk": "需要消耗对应钥匙",
+          "label": "查看宝箱"
+        }
+      ]
+    },
+    {
+      "type": "NEUTRAL",
+      "weight": 20,
+      "radius": 20,
+      "strokeColor": "#FFFFFF00",
+      "fillColor": "#30FFFF00",
+      "expireTime": 35000,
+      "triggerDistance": 50,
+      "subEvents": [
+        {
+          "key": "wandering_vendor",
+          "name": "流浪商贩",
+          "desc": "遇到一位流浪商贩，出售品质不高于罕见的装备、宝石和药水",
+          "reward": "可购买打折商品",
+          "risk": "消耗金币",
+          "label": "查看商品"
+        },
+        {
+          "key": "equipment_merchant",
+          "name": "装备商人",
+          "desc": "遇到一位装备商人，专门出售各类装备",
+          "reward": "购买装备",
+          "risk": "消耗金币",
+          "label": "查看装备"
+        },
+        {
+          "key": "caravan",
+          "name": "商队",
+          "desc": "遇到一支商队，出售高品质装备、宝石和药水",
+          "reward": "购买高品质商品",
+          "risk": "消耗金币",
+          "label": "查看货物"
+        },
+        {
+          "key": "material_merchant",
+          "name": "材料商人",
+          "desc": "遇到一位材料商人，出售宝石和药水，回收材料",
+          "reward": "购买和出售材料",
+          "risk": "消耗金币",
+          "label": "查看货物"
+        },
+        {
+          "key": "merchant",
+          "name": "商人（旧）",
+          "desc": "通用商人（向后兼容）",
+          "reward": "可购买折扣道具",
+          "risk": "消耗少量金币",
+          "label": "交易"
+        },
+        {
+          "key": "traveler",
+          "name": "迷路的旅人",
+          "desc": "一位迷路的旅人需要帮助，他向你请求一件物品",
+          "reward": "赠送物品后可获得金币回报",
+          "risk": "需要消耗背包中的物品",
+          "label": "帮助旅人"
+        },
+        {
+          "key": "scholar",
+          "name": "学者事件",
+          "desc": "遇到一位云游学者，可消耗金币进行天赋点和技能点的重置",
+          "reward": "天赋点重置、技能点重置",
+          "risk": "消耗金币×500",
+          "label": "洗点重置"
+        },
+        {
+          "key": "statue_blessing",
+          "name": "雕像祝福",
+          "desc": "发现一座古老雕像，可以将背包中的一颗宝石提升一个稀有度等级",
+          "reward": "选择一颗宝石升级一个稀有度等级（传说品质无法继续升级）",
+          "risk": "无",
+          "label": "接受祝福"
+        },
+        {
+          "key": "monster_camp",
+          "name": "休息的怪物",
+          "desc": "发现一只正在休息的怪物，可以偷袭它，必定获得先手攻击",
+          "reward": "必定先手攻击",
+          "risk": "无",
+          "label": "偷袭"
+        },
+        {
+          "key": "cave_treasure",
+          "name": "洞穴寻宝",
+          "desc": "前面有一处洞穴，洞穴深处可能藏有宝箱",
+          "reward": "宝箱奖励（金币/装备/宝石）、若击败偷袭怪物额外获得掉落",
+          "risk": "30%概率遭遇怪物偷袭",
+          "label": "开启宝箱"
+        },
+        {
+          "key": "equipment_reforge",
+          "name": "装备重炼",
+          "desc": "遇到一位铁匠大师，可以基于某一装备选择部分词条重新生成",
+          "reward": "装备词条重炼，有机会获得更优属性",
+          "risk": "词条随机变化，可能变差",
+          "label": "重炼装备"
+        },
+        {
+          "key": "casino_wagon",
+          "name": "赌场马车",
+          "desc": "路边停着一辆神秘马车，老板热情招呼你玩一把。下注金币，40%赢双倍、30%平局退回、30%全输",
+          "reward": "赢则获得双倍下注金币",
+          "risk": "30%概率血本无归",
+          "label": "下注赌博"
+        },
+        {
+          "key": "divination_hut",
+          "name": "占卜小屋",
+          "desc": "一位占卜师坐在路边，付少许金币即可为你揭示地图上一个未知事件的真相",
+          "reward": "将一个未知事件随机揭示为战斗/增幅/中性事件",
+          "risk": "无，但需要消耗300金币",
+          "label": "付钱占卜"
+        },
+        {
+          "key": "mystery_box",
+          "name": "神秘盲盒商",
+          "desc": "一位神秘商人兜售盲盒，付固定金币后随机获得装备、药水或宝石。可能是白板，也可能是史诗！",
+          "reward": "随机获得一件装备/药水/宝石",
+          "risk": "品类和品质完全随机，可能不值",
+          "label": "购买盲盒"
+        },
+        {
+          "key": "mysterious_altar",
+          "name": "神秘祭坛",
+          "desc": "一座散发微光的古老祭坛，可以将三件相同品质的物品献祭，换取一件更高品质的随机物品",
+          "reward": "3×普通→1×稀有 / 3×稀有→1×罕见 / 3×罕见→1×史诗",
+          "risk": "消耗3件物品，获得品类随机",
+          "label": "接受献祭"
+        },
+        {
+          "key": "phantom_maze",
+          "name": "幻影迷宫",
+          "desc": "眼前出现一座由雾气构成的迷宫入口。根据你的属性特长，你可以选择不同的试炼路径",
+          "reward": "角斗场→战斗胜利获得力量装备；元素试炼→技能点+药水；密林迷宫→金币+宝石",
+          "risk": "角斗场需战斗，失败有惩罚；其他无风险",
+          "label": "进入迷宫"
+        },
+        {
+          "key": "wishing_well",
+          "name": "许愿古井",
+          "desc": "一口清澈见底的古井，投入金币可以许愿。每次投入的金币按斐波那契数列递增，投入越多，获得稀有物品的概率越高",
+          "reward": "随机获得装备/药水/宝石，投入金币越多高品质概率越高",
+          "risk": "投入金币不退还，奖励品质随机",
+          "label": "许愿"
+        },
+        {
+          "key": "cursed_chest",
+          "name": "诅咒宝箱",
+          "desc": "一只散发紫黑色雾气的宝箱，打开后会触发被怪物偷袭，怪物必定先手攻击",
+          "reward": "战斗胜利可获得宝箱内的丰厚奖励",
+          "risk": "打开宝箱后被迫进入战斗，怪物先手",
+          "label": "开启宝箱"
+        }
+      ]
+    },
+    {
+      "type": "UNKNOWN",
+      "weight": 20,
+      "radius": 20,
+      "strokeColor": "#FF888888",
+      "fillColor": "#30888888",
+      "expireTime": 40000,
+      "triggerDistance": 50,
+      "subEvents": []
+    }
+  ],
+  "global": {
+    "maxCount": 10,
+    "minDistance": 100,
+    "maxDistance": 500,
+    "generateInterval": 10000,
+    "generateMinNum": 3,
+    "generateMaxNum": 5
+  }
+}

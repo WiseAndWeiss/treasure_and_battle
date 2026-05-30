@@ -5,6 +5,8 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.damage.DamageSource;
 import com.example.treasure_and_battle.battle.damage.DamageType;
+import com.example.treasure_and_battle.affix.BaseAffix;
+import com.example.treasure_and_battle.affix.impl.monster.defensive.MonsterDamageCapAffix;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.DamageReductionBuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
@@ -121,6 +123,9 @@ public class DamageManager {
             ctx.finalDamage = Math.max(1, ctx.finalDamage - def);
         }
 
+        // ===== 阶段④b：硬化皮肤（单次伤害上限钳制） =====
+        ctx.finalDamage = applyDamageCap(target, ctx.finalDamage);
+
         // ===== 阶段⑤：减伤Buff =====
         if (config.useDamageReduction) {
             BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_BEFORE_DAMAGE_TAKEN);
@@ -217,6 +222,8 @@ public class DamageManager {
             PassiveSkillManager.getInstance().trigger(target, ctx, TriggerType.ON_DEATH);
             BuffManager.getInstance(context).triggerBuffs(attacker, ctx, TriggerType.ON_KILL);
             AffixManager.getInstance(context).triggerAffixes(attacker, ctx, TriggerType.ON_KILL);
+            BuffManager.getInstance(context).triggerBuffs(target, ctx, TriggerType.ON_DEATH);
+            AffixManager.getInstance(context).triggerAffixes(target, ctx, TriggerType.ON_DEATH);
         }
     }
 
@@ -238,11 +245,18 @@ public class DamageManager {
 
         boolean hadShieldBefore = ShieldBuff.hasShield(target);
 
+        int beforeShield = incomingDamage;
         int remainingDamage = incomingDamage;
         for (BaseBuff buff : target.getActiveBuffList()) {
             if (!(buff instanceof ShieldBuff)) continue;
             if (remainingDamage <= 0) break;
             remainingDamage = ((ShieldBuff) buff).absorbDamage(remainingDamage, target, ctx);
+        }
+
+        ctx.shieldAbsorbed = beforeShield - remainingDamage;
+
+        if (ctx.shieldAbsorbed > 0) {
+            BattleManager.getInstance(context).notifyShieldAbsorbed(target, ctx.shieldAbsorbed);
         }
 
         boolean hasShieldAfter = ShieldBuff.hasShield(target);
@@ -252,6 +266,17 @@ public class DamageManager {
         }
 
         return remainingDamage;
+    }
+
+    private int applyDamageCap(BattleEntity target, int incomingDamage) {
+        if (incomingDamage <= 0 || target == null) return incomingDamage;
+        for (BaseAffix affix : target.getEntityAffixList()) {
+            if (affix instanceof MonsterDamageCapAffix) {
+                int maxHp = target.getFinalAttributes().maxHp;
+                return ((MonsterDamageCapAffix) affix).capDamage(incomingDamage, maxHp);
+            }
+        }
+        return incomingDamage;
     }
 
     // ====================== 工具方法 ======================

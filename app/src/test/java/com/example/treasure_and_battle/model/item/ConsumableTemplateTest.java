@@ -132,14 +132,14 @@ public class ConsumableTemplateTest {
                 + "\"maxStack\":99,"
                 + "\"usableInBattle\":false,"
                 + "\"usableOutBattle\":false,"
-                + "\"effects\":[{\"type\":\"UTILITY\",\"utilityId\":\"KEY_COPPER\"}],"
+                + "\"effects\":[{\"type\":\"UTILITY_PASSIVE\",\"utilityId\":\"KEY_COPPER\"}],"
                 + "\"description\":\"开启铜宝箱\""
                 + "}";
         Gson gson = new Gson();
         ConsumableTemplate t = gson.fromJson(json, ConsumableTemplate.class);
 
         assertNotNull(t);
-        assertEquals(ConsumableItem.EffectType.UTILITY, t.getEffects().get(0).type);
+        assertEquals(ConsumableItem.EffectType.UTILITY_PASSIVE, t.getEffects().get(0).type);
         assertEquals("KEY_COPPER", t.getEffects().get(0).utilityId);
     }
 }

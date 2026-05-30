@@ -46,7 +46,7 @@ public class EquipmentManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("equip_config.json");
+            InputStream is = context.getAssets().open("configs/equip_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -137,6 +137,15 @@ public class EquipmentManager {
         List<EquipTemplate> templates = new ArrayList<>(templateMap.values());
         EquipTemplate template = templates.get(random.nextInt(templates.size()));
         return generateEquip(template.getTemplateId(), level, rarity);
+    }
+
+    public int getTemplateIdByEquipId(String equipId) {
+        for (Map.Entry<Integer, EquipTemplate> entry : templateMap.entrySet()) {
+            if (entry.getValue().getEquipId().equals(equipId)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
     }
 
     // ====================== 武器属性 ======================

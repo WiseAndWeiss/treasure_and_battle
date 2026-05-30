@@ -44,7 +44,7 @@ public class EquipAffixManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("equip_affix_config.json");
+            InputStream is = context.getAssets().open("configs/equip_affix_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -175,6 +175,36 @@ public class EquipAffixManager {
         }
         if (eligible.isEmpty()) return null;
         return eligible.get(RandomUtils.getRandomInt(0, eligible.size() - 1));
+    }
+
+    public BaseEquipAffix generateSingleAffixForEquipment(EquipItem equipment) {
+        Rarity equipmentRarity = equipment.getRarity();
+        List<Rarity> generatedRarities = RngEngine.generateRaritiesWithPity(
+                1, Rarity.COMMON, 0f, true, equipmentRarity);
+
+        EquipCategory category = equipment.getSlot().getCategory();
+
+        for (Rarity targetRarity : generatedRarities) {
+            EquipAffixTemplate template = getRandomEquipTemplate(category, targetRarity);
+            if (template == null) {
+                template = getRandomEquipTemplate(category, null);
+                if (template == null) return null;
+            }
+
+            EquipAffixTemplate.RarityParam param = resolveRarityParamExactOrMax(template, targetRarity);
+            if (param == null) return null;
+
+            float randomValue = RandomUtils.getRandomFloat(param.getMinValue(), param.getMaxValue());
+            EquipCategory[] categories = getCategoriesFromTemplate(template);
+
+            BaseEquipAffix affix = EquipAffixFactory.create(
+                    template, Rarity.fromId(param.getRarityId()), template.getTriggerType(),
+                    categories, randomValue, param);
+            if (affix != null) {
+                return affix;
+            }
+        }
+        return null;
     }
 
     private EquipAffixTemplate getRandomEquipTemplate(EquipCategory category, Rarity targetRarity) {

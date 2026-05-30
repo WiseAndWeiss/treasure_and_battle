@@ -14,7 +14,9 @@ import com.google.gson.Gson;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -52,7 +54,7 @@ public class MonsterManager {
 
     private void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("monster_config.json");
+            InputStream is = context.getAssets().open("configs/monster_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -93,6 +95,162 @@ public class MonsterManager {
         List<Integer> ids = new ArrayList<>(templateMap.keySet());
         int randomId = ids.get(new Random().nextInt(ids.size()));
         return createMonsterByTemplateId(randomId);
+    }
+
+    // ====================== 种族与模板查询 ======================
+
+    public List<String> getAvailableRaces() {
+        List<String> races = new ArrayList<>();
+        for (MonsterTemplate t : templateMap.values()) {
+            String r = t.getRaceId();
+            if (r != null && !r.isEmpty() && !races.contains(r)) races.add(r);
+        }
+        return races;
+    }
+
+    public List<String> getAvailableRacesForBattle() {
+        List<String> races = new ArrayList<>();
+        for (MonsterTemplate t : templateMap.values()) {
+            String r = t.getRaceId();
+            if (r == null || r.isEmpty() || races.contains(r)) continue;
+            races.add(r);
+        }
+        return races;
+    }
+
+    public Map<String, List<MonsterTemplate>> getTemplatesByRace() {
+        Map<String, List<MonsterTemplate>> map = new LinkedHashMap<>();
+        for (MonsterTemplate t : templateMap.values()) {
+            String r = t.getRaceId();
+            if (r == null || r.isEmpty()) continue;
+            map.computeIfAbsent(r, k -> new ArrayList<>()).add(t);
+        }
+        return map;
+    }
+
+    private List<MonsterTemplate> getTemplatesOfRarity(List<MonsterTemplate> list, int rarityId) {
+        List<MonsterTemplate> result = new ArrayList<>();
+        for (MonsterTemplate t : list) if (t.getRarityId() == rarityId) result.add(t);
+        return result;
+    }
+
+    private int getMaxRarityInRace(List<MonsterTemplate> raceTemplates) {
+        int max = 0;
+        for (MonsterTemplate t : raceTemplates) if (t.getRarityId() > max) max = t.getRarityId();
+        return max;
+    }
+
+    public int getMaxRarityForRace(String raceId) {
+        List<MonsterTemplate> templates = getTemplatesByRace().get(raceId);
+        if (templates == null || templates.isEmpty()) return 0;
+        return getMaxRarityInRace(templates);
+    }
+
+    public List<Monster> createMonstersFromTemplateIds(List<Integer> templateIds, int playerLevel) {
+        List<Monster> monsters = new ArrayList<>();
+        for (int tid : templateIds) {
+            Monster m = playerLevel > 0
+                    ? createMonsterWithLevelScaling(tid, playerLevel)
+                    : createMonsterByTemplateId(tid);
+            if (m != null) monsters.add(m);
+        }
+        return monsters;
+    }
+
+    // ====================== 调试批次生成 ======================
+
+    public List<Integer> generateDebugBatch(String raceId, int maxRarity, int count, Random rng) {
+        List<MonsterTemplate> raceTemplates = getTemplatesByRace().get(raceId);
+        if (raceTemplates == null || raceTemplates.isEmpty()) return Collections.emptyList();
+
+        int raceMaxRarity = getMaxRarityInRace(raceTemplates);
+        int effectiveMax = Math.min(maxRarity, raceMaxRarity);
+        double[] fullDist = raceMaxRarity <= 2 ? RARITY_DIST_3 : RARITY_DIST_5;
+        double[] cappedDist = new double[effectiveMax + 1];
+        double total = 0;
+        for (int i = 0; i < cappedDist.length; i++) { cappedDist[i] = fullDist[i]; total += cappedDist[i]; }
+        if (total > 0) for (int i = 0; i < cappedDist.length; i++) cappedDist[i] /= total;
+
+        int[] raritySeq = generateRaritySequence(count, cappedDist, rng);
+        List<Integer> templateIds = new ArrayList<>();
+        for (int rarityId : raritySeq) {
+            List<MonsterTemplate> candidates = getTemplatesOfRarity(raceTemplates, rarityId);
+            if (candidates.isEmpty()) {
+                for (int lowerR = rarityId - 1; lowerR >= 0; lowerR--) {
+                    candidates = getTemplatesOfRarity(raceTemplates, lowerR);
+                    if (!candidates.isEmpty()) break;
+                }
+            }
+            if (candidates.isEmpty()) candidates = raceTemplates;
+            templateIds.add(candidates.get(rng.nextInt(candidates.size())).getTemplateId());
+        }
+        return templateIds;
+    }
+
+    // ====================== 概率分布生成系统 ======================
+
+    private static final double[] COUNT_DISTRIBUTION = {0.10, 0.20, 0.30, 0.25, 0.15};
+
+    private static final double[] RARITY_DIST_5 = {0.45, 0.30, 0.15, 0.07, 0.03};
+    private static final double[] RARITY_DIST_3 = {0.50, 0.35, 0.15};
+
+    private int weightedPick(double[] dist, Random rng) {
+        double roll = rng.nextDouble();
+        double acc = 0;
+        for (int i = 0; i < dist.length; i++) {
+            acc += dist[i];
+            if (roll < acc) return i;
+        }
+        return dist.length - 1;
+    }
+
+    private int[] generateRaritySequence(int count, double[] dist, Random rng) {
+        int[] seq = new int[count];
+        seq[0] = weightedPick(dist, rng);
+        for (int i = 1; i < count; i++) {
+            int cap = seq[i - 1];
+            double[] sub = new double[cap + 1];
+            double total = 0;
+            for (int j = 0; j <= cap; j++) { sub[j] = dist[j]; total += dist[j]; }
+            if (total > 0) for (int j = 0; j <= cap; j++) sub[j] /= total;
+            seq[i] = weightedPick(sub, rng);
+        }
+        return seq;
+    }
+
+    public List<Integer> generateMonsterBatch(int playerLevel, int slotCount, Random rng,
+                                              List<String> recentlyUsedRaces) {
+        List<String> allRaces = getAvailableRacesForBattle();
+        if (allRaces.isEmpty()) return Collections.emptyList();
+
+        List<String> availableRaces = new ArrayList<>(allRaces);
+        if (recentlyUsedRaces != null && availableRaces.size() > 3) {
+            availableRaces.removeAll(recentlyUsedRaces);
+            if (availableRaces.isEmpty()) availableRaces = new ArrayList<>(allRaces);
+        }
+
+        String selectedRace = availableRaces.get(rng.nextInt(availableRaces.size()));
+        List<MonsterTemplate> raceTemplates = getTemplatesByRace().get(selectedRace);
+        if (raceTemplates == null || raceTemplates.isEmpty()) return Collections.emptyList();
+
+        int raceMaxRarity = getMaxRarityInRace(raceTemplates);
+        double[] rarityDist = raceMaxRarity <= 2 ? RARITY_DIST_3 : RARITY_DIST_5;
+        int count = weightedPick(COUNT_DISTRIBUTION, rng) + 1;
+        int[] raritySeq = generateRaritySequence(count, rarityDist, rng);
+
+        List<Integer> templateIds = new ArrayList<>();
+        for (int rarityId : raritySeq) {
+            List<MonsterTemplate> candidates = getTemplatesOfRarity(raceTemplates, rarityId);
+            if (candidates.isEmpty()) {
+                for (int lowerR = rarityId - 1; lowerR >= 0; lowerR--) {
+                    candidates = getTemplatesOfRarity(raceTemplates, lowerR);
+                    if (!candidates.isEmpty()) break;
+                }
+            }
+            if (candidates.isEmpty()) candidates = raceTemplates;
+            templateIds.add(candidates.get(rng.nextInt(candidates.size())).getTemplateId());
+        }
+        return templateIds;
     }
 
     private double calculateMonsterBasePower(int level) {
@@ -165,7 +323,7 @@ public class MonsterManager {
         monster.addIntent(new ActionIntent(
                 "普通攻击", "基础攻击动作",
                 ActionIntent.IntentType.ATTACK,
-                1, 0, 1.0, 100, 10, -1f, -1f, null));
+                1, 0, 1.0, 10, 20, -1f, -1f, null));
 
         monster.addIntent(new ActionIntent(
                 "逃跑", "低血时尝试逃跑",

@@ -43,7 +43,7 @@ public class MonsterAffixManager {
 
     public void loadTemplates() {
         try {
-            InputStream is = context.getAssets().open("monster_affix_config.json");
+            InputStream is = context.getAssets().open("configs/monster_affix_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

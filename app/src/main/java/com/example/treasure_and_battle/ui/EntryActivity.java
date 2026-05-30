@@ -1,21 +1,15 @@
 package com.example.treasure_and_battle.ui;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.character.Character;
 
 public class EntryActivity extends AppCompatActivity {
-
-    private static final int REQ_LOCATION = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,35 +22,26 @@ public class EntryActivity extends AppCompatActivity {
         Button btnExitGame = findViewById(R.id.btn_exit_game);
 
         btnStartGame.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOCATION);
-            } else {
-                enterGame();
-            }
+            startActivity(new Intent(this, ProfessionSelectActivity.class)
+                    .putExtra("mode", "new_game"));
         });
 
         btnSelectSave.setOnClickListener(v ->
-                FloatMsgOverlay.showFloatMsg(this, "功能开发中"));
+                SaveSelectDialog.show(this, SaveSelectDialog.MODE_LOAD, new SaveSelectDialog.OnSaveActionListener() {
+                    @Override
+                    public void onLoadSave(Character character) {
+                        PlayerCharacterHolder.restoreFrom(character);
+                        startActivity(new Intent(EntryActivity.this, MainActivity.class));
+                        finish();
+                    }
+
+                    @Override
+                    public void onSaveComplete() {}
+                }));
 
         btnEncyclopedia.setOnClickListener(v ->
                 startActivity(new Intent(this, EncyclopediaActivity.class)));
 
         btnExitGame.setOnClickListener(v -> finishAffinity());
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQ_LOCATION) {
-            enterGame();
-        }
-    }
-
-    private void enterGame() {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
     }
 }

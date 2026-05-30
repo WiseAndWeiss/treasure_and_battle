@@ -31,6 +31,17 @@ public class BuffManager {
     private static BuffManager instance;
     private Context context;
     private Gson gson;
+    private OnBuffTriggerListener buffTriggerListener;
+    private OnBuffApplyListener buffApplyListener;
+
+    public interface OnBuffTriggerListener {
+        void onBuffTriggered(BattleEntity entity, String buffName);
+    }
+
+    public interface OnBuffApplyListener {
+        void onBuffApplied(BattleEntity entity, String buffName);
+        void onBuffAddFailed(BattleEntity entity, String buffName, boolean resisted);
+    }
 
     // Buff模板库，对应AffixManager的templateMap
     private Map<Integer, BuffTemplate> templateMap = new HashMap<>();
@@ -52,10 +63,18 @@ public class BuffManager {
         instance = null;
     }
 
+    public void setOnBuffTriggerListener(OnBuffTriggerListener listener) {
+        this.buffTriggerListener = listener;
+    }
+
+    public void setOnBuffApplyListener(OnBuffApplyListener listener) {
+        this.buffApplyListener = listener;
+    }
+
     // ====================== 1. 加载Buff模板（对应AffixManager的加载逻辑） ======================
     private void loadBuffTemplates() {
         try {
-            InputStream is = context.getAssets().open("buff_config.json");
+            InputStream is = context.getAssets().open("configs/buff_config.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -98,54 +117,70 @@ public class BuffManager {
 
     // ====================== 3. Buff添加/移除/堆叠管理 ======================
     public void addBuff(BattleEntity entity, BaseBuff buff) {
-        List<BaseBuff> buffList = entity.getActiveBuffList();
+        if (entity == null || buff == null) return;
 
-        // 特殊处理：流血debuff应该唯一，不同来源叠加层数
-        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
-            for (BaseBuff existingBuff : buffList) {
-                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
-                    // 叠加流血层数
-                    ((com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) existingBuff)
-                        .stackBleeding(buff.getStackCount());
-                    entity.markAttributeCacheDirty();
-                    return;
+        if (buff.getBuffType() == BuffType.DEBUFF) {
+            float resist = entity.getFinalAttributes().debuffResist;
+            if (resist > 0 && com.example.treasure_and_battle.utils.RandomUtils.checkProbability(resist)) {
+                if (buffApplyListener != null) {
+                    buffApplyListener.onBuffAddFailed(entity, buff.getBuffName(), true);
                 }
-            }
-            // 没有现有流血debuff，直接添加
-            buffList.add(buff);
-            entity.markAttributeCacheDirty();
-            return;
-        }
-
-        // 特殊处理：燃烧debuff应该唯一，不同来源叠加层数
-        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
-            for (BaseBuff existingBuff : buffList) {
-                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
-                    // 叠加燃烧层数
-                    ((com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) existingBuff)
-                        .stackBurning(buff.getStackCount());
-                    entity.markAttributeCacheDirty();
-                    return;
-                }
-            }
-            // 没有现有燃烧debuff，直接添加
-            buffList.add(buff);
-            entity.markAttributeCacheDirty();
-            return;
-        }
-
-        // 相同Buff尝试堆叠
-        for (BaseBuff existingBuff : buffList) {
-            if (existingBuff.getBuffId().equals(buff.getBuffId())) {
-                existingBuff.tryStack(buff);
-                entity.markAttributeCacheDirty();
                 return;
             }
         }
 
-        // 新增Buff
+        List<BaseBuff> buffList = entity.getActiveBuffList();
+
+        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+            for (BaseBuff existingBuff : buffList) {
+                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) {
+                    ((com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff) existingBuff)
+                        .stackBleeding(buff.getStackCount());
+                    entity.markAttributeCacheDirty();
+                    notifyBuffApplied(entity, buff);
+                    return;
+                }
+            }
+            buffList.add(buff);
+            entity.markAttributeCacheDirty();
+            notifyBuffApplied(entity, buff);
+            return;
+        }
+
+        if (buff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
+            for (BaseBuff existingBuff : buffList) {
+                if (existingBuff instanceof com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) {
+                    ((com.example.treasure_and_battle.buff.impl.periodic.BurningDebuff) existingBuff)
+                        .stackBurning(buff.getStackCount());
+                    entity.markAttributeCacheDirty();
+                    notifyBuffApplied(entity, buff);
+                    return;
+                }
+            }
+            buffList.add(buff);
+            entity.markAttributeCacheDirty();
+            notifyBuffApplied(entity, buff);
+            return;
+        }
+
+        for (BaseBuff existingBuff : buffList) {
+            if (existingBuff.getBuffId().equals(buff.getBuffId())) {
+                existingBuff.tryStack(buff, buff.getStackCount());
+                entity.markAttributeCacheDirty();
+                notifyBuffApplied(entity, buff);
+                return;
+            }
+        }
+
         buffList.add(buff);
         entity.markAttributeCacheDirty();
+        notifyBuffApplied(entity, buff);
+    }
+
+    private void notifyBuffApplied(BattleEntity entity, BaseBuff buff) {
+        if (buffApplyListener != null) {
+            buffApplyListener.onBuffApplied(entity, buff.getBuffName());
+        }
     }
 
     public void removeBuff(BattleEntity entity, String buffId) {
@@ -223,6 +258,9 @@ public class BuffManager {
         for (BaseBuff buff : buffList) {
             if (buff.getTriggerType() == triggerType) {
                 buff.onTrigger(entity, context, triggerType);
+                if (buffTriggerListener != null) {
+                    buffTriggerListener.onBuffTriggered(entity, buff.getBuffName());
+                }
                 context.addLogWithMeta(com.example.treasure_and_battle.battle.log.LogType.BUFF, buff, 
                     "【状态生效】[%s] 身上的 [%s] 状态被触发。", entity.getClass().getSimpleName(), buff.getBuffName());
                 

@@ -22,6 +22,11 @@ import java.util.List;
 public class AffixManager {
     private static AffixManager instance;
     private Context context;
+    private OnAffixTriggerListener affixTriggerListener;
+
+    public interface OnAffixTriggerListener {
+        void onAffixTriggered(BattleEntity entity, String affixName);
+    }
 
     private AffixManager(Context context) {
         this.context = context.getApplicationContext();
@@ -36,6 +41,10 @@ public class AffixManager {
 
     public static synchronized void releaseInstance() {
         instance = null;
+    }
+
+    public void setOnAffixTriggerListener(OnAffixTriggerListener listener) {
+        this.affixTriggerListener = listener;
     }
 
     // ====================== 1. 词缀触发与调度 ======================
@@ -55,6 +64,9 @@ public class AffixManager {
         for (BaseAffix affix : activeAffixes) {
             if (affix.getTriggerType() == triggerType) {
                 affix.onTrigger(entity, ctx);
+                if (affixTriggerListener != null) {
+                    affixTriggerListener.onAffixTriggered(entity, affix.getAffixName());
+                }
                 ctx.addLogWithMeta(
                         com.example.treasure_and_battle.battle.log.LogType.AFFIX,
                         affix,

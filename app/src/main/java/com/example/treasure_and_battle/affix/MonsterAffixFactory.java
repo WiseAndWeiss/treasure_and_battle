@@ -3,8 +3,13 @@ package com.example.treasure_and_battle.affix;
 import com.example.treasure_and_battle.model.common.TriggerType;
 
 import com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix;
+import com.example.treasure_and_battle.affix.impl.monster.defensive.MonsterDamageCapAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix;
 import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerManaBurnAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerOnDeathExplodeAffix;
 import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRecoverAffix;
+import com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRoundStartRecoverAffix;
 import com.example.treasure_and_battle.model.affix.AffixBuffApplyTarget;
 import com.example.treasure_and_battle.model.affix.AffixRecoverResourceType;
 
@@ -60,6 +65,45 @@ public class MonsterAffixFactory {
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
                     actualRarity, triggerType, randomValue,
                     recoverResourceType, recoverValueType, recoverValue, damageToRecoverRatio);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRoundStartRecoverAffix".equals(affixClass)) {
+            return new MonsterTriggerRoundStartRecoverAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix".equals(affixClass)) {
+            Integer buffTemplateId = param != null ? param.getBuffTemplateId() : null;
+            if (buffTemplateId == null) {
+                throw new IllegalArgumentException(
+                        "MonsterTriggerAoeBuffAffix template missing buffTemplateId: " + template.getTemplateId());
+            }
+            int applyStacks = (param != null && param.getApplyStacks() != null)
+                    ? Math.max(1, param.getApplyStacks()) : 1;
+
+            return new MonsterTriggerAoeBuffAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, randomValue,
+                    buffTemplateId, applyStacks);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.monster.defensive.MonsterDamageCapAffix".equals(affixClass)) {
+            return new MonsterDamageCapAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerManaBurnAffix".equals(affixClass)) {
+            return new MonsterTriggerManaBurnAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, randomValue);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerOnDeathExplodeAffix".equals(affixClass)) {
+            return new MonsterTriggerOnDeathExplodeAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, randomValue);
         }
 
         return null;

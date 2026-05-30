@@ -58,4 +58,22 @@ public class SkillTree {
             unlockedLayer++;
         return true;
     }
+
+    public int resetAllSkills() {
+        int refund = usedPoints;
+        learnedSkills.clear();
+        usedPoints = 0;
+        unlockedLayer = 1;
+        return refund;
+    }
+
+    public int getUsedPoints() { return usedPoints; }
+    public int getUnlockedLayer() { return unlockedLayer; }
+
+    public void loadSavedState(List<Skill> skills, int pts, int layer) {
+        this.learnedSkills.clear();
+        this.learnedSkills.addAll(skills);
+        this.usedPoints = pts;
+        this.unlockedLayer = layer;
+    }
 }

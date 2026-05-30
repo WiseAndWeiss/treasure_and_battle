@@ -1,5 +1,10 @@
 package com.example.treasure_and_battle.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.Canvas;
@@ -29,12 +34,14 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
@@ -52,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class BagFragment extends Fragment {
 
@@ -102,6 +110,18 @@ public class BagFragment extends Fragment {
     private final Map<Integer, EquipItem> equippedItems = new HashMap<>();
     private final Map<Integer, String> equipSlotDefaultTexts = new HashMap<>();
     private int bagCellSizePx;
+    private int equipSlotSizePx;
+    private static final int[] EQUIP_SLOT_VIEW_IDS = {
+            R.id.slot_weapon,
+            R.id.slot_helmet,
+            R.id.slot_chest,
+            R.id.slot_leggings,
+            R.id.slot_boots,
+            R.id.slot_necklace,
+            R.id.slot_bracelet,
+            R.id.slot_ring_left,
+            R.id.slot_ring_right
+    };
     private int lastDragCenterX = -1;
     private int lastDragCenterY = -1;
     private static final String DRAG_LABEL_EQUIP_FROM_SLOT = "equip_from_slot";
@@ -125,6 +145,8 @@ public class BagFragment extends Fragment {
     private int pendingGemBagIndex = -1;
 
     private ImageView ivTachie;
+    private boolean tachieJumpCooldown;
+    private final Random tachieAnimRandom = new Random();
     private TextView tvTachieName;
     private TextView tvTachieLevel;
     private ProgressBar pbTachieExp;
@@ -157,10 +179,35 @@ public class BagFragment extends Fragment {
             bagBottomHalfRoot.setClipToPadding(false);
         }
         bagCellSizePx = 0;
+        equipSlotSizePx = 0;
 
         bindEquipSlots(view);
+        setupEquipSlotSizing(view);
 
         ivTachie = view.findViewById(R.id.iv_tachie);
+        ivTachie.setOnClickListener(v -> {
+            if (tachieJumpCooldown) return;
+            tachieJumpCooldown = true;
+
+            int roll = tachieAnimRandom.nextInt(4);
+            Animator anim;
+            if (roll == 0) {
+                anim = createRotateAnim(ivTachie, 360f);
+            } else if (roll == 1) {
+                anim = createRotateAnim(ivTachie, -360f);
+            } else if (roll == 2) {
+                anim = createFlipAnim(ivTachie);
+            } else {
+                anim = createJumpAnim(ivTachie);
+            }
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    tachieJumpCooldown = false;
+                }
+            });
+            anim.start();
+        });
         tvTachieName = view.findViewById(R.id.tv_tachie_name);
         tvTachieLevel = view.findViewById(R.id.tv_tachie_level);
         pbTachieExp = view.findViewById(R.id.pb_tachie_exp);
@@ -410,10 +457,20 @@ public class BagFragment extends Fragment {
                     persistSharedBagGridToInventory();
                 }
             }
+        }, equipItem -> {
+            if (equipItem.getSocketedGems() == null || equipItem.getSocketedGems().isEmpty()) {
+                showFloatMsg("该装备没有宝石");
+                return;
+            }
+            if (!hasDiamondDrill()) {
+                showFloatMsg("缺少金刚钻，无法拆卸宝石");
+                return;
+            }
+            showUnsocketGemDialog(equipItem);
         });
         menuProviderFactory.registerConsumable(consumableItem -> {
-            Player player = PlayerCharacterHolder.getOrCreate(getContext()).generatePlayer();
-            boolean success = ConsumableManager.execute(player, null, consumableItem, getContext());
+            Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+            boolean success = ConsumableManager.executeOutBattle(ch, consumableItem, getContext());
             if (success) {
                 if (consumableItem.getCount() > 1) {
                     consumableItem.setCount(consumableItem.getCount() - 1);
@@ -523,7 +580,78 @@ public class BagFragment extends Fragment {
         } else if (sizeChanged) {
             adapter.notifyItemRangeChanged(0, adapter.getItemCount(), "CELL_SIZE");
         }
+        applyEquipSlotSizeIfReady();
         return true;
+    }
+
+    private void setupEquipSlotSizing(View root) {
+        if (bagEquipmentPanel == null) {
+            return;
+        }
+        bagEquipmentPanel.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                applyEquipSlotSizeIfReady();
+            }
+        });
+        View leftColumn = root.findViewById(R.id.container_left_armors);
+        if (leftColumn == null) {
+            applyEquipSlotSizeIfReady();
+            return;
+        }
+        if (applyEquipSlotSizeIfReady()) {
+            return;
+        }
+        leftColumn.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (applyEquipSlotSizeIfReady()) {
+                    leftColumn.getViewTreeObserver().removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean applyEquipSlotSizeIfReady() {
+        View leftColumn = getView() != null ? getView().findViewById(R.id.container_left_armors) : null;
+        if (leftColumn == null) {
+            return false;
+        }
+        int colW = leftColumn.getWidth();
+        int colH = leftColumn.getHeight();
+        if (colW <= 0 || colH <= 0) {
+            return false;
+        }
+        int resolved = BagGridCellSizer.resolveEquipSlotSizeAlignedToBag(
+                getResources().getDisplayMetrics(), colW, colH, bagCellSizePx);
+        if (resolved <= 0) {
+            return false;
+        }
+        if (resolved == equipSlotSizePx) {
+            return true;
+        }
+        equipSlotSizePx = resolved;
+        for (int slotId : EQUIP_SLOT_VIEW_IDS) {
+            View slot = equipSlotViews.get(slotId);
+            if (slot == null) {
+                continue;
+            }
+            ViewGroup.LayoutParams lp = slot.getLayoutParams();
+            if (lp == null) {
+                continue;
+            }
+            lp.width = resolved;
+            lp.height = resolved;
+            slot.setLayoutParams(lp);
+        }
+        refreshAllEquipSlotViews();
+        return true;
+    }
+
+    private void refreshAllEquipSlotViews() {
+        for (Map.Entry<Integer, View> entry : equipSlotViews.entrySet()) {
+            updateEquipSlotView(entry.getKey(), equippedItems.get(entry.getKey()));
+        }
     }
 
     private void setupEquipToBagDropListener() {
@@ -694,10 +822,10 @@ public class BagFragment extends Fragment {
         btnPrevPage.setOnClickListener(v -> goPrevPage());
         btnNextPage.setOnClickListener(v -> goNextPage());
         btnCompactBag.setOnClickListener(v -> {
-            compactAllItemsForward();
+            organizeBag();
             adapter.notifyDataSetChanged();
             persistSharedBagGridToInventory();
-            showFloatMsg("已向前整理背包");
+            showFloatMsg("已整理并堆叠背包");
         });
         btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
@@ -850,27 +978,8 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void compactAllItemsForward() {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        List<Item> nonEmptyItems = new ArrayList<>();
-        int emptyCount = 0;
-
-        for (int i = 0; i < bagCapacity; i++) {
-            Item item = allItems.get(i);
-            if (item == null) {
-                emptyCount++;
-            } else {
-                nonEmptyItems.add(item);
-            }
-        }
-
-        int writeIndex = 0;
-        for (Item item : nonEmptyItems) {
-            allItems.set(writeIndex++, item);
-        }
-        for (int i = 0; i < emptyCount; i++) {
-            allItems.set(writeIndex++, null);
-        }
+    private void organizeBag() {
+        InventoryManager.organizeBag(allItems);
     }
 
     private void updateFilterButtonText() {
@@ -1305,7 +1414,13 @@ public class BagFragment extends Fragment {
         TextView placeholder = new TextView(requireContext());
         placeholder.setText(text);
         placeholder.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_main));
-        placeholder.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        float labelSp = 11f;
+        if (equipSlotSizePx > 0) {
+            int refPx = BagGridCellSizer.dpToPx(getResources().getDisplayMetrics(), 58);
+            labelSp = 11f * equipSlotSizePx / Math.max(refPx, 1);
+            labelSp = Math.max(9f, Math.min(12f, labelSp));
+        }
+        placeholder.setTextSize(TypedValue.COMPLEX_UNIT_SP, labelSp);
         placeholder.setGravity(Gravity.CENTER);
         slotLayout.setGravity(Gravity.CENTER);
         slotLayout.addView(placeholder, new LinearLayout.LayoutParams(
@@ -1358,7 +1473,12 @@ public class BagFragment extends Fragment {
             return true;
         }
 
-        allItems.set(bagIndex, null);
+        Item bagItem = allItems.get(bagIndex);
+        if (bagItem.getCount() > 1) {
+            bagItem.setCount(bagItem.getCount() - 1);
+        } else {
+            allItems.set(bagIndex, null);
+        }
         int slotViewId = findEquipSlotByEquipItem(equip);
         if (slotViewId != -1) {
             updateEquipSlotView(slotViewId, equip);
@@ -1377,6 +1497,91 @@ public class BagFragment extends Fragment {
         }
         pendingGemItem = null;
         pendingGemBagIndex = -1;
+    }
+
+    private void showUnsocketGemDialog(EquipItem equip) {
+        List<com.example.treasure_and_battle.model.item.gem.GemItem> gems = equip.getSocketedGems();
+        if (gems == null || gems.isEmpty()) {
+            showFloatMsg("该装备没有宝石");
+            return;
+        }
+
+        showUnsocketGemIndexPicker(equip, new ArrayList<>(gems));
+    }
+
+    private void showUnsocketGemIndexPicker(EquipItem equip, List<com.example.treasure_and_battle.model.item.gem.GemItem> gems) {
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_battle_items, null, false);
+        ((TextView) content.findViewById(R.id.tv_battle_items_title)).setText("选择拆卸");
+        RecyclerView rv = content.findViewById(R.id.rv_battle_items);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        List<com.example.treasure_and_battle.model.item.gem.GemItem> gemList = new ArrayList<>(gems);
+        AlertDialog d = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                .setView(content)
+                .create();
+        rv.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            @NonNull @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_battle_inventory_row, parent, false);
+                return new RecyclerView.ViewHolder(row) {};
+            }
+            @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+                ImageView iv = holder.itemView.findViewById(R.id.iv_battle_item_icon);
+                TextView tv = holder.itemView.findViewById(R.id.tv_battle_item_name);
+                tv.setText(gemList.get(position).getName());
+                if (iv != null) GameAssetIcons.bindItem(holder.itemView.getContext(), iv, gemList.get(position));
+                holder.itemView.setOnClickListener(v -> {
+                    com.example.treasure_and_battle.model.item.gem.GemItem gem = gemList.get(position);
+                    View confirmView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_treasure_alert, null, false);
+                    ((TextView) confirmView.findViewById(R.id.tv_treasure_alert_title)).setText("确认拆卸");
+                    ((TextView) confirmView.findViewById(R.id.tv_treasure_alert_message)).setText("确定要拆卸 " + gem.getName() + " 吗？");
+                    View neg = confirmView.findViewById(R.id.btn_treasure_alert_negative);
+                    TextView pos = confirmView.findViewById(R.id.btn_treasure_alert_positive);
+                    neg.setVisibility(View.VISIBLE);
+                    ((TextView) neg).setText("取消");
+                    pos.setText("确认");
+                    AlertDialog confirmD = new MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Tb_ItemDetailDialog)
+                            .setView(confirmView)
+                            .create();
+                    neg.setOnClickListener(v3 -> confirmD.dismiss());
+                    pos.setOnClickListener(v3 -> {
+                        com.example.treasure_and_battle.model.item.gem.GemItem removed = equip.unsocketGem(position);
+                        if (removed != null) {
+                            consumeDiamondDrill();
+                            putGemIntoBag(removed);
+                            int slotViewId = findEquipSlotByEquipItem(equip);
+                            if (slotViewId != -1) {
+                                updateEquipSlotView(slotViewId, equip);
+                                syncCharacterEquip(slotViewId, equip);
+                            }
+                            adapter.notifyDataSetChanged();
+                            persistSharedBagGridToInventory();
+                            showFloatMsg("已拆卸: " + removed.getName());
+                        }
+                        confirmD.dismiss();
+                        d.dismiss();
+                    });
+                    confirmD.show();
+                    if (confirmD.getWindow() != null) {
+                        confirmD.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                    }
+                });
+            }
+            @Override public int getItemCount() { return gemList.size(); }
+        });
+        content.findViewById(R.id.btn_battle_items_close).setOnClickListener(v -> d.dismiss());
+        d.show();
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+    }
+
+    private void putGemIntoBag(com.example.treasure_and_battle.model.item.gem.GemItem gem) {
+        for (int i = 0; i < allItems.size(); i++) {
+            if (allItems.get(i) == null) {
+                allItems.set(i, gem);
+                return;
+            }
+        }
     }
 
     private int findEquipSlotByEquipItem(EquipItem eq) {
@@ -1417,12 +1622,12 @@ public class BagFragment extends Fragment {
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
-        popupMenu.getMenu().add(0, 1, 0, "查看详情");
         popupMenu.getMenu().add(0, 2, 0, "卸下");
+        popupMenu.getMenu().add(0, 1, 1, "查看详情");
         if (item.getSocketedGems() != null && !item.getSocketedGems().isEmpty()) {
-            popupMenu.getMenu().add(0, 4, 0, "拆卸宝石");
+            popupMenu.getMenu().add(0, 4, 2, "拆卸宝石");
         }
-        popupMenu.getMenu().add(0, 3, 0, "丢弃");
+        popupMenu.getMenu().add(0, 3, 3, "丢弃");
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {
@@ -1451,17 +1656,7 @@ public class BagFragment extends Fragment {
                     showFloatMsg("缺少金刚钻，无法拆卸宝石");
                     return true;
                 }
-                com.example.treasure_and_battle.model.item.gem.GemItem removed =
-                        item.unsocketGem(item.getSocketedGems().size() - 1);
-                if (removed != null) {
-                    consumeDiamondDrill();
-                    allItems.set(findEmptyBagSlot(), removed);
-                    updateEquipSlotView(slotViewId, item);
-                    syncCharacterEquip(slotViewId, item);
-                    adapter.notifyDataSetChanged();
-                    persistSharedBagGridToInventory();
-                    showFloatMsg("已拆卸: " + removed.getName());
-                }
+                showUnsocketGemDialog(item);
                 return true;
             }
             if (menuItem.getItemId() == 3) {
@@ -1744,6 +1939,7 @@ public class BagFragment extends Fragment {
             for (int i = 0; i < actions.size(); i++) {
                 ItemAction action = actions.get(i);
                 popupMenu.getMenu().add(0, i, i, action.getDisplayText());
+                popupMenu.getMenu().getItem(i).setEnabled(action.enabled);
             }
 
             popupMenu.setOnMenuItemClickListener(menuItem -> {
@@ -1780,5 +1976,42 @@ public class BagFragment extends Fragment {
     private void showFloatMsg(String text) {
         if (!isAdded() || getActivity() == null) return;
         FloatMsgOverlay.showFloatMsg(getActivity(), text);
+    }
+
+    private Animator createRotateAnim(View target, float degrees) {
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(target, "rotation", target.getRotation(), target.getRotation() + degrees);
+        rotate.setDuration(500);
+        return rotate;
+    }
+
+    private Animator createFlipAnim(View target) {
+        ValueAnimator flip = ValueAnimator.ofFloat(0f, 1f);
+        flip.setDuration(600);
+        flip.addUpdateListener(animation -> {
+            float fraction = animation.getAnimatedFraction();
+            float scaleX = (float) Math.cos(fraction * Math.PI * 2);
+            target.setScaleX(Math.abs(scaleX) < 0.01f ? 0.01f : scaleX);
+        });
+        AnimatorListenerAdapter glitchListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                target.setScaleX(1f);
+            }
+        };
+        flip.addListener(glitchListener);
+        return flip;
+    }
+
+    private Animator createJumpAnim(View target) {
+        float density = target.getResources().getDisplayMetrics().density;
+        float jumpUp = -24f * density;
+        ObjectAnimator up = ObjectAnimator.ofFloat(target, "translationY", 0f, jumpUp);
+        up.setDuration(150);
+        ObjectAnimator down = ObjectAnimator.ofFloat(target, "translationY", jumpUp, 0f);
+        down.setDuration(200);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playSequentially(up, down);
+        return set;
     }
 }

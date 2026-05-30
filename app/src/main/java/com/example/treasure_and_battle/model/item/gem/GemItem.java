@@ -13,7 +13,7 @@ public class GemItem extends Item {
     private AttributeSet armorBonus;
 
     public GemItem(String id, String name, Rarity rarity, int baseValue, String gemType) {
-        super(id, name, rarity, baseValue, ItemType.GEM, 99, 99);
+        super(id, name, rarity, baseValue, ItemType.GEM, 1, 99);
         this.gemType = gemType;
         this.accessoryBonus = new AttributeSet();
         this.weaponBonus = new AttributeSet();

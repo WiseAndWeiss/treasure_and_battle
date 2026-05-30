@@ -1,186 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F5F5">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#FFC107"
-        android:elevation="4dp">
-
-        <TextView
-            android:id="@+id/tv_toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="中性事件"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:text="←"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp" />
-
-    </RelativeLayout>
+    android:background="#B32F2117">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/iv_event_border"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_event_popup"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:paddingStart="44dp"
+                android:paddingTop="80dp"
+                android:paddingEnd="44dp"
+                android:paddingBottom="24dp">
 
-                <TextView
+                <com.example.treasure_and_battle.ui.OutlineTextView
                     android:id="@+id/tv_event_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="事件名称"
-                    android:textColor="#333333"
-                    android:textSize="22sp"
+                    android:textColor="@color/tb_gold"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="#E0E0E0" />
-
-                <TextView
-                    android:id="@+id/tv_event_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="事件描述"
-                    android:textColor="#666666"
-                    android:textSize="15sp"
-                    android:lineSpacingExtra="4dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginTop="48dp"
+                    android:background="@drawable/bg_panel_treasure_fill_only"
+                    android:foreground="@drawable/bg_panel_treasure_stroke_only"
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
                     <TextView
-                        android:layout_width="60dp"
+                        android:id="@+id/tv_event_desc"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="奖励："
-                        android:textColor="#00CC00"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:gravity="center"
+                        android:lineSpacingExtra="6dp"
+                        android:text="事件描述"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="16sp" />
 
-                    <TextView
-                        android:id="@+id/tv_event_reward"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="奖励内容"
-                        android:textColor="#00CC00"
-                        android:textSize="14sp" />
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="56dp"
+                            android:layout_height="wrap_content"
+                            android:text="奖励："
+                            android:textColor="@color/tb_gold"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_event_reward"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:lineSpacingExtra="3dp"
+                            android:text="奖励内容"
+                            android:textColor="@color/tb_text_sub"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="56dp"
+                            android:layout_height="wrap_content"
+                            android:text="风险："
+                            android:textColor="@color/tb_battle"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_event_risk"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:lineSpacingExtra="3dp"
+                            android:text="风险内容"
+                            android:textColor="@color/tb_text_sub"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_action_area"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginTop="14dp"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:id="@+id/ll_result_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_panel_treasure_fill_only"
+                    android:foreground="@drawable/bg_panel_treasure_stroke_only"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
 
                     <TextView
-                        android:layout_width="60dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="风险："
-                        android:textColor="#FF6600"
-                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:text="结果"
+                        android:textColor="@color/tb_text_main"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tv_event_risk"
-                        android:layout_width="0dp"
+                        android:id="@+id/tv_result"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="风险内容"
-                        android:textColor="#FF6600"
-                        android:textSize="14sp" />
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="5dp"
+                        android:text=""
+                        android:textColor="@color/tb_text_sub"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/btn_continue"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_tab_active"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:text="前进"
+                        android:textColor="@color/tb_bg_dark"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
                 </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/ll_action_area"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical">
+        </FrameLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_result_area"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_event_popup"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="结果"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_result"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text=""
-                    android:textColor="#666666"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/btn_continue"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="16dp"
-                    android:background="#4CAF50"
-                    android:text="前进"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-        </LinearLayout>
     </ScrollView>
 
-</LinearLayout>
+</FrameLayout>

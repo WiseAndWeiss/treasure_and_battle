@@ -1,0 +1,450 @@
+{
+  "affix_templates": [
+    {
+      "templateId": 1001,
+      "affixName": "剧毒之爪",
+      "descriptionFormat": "攻击命中后有 %.0f%% 的概率给目标施加本次伤害 %.0f%% 层数的中毒",
+      "triggerType": "ON_HIT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
+      "applyTarget": "TARGET",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.2, "maxValue": 0.2, "buffTemplateId": 3001, "damageToStackRatio": 0.2, "applyStacks": 1},
+        {"rarityId": 1, "minValue": 0.3, "maxValue": 0.3, "buffTemplateId": 3001, "damageToStackRatio": 0.2, "applyStacks": 1},
+        {"rarityId": 2, "minValue": 0.5, "maxValue": 0.5, "buffTemplateId": 3001, "damageToStackRatio": 0.2, "applyStacks": 1},
+        {"rarityId": 3, "minValue": 0.8, "maxValue": 0.8, "buffTemplateId": 3001, "damageToStackRatio": 0.2, "applyStacks": 1},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 3001, "damageToStackRatio": 0.2, "applyStacks": 1}
+      ]
+    },
+    {
+      "templateId": 1002,
+      "affixName": "燃烧之爪",
+      "descriptionFormat": "攻击命中后有 %.0f%% 的概率给目标施加本次伤害 %.0f%% 层数的燃烧",
+      "triggerType": "ON_HIT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
+      "applyTarget": "TARGET",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.2, "maxValue": 0.2, "buffTemplateId": 3002, "damageToStackRatio": 0.3, "applyStacks": 1},
+        {"rarityId": 1, "minValue": 0.3, "maxValue": 0.3, "buffTemplateId": 3002, "damageToStackRatio": 0.3, "applyStacks": 1},
+        {"rarityId": 2, "minValue": 0.5, "maxValue": 0.5, "buffTemplateId": 3002, "damageToStackRatio": 0.3, "applyStacks": 1},
+        {"rarityId": 3, "minValue": 0.8, "maxValue": 0.8, "buffTemplateId": 3002, "damageToStackRatio": 0.3, "applyStacks": 1},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 3002, "damageToStackRatio": 0.3, "applyStacks": 1}
+      ]
+    },
+    {
+      "templateId": 1003,
+      "affixName": "出血之爪",
+      "descriptionFormat": "攻击命中后有 %.0f%% 的概率给目标施加 %.0f 层流血",
+      "triggerType": "ON_HIT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
+      "applyTarget": "TARGET",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.2, "maxValue": 0.2, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 1, "minValue": 0.3, "maxValue": 0.3, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 0.5, "maxValue": 0.5, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 3, "minValue": 0.8, "maxValue": 0.8, "buffTemplateId": 3003, "applyStacks": 3},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 3003, "applyStacks": 3}
+      ]
+    },
+    {
+      "templateId": 2001,
+      "affixName": "汲血之爪",
+      "descriptionFormat": "攻击命中后有 %.0f%% 的概率回复自身造成伤害 %.0f%% 的生命值",
+      "triggerType": "ON_HIT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRecoverAffix",
+      "recoverResourceType": "HP",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.1},
+        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.2},
+        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.3},
+        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.4},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.5}
+      ]
+    },
+    {
+      "templateId": 2002,
+      "affixName": "汲魔之爪",
+      "descriptionFormat": "攻击命中后有 %.0f%% 的概率回复自身造成伤害 %.0f%% 的法力值",
+      "triggerType": "ON_HIT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRecoverAffix",
+      "recoverResourceType": "MP",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.1},
+        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.2},
+        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.3},
+        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.4},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "damageToRecoverRatio": 0.5}
+      ]
+    },
+    {
+      "templateId": 3001,
+      "affixName": "物理攻击力提升",
+      "descriptionFormat": "物理攻击力 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "PHYSICAL_ATK",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 3002,
+      "affixName": "魔法攻击力提升",
+      "descriptionFormat": "魔法攻击力 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "MAGICAL_ATK",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 4001,
+      "affixName": "生命提升",
+      "descriptionFormat": "生命 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "MAX_HP",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 4002,
+      "affixName": "物理防御提升",
+      "descriptionFormat": "物理防御 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "PHYSICAL_DEF",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 4003,
+      "affixName": "魔法防御提升",
+      "descriptionFormat": "魔法防御 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "MAGICAL_DEF",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5001,
+      "affixName": "蛮力",
+      "descriptionFormat": "力量 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "STRENGTH",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5002,
+      "affixName": "迅捷",
+      "descriptionFormat": "敏捷 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "AGILITY",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5003,
+      "affixName": "睿智",
+      "descriptionFormat": "智力 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "INTELLIGENCE",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5004,
+      "affixName": "灵心",
+      "descriptionFormat": "精神 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "SPIRIT",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5005,
+      "affixName": "强体",
+      "descriptionFormat": "体魄 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "PHYSIQUE",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5006,
+      "affixName": "幸运",
+      "descriptionFormat": "幸运 +%.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "LUCK",
+      "valueType": "PERCENTAGE",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5007,
+      "affixName": "狩魂",
+      "descriptionFormat": "物理暴击率 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "PHYSICAL_CRIT_RATE",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5008,
+      "affixName": "咒痕",
+      "descriptionFormat": "法术暴击率 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "MAGICAL_CRIT_RATE",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5009,
+      "affixName": "碎甲",
+      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "PHYSICAL_CRIT_DMG",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5010,
+      "affixName": "裂咒",
+      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "MAGICAL_CRIT_DMG",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5011,
+      "affixName": "鹰眼",
+      "descriptionFormat": "命中率 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "HIT_RATE",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 5012,
+      "affixName": "幻步",
+      "descriptionFormat": "闪避率 +%.2f",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
+      "attributeType": "DODGE_RATE",
+      "valueType": "FLAT",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.1, "maxValue": 0.1},
+        {"rarityId": 1, "minValue": 0.2, "maxValue": 0.2},
+        {"rarityId": 2, "minValue": 0.3, "maxValue": 0.3},
+        {"rarityId": 3, "minValue": 0.4, "maxValue": 0.4},
+        {"rarityId": 4, "minValue": 0.5, "maxValue": 0.5}
+      ]
+    },
+    {
+      "templateId": 6001,
+      "affixName": "再生皮肤",
+      "descriptionFormat": "每回合开始时，恢复最大生命的 %.0f%%",
+      "triggerType": "ON_ROUND_START",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerRoundStartRecoverAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.03, "maxValue": 0.05},
+        {"rarityId": 1, "minValue": 0.05, "maxValue": 0.08},
+        {"rarityId": 2, "minValue": 0.08, "maxValue": 0.12},
+        {"rarityId": 3, "minValue": 0.12, "maxValue": 0.18},
+        {"rarityId": 4, "minValue": 0.25, "maxValue": 0.25}
+      ]
+    },
+    {
+      "templateId": 6002,
+      "affixName": "铁壁守护",
+      "descriptionFormat": "每回合开始时，获得 %2$.0f 层护盾",
+      "triggerType": "ON_ROUND_START",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerBuffAffix",
+      "applyTarget": "SELF",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 10},
+        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 20},
+        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 40},
+        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 80},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 150}
+      ]
+    },
+    {
+      "templateId": 6003,
+      "affixName": "毒雾扩散",
+      "descriptionFormat": "回合结束时，对敌方全体施加 %.0f 层中毒",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1, "maxValue": 1, "buffTemplateId": 3001, "applyStacks": 2},
+        {"rarityId": 1, "minValue": 2, "maxValue": 2, "buffTemplateId": 3001, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 3, "maxValue": 3, "buffTemplateId": 3001, "applyStacks": 5},
+        {"rarityId": 3, "minValue": 5, "maxValue": 5, "buffTemplateId": 3001, "applyStacks": 8},
+        {"rarityId": 4, "minValue": 10, "maxValue": 10, "buffTemplateId": 3001, "applyStacks": 10}
+      ]
+    },
+    {
+      "templateId": 6004,
+      "affixName": "烈焰光环",
+      "descriptionFormat": "回合结束时，对敌方全体施加 %.0f 层燃烧",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerAoeBuffAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 1, "maxValue": 1, "buffTemplateId": 3002, "applyStacks": 2},
+        {"rarityId": 1, "minValue": 2, "maxValue": 2, "buffTemplateId": 3002, "applyStacks": 3},
+        {"rarityId": 2, "minValue": 3, "maxValue": 3, "buffTemplateId": 3002, "applyStacks": 5},
+        {"rarityId": 3, "minValue": 5, "maxValue": 5, "buffTemplateId": 3002, "applyStacks": 8},
+        {"rarityId": 4, "minValue": 10, "maxValue": 10, "buffTemplateId": 3002, "applyStacks": 10}
+      ]
+    },
+    {
+      "templateId": 6005,
+      "affixName": "硬化皮肤",
+      "descriptionFormat": "单次受到的伤害不超过最大生命值的 %.0f%%",
+      "triggerType": "PERMANENT",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.defensive.MonsterDamageCapAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.30, "maxValue": 0.35},
+        {"rarityId": 1, "minValue": 0.25, "maxValue": 0.30},
+        {"rarityId": 2, "minValue": 0.20, "maxValue": 0.25},
+        {"rarityId": 3, "minValue": 0.15, "maxValue": 0.20},
+        {"rarityId": 4, "minValue": 0.10, "maxValue": 0.10}
+      ]
+    },
+    {
+      "templateId": 6006,
+      "affixName": "法力燃烧",
+      "descriptionFormat": "回合结束时，敌方全体法力值减少 %.0f 点",
+      "triggerType": "ON_ROUND_END",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerManaBurnAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 2, "maxValue": 5},
+        {"rarityId": 1, "minValue": 5, "maxValue": 10},
+        {"rarityId": 2, "minValue": 10, "maxValue": 15},
+        {"rarityId": 3, "minValue": 15, "maxValue": 25},
+        {"rarityId": 4, "minValue": 30, "maxValue": 30}
+      ]
+    },
+    {
+      "templateId": 6007,
+      "affixName": "自爆",
+      "descriptionFormat": "死亡时，对击杀者造成自身最大生命的 %.0f%% 点魔法伤害",
+      "triggerType": "ON_DEATH",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.monster.trigger.MonsterTriggerOnDeathExplodeAffix",
+      "rarityParams": [
+        {"rarityId": 0, "minValue": 0.10, "maxValue": 0.15},
+        {"rarityId": 1, "minValue": 0.15, "maxValue": 0.25},
+        {"rarityId": 2, "minValue": 0.25, "maxValue": 0.40},
+        {"rarityId": 3, "minValue": 0.40, "maxValue": 0.60},
+        {"rarityId": 4, "minValue": 0.80, "maxValue": 0.80}
+      ]
+    }
+  ]
+}

@@ -33,8 +33,12 @@ public class ItemMenuProviderFactory {
     }
 
     public void registerEquipment(Consumer<EquipItem> equipCallback) {
+        registerEquipment(equipCallback, null);
+    }
+
+    public void registerEquipment(Consumer<EquipItem> equipCallback, Consumer<EquipItem> unsocketCallback) {
         providers.put(EquipItem.class,
-                new EquipmentMenuProvider(equipCallback, viewCallback, discardCallback));
+                new EquipmentMenuProvider(equipCallback, unsocketCallback, viewCallback, discardCallback));
     }
 
     public void registerConsumable(Consumer<ConsumableItem> useCallback) {

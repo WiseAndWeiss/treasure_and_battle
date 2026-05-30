@@ -14,6 +14,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -59,6 +64,24 @@ public class EncyclopediaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encyclopedia);
 
+        View header = findViewById(R.id.encyclopedia_header);
+        View list = findViewById(R.id.rv_items);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.tb_bg_dark));
+
+        ViewCompat.setOnApplyWindowInsetsListener(header, (v, insets) -> {
+            Insets status = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            v.setPadding(v.getPaddingLeft(), status.top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        final int listPaddingBottom = list.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(list, (v, insets) -> {
+            Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
+                    listPaddingBottom + nav.bottom);
+            return insets;
+        });
+
         ImageButton btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
 
@@ -103,19 +126,20 @@ public class EncyclopediaActivity extends AppCompatActivity {
         tabButtons.clear();
         llTabContainer.removeAllViews();
 
-        int paddingH = (int) (12 * getResources().getDisplayMetrics().density);
-        int paddingV = (int) (4 * getResources().getDisplayMetrics().density);
-        int marginH = (int) (6 * getResources().getDisplayMetrics().density);
+        float density = getResources().getDisplayMetrics().density;
+        int tabHeight = (int) (40 * density);
+        int paddingH = (int) (4 * density);
+        int paddingV = (int) (4 * density);
+        int marginH = (int) (4 * density);
 
         for (int i = 0; i < TAB_LABELS.length; i++) {
             Button btn = new Button(this);
             btn.setText(TAB_LABELS[i]);
-            btn.setTextSize(14);
+            btn.setTextSize(13);
             btn.setAllCaps(false);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    (int) (40 * getResources().getDisplayMetrics().density));
+                    0, tabHeight, 1f);
             params.setMargins(marginH, 0, marginH, 0);
             btn.setLayoutParams(params);
             btn.setPadding(paddingH, paddingV, paddingH, paddingV);
@@ -255,11 +279,7 @@ public class EncyclopediaActivity extends AppCompatActivity {
             }
 
             ViewGroup.LayoutParams lp = holder.ivIcon.getLayoutParams();
-            if (category == CATEGORY_POTION || category == CATEGORY_CONSUMABLE) {
-                lp.height = (int) (50 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
-            } else {
-                lp.height = (int) (100 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
-            }
+            lp.height = (int) (50 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
             holder.ivIcon.setLayoutParams(lp);
 
             Rarity rarity = Rarity.fromId(rarityId);

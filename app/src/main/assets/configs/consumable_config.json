@@ -1,0 +1,579 @@
+{
+  "consumable_templates": [
+    {
+      "consumableId": "potion_hp_small",
+      "name": "小型生命药水",
+      "rarityId": 0,
+      "baseValue": 20,
+      "maxStack": 30,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_HP",
+          "value": 10,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复10%最大生命值"
+    },
+    {
+      "consumableId": "potion_hp_medium",
+      "name": "中型生命药水",
+      "rarityId": 1,
+      "baseValue": 50,
+      "maxStack": 20,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_HP",
+          "value": 30,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复30%最大生命值"
+    },
+    {
+      "consumableId": "potion_hp_large",
+      "name": "大型生命药水",
+      "rarityId": 2,
+      "baseValue": 120,
+      "maxStack": 15,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_HP",
+          "value": 60,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复60%最大生命值"
+    },
+    {
+      "consumableId": "potion_hp_super",
+      "name": "超级生命药水",
+      "rarityId": 3,
+      "baseValue": 300,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_HP",
+          "value": 100,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复100%最大生命值"
+    },
+    {
+      "consumableId": "potion_hp_divine",
+      "name": "圣愈药水",
+      "rarityId": 4,
+      "baseValue": 800,
+      "maxStack": 5,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_HP",
+          "value": 100,
+          "valueType": "PERCENTAGE",
+          "shieldDuration": 3
+        }
+      ],
+      "description": "恢复100%最大生命值，并获得等额护盾(3回合)"
+    },
+    {
+      "consumableId": "potion_mp_small",
+      "name": "小型法力药水",
+      "rarityId": 0,
+      "baseValue": 15,
+      "maxStack": 30,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_MP",
+          "value": 10,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复10%最大法力值"
+    },
+    {
+      "consumableId": "potion_mp_medium",
+      "name": "中型法力药水",
+      "rarityId": 1,
+      "baseValue": 40,
+      "maxStack": 20,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_MP",
+          "value": 30,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复30%最大法力值"
+    },
+    {
+      "consumableId": "potion_mp_large",
+      "name": "大型法力药水",
+      "rarityId": 2,
+      "baseValue": 100,
+      "maxStack": 15,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_MP",
+          "value": 60,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复60%最大法力值"
+    },
+    {
+      "consumableId": "potion_mp_super",
+      "name": "超级法力药水",
+      "rarityId": 3,
+      "baseValue": 250,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_MP",
+          "value": 100,
+          "valueType": "PERCENTAGE"
+        }
+      ],
+      "description": "恢复100%最大法力值"
+    },
+    {
+      "consumableId": "crystal_mana",
+      "name": "魔力结晶",
+      "rarityId": 4,
+      "baseValue": 700,
+      "maxStack": 5,
+      "usableInBattle": true,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "HEAL_MP",
+          "value": 100,
+          "valueType": "PERCENTAGE"
+        },
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 1005,
+              "stacks": 50,
+              "duration": 1,
+              "valueType": "PERCENTAGE"
+            }
+          ]
+        }
+      ],
+      "description": "恢复100%最大法力值，本回合智力提升50%"
+    },
+    {
+      "consumableId": "potion_atk",
+      "name": "攻击药水",
+      "rarityId": 1,
+      "baseValue": 60,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 2001,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "PERCENTAGE"
+            },
+            {
+              "buffTemplateId": 2003,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "PERCENTAGE"
+            }
+          ]
+        }
+      ],
+      "description": "5回合内物理/魔法攻击力提升20%"
+    },
+    {
+      "consumableId": "potion_def",
+      "name": "防御药水",
+      "rarityId": 1,
+      "baseValue": 60,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 2005,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "PERCENTAGE"
+            },
+            {
+              "buffTemplateId": 2007,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "PERCENTAGE"
+            }
+          ]
+        }
+      ],
+      "description": "5回合内物理/魔法防御提升20%"
+    },
+    {
+      "consumableId": "potion_swift",
+      "name": "迅捷药水",
+      "rarityId": 2,
+      "baseValue": 120,
+      "maxStack": 8,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 1003,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "PERCENTAGE"
+            },
+            {
+              "buffTemplateId": 2014,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "FLAT"
+            }
+          ]
+        }
+      ],
+      "description": "5回合内速度提升20%，闪避率提升20%"
+    },
+    {
+      "consumableId": "potion_crit",
+      "name": "暴击药水",
+      "rarityId": 2,
+      "baseValue": 120,
+      "maxStack": 8,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 2009,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "FLAT"
+            },
+            {
+              "buffTemplateId": 2011,
+              "stacks": 20,
+              "duration": 5,
+              "valueType": "FLAT"
+            }
+          ]
+        }
+      ],
+      "description": "5回合内物理/魔法暴击率提升20%"
+    },
+    {
+      "consumableId": "antidote",
+      "name": "解毒药",
+      "rarityId": 1,
+      "baseValue": 40,
+      "maxStack": 15,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "CLEANSE"
+        }
+      ],
+      "description": "清除自身所有负面debuff"
+    },
+    {
+      "consumableId": "potion_purify",
+      "name": "净化药水",
+      "rarityId": 2,
+      "baseValue": 100,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "CLEANSE"
+        },
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 2015,
+              "stacks": 100,
+              "duration": 1,
+              "valueType": "PERCENTAGE"
+            }
+          ]
+        }
+      ],
+      "description": "清除自身所有负面debuff，本回合获得100%异常状态抵抗"
+    },
+    {
+      "consumableId": "smoke_bomb",
+      "name": "烟雾弹",
+      "rarityId": 2,
+      "baseValue": 80,
+      "maxStack": 5,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "ESCAPE"
+        }
+      ],
+      "description": "战斗内使用后100%成功逃跑"
+    },
+    {
+      "consumableId": "bomb_fire",
+      "name": "燃烧炸弹",
+      "rarityId": 1,
+      "baseValue": 70,
+      "maxStack": 10,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "DAMAGE",
+          "target": "ALL_ENEMIES",
+          "value": 50,
+          "valueType": "PERCENTAGE",
+          "debuffs": [
+            {
+              "buffTemplateId": 3002,
+              "stackRatio": 0.3
+            }
+          ]
+        }
+      ],
+      "description": "对敌方全体造成50%攻击力的伤害，附加燃烧"
+    },
+    {
+      "consumableId": "acid_flask",
+      "name": "强酸瓶",
+      "rarityId": 2,
+      "baseValue": 130,
+      "maxStack": 8,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "DAMAGE",
+          "target": "SINGLE_ENEMY",
+          "value": 80,
+          "valueType": "PERCENTAGE",
+          "debuffs": [
+            {
+              "buffTemplateId": 3001,
+              "stackRatio": 0.05
+            }
+          ]
+        }
+      ],
+      "description": "对敌方单体造成80%攻击力的伤害，附加中毒"
+    },
+    {
+      "consumableId": "key_copper",
+      "name": "铜钥匙",
+      "rarityId": 1,
+      "baseValue": 30,
+      "maxStack": 10,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_PASSIVE",
+          "utilityId": "KEY_COPPER"
+        }
+      ],
+      "description": "开启铜宝箱"
+    },
+    {
+      "consumableId": "key_silver",
+      "name": "银钥匙",
+      "rarityId": 2,
+      "baseValue": 80,
+      "maxStack": 5,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_PASSIVE",
+          "utilityId": "KEY_SILVER"
+        }
+      ],
+      "description": "开启银宝箱"
+    },
+    {
+      "consumableId": "key_gold",
+      "name": "金钥匙",
+      "rarityId": 3,
+      "baseValue": 250,
+      "maxStack": 3,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_PASSIVE",
+          "utilityId": "KEY_GOLD"
+        }
+      ],
+      "description": "开启金宝箱"
+    },
+    {
+      "consumableId": "diamond_drill",
+      "name": "金刚钻",
+      "rarityId": 2,
+      "baseValue": 100,
+      "maxStack": 5,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_PASSIVE",
+          "utilityId": "UNSOCKET_GEM"
+        }
+      ],
+      "description": "拆卸装备上已镶嵌的宝石"
+    },
+    {
+      "consumableId": "polish_stone",
+      "name": "装备打磨石",
+      "rarityId": 1,
+      "baseValue": 80,
+      "maxStack": 8,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_PASSIVE",
+          "utilityId": "POLISH_EQUIP"
+        }
+      ],
+      "description": "随机提升装备基础属性5%-10%"
+    },
+    {
+      "consumableId": "scroll_reset",
+      "name": "洗点卷轴",
+      "rarityId": 4,
+      "baseValue": 1000,
+      "maxStack": 3,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "RESET_TALENTS"
+        }
+      ],
+      "description": "全额返还已分配的天赋点和技能点"
+    },
+    {
+      "consumableId": "beacon_refresh",
+      "name": "事件刷新信标",
+      "rarityId": 2,
+      "baseValue": 90,
+      "maxStack": 5,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_RANDOM_EVENTS"
+        }
+      ],
+      "description": "使用后刷新3个随机事件点"
+    },
+    {
+      "consumableId": "incense_monster",
+      "name": "引怪香",
+      "rarityId": 1,
+      "baseValue": 45,
+      "maxStack": 10,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_MONSTER_EVENT"
+        }
+      ],
+      "description": "使用后必定刷新1个怪物事件"
+    },
+    {
+      "consumableId": "compass_treasure",
+      "name": "寻宝罗盘",
+      "rarityId": 2,
+      "baseValue": 110,
+      "maxStack": 8,
+      "usableInBattle": false,
+      "usableOutBattle": true,
+      "effects": [
+        {
+          "type": "UTILITY_ACTIVE",
+          "utilityId": "SPAWN_TREASURE_EVENT"
+        }
+      ],
+      "description": "使用后必定刷新1个宝藏事件"
+    },
+    {
+      "consumableId": "potion_bloodrage",
+      "name": "血怒药剂",
+      "rarityId": 3,
+      "baseValue": 350,
+      "maxStack": 5,
+      "usableInBattle": true,
+      "usableOutBattle": false,
+      "effects": [
+        {
+          "type": "BUFF",
+          "buffs": [
+            {
+              "buffTemplateId": 2001,
+              "stacks": 100,
+              "duration": 1,
+              "valueType": "PERCENTAGE"
+            },
+            {
+              "buffTemplateId": 2003,
+              "stacks": 100,
+              "duration": 1,
+              "valueType": "PERCENTAGE"
+            }
+          ]
+        }
+      ],
+      "description": "HP锁定为1，本回合攻击力提升200%"
+    }
+  ]
+}

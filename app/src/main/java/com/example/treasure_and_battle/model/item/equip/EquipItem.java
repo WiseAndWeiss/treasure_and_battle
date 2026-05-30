@@ -44,6 +44,9 @@ public class EquipItem extends Item {
     public boolean socketGem(GemItem gem) {
         if (gem == null) return false;
         if (socketedGems.size() >= maxSockets) return false;
+        for (GemItem g : socketedGems) {
+            if (g.getGemType().equals(gem.getGemType())) return false;
+        }
         socketedGems.add(gem);
         return true;
     }
@@ -51,6 +54,18 @@ public class EquipItem extends Item {
     public GemItem unsocketGem(int index) {
         if (index < 0 || index >= socketedGems.size()) return null;
         return socketedGems.remove(index);
+    }
+
+    public EquipItem deepCopy() {
+        EquipItem copy = new EquipItem(getId(), getName(), getRarity(), getBaseValue(), level, slot);
+        copy.baseAttributes = this.baseAttributes.clone();
+        copy.rawBaseAttributes = this.rawBaseAttributes != null ? this.rawBaseAttributes.clone() : null;
+        copy.finalAttributes = this.finalAttributes.clone();
+        copy.affixes = new ArrayList<>(this.affixes);
+        copy.maxSockets = this.maxSockets;
+        copy.socketedGems = new ArrayList<>(this.socketedGems);
+        copy.setIconResId(getIconResId());
+        return copy;
     }
 
     public AttributeSet getTotalGemBonuses() {

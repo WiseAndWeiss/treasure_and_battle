@@ -42,13 +42,17 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.manager.EventManager;
+import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.model.entity.MonsterTemplate;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MapFragment extends Fragment {
 
@@ -67,6 +71,8 @@ public class MapFragment extends Fragment {
     private Runnable mCheckExpireRunnable;
     private Runnable mBattleCountdownRunnable;
     private Runnable mDebugCountdownRunnable;
+    private Runnable mEventCountdownRunnable;
+    private long mNextGenerateTime;
 
     private static final int REQ_NEUTRAL_EVENT = 1002;
 
@@ -75,7 +81,7 @@ public class MapFragment extends Fragment {
     private View mEventPopup;
     private View mDebugPopup;
     private TextView tvEventName, tvEventDesc, tvEventReward, tvEventRisk;
-    private Button btnClosePopup;
+    private TextView btnClosePopup;
     private boolean isPopupShowing = false;
     private boolean isDebugPopupShowing = false;
 
@@ -90,10 +96,12 @@ public class MapFragment extends Fragment {
     private TextView mCountdownNumber;
     private LatLng mBattleTriggerPosition;
     private boolean mIsProcessingNeutral;
+    private TextView mEventCountdownText;
 
     private FrameLayout mCircleAnimOverlay;
     private boolean mIsPlayingCircleAnim = false;
     private Runnable mCircleAnimRunnable;
+    private boolean mWasInEvent;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -153,6 +161,8 @@ public class MapFragment extends Fragment {
         mMapRoot.addView(btnDebug, params);
 
         btnDebug.setOnClickListener(v -> showDebugPopup());
+
+        addEventCountdownOverlay();
     }
 
     private void initDebugPopup() {
@@ -161,7 +171,8 @@ public class MapFragment extends Fragment {
 
         LinearLayout popupContent = new LinearLayout(requireContext());
         popupContent.setOrientation(LinearLayout.VERTICAL);
-        popupContent.setBackgroundResource(R.drawable.bg_event_popup);
+        popupContent.setBackgroundResource(R.drawable.bg_panel_treasure_fill_only);
+        popupContent.setForeground(getResources().getDrawable(R.drawable.bg_panel_treasure_stroke_only));
         popupContent.setElevation(8 * getResources().getDisplayMetrics().density);
         popupContent.setPadding(pad, pad, pad, pad);
         popupContent.setClickable(true);
@@ -170,7 +181,7 @@ public class MapFragment extends Fragment {
         TextView title = new TextView(requireContext());
         title.setText("调试功能");
         title.setTextSize(18);
-        title.setTextColor(0xFF333333);
+        title.setTextColor(getResources().getColor(R.color.tb_gold));
         title.setPadding(0, 0, 0, pad);
         popupContent.addView(title);
 
@@ -203,7 +214,28 @@ public class MapFragment extends Fragment {
         });
         popupContent.addView(btnClear);
 
-        addDebugSectionLabel(popupContent, "具体小事件（立即生成）");
+        addDebugSectionLabel(popupContent, "事件控制");
+
+        Button btnClearAll = makeDebugButton("清空地图所有事件", 0xFFFF5722);
+        btnClearAll.setOnClickListener(b -> {
+            hideDebugPopup();
+            mEventManager.clearAllEvents();
+            refreshEventIcons();
+            showFloatMsg("已清空地图所有事件");
+        });
+        popupContent.addView(btnClearAll);
+
+        Button btnPause = makeDebugButton(mEventManager.isPaused() ? "恢复事件生成" : "暂停事件生成",
+                mEventManager.isPaused() ? 0xFF4CAF50 : 0xFFFF9800);
+        btnPause.setOnClickListener(b -> {
+            boolean paused = !mEventManager.isPaused();
+            mEventManager.setPaused(paused);
+            hideDebugPopup();
+            showFloatMsg(paused ? "已暂停事件生成" : "已恢复事件生成");
+        });
+        popupContent.addView(btnPause);
+
+        addDebugSectionLabel(popupContent, "具体小事件（立即进入）");
 
         EventConfig.EventItem[] allItems = mEventManager.getEventItems();
         for (EventConfig.EventItem item : allItems) {
@@ -229,57 +261,32 @@ public class MapFragment extends Fragment {
             }
             for (EventConfig.EventSubItem sub : subs) {
                 Button btn = makeDebugButton(type + "：" + sub.getName(), typeColor);
-                final EventConfig.EventItem finalItem = item;
-                final EventConfig.EventSubItem finalSub = sub;
+                final String fType = type;
+                final EventConfig.EventSubItem fSub = sub;
                 btn.setOnClickListener(b -> {
                     hideDebugPopup();
-                    generateSpecificEvent(finalItem, finalSub);
+                    if ("BATTLE".equals(fType)) {
+                        openBattlePage();
+                    } else if ("BENEFIT".equals(fType)) {
+                        handleBenefitAction(fSub);
+                    } else if ("NEUTRAL".equals(fType)) {
+                        openNeutralEventPage(fSub);
+                    }
                 });
                 popupContent.addView(btn);
             }
         }
 
-        View sep1 = new View(requireContext());
-        sep1.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, (int) (1 * getResources().getDisplayMetrics().density)));
-        sep1.setBackgroundColor(0x30000000);
-        ((LinearLayout.LayoutParams) sep1.getLayoutParams()).setMargins(0, margin6 * 2, 0, margin6);
-        popupContent.addView(sep1);
-
-        Button btnBattlePage = makeDebugButton("进入战斗页面", 0xFF4CAF50);
-        btnBattlePage.setOnClickListener(b -> {
-            hideDebugPopup();
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                    .hide(MapFragment.this)
-                    .addToBackStack("battle")
-                    .commit();
-        });
-        popupContent.addView(btnBattlePage);
-
-        Button btnTradePage = makeDebugButton("进入商店页面", 0xFF4CAF50);
-        btnTradePage.setOnClickListener(b -> {
-            hideDebugPopup();
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
-                    .hide(MapFragment.this)
-                    .addToBackStack("trade")
-                    .commit();
-        });
-        popupContent.addView(btnTradePage);
-
         Button btnCloseDbg = new Button(requireContext());
         btnCloseDbg.setText("关闭");
-        btnCloseDbg.setTextSize(13);
+        btnCloseDbg.setTextSize(14);
         btnCloseDbg.setTextColor(0xFF2196F3);
-        btnCloseDbg.setBackgroundResource(R.drawable.bg_event_popup);
+        btnCloseDbg.setBackgroundResource(R.drawable.bg_tab_idle);
+        int btnPad = (int) (10 * getResources().getDisplayMetrics().density);
+        btnCloseDbg.setPadding(btnPad, btnPad, btnPad, btnPad);
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        closeParams.gravity = Gravity.END;
         closeParams.topMargin = (int) (10 * getResources().getDisplayMetrics().density);
         btnCloseDbg.setLayoutParams(closeParams);
         btnCloseDbg.setOnClickListener(b -> hideDebugPopup());
@@ -323,12 +330,12 @@ public class MapFragment extends Fragment {
         parent.addView(label);
     }
 
-    private Button makeDebugButton(String text, int bgColor) {
+    private Button makeDebugButton(String text, int textColor) {
         Button btn = new Button(requireContext());
         btn.setText(text);
         btn.setTextSize(14);
-        btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor(bgColor);
+        btn.setTextColor(textColor);
+        btn.setBackgroundResource(R.drawable.bg_tab_idle);
         int btnPad = (int) (10 * getResources().getDisplayMetrics().density);
         btn.setPadding(btnPad, btnPad, btnPad, btnPad);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -343,6 +350,27 @@ public class MapFragment extends Fragment {
     private void showDebugPopup() {
         mDebugPopup.setVisibility(View.VISIBLE);
         isDebugPopupShowing = true;
+    }
+
+    private void addEventCountdownOverlay() {
+        mEventCountdownText = new TextView(requireContext());
+        mEventCountdownText.setTextSize(12);
+        mEventCountdownText.setTextColor(0xFFFFFFFF);
+        mEventCountdownText.setBackgroundColor(0x80000000);
+        int pad = (int) (6 * getResources().getDisplayMetrics().density);
+        mEventCountdownText.setPadding(pad * 2, pad, pad * 2, pad);
+        mEventCountdownText.setVisibility(View.GONE);
+
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                ConstraintLayout.LayoutParams.WRAP_CONTENT);
+        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        int topMargin = (int) (80 * getResources().getDisplayMetrics().density);
+        int startMargin = (int) (16 * getResources().getDisplayMetrics().density);
+        params.setMargins(startMargin, topMargin, 0, 0);
+
+        mMapRoot.addView(mEventCountdownText, params);
     }
 
     private void hideDebugPopup() {
@@ -390,9 +418,21 @@ public class MapFragment extends Fragment {
                 .strokeColor(target.getStrokeColorInt())
                 .strokeWidth(4)
                 .fillColor(target.getFillColorInt()));
+        if (circle == null) return;
 
         EventManager.EventCircle ec = new EventManager.EventCircle(circle, mEventManager.getCurrentLatLng(), target);
         ec.selectedSubEvent = sub;
+
+        if ("BATTLE".equals(target.getType())) {
+            ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(target.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+            }
+        }
+
         mEventManager.addDebugEvent(ec);
         refreshEventIcons();
 
@@ -413,9 +453,21 @@ public class MapFragment extends Fragment {
                 .strokeColor(target.getStrokeColorInt())
                 .strokeWidth(4)
                 .fillColor(target.getFillColorInt()));
+        if (circle == null) return;
 
         EventManager.EventCircle ec = new EventManager.EventCircle(circle, pos, target);
         ec.selectedSubEvent = sub;
+
+        if ("BATTLE".equals(target.getType())) {
+            ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(target.getType()) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                ec.monster = MonsterManager.getInstance(getContext()).createRandomMonster();
+            }
+        }
+
         mEventManager.addDebugEvent(ec);
         refreshEventIcons();
 
@@ -458,29 +510,77 @@ public class MapFragment extends Fragment {
     private void initTimedTasks() {
         mGenerateEventRunnable = () -> {
             if (isDetached()) return;
-            int count = mEventManager.generateRandomEvents();
-            if (count > 0) {
-                showFloatMsg("生成事件：" + count);
-                refreshEventIcons();
+            try {
+                applyRateSettings();
+                int count = mEventManager.generateRandomEvents();
+                if (count > 0) {
+                    boolean showToast = mPrefs.getBoolean("showEventToast", true);
+                    if (showToast) showFloatMsg("生成事件：" + count);
+                    refreshEventIcons();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("MapFragment", "generateEvents error", e);
             }
-            mMainHandler.postDelayed(mGenerateEventRunnable, mEventManager.getGlobalConfig().getGenerateInterval());
+            long interval = mEventManager.getEffectiveGenerateInterval();
+            mNextGenerateTime = System.currentTimeMillis() + interval;
+            mMainHandler.postDelayed(mGenerateEventRunnable, interval);
+        };
+
+        mEventCountdownRunnable = () -> {
+            if (isDetached()) return;
+            boolean showToast = mPrefs.getBoolean("showEventToast", true);
+            if (showToast && mEventCountdownText != null) {
+                long remaining = mNextGenerateTime - System.currentTimeMillis();
+                if (remaining <= 0) {
+                    mEventCountdownText.setText("事件即将生成...");
+                } else {
+                    long mins = remaining / 60000;
+                    long secs = (remaining % 60000) / 1000;
+                    mEventCountdownText.setText("距离下次事件生成：" + mins + "分" + secs + "秒");
+                }
+                mEventCountdownText.setVisibility(mEventManager.isPaused() ? View.GONE : View.VISIBLE);
+            } else if (mEventCountdownText != null) {
+                mEventCountdownText.setVisibility(View.GONE);
+            }
+            mMainHandler.postDelayed(mEventCountdownRunnable, 1000);
         };
 
         mCheckExpireRunnable = () -> {
             if (isDetached()) return;
-            int count = mEventManager.checkExpiredEvents();
-            if (count > 0) {
-                refreshEventIcons();
+            try {
+                int count = mEventManager.checkExpiredEvents();
+                if (count > 0) {
+                    refreshEventIcons();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("MapFragment", "checkExpired error", e);
             }
             mMainHandler.postDelayed(mCheckExpireRunnable, 1000);
         };
     }
 
+    private void applyRateSettings() {
+        int rate = mPrefs.getInt("eventRate", 0);
+        long genInterval, battleExp, benefitExp, neutralExp;
+        if (rate == 1) {
+            genInterval = 60000; battleExp = 180000; benefitExp = 120000; neutralExp = 240000;
+        } else if (rate == 2) {
+            genInterval = 1800000; battleExp = 5400000; benefitExp = 4500000; neutralExp = 7200000;
+        } else {
+            genInterval = 10000; battleExp = 30000; benefitExp = 25000; neutralExp = 40000;
+        }
+        mEventManager.setOverrideGenerateInterval(genInterval);
+        mEventManager.setExpireOverrides(battleExp, benefitExp, neutralExp);
+    }
+
     private void startTimedTasks() {
         mMainHandler.removeCallbacks(mGenerateEventRunnable);
         mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
         mMainHandler.postDelayed(mGenerateEventRunnable, 1000);
         mMainHandler.post(mCheckExpireRunnable);
+        mMainHandler.post(mEventCountdownRunnable);
     }
 
     private void startBattleCountdown() {
@@ -505,16 +605,16 @@ public class MapFragment extends Fragment {
     }
 
     private void openBattlePage() {
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                .hide(MapFragment.this)
-                .addToBackStack("battle")
-                .commit();
+        startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
     }
 
-    private void handleBenefitAction() {
+    private void handleBenefitAction(EventConfig.EventSubItem sub) {
         Intent intent = new Intent(getActivity(), BenefitEventActivity.class);
+        if (sub != null) {
+            intent.putExtra("event_key", sub.getKey());
+            intent.putExtra("event_name", sub.getName());
+            intent.putExtra("event_desc", sub.getDesc());
+        }
         startActivity(intent);
     }
 
@@ -619,8 +719,11 @@ public class MapFragment extends Fragment {
     }
 
     private void processClickedEvent(EventManager.EventCircle ec) {
+        mWasInEvent = true;
         String type = ec.config.getType();
         EventConfig.EventSubItem sub = ec.selectedSubEvent;
+        MonsterManager mm = MonsterManager.getInstance(getContext());
+        int playerLevel = PlayerCharacterHolder.getOrCreate(requireContext()).getLevel();
 
         if ("UNKNOWN".equals(type)) {
             sub = mEventManager.resolveUnknownEvent();
@@ -634,8 +737,16 @@ public class MapFragment extends Fragment {
             Monster battleMonster;
             if (ec.monster != null) {
                 battleMonster = ec.monster;
+            } else if (ec.previewTemplateIds != null && ec.previewTemplateIds.length > 0) {
+                List<Integer> ids = new ArrayList<>();
+                for (int tid : ec.previewTemplateIds) ids.add(tid);
+                List<Monster> batch = mm.createMonstersFromTemplateIds(ids, playerLevel);
+                battleMonster = batch.isEmpty() ? null : batch.get(0);
+                if (batch.size() > 1) {
+                    mEventManager.setCurrentBattleMonsters(batch);
+                }
             } else {
-                battleMonster = MonsterManager.getInstance(getContext()).createRandomMonster();
+                battleMonster = mm.createRandomMonster();
             }
             mEventManager.setCurrentBattleMonster(battleMonster);
             mEventManager.removeEventCircle(ec);
@@ -643,15 +754,19 @@ public class MapFragment extends Fragment {
             mBattleTriggerPosition = mEventManager.getCurrentLatLng();
             showFloatMsg("即将进入战斗...");
             startBattleCountdown();
-        } else if ("BENEFIT".equals(type) || "recovery".equals(sub != null ? sub.getKey() : "")
-                || "training".equals(sub != null ? sub.getKey() : "")
-                || "treasure".equals(sub != null ? sub.getKey() : "")) {
-            handleBenefitAction();
+        } else if ("BENEFIT".equals(type)) {
+            handleBenefitAction(sub);
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
             showFloatMsg("增益事件，你可以在此回复生命、增强力量或打开宝箱");
         } else if ("NEUTRAL".equals(type)) {
             mIsProcessingNeutral = true;
+            if (ec.monster != null && sub != null) {
+                String subKey = sub.getKey();
+                if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                    mEventManager.setCurrentBattleMonster(ec.monster);
+                }
+            }
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
             openNeutralEventPage(sub);
@@ -843,41 +958,96 @@ public class MapFragment extends Fragment {
         EventConfig.EventItem item = eventCircle.config;
         EventConfig.EventSubItem sub = eventCircle.selectedSubEvent;
 
+        StringBuilder descBuilder = new StringBuilder();
+        StringBuilder extraBuilder = new StringBuilder();
+
         if ("UNKNOWN".equals(item.getType())) {
             tvEventName.setText("未知事件");
-            tvEventDesc.setText("描述：???");
-            tvEventReward.setText("奖励：???");
-            tvEventRisk.setText("风险：???");
-        } else if ("BENEFIT".equals(item.getType())) {
-            tvEventName.setText("增益事件");
-            tvEventDesc.setText("描述：你可以在此回复生命、增强力量或打开宝箱");
-            tvEventReward.setText("奖励：生命恢复 / 力量提升 / 随机宝藏");
-            tvEventRisk.setText("风险：无");
+            tvEventDesc.setText("???");
+            tvEventReward.setText("???");
+            tvEventRisk.setText("???");
         } else if (sub != null) {
             tvEventName.setText(sub.getName());
-            tvEventDesc.setText("描述：" + sub.getDesc());
-            tvEventReward.setText("奖励：" + sub.getReward());
-            tvEventRisk.setText("风险：" + sub.getRisk());
+            descBuilder.append(sub.getDesc());
+
+            boolean isBattle = "BATTLE".equals(item.getType())
+                    || (sub.getKey() != null && sub.getKey().startsWith("battle_"));
+
+            if (isBattle && eventCircle.previewTemplateIds == null) {
+                generateBattlePreview(eventCircle);
+            }
+
+            if (eventCircle.previewMonsterNames != null && eventCircle.previewMonsterNames.length > 0) {
+                extraBuilder.append("\n\n【怪物阵容】共").append(eventCircle.previewMonsterNames.length)
+                        .append("只：");
+                for (int i = 0; i < eventCircle.previewMonsterNames.length; i++) {
+                    extraBuilder.append("\n  · ").append(eventCircle.previewMonsterNames[i])
+                            .append("（").append(eventCircle.previewMonsterRarities[i]).append("）");
+                }
+            } else if (eventCircle.monster != null && eventCircle.monster.getName() != null) {
+                extraBuilder.append("\n【守卫】").append(eventCircle.monster.getName())
+                        .append("（").append(eventCircle.monster.getRarity().getDisplayName()).append("）");
+            }
+
+            String desc = descBuilder.toString();
+            if (extraBuilder.length() > 0) desc += extraBuilder.toString();
+            tvEventDesc.setText(desc);
+            tvEventReward.setText(sub.getReward());
+            tvEventRisk.setText(sub.getRisk());
         } else {
             tvEventName.setText(item.getType());
-            tvEventDesc.setText("描述：暂无信息");
-            tvEventReward.setText("奖励：暂无信息");
-            tvEventRisk.setText("风险：暂无信息");
+            tvEventDesc.setText("暂无信息");
+            tvEventReward.setText("暂无信息");
+            tvEventRisk.setText("暂无信息");
+        }
+
+        LatLng currentPos = mEventManager.getCurrentLatLng();
+        if (currentPos != null) {
+            double dist = com.example.treasure_and_battle.utils.GeoUtils.calculateDistance(currentPos, eventCircle.position);
+            tvEventRisk.setText(tvEventRisk.getText() + "  |  距离：" + Math.round(dist) + "m");
         }
 
         mEventPopup.setVisibility(View.VISIBLE);
         isPopupShowing = true;
     }
 
+    private void generateBattlePreview(EventManager.EventCircle ec) {
+        MonsterManager mm = MonsterManager.getInstance(getContext());
+        Random rng = new Random();
+        int playerLevel = PlayerCharacterHolder.getOrCreate(requireContext()).getLevel();
+        List<Integer> batch = mm.generateMonsterBatch(playerLevel, 5, rng, null);
+        if (batch.isEmpty()) return;
+
+        ec.previewTemplateIds = new int[batch.size()];
+        ec.previewMonsterNames = new String[batch.size()];
+        ec.previewMonsterRarities = new String[batch.size()];
+
+        for (int i = 0; i < batch.size(); i++) {
+            ec.previewTemplateIds[i] = batch.get(i);
+            MonsterTemplate t = mm.getTemplate(batch.get(i));
+            if (t != null) {
+                ec.previewMonsterNames[i] = t.getName();
+                Rarity r = Rarity.fromId(t.getRarityId());
+                ec.previewMonsterRarities[i] = r != null ? r.getDisplayName() : "未知";
+            } else {
+                ec.previewMonsterNames[i] = "???";
+                ec.previewMonsterRarities[i] = "???";
+            }
+        }
+    }
+
     private String determineSubEventCategory(EventConfig.EventSubItem sub) {
         if (sub == null) return "BATTLE";
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
-        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key)) return "BENEFIT";
+        if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key) || "rest".equals(key) || "chest".equals(key)) return "BENEFIT";
         if ("merchant".equals(key) || "traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
-                || "equipment_reforge".equals(key)) return "NEUTRAL";
+                || "equipment_reforge".equals(key) || "casino_wagon".equals(key)
+                || "divination_hut".equals(key) || "mystery_box".equals(key)
+                || "mysterious_altar".equals(key) || "phantom_maze".equals(key)
+                || "wishing_well".equals(key) || "cursed_chest".equals(key)) return "NEUTRAL";
         return "BATTLE";
     }
 
@@ -893,7 +1063,41 @@ public class MapFragment extends Fragment {
         super.onResume();
         mMapView.onResume();
         mIsProcessingNeutral = false;
+        refreshEventIcons();
         refreshDebugButton();
+        restartTimersIfNeeded();
+        if (mWasInEvent) {
+            mWasInEvent = false;
+            GameManager.getInstance(requireContext()).triggerAutoSave();
+        }
+    }
+
+    private void restartTimersIfNeeded() {
+        mMainHandler.removeCallbacks(mGenerateEventRunnable);
+        mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mMainHandler.post(mGenerateEventRunnable);
+        mMainHandler.post(mCheckExpireRunnable);
+        if (mNextGenerateTime == 0 || mNextGenerateTime < System.currentTimeMillis()) {
+            mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
+        }
+        mMainHandler.post(mEventCountdownRunnable);
+    }
+
+    public void resetEventsAndTimers() {
+        applyRateSettings();
+        mEventManager.clearAllEvents();
+        refreshEventIcons();
+        int count = mEventManager.generateRandomEvents();
+        if (count > 0) {
+            refreshEventIcons();
+            showFloatMsg("速率已切换，生成事件：" + count);
+        }
+        mMainHandler.removeCallbacks(mGenerateEventRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
+        mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
+        mMainHandler.post(mGenerateEventRunnable);
+        mMainHandler.post(mEventCountdownRunnable);
     }
 
     @Override
@@ -915,6 +1119,7 @@ public class MapFragment extends Fragment {
         mMapView.onPause();
         mMainHandler.removeCallbacks(mGenerateEventRunnable);
         mMainHandler.removeCallbacks(mCheckExpireRunnable);
+        mMainHandler.removeCallbacks(mEventCountdownRunnable);
         if (mBattleCountdownRunnable != null) {
             mMainHandler.removeCallbacks(mBattleCountdownRunnable);
             mBattleCountdownRunnable = null;
@@ -971,20 +1176,20 @@ public class MapFragment extends Fragment {
         if (requestCode == REQ_NEUTRAL_EVENT && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("open_trade")) {
                 FragmentManager fm = requireActivity().getSupportFragmentManager();
+                TradeFragment tradeFrag = new TradeFragment();
+                if (data.hasExtra("merchant_type")) {
+                    Bundle args = new Bundle();
+                    args.putString("merchant_type", data.getStringExtra("merchant_type"));
+                    tradeFrag.setArguments(args);
+                }
                 fm.beginTransaction()
                         .setReorderingAllowed(true)
-                        .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
+                        .add(R.id.fragment_container, tradeFrag, TradeFragment.TAG)
                         .hide(MapFragment.this)
                         .addToBackStack("trade")
                         .commit();
             } else if (data.hasExtra("open_battle")) {
-                FragmentManager fm = requireActivity().getSupportFragmentManager();
-                fm.beginTransaction()
-                        .setReorderingAllowed(true)
-                        .add(R.id.fragment_container, new BattleFragment(), BattleFragment.TAG)
-                        .hide(MapFragment.this)
-                        .addToBackStack("battle")
-                        .commit();
+                startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
             }
         }
     }
