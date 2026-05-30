@@ -277,6 +277,326 @@
           "icons/animation/fire_around/frame_6.png"
         ]
       }
+    ],
+    "HitFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/HitFX/HitFX0.png",
+          "icons/animation/HitFX/HitFX1.png",
+          "icons/animation/HitFX/HitFX2.png",
+          "icons/animation/HitFX/HitFX3.png",
+          "icons/animation/HitFX/HitFX4.png",
+          "icons/animation/HitFX/HitFX5.png"
+        ]
+      }
+    ],
+    "SlashFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 16,
+        "position": "center",
+        "scale": 1,
+        "num": 4,
+        "texture_set": [
+          "icons/animation/SlashFX/SlashFX0.png",
+          "icons/animation/SlashFX/SlashFX1.png",
+          "icons/animation/SlashFX/SlashFX2.png",
+          "icons/animation/SlashFX/SlashFX3.png"
+        ]
+      }
+    ],
+    "FireGreatSwingFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 21,
+        "position": "center",
+        "scale": 1,
+        "num": 7,
+        "texture_set": [
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX0.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX1.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX2.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX3.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX4.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX5.png",
+          "icons/animation/FireGreatSwingFX/FireGreatSwingFX6.png"
+        ]
+      }
+    ],
+    "ArchbishopMarkKill": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill0.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill1.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill2.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill3.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill4.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill5.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill6.png",
+          "icons/animation/ArchbishopMarkKill/ArchbishopMarkKill7.png"
+        ]
+      }
+    ],
+    "ArchbishopFrontEyeLaser": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser0.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser1.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser2.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser3.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser4.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser5.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser6.png",
+          "icons/animation/ArchbishopFrontEyeLaser/ArchbishopFrontEyeLaser7.png"
+        ]
+      }
+    ],
+    "Arsha_Rush_Arrow_Bullet_Phase2_SubFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX0.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX1.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX2.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX3.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX4.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX5.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX6.png",
+          "icons/animation/Arsha_Rush_Arrow_Bullet_Phase2_SubFX/Arsha_Rush_Arrow_Bullet_Phase2_SubFX7.png"
+        ]
+      }
+    ],
+    "Arsha_Rush_Spear_FX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX0.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX1.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX2.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX3.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX4.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX5.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX6.png",
+          "icons/animation/Arsha_Rush_Spear_FX/Arsha_Rush_Spear_FX7.png"
+        ]
+      }
+    ],
+    "Arsha_Rush_Spike_Tail": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail0.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail1.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail2.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail3.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail4.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail5.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail6.png",
+          "icons/animation/Arsha_Rush_Spike_Tail/Arsha_Rush_Spike_Tail7.png"
+        ]
+      }
+    ],
+    "BombBatExplosionBegin": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin0.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin1.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin2.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin3.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin4.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin5.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin6.png",
+          "icons/animation/BombBatExplosionBegin/BombBatExplosionBegin7.png"
+        ]
+      }
+    ],
+    "BulletFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 21,
+        "position": "center",
+        "scale": 1,
+        "num": 7,
+        "texture_set": [
+          "icons/animation/BulletFX/BulletFX0.png",
+          "icons/animation/BulletFX/BulletFX1.png",
+          "icons/animation/BulletFX/BulletFX2.png",
+          "icons/animation/BulletFX/BulletFX3.png",
+          "icons/animation/BulletFX/BulletFX4.png",
+          "icons/animation/BulletFX/BulletFX5.png",
+          "icons/animation/BulletFX/BulletFX6.png"
+        ]
+      }
+    ],
+    "CrystalExplosionFX": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX0.png",
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX1.png",
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX2.png",
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX3.png",
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX4.png",
+          "icons/animation/CrystalExplosionFX/CrystalExplosionFX5.png"
+        ]
+      }
+    ],
+    "DemonBladeSwing": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/DemonBladeSwing/DemonBladeSwing0.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing1.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing2.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing3.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing4.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing5.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing6.png",
+          "icons/animation/DemonBladeSwing/DemonBladeSwing7.png"
+        ]
+      }
+    ],
+    "FireBall": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/FireBall/FireBall0.png",
+          "icons/animation/FireBall/FireBall1.png",
+          "icons/animation/FireBall/FireBall2.png",
+          "icons/animation/FireBall/FireBall3.png",
+          "icons/animation/FireBall/FireBall4.png",
+          "icons/animation/FireBall/FireBall5.png"
+        ]
+      }
+    ],
+    "ArchbishopFrontEyeTriBegin": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin0.png",
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin1.png",
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin2.png",
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin3.png",
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin4.png",
+          "icons/animation/ArchbishopFrontEyeTriBegin/ArchbishopFrontEyeTriBegin5.png"
+        ]
+      }
+    ],
+    "ArchbishopFrontEyeNiddle": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 6,
+        "texture_set": [
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle0.png",
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle1.png",
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle2.png",
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle3.png",
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle4.png",
+          "icons/animation/ArchbishopFrontEyeNiddle/ArchbishopFrontEyeNiddle5.png"
+        ]
+      }
+    ],
+    "CosmosImpact": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/CosmosImpact/CosmosImpact0.png",
+          "icons/animation/CosmosImpact/CosmosImpact1.png",
+          "icons/animation/CosmosImpact/CosmosImpact2.png",
+          "icons/animation/CosmosImpact/CosmosImpact3.png",
+          "icons/animation/CosmosImpact/CosmosImpact4.png",
+          "icons/animation/CosmosImpact/CosmosImpact5.png",
+          "icons/animation/CosmosImpact/CosmosImpact6.png",
+          "icons/animation/CosmosImpact/CosmosImpact7.png"
+        ]
+      }
     ]
   }
 }
