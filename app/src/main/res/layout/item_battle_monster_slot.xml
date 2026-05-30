@@ -98,6 +98,7 @@
         android:text="?"
         android:textColor="@color/white"
         android:textSize="10sp"
+        android:translationY="-12dp"
         android:textStyle="bold"
         android:visibility="gone" />
 

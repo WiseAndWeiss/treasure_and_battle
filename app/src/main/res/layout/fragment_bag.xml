@@ -32,6 +32,13 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.72" />
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_tachie_info_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.55" />  <!-- 百分比可调，0.5~0.6之间最合适 -->
+
         <LinearLayout
             android:id="@+id/container_left_armors"
             android:layout_width="0dp"
@@ -185,9 +192,9 @@
             app:cardBackgroundColor="@android:color/transparent"
             app:layout_constrainedHeight="true"
             app:layout_constraintHeight_max="192dp"
-            app:layout_constraintBottom_toTopOf="@id/layout_tachie_info"
+            app:layout_constraintDimensionRatio="2:3"
             app:layout_constraintStart_toStartOf="@id/guide_tachie_left"
-            app:layout_constraintEnd_toStartOf="@id/guide_tachie_right"
+            app:layout_constraintEnd_toEndOf="@id/guide_tachie_right"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0">
 
@@ -214,10 +221,10 @@
             android:id="@+id/layout_tachie_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="0dp"
             android:gravity="center"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/cv_tachie"
+            app:layout_constraintTop_toBottomOf="@id/guide_tachie_info_top"
             app:layout_constraintStart_toStartOf="@id/cv_tachie"
             app:layout_constraintEnd_toEndOf="@id/cv_tachie">
 

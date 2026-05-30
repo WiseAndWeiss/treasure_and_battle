@@ -10,30 +10,20 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
-import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.SaveManager;
-import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
-import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.model.item.Item;
-
-import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
-    private RadioGroup rgRate;
-    private RadioButton rbFast, rbNormal, rbSlow;
-    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,21 +44,6 @@ public class SettingsFragment extends Fragment {
         switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
-        
-        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
-        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
-        switchToast.setChecked(showToast);
-        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
-        });
-
-        rbFast = view.findViewById(R.id.rb_rate_fast);
-        rbNormal = view.findViewById(R.id.rb_rate_normal);
-        rbSlow = view.findViewById(R.id.rb_rate_slow);
-        rgRate = view.findViewById(R.id.rg_event_rate);
-
-        savedRate = sharedPrefs.getInt("eventRate", 0);
-        selectRadioSilently(savedRate);
         
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
@@ -157,11 +132,6 @@ public class SettingsFragment extends Fragment {
             });
         }
 
-        View btnFillBag = view.findViewById(R.id.btn_fill_bag);
-        if (btnFillBag != null) {
-            btnFillBag.setOnClickListener(v -> fillBag());
-        }
-
         return view;
     }
 
@@ -169,7 +139,6 @@ public class SettingsFragment extends Fragment {
         if (checkedId == R.id.rb_rate_fast) return 0;
         if (checkedId == R.id.rb_rate_normal) return 1;
         return 2;
-    }
 
     private void selectRadioSilently(int rate) {
         rgRate.setOnCheckedChangeListener(null);

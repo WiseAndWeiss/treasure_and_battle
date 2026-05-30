@@ -315,7 +315,7 @@ public class MonsterManager {
         monster.addIntent(new ActionIntent(
                 "普通攻击", "基础攻击动作",
                 ActionIntent.IntentType.ATTACK,
-                1, 0, 1.0, 100, 10, -1f, -1f, null));
+                1, 0, 1.0, 10, 20, -1f, -1f, null));
 
         monster.addIntent(new ActionIntent(
                 "逃跑", "低血时尝试逃跑",

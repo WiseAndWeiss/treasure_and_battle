@@ -41,6 +41,7 @@ import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
+import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
@@ -821,10 +822,10 @@ public class BagFragment extends Fragment {
         btnPrevPage.setOnClickListener(v -> goPrevPage());
         btnNextPage.setOnClickListener(v -> goNextPage());
         btnCompactBag.setOnClickListener(v -> {
-            compactAllItemsForward();
+            organizeBag();
             adapter.notifyDataSetChanged();
             persistSharedBagGridToInventory();
-            showFloatMsg("已向前整理背包");
+            showFloatMsg("已整理并堆叠背包");
         });
         btnFilterSlot.setOnClickListener(this::showFilterMenu);
     }
@@ -977,27 +978,8 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void compactAllItemsForward() {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        List<Item> nonEmptyItems = new ArrayList<>();
-        int emptyCount = 0;
-
-        for (int i = 0; i < bagCapacity; i++) {
-            Item item = allItems.get(i);
-            if (item == null) {
-                emptyCount++;
-            } else {
-                nonEmptyItems.add(item);
-            }
-        }
-
-        int writeIndex = 0;
-        for (Item item : nonEmptyItems) {
-            allItems.set(writeIndex++, item);
-        }
-        for (int i = 0; i < emptyCount; i++) {
-            allItems.set(writeIndex++, null);
-        }
+    private void organizeBag() {
+        InventoryManager.organizeBag(allItems);
     }
 
     private void updateFilterButtonText() {

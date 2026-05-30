@@ -56,6 +56,23 @@ public class BattleManager {
         this.monsterActListener = listener;
     }
 
+    public interface ShieldAbsorbListener {
+        void onShieldAbsorbed(BattleEntity target, int amount);
+    }
+
+    @Nullable
+    private ShieldAbsorbListener shieldAbsorbListener;
+
+    public void setShieldAbsorbListener(@Nullable ShieldAbsorbListener listener) {
+        this.shieldAbsorbListener = listener;
+    }
+
+    public void notifyShieldAbsorbed(BattleEntity target, int amount) {
+        if (shieldAbsorbListener != null) {
+            shieldAbsorbListener.onShieldAbsorbed(target, amount);
+        }
+    }
+
     private BattleManager(Context context) {
         this.context = context.getApplicationContext();
     }
@@ -262,7 +279,7 @@ public class BattleManager {
         boolean hasMore = prepareMonsterAction(ctx, actingMonster);
         if (!hasMore) {
             ctx.actionOrderIndex++;
-            ctx.monsterIntentStepIndex.remove(actingMonster.getEntityId());
+            ctx.monsterIntentStepIndex.remove(actingMonster.getBattleKey());
         }
         return actingMonster;
     }
@@ -311,7 +328,7 @@ public class BattleManager {
                 boolean seen = RandomUtils.checkProbability((float) seeThroughChance);
                 revealed.add(new RevealedIntent(intent, seen));
             }
-            ctx.monsterRevealedIntents.put(m.getEntityId(), revealed);
+            ctx.monsterRevealedIntents.put(m.getBattleKey(), revealed);
 
             ctx.addLog(LogType.DODGE_CRIT,
                     "【意图看破判定】vs[%s] 看破率:%.1f%% 意图数:%d",
@@ -475,13 +492,13 @@ public class BattleManager {
 
     // ====================== 7. 怪物行动阶段（UI驱动：改为逐步执行） ======================
     private boolean prepareMonsterAction(BattleContext ctx, Monster m) {
-        List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getEntityId());
+        List<RevealedIntent> revealed = ctx.monsterRevealedIntents.get(m.getBattleKey());
         if (revealed == null || revealed.isEmpty()) {
             ctx.pendingMonsterAction = BattleAction.normalAttack(m, ctx.player);
             return false;
         }
 
-        Integer stepIdxObj = ctx.monsterIntentStepIndex.get(m.getEntityId());
+        Integer stepIdxObj = ctx.monsterIntentStepIndex.get(m.getBattleKey());
         int idx = (stepIdxObj == null) ? 0 : stepIdxObj;
 
         if (idx < 0 || idx >= revealed.size()) {
@@ -497,7 +514,7 @@ public class BattleManager {
 
         int nextIdx = idx + 1;
         boolean hasMore = nextIdx < revealed.size();
-        ctx.monsterIntentStepIndex.put(m.getEntityId(), hasMore ? nextIdx : -1);
+        ctx.monsterIntentStepIndex.put(m.getBattleKey(), hasMore ? nextIdx : -1);
 
         return hasMore;
     }
@@ -562,6 +579,10 @@ public class BattleManager {
 
     // ====================== 11. 玩家逃跑 ======================
     public boolean executePlayerEscape(BattleContext ctx) {
+        return executePlayerEscape(ctx, true);
+    }
+
+    public boolean executePlayerEscape(BattleContext ctx, boolean doChaseOnFail) {
         ctx.addLog(LogType.ACTION, "玩家尝试逃跑...");
 
         if (!ctx.player.consumeActionPoints(1)) {
@@ -591,9 +612,18 @@ public class BattleManager {
             return true;
         } else {
             ctx.addLog(LogType.ACTION, "逃跑失败，遭到怪物追击。");
-            executeNormalAttack(ctx, fastestMonster, ctx.player);
+            if (doChaseOnFail) {
+                executeNormalAttack(ctx, fastestMonster, ctx.player);
+            }
             return false;
         }
+    }
+
+    public List<Monster> getAliveMonstersBySpeed(BattleContext ctx) {
+        List<Monster> alive = new ArrayList<>(ctx.getAliveMonsters());
+        alive.sort((a, b) -> Integer.compare(
+                b.getFinalAttributes().speed, a.getFinalAttributes().speed));
+        return alive;
     }
 
     // ====================== 12. 普通攻击 ======================
@@ -822,7 +852,14 @@ public class BattleManager {
         } else if (ctx.battleResult == BattleContext.BattleResult.DEFEAT) {
             ctx.player.setCurrentHp(1);
             ctx.player.setDead(false);
-            ctx.addLog(LogType.RESULT, "战斗失败，已扣除部分金币，保留1点生命值。");
+            int goldLoss = 0;
+            if (ctx.player.owner != null) {
+                int currentGold = ctx.player.owner.getGold();
+                goldLoss = Math.max(1, currentGold / 2);
+                ctx.player.owner.spendGold(goldLoss);
+            }
+            ctx.rewardGold = -goldLoss;
+            ctx.addLog(LogType.RESULT, "战斗失败，损失 %d 金币，保留1点生命值。", goldLoss);
         } else if (ctx.battleResult == BattleContext.BattleResult.ESCAPED) {
             ctx.addLog(LogType.RESULT, "战斗结束：玩家成功逃跑。\n");
         } else if (ctx.battleResult == BattleContext.BattleResult.MONSTER_ESCAPED) {
