@@ -81,7 +81,7 @@ public class MapFragment extends Fragment {
     private View mEventPopup;
     private View mDebugPopup;
     private TextView tvEventName, tvEventDesc, tvEventReward, tvEventRisk;
-    private Button btnClosePopup;
+    private TextView btnClosePopup;
     private boolean isPopupShowing = false;
     private boolean isDebugPopupShowing = false;
 
@@ -171,7 +171,8 @@ public class MapFragment extends Fragment {
 
         LinearLayout popupContent = new LinearLayout(requireContext());
         popupContent.setOrientation(LinearLayout.VERTICAL);
-        popupContent.setBackgroundResource(R.drawable.bg_event_popup);
+        popupContent.setBackgroundResource(R.drawable.bg_panel_treasure_fill_only);
+        popupContent.setForeground(getResources().getDrawable(R.drawable.bg_panel_treasure_stroke_only));
         popupContent.setElevation(8 * getResources().getDisplayMetrics().density);
         popupContent.setPadding(pad, pad, pad, pad);
         popupContent.setClickable(true);
@@ -180,7 +181,7 @@ public class MapFragment extends Fragment {
         TextView title = new TextView(requireContext());
         title.setText("调试功能");
         title.setTextSize(18);
-        title.setTextColor(0xFF333333);
+        title.setTextColor(getResources().getColor(R.color.tb_gold));
         title.setPadding(0, 0, 0, pad);
         popupContent.addView(title);
 
@@ -276,42 +277,16 @@ public class MapFragment extends Fragment {
             }
         }
 
-        View sep1 = new View(requireContext());
-        sep1.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, (int) (1 * getResources().getDisplayMetrics().density)));
-        sep1.setBackgroundColor(0x30000000);
-        ((LinearLayout.LayoutParams) sep1.getLayoutParams()).setMargins(0, margin6 * 2, 0, margin6);
-        popupContent.addView(sep1);
-
-        Button btnBattlePage = makeDebugButton("进入战斗页面", 0xFF4CAF50);
-        btnBattlePage.setOnClickListener(b -> {
-            hideDebugPopup();
-            startActivity(new android.content.Intent(getActivity(), com.example.treasure_and_battle.ui.BattleActivity.class));
-        });
-        popupContent.addView(btnBattlePage);
-
-        Button btnTradePage = makeDebugButton("进入商店页面", 0xFF4CAF50);
-        btnTradePage.setOnClickListener(b -> {
-            hideDebugPopup();
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            fm.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container, new TradeFragment(), TradeFragment.TAG)
-                    .hide(MapFragment.this)
-                    .addToBackStack("trade")
-                    .commit();
-        });
-        popupContent.addView(btnTradePage);
-
         Button btnCloseDbg = new Button(requireContext());
         btnCloseDbg.setText("关闭");
-        btnCloseDbg.setTextSize(13);
+        btnCloseDbg.setTextSize(14);
         btnCloseDbg.setTextColor(0xFF2196F3);
-        btnCloseDbg.setBackgroundResource(R.drawable.bg_event_popup);
+        btnCloseDbg.setBackgroundResource(R.drawable.bg_tab_idle);
+        int btnPad = (int) (10 * getResources().getDisplayMetrics().density);
+        btnCloseDbg.setPadding(btnPad, btnPad, btnPad, btnPad);
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        closeParams.gravity = Gravity.END;
         closeParams.topMargin = (int) (10 * getResources().getDisplayMetrics().density);
         btnCloseDbg.setLayoutParams(closeParams);
         btnCloseDbg.setOnClickListener(b -> hideDebugPopup());
@@ -355,12 +330,12 @@ public class MapFragment extends Fragment {
         parent.addView(label);
     }
 
-    private Button makeDebugButton(String text, int bgColor) {
+    private Button makeDebugButton(String text, int textColor) {
         Button btn = new Button(requireContext());
         btn.setText(text);
         btn.setTextSize(14);
-        btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor(bgColor);
+        btn.setTextColor(textColor);
+        btn.setBackgroundResource(R.drawable.bg_tab_idle);
         int btnPad = (int) (10 * getResources().getDisplayMetrics().density);
         btn.setPadding(btnPad, btnPad, btnPad, btnPad);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -988,9 +963,9 @@ public class MapFragment extends Fragment {
 
         if ("UNKNOWN".equals(item.getType())) {
             tvEventName.setText("未知事件");
-            tvEventDesc.setText("描述：???");
-            tvEventReward.setText("奖励：???");
-            tvEventRisk.setText("风险：???");
+            tvEventDesc.setText("???");
+            tvEventReward.setText("???");
+            tvEventRisk.setText("???");
         } else if (sub != null) {
             tvEventName.setText(sub.getName());
             descBuilder.append(sub.getDesc());
@@ -1016,14 +991,14 @@ public class MapFragment extends Fragment {
 
             String desc = descBuilder.toString();
             if (extraBuilder.length() > 0) desc += extraBuilder.toString();
-            tvEventDesc.setText("描述：" + desc);
-            tvEventReward.setText("奖励：" + sub.getReward());
-            tvEventRisk.setText("风险：" + sub.getRisk());
+            tvEventDesc.setText(desc);
+            tvEventReward.setText(sub.getReward());
+            tvEventRisk.setText(sub.getRisk());
         } else {
             tvEventName.setText(item.getType());
-            tvEventDesc.setText("描述：暂无信息");
-            tvEventReward.setText("奖励：暂无信息");
-            tvEventRisk.setText("风险：暂无信息");
+            tvEventDesc.setText("暂无信息");
+            tvEventReward.setText("暂无信息");
+            tvEventRisk.setText("暂无信息");
         }
 
         LatLng currentPos = mEventManager.getCurrentLatLng();

@@ -106,9 +106,13 @@ public class NeutralEventActivity extends AppCompatActivity {
         buildActionButtons();
     }
 
+    private static final java.util.Set<String> MERCHANT_KEYS = new java.util.HashSet<>(
+            java.util.Arrays.asList("wandering_vendor", "equipment_merchant", "caravan", "material_merchant"));
+
     private void loadEventBorder() {
         if (eventKey == null) return;
-        String fileName = eventKey.replace("equipment_reforge", "equipment_reforce") + ".png";
+        String mappedKey = MERCHANT_KEYS.contains(eventKey) ? "merchant" : eventKey;
+        String fileName = mappedKey.replace("equipment_reforge", "equipment_reforce") + ".png";
         ImageView ivBorder = findViewById(R.id.iv_event_border);
         try (InputStream is = getAssets().open("border/" + fileName)) {
             Bitmap raw = BitmapFactory.decodeStream(is);
@@ -1004,9 +1008,9 @@ public class NeutralEventActivity extends AppCompatActivity {
                 }
                 showResult("祭坛光芒闪烁了一下就熄灭了...\n\n⚠ 背包已满，无法获得献祭奖励！物品已归还。");
             } else if (reward != null) {
-                showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→获得：" + rd);
+                showResult("祭坛散发出耀眼的光芒！\n 献祭" + total + "件→获得：" + rd);
             } else {
-                showResult("祭坛散发出耀眼的光芒！\n✅ 献祭" + total + "件→但什么都没有发生...");
+                showResult("祭坛散发出耀眼的光芒！\n 献祭" + total + "件→但什么都没有发生...");
             }
             switchToForwardButton();
         });
@@ -1035,12 +1039,12 @@ public class NeutralEventActivity extends AppCompatActivity {
                     fBtnConfirm.setEnabled(false);
                     fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
                 } else if (t != 3) {
-                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 需要恰好3件");
+                    tvCounter.setText("已选 " + t + " / 3 " + fi.getRarity().getDisplayName() + " — 需要恰好3件");
                     tvCounter.setTextColor(0xFFFF9800);
                     fBtnConfirm.setEnabled(false);
                     fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF888888));
                 } else {
-                    tvCounter.setText("已选 " + t + " / 3 ✅ " + fi.getRarity().getDisplayName() + " — 品质统一！");
+                    tvCounter.setText("已选 " + t + " / 3 " + fi.getRarity().getDisplayName() + " — 品质统一！");
                     tvCounter.setTextColor(0xFF4CAF50);
                     fBtnConfirm.setEnabled(true);
                     fBtnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF9800));
@@ -1195,16 +1199,16 @@ public class NeutralEventActivity extends AppCompatActivity {
                     int g = 300 + (int)(Math.random() * 701); ch.addGold(g);
                     GemItem gm = ItemManager.getInstance(this).getRandomGemByRarity(Math.random() < 0.6 ? Rarity.UNCOMMON : Rarity.RARE);
                     boolean gmAdded = gm != null && InventoryManager.addItem(ch.getBagItems(), gm);
-                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n✅ 金币+" + g
-                            + (gm != null ? "\n✅ 获得：" + gm.getName() : "")
+                    showResult("密林迷宫：灵活穿梭，发现宝箱！\n 金币+" + g
+                            + (gm != null ? "\n 获得：" + gm.getName() : "")
                             + (gm != null && !gmAdded ? "\n⚠ 但背包已满！" : ""));
                     switchToForwardButton();
                 } else {
                     int pts = 2 + (int)(Math.random() * 3); ch.addSkillPoints(pts);
                     ConsumableItem pt = ItemManager.getInstance(this).getRandomConsumableByRarity(Rarity.UNCOMMON);
                     boolean ptAdded = pt != null && InventoryManager.addItem(ch.getBagItems(), pt);
-                    showResult("元素试炼：符文亮起，破解成功！\n✅ 技能点+" + pts
-                            + (pt != null ? "\n✅ 获得：" + pt.getName() : "")
+                    showResult("元素试炼：符文亮起，破解成功！\n 技能点+" + pts
+                            + (pt != null ? "\n 获得：" + pt.getName() : "")
                             + (pt != null && !ptAdded ? "\n⚠ 但背包已满！" : ""));
                     switchToForwardButton();
                 }
@@ -1263,7 +1267,7 @@ public class NeutralEventActivity extends AppCompatActivity {
         if (reward == null) reward = EquipmentManager.getInstance(this).generateRandomEquip(lv, rr);
         if (reward == null) return "水面泛起涟漪，什么都没发生...\n（当前金币：" + ch.getGold() + "）";
         boolean added = InventoryManager.addItem(ch.getBagItems(), reward);
-        return "古井涌出" + rr.getDisplayName() + "光芒！\n✅ 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）"
+        return "古井涌出" + rr.getDisplayName() + "光芒！\n 获得：" + reward.getName() + "（" + rr.getDisplayName() + "）"
                 + (added ? "" : "\n⚠ 但背包已满！") + "\n（当前金币：" + ch.getGold() + "）";
     }
 

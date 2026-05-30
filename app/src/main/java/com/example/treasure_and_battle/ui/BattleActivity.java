@@ -129,16 +129,10 @@ public class BattleActivity extends AppCompatActivity {
         void onPick(ActiveSkill skill);
     }
 
-    /** 小史莱姆 templateId=1001；演示战 5 格：0/1/3/4 为小史莱姆，2 为森林狼 */
-    private static final int SLIME_SMALL_TEMPLATE_ID = 1001;
-    private static final int[] MONSTER_TEMPLATE_IDS = {
-            SLIME_SMALL_TEMPLATE_ID,
-            SLIME_SMALL_TEMPLATE_ID,
-            2002,
-            SLIME_SMALL_TEMPLATE_ID,
-            SLIME_SMALL_TEMPLATE_ID
-    };
     private static final int[] MONSTER_SLOT_INDEX = {0, 1, 2, 3, 4};
+    private static final int BATTLE_SLOT_COUNT = 5;
+    private static final List<String> recentRaceIds = new ArrayList<>();
+    private static final int RACE_COOLDOWN_SIZE = 3;
     private String debugRaceId = null;
     private int debugMaxRarity = -1;
     private int debugCount = -1;
@@ -227,14 +221,12 @@ public class BattleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battle);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Bundle args = getArguments();
-        if (args != null) {
-            debugRaceId = args.getString("debugRaceId");
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            debugRaceId = extras.getString("debugRaceId");
             if (debugRaceId != null) {
-                debugMaxRarity = args.getInt("debugMaxRarity", -1);
-                debugCount = args.getInt("debugCount", -1);
+                debugMaxRarity = extras.getInt("debugMaxRarity", -1);
+                debugCount = extras.getInt("debugCount", -1);
             }
         }
 
@@ -655,7 +647,7 @@ public class BattleActivity extends AppCompatActivity {
             em.setCurrentBattleMonster(null);
             em.setCurrentBattleSurprise(BattleContext.SurpriseDirection.NONE);
         } else {
-            MonsterManager mm = MonsterManager.getInstance(requireContext());
+            MonsterManager mm = MonsterManager.getInstance(this);
             for (int i = 0; i < BATTLE_SLOT_COUNT; i++) monsters.add(null);
 
             int playerLevel = ch.getLevel();

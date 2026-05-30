@@ -62,15 +62,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:gravity="center"
-                android:text="选择一个增益，只能选一次"
-                android:textColor="@color/tb_text_sub"
-                android:textSize="14sp" />
-
             <LinearLayout
                 android:id="@+id/ll_choice_area"
                 android:layout_width="match_parent"

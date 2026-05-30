@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,12 +19,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.GameManager;
+import com.example.treasure_and_battle.manager.MonsterManager;
 import com.example.treasure_and_battle.manager.SaveManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
+import com.example.treasure_and_battle.model.common.Rarity;
+
+import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPrefs;
+    private RadioGroup rgRate;
+    private RadioButton rbFast, rbNormal, rbSlow;
+    private int savedRate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,7 +52,22 @@ public class SettingsFragment extends Fragment {
         switchDebug.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPrefs.edit().putBoolean("debugMode", isChecked).apply();
         });
-        
+
+        SwitchCompat switchToast = view.findViewById(R.id.switch_event_toast);
+        boolean showToast = sharedPrefs.getBoolean("showEventToast", true);
+        switchToast.setChecked(showToast);
+        switchToast.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPrefs.edit().putBoolean("showEventToast", isChecked).apply();
+        });
+
+        rbFast = view.findViewById(R.id.rb_rate_fast);
+        rbNormal = view.findViewById(R.id.rb_rate_normal);
+        rbSlow = view.findViewById(R.id.rb_rate_slow);
+        rgRate = view.findViewById(R.id.rg_event_rate);
+
+        savedRate = sharedPrefs.getInt("eventRate", 0);
+        selectRadioSilently(savedRate);
+
         View btnTrade = view.findViewById(R.id.btn_open_trade);
         btnTrade.setOnClickListener(v -> {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
@@ -139,6 +162,7 @@ public class SettingsFragment extends Fragment {
         if (checkedId == R.id.rb_rate_fast) return 0;
         if (checkedId == R.id.rb_rate_normal) return 1;
         return 2;
+    }
 
     private void selectRadioSilently(int rate) {
         rgRate.setOnCheckedChangeListener(null);
@@ -208,40 +232,10 @@ public class SettingsFragment extends Fragment {
     }
 
     private void openBattleWithDebug(String raceId, int maxRarity, int count) {
-        FragmentManager fm = requireActivity().getSupportFragmentManager();
-        fm.popBackStackImmediate("battle", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        Fragment orphan = fm.findFragmentByTag(BattleFragment.TAG);
-        FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
-        if (orphan != null) ft.remove(orphan);
-        BattleFragment frag = new BattleFragment();
-        Bundle args = new Bundle();
-        args.putString("debugRaceId", raceId);
-        args.putInt("debugMaxRarity", maxRarity);
-        args.putInt("debugCount", count);
-        frag.setArguments(args);
-        ft.add(R.id.fragment_container, frag, BattleFragment.TAG)
-                .hide(this).addToBackStack("battle").commit();
-    }
-
-    private void fillBag() {
-        Character ch = PlayerCharacterHolder.getOrCreate(requireContext());
-        List<Item> bag = ch.getBagItems();
-        InventoryManager.clearAll(bag);
-
-        EquipmentManager em = EquipmentManager.getInstance(requireContext());
-        Rarity[] rarities = {Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC, Rarity.LEGENDARY};
-        int slot = 0;
-        while (slot < InventoryManager.BAG_SLOTS) {
-            for (Rarity r : rarities) {
-                if (slot >= InventoryManager.BAG_SLOTS) break;
-                int lv = 5 + (slot % 21);
-                if (InventoryManager.addItem(bag, em.generateRandomEquip(lv, r))) {
-                    slot++;
-                }
-            }
-        }
-
-        InventoryGridSync.reloadSharedGridFromManager(requireContext());
-        FloatMsgOverlay.showFloatMsg(requireContext(), "已填满 125 格背包");
+        Intent intent = new Intent(getActivity(), BattleActivity.class);
+        intent.putExtra("debugRaceId", raceId);
+        intent.putExtra("debugMaxRarity", maxRarity);
+        intent.putExtra("debugCount", count);
+        startActivity(intent);
     }
 }

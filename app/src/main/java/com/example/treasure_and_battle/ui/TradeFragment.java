@@ -258,6 +258,7 @@ public class TradeFragment extends Fragment {
 
     private void buildDefaultMerchantListings() {
         EquipmentManager em = EquipmentManager.getInstance(requireContext());
+        ItemManager im = ItemManager.getInstance(requireContext());
 
         // 装备（equip_config.json）
         addEquipListing(em, 1001, 2, Rarity.COMMON, 1);
