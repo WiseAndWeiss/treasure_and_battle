@@ -556,6 +556,44 @@ public class EventManager {
         return null;
     }
 
+    /**
+     * 在玩家当前位置强制生成一个指定类型的事件（不检查间隔/总上限/暂停等）
+     * @param type 事件类型："BATTLE" / "BENEFIT" / "NEUTRAL"
+     * @return 是否成功
+     */
+    public boolean forceSpawnEvent(String type) {
+        if (mCurrentLatLng == null || mAMap == null || mEventConfig == null) return false;
+
+        EventConfig.EventItem target = findEventConfigByType(type);
+        if (target == null) return false;
+
+        EventConfig.EventSubItem sub = pickRandomSubEvent(target);
+
+        Circle circle = mAMap.addCircle(new CircleOptions()
+                .center(mCurrentLatLng)
+                .radius(target.getRadius())
+                .strokeColor(target.getStrokeColorInt())
+                .strokeWidth(4)
+                .fillColor(target.getFillColorInt()));
+        if (circle == null) return false;
+
+        EventCircle ec = new EventCircle(circle, mCurrentLatLng, target);
+        ec.selectedSubEvent = sub;
+
+        if ("BATTLE".equals(type)) {
+            ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+        }
+        if ("NEUTRAL".equals(type) && sub != null) {
+            String subKey = sub.getKey();
+            if ("monster_camp".equals(subKey) || "cursed_chest".equals(subKey)) {
+                ec.monster = MonsterManager.getInstance(mContext).createRandomMonster();
+            }
+        }
+
+        mEventCircleList.add(ec);
+        return true;
+    }
+
     private LatLng calculateLatLng(LatLng center, double dist, double angle) {
         double lon = center.longitude + dist * Math.sin(angle) / 111319.9;
         double lat = center.latitude + dist * Math.cos(angle) / 110942.9;

@@ -97,7 +97,7 @@
         {
           "skillId": "monster_charge",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -106,7 +106,7 @@
         {
           "skillId": "monster_acid_spray",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -143,7 +143,7 @@
         {
           "skillId": "monster_charge",
           "weight": 30,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -152,7 +152,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -161,7 +161,7 @@
         {
           "skillId": "monster_gel_recover",
           "weight": 20,
-          "priority": 40,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -207,7 +207,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -216,7 +216,7 @@
         {
           "skillId": "monster_acid_spray",
           "weight": 20,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -225,7 +225,7 @@
         {
           "skillId": "monster_slime_armor",
           "weight": 25,
-          "priority": 45,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -336,7 +336,7 @@
         {
           "skillId": "monster_wild_bite",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -382,7 +382,7 @@
         {
           "skillId": "monster_wild_bite",
           "weight": 30,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -391,7 +391,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -400,7 +400,7 @@
         {
           "skillId": "monster_howl",
           "weight": 35,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -446,7 +446,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -455,7 +455,7 @@
         {
           "skillId": "monster_howl",
           "weight": 20,
-          "priority": 38,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -464,7 +464,7 @@
         {
           "skillId": "monster_frenzy",
           "weight": 25,
-          "priority": 45,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -547,7 +547,7 @@
         {
           "skillId": "monster_backstab",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -593,7 +593,7 @@
         {
           "skillId": "monster_backstab",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -602,7 +602,7 @@
         {
           "skillId": "monster_intimidate",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -712,7 +712,7 @@
         {
           "skillId": "monster_dragon_breath",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 15,
           "powerMultiplier": 1.0,
@@ -749,7 +749,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 33,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -758,7 +758,7 @@
         {
           "skillId": "monster_dragon_breath",
           "weight": 30,
-          "priority": 38,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 15,
           "powerMultiplier": 1.0,
@@ -767,7 +767,7 @@
         {
           "skillId": "monster_tail_sweep",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -813,7 +813,7 @@
         {
           "skillId": "monster_dragon_breath",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 15,
           "powerMultiplier": 1.0,
@@ -822,7 +822,7 @@
         {
           "skillId": "monster_tail_sweep",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -831,7 +831,7 @@
         {
           "skillId": "monster_dragon_scales",
           "weight": 20,
-          "priority": 45,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 15,
           "powerMultiplier": 1.0,
@@ -942,7 +942,7 @@
         {
           "skillId": "monster_fire_burst",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -951,7 +951,7 @@
         {
           "skillId": "monster_flame_shield",
           "weight": 30,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -988,7 +988,7 @@
         {
           "skillId": "monster_fire_burst",
           "weight": 25,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -997,7 +997,7 @@
         {
           "skillId": "monster_inferno",
           "weight": 30,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 20,
           "powerMultiplier": 1.0,
@@ -1006,7 +1006,7 @@
         {
           "skillId": "monster_flame_shield",
           "weight": 25,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1052,7 +1052,7 @@
         {
           "skillId": "monster_inferno",
           "weight": 25,
-          "priority": 42,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 20,
           "powerMultiplier": 1.0,
@@ -1061,7 +1061,7 @@
         {
           "skillId": "monster_flame_shield",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1070,7 +1070,7 @@
         {
           "skillId": "monster_charge",
           "weight": 20,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1181,7 +1181,7 @@
         {
           "skillId": "monster_frost_bolt",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1190,7 +1190,7 @@
         {
           "skillId": "monster_ice_barrier",
           "weight": 30,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1227,7 +1227,7 @@
         {
           "skillId": "monster_frost_bolt",
           "weight": 25,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1236,7 +1236,7 @@
         {
           "skillId": "monster_blizzard",
           "weight": 30,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 20,
           "powerMultiplier": 1.0,
@@ -1245,7 +1245,7 @@
         {
           "skillId": "monster_ice_barrier",
           "weight": 25,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1291,7 +1291,7 @@
         {
           "skillId": "monster_blizzard",
           "weight": 25,
-          "priority": 42,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 20,
           "powerMultiplier": 1.0,
@@ -1300,7 +1300,7 @@
         {
           "skillId": "monster_ice_barrier",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1309,7 +1309,7 @@
         {
           "skillId": "monster_charge",
           "weight": 20,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1383,7 +1383,7 @@
         {
           "skillId": "monster_fire_burst",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1392,7 +1392,7 @@
         {
           "skillId": "monster_acid_spray",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -1429,7 +1429,7 @@
         {
           "skillId": "monster_fire_burst",
           "weight": 25,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1438,7 +1438,7 @@
         {
           "skillId": "monster_intimidate",
           "weight": 30,
-          "priority": 40,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1447,7 +1447,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1521,7 +1521,7 @@
         {
           "skillId": "monster_throw_sand",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1530,7 +1530,7 @@
         {
           "skillId": "monster_backstab",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1567,7 +1567,7 @@
         {
           "skillId": "monster_fire_burst",
           "weight": 30,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,
@@ -1576,7 +1576,7 @@
         {
           "skillId": "monster_acid_spray",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 8,
           "powerMultiplier": 1.0,
@@ -1585,7 +1585,7 @@
         {
           "skillId": "monster_flame_shield",
           "weight": 25,
-          "priority": 38,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 12,
           "powerMultiplier": 1.0,
@@ -1617,7 +1617,7 @@
         {
           "skillId": "monster_charge",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1626,7 +1626,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1672,7 +1672,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1681,7 +1681,7 @@
         {
           "skillId": "monster_sweep",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1792,7 +1792,7 @@
         {
           "skillId": "monster_charge",
           "weight": 35,
-          "priority": 32,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1801,7 +1801,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1838,7 +1838,7 @@
         {
           "skillId": "monster_charge",
           "weight": 25,
-          "priority": 33,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1847,7 +1847,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 30,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1856,7 +1856,7 @@
         {
           "skillId": "monster_sweep",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1902,7 +1902,7 @@
         {
           "skillId": "monster_heavy_strike",
           "weight": 25,
-          "priority": 35,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1911,7 +1911,7 @@
         {
           "skillId": "monster_sweep",
           "weight": 25,
-          "priority": 40,
+          "priority": 30,
           "apCost": 2,
           "mpCost": 0,
           "powerMultiplier": 1.0,
@@ -1920,7 +1920,7 @@
         {
           "skillId": "monster_intimidate",
           "weight": 20,
-          "priority": 42,
+          "priority": 30,
           "apCost": 1,
           "mpCost": 10,
           "powerMultiplier": 1.0,

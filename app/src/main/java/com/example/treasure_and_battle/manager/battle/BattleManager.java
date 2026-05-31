@@ -19,6 +19,7 @@ import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
+import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -720,9 +721,15 @@ public class BattleManager {
                     Monster m = (Monster) actor;
                     ActiveSkill skill = m.getMonsterSkill(action.getActionRefId());
                     if (skill != null && skill.isCooldownReady()) {
-                        List<BattleEntity> targets =
-                                SkillTargetResolver.resolve(skill.getSkillRangeType(), actor, ctx);
-                        executeSkill(actor, skill, targets, ctx);
+                        SkillRangeType rangeType = skill.getSkillRangeType();
+                        if (rangeType == null) {
+                            ctx.addLog(LogType.ACTION, "[%s] 技能 [%s] 范围类型未配置",
+                                    actor.getName(), skill.getSkillName());
+                        } else {
+                            List<BattleEntity> targets =
+                                    SkillTargetResolver.resolve(rangeType, actor, ctx);
+                            executeSkill(actor, skill, targets, ctx);
+                        }
                     } else {
                         ctx.addLog(LogType.ACTION, "[%s] 尝试释放技能 [%s]（技能未就绪或不存在）",
                                 actor.getName(), action.getDisplayName());

@@ -229,6 +229,15 @@ public class BattleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battle);
 
+        View battleRoot = findViewById(R.id.battle_root);
+        if (battleRoot != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(battleRoot, (v, insets) -> {
+                int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), navBottom);
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             debugRaceId = extras.getString("debugRaceId");

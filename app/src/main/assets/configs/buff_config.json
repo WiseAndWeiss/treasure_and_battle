@@ -251,7 +251,7 @@
       "refreshOnApply": true,
       "minValue": 0.01,
       "maxValue": 0.01,
-      "attributeType": "MAGIC_ATK",
+      "attributeType": "MAGICAL_ATK",
       "valueType": "PERCENTAGE",
       "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },
@@ -268,7 +268,7 @@
       "refreshOnApply": true,
       "minValue": 1,
       "maxValue": 1,
-      "attributeType": "MAGIC_ATK",
+      "attributeType": "MAGICAL_ATK",
       "valueType": "FLAT",
       "buffClass": "com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff"
     },

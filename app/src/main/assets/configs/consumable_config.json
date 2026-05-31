@@ -556,6 +556,11 @@
       "usableOutBattle": false,
       "effects": [
         {
+          "type": "HEAL_HP",
+          "value": -100,
+          "valueType": "PERCENTAGE"
+        },
+        {
           "type": "BUFF",
           "buffs": [
             {
@@ -573,7 +578,7 @@
           ]
         }
       ],
-      "description": "HP锁定为1，本回合攻击力提升200%"
+      "description": "HP降低为1，本回合攻击力提升200%"
     }
   ]
 }
