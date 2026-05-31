@@ -18,6 +18,9 @@ public class SkillTargetResolver {
                                               BattleEntity caster,
                                               BattleContext ctx) {
         List<BattleEntity> targets = new ArrayList<>();
+        if (rangeType == null) {
+            return targets;
+        }
 
         switch (rangeType) {
             case SELF:

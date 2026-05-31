@@ -85,12 +85,17 @@ public class ConsumableManager {
         int maxVal = isHp ? attr.maxHp : attr.maxMp;
         boolean isPercent = "PERCENTAGE".equals(e.valueType);
         int amount = isPercent ? (int) (maxVal * e.value / 100f) : (int) e.value;
-        amount = Math.max(1, amount);
+
+        if (amount >= 0) {
+            amount = Math.max(1, amount);
+        }
 
         if (isHp) {
-            character.setCurrentHp(Math.min(character.getCurrentHp() + amount, maxVal));
+            int newVal = Math.max(1, Math.min(maxVal, character.getCurrentHp() + amount));
+            character.setCurrentHp(newVal);
         } else {
-            character.setCurrentMp(Math.min(character.getCurrentMp() + amount, maxVal));
+            int newVal = Math.max(0, Math.min(maxVal, character.getCurrentMp() + amount));
+            character.setCurrentMp(newVal);
         }
         return true;
     }
@@ -116,14 +121,29 @@ public class ConsumableManager {
         int maxVal = isHp ? player.getFinalAttributes().maxHp : player.getFinalAttributes().maxMp;
         boolean isPercent = ValueType.PERCENTAGE.name().equals(e.valueType);
         int amount = isPercent ? (int)(maxVal * e.value / 100f) : (int)e.value;
-        amount = Math.max(1, amount);
 
-        if (isHp) player.healHp(amount); else player.healMp(amount);
+        if (amount >= 0) {
+            amount = Math.max(1, amount);
+        }
+
+        if (isHp) {
+            int newVal = Math.max(1, Math.min(maxVal, player.getCurrentHp() + amount));
+            player.setCurrentHp(newVal);
+        } else {
+            int newVal = Math.max(0, Math.min(maxVal, player.getCurrentMp() + amount));
+            player.setCurrentMp(newVal);
+        }
 
         String label = isHp ? "HP" : "MP";
-        if (ctx != null) ctx.addLog(LogType.ACTION, "使用[%s]，恢复 %d %s", item.getName(), amount, label);
+        if (ctx != null) {
+            if (amount >= 0) {
+                ctx.addLog(LogType.ACTION, "使用[%s]，恢复 %d %s", item.getName(), amount, label);
+            } else {
+                ctx.addLog(LogType.ACTION, "使用[%s]，减少 %d %s", item.getName(), -amount, label);
+            }
+        }
 
-        if (isHp && e.shieldDuration > 0) {
+        if (isHp && amount > 0 && e.shieldDuration > 0) {
             BaseBuff shield = BuffManager.getInstance(context).createBuffByBuffId("buff_shield");
             if (shield != null) {
                 shield.setStack(amount);
