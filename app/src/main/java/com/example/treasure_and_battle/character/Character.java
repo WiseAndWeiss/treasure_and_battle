@@ -383,7 +383,6 @@ public class Character {
     void setTalentPoints(int pts) { this.talentPoints = pts; }
     void setSkillPoints(int pts) { this.skillPoints = pts; }
     void setGold(int g) { this.gold = g; }
-    void setBaseMaxHp(int hp) { this.baseMaxHp = hp; }
     void setBaseMaxMp(int mp) { this.baseMaxMp = mp; }
     void setProfession(Profession p) { this.profession = p; }
 

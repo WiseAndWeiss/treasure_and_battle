@@ -384,11 +384,11 @@ public class BattleActivity extends AppCompatActivity {
         tachieDamageOverlay = new DamageNumberOverlay(decor);
 
         // 初始化动画管理器
-        animationManager = new BattleAnimationManager(requireContext());
+        animationManager = new BattleAnimationManager(this);
         setupEntityViewMappings();
 
         // 初始化动画管理器
-        animationManager = new BattleAnimationManager(requireContext());
+        animationManager = new BattleAnimationManager(this);
         setupEntityViewMappings();
 
         setupResourceChangeListeners();
