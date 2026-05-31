@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 33)
+@Config(sdk = 33, manifest = Config.NONE)
 public class EquipTriggerBuffAffixIntegrationTest {
 
     private Context context;

@@ -74,6 +74,10 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.10.3")
     // Mockito 用于模拟对象
     testImplementation("org.mockito:mockito-core:5.3.1")
+    // AndroidX Test Core
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.test:runner:1.5.2")
 }
 
 // ====================== JaCoCo 测试覆盖率配置 ======================
@@ -114,7 +118,16 @@ tasks.register("jacocoTestReport", JacocoReport::class) {
         "**/generated/**",
         "**/.*\\\$\\\$robo\\\$\\\$.*",
         "**/.*Robolectric.*",
-        "**/.*\\\$Shadow.*"
+        "**/.*\\\$Shadow.*",
+        // 排除 UI 相关包
+        "**/ui/**",
+        "**/ui/*",
+        "**/ui/**/*",
+        // 排除 Animation 相关（属于 UI 层）
+        "**/ui/animation/**",
+        // 排除 drawable 资源生成类
+        "**/drawable/**",
+        "**/R\$drawable/**"
     )
 
     // Java 编译的 class

@@ -317,10 +317,12 @@ public class EventManager {
         target.createTime = System.currentTimeMillis();
         target.monster = null;
 
-        target.circle.setRadius(eventTypes.getRadius());
-        target.circle.setStrokeColor(eventTypes.getStrokeColorInt());
-        target.circle.setStrokeWidth(4);
-        target.circle.setFillColor(eventTypes.getFillColorInt());
+        if (target.circle != null) {
+            target.circle.setRadius(eventTypes.getRadius());
+            target.circle.setStrokeColor(eventTypes.getStrokeColorInt());
+            target.circle.setStrokeWidth(4);
+            target.circle.setFillColor(eventTypes.getFillColorInt());
+        }
 
         if ("BATTLE".equals(eventTypes.getType())) {
             target.monster = MonsterManager.getInstance(mContext).createRandomMonster();
@@ -412,7 +414,9 @@ public class EventManager {
             EventCircle e = it.next();
             double d = GeoUtils.calculateDistance(mCurrentLatLng, e.position);
             if (d <= e.config.getTriggerDistance()) {
-                e.circle.remove();
+                if (e.circle != null) {
+                    e.circle.remove();
+                }
                 e.isTriggered = true;
                 it.remove();
                 count++;
@@ -433,13 +437,17 @@ public class EventManager {
     }
 
     public void removeEventCircle(EventCircle ec) {
-        if (ec != null && mEventCircleList.remove(ec)) {
+        if (ec != null && ec.circle != null && mEventCircleList.remove(ec)) {
             ec.circle.remove();
         }
     }
 
     public void clearAllEvents() {
-        for (EventCircle e : mEventCircleList) e.circle.remove();
+        for (EventCircle e : mEventCircleList) {
+            if (e.circle != null) {
+                e.circle.remove();
+            }
+        }
         mEventCircleList.clear();
     }
 
@@ -458,7 +466,9 @@ public class EventManager {
         while (it.hasNext()) {
             EventCircle e = it.next();
             if (GeoUtils.calculateDistance(pos, e.position) <= radiusMeters) {
-                e.circle.remove();
+                if (e.circle != null) {
+                    e.circle.remove();
+                }
                 it.remove();
                 count++;
             }
