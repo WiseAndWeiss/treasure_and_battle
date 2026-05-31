@@ -1940,13 +1940,13 @@ public class BattleActivity extends AppCompatActivity {
                             feedbackPlayerDodgeAfterMonsterHit();
                         },
                         () -> {
-                            playerInputLocked = false;
                             refreshBattleUi();
                             if (battleContext.isBattleEnded) {
+                                playerInputLocked = false;
                                 finishBattleAndExit();
                                 return;
                             }
-                            runMonsterTurnsStepped();
+                            mainHandler.postDelayed(this::runMonsterTurnsStepped, 1000);
                         });
                 });
             } else {

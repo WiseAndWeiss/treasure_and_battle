@@ -108,12 +108,12 @@ public class SkillFragment extends Fragment {
         tabActive.setOnClickListener(v -> selectTab(1));
 
         PlayerManager pm = PlayerManager.getInstance(requireContext());
-        view.findViewById(R.id.btn_add_str).setOnClickListener(v -> tryAllocateTalent(pm, "STRENGTH"));
-        view.findViewById(R.id.btn_add_agi).setOnClickListener(v -> tryAllocateTalent(pm, "AGILITY"));
-        view.findViewById(R.id.btn_add_int).setOnClickListener(v -> tryAllocateTalent(pm, "INTELLIGENCE"));
-        view.findViewById(R.id.btn_add_spr).setOnClickListener(v -> tryAllocateTalent(pm, "SPIRIT"));
-        view.findViewById(R.id.btn_add_phy).setOnClickListener(v -> tryAllocateTalent(pm, "PHYSIQUE"));
-        view.findViewById(R.id.btn_add_luc).setOnClickListener(v -> tryAllocateTalent(pm, "LUCK"));
+        setupTalentButton(view.findViewById(R.id.btn_add_str), pm, "STRENGTH");
+        setupTalentButton(view.findViewById(R.id.btn_add_agi), pm, "AGILITY");
+        setupTalentButton(view.findViewById(R.id.btn_add_int), pm, "INTELLIGENCE");
+        setupTalentButton(view.findViewById(R.id.btn_add_spr), pm, "SPIRIT");
+        setupTalentButton(view.findViewById(R.id.btn_add_phy), pm, "PHYSIQUE");
+        setupTalentButton(view.findViewById(R.id.btn_add_luc), pm, "LUCK");
 
         view.findViewById(R.id.btn_view_bonuses).setOnClickListener(v -> showBonusDialog());
 
@@ -147,6 +147,47 @@ public class SkillFragment extends Fragment {
         }
         refreshCharacterPanels();
         reloadSkillsForCurrentTab();
+    }
+
+    private void setupTalentButton(View btn, PlayerManager pm, String attrName) {
+        btn.setOnTouchListener((v, event) -> {
+            if (character == null) return true;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (pm.allocateTalentPoint(character, attrName)) {
+                        refreshCharacterPanels();
+                        longPressHandler.postDelayed(
+                                new TalentLongPressRunnable(pm, attrName), 300);
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    longPressHandler.removeCallbacksAndMessages(null);
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    private class TalentLongPressRunnable implements Runnable {
+        final PlayerManager pm;
+        final String attrName;
+
+        TalentLongPressRunnable(PlayerManager pm, String attrName) {
+            this.pm = pm;
+            this.attrName = attrName;
+        }
+
+        @Override
+        public void run() {
+            if (character == null) return;
+            if (!pm.allocateTalentPoint(character, attrName)) {
+                longPressHandler.removeCallbacksAndMessages(null);
+                return;
+            }
+            refreshCharacterPanels();
+            longPressHandler.postDelayed(this, 80);
+        }
     }
 
     private void tryAllocateTalent(PlayerManager pm, String attributeName) {
