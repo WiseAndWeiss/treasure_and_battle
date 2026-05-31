@@ -47,7 +47,6 @@ import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.EventManager;
 import com.example.treasure_and_battle.manager.GameManager;
 import com.example.treasure_and_battle.manager.MonsterManager;
-import com.example.treasure_and_battle.ui.animation.AnimationTestHelper;
 import com.example.treasure_and_battle.ui.animation.BattleAnimationManager;
 import com.example.treasure_and_battle.ui.animation.signal.AnimationSignal;
 import com.example.treasure_and_battle.ui.animation.signal.AnimationSignalPipeline;
@@ -3151,46 +3150,6 @@ public class BattleActivity extends AppCompatActivity {
             }
         }
 
-        // 测试玩家实体动画 - 传递完整的目标列表
-        AnimationTestHelper.testSlashAnimation(player.getEntityId(), targetEntityIds);
-
-        // 检查动画管理器状态
-        AnimationTestHelper.checkAnimationManagerStatus(animationManager);
-
-        android.util.Log.i("BattleFragment", "=== 动画系统测试完成 ===");
-    }
-
-    /**
-     * 调试方法 - 测试怪物实体动画
-     */
-    public void debugTestMonsterAnimation() {
-        if (animationManager == null) return;
-
-        android.util.Log.i("BattleFragment", "=== 测试怪物动画 ===");
-
-        // 找到第一个怪物并测试
-        for (int i = 0; i < 5; i++) {
-            Monster m = monsterAtSlot(i);
-            if (m != null) {
-                AnimationTestHelper.testSlashAnimation(m.getEntityId());
-
-                // 调试实体映射
-                if (slotIcons[i] != null) {
-                    ViewGroup container = null;
-                    if (slotRoots[i] instanceof ViewGroup) {
-                        container = (ViewGroup) slotRoots[i];
-                    } else if (slotRoots[i].getParent() instanceof ViewGroup) {
-                        container = (ViewGroup) slotRoots[i].getParent();
-                    }
-
-                    AnimationTestHelper.debugEntityMapping(m.getEntityId(), slotIcons[i], container);
-                }
-                break;
-            }
-        }
-
-        AnimationTestHelper.checkAnimationManagerStatus(animationManager);
-        android.util.Log.i("BattleFragment", "=== 怪物动画测试完成 ===");
     }
 
     private final class SkillPickAdapter extends RecyclerView.Adapter<SkillPickAdapter.Vh> {
