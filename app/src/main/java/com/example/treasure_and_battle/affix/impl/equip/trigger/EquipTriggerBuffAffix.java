@@ -15,10 +15,10 @@ import com.example.treasure_and_battle.model.item.equip.EquipCategory;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 public class EquipTriggerBuffAffix extends BaseEquipAffix {
-    private final int buffTemplateId;
-    private final AffixBuffApplyTarget applyTarget;
-    private final int applyStacks;
-    private final float damageToStackRatio;
+    protected final int buffTemplateId;
+    protected final AffixBuffApplyTarget applyTarget;
+    protected final int applyStacks;
+    protected final float damageToStackRatio;
 
     public EquipTriggerBuffAffix(int affixId, String affixName, String description, Rarity rarity,
                                  TriggerType triggerType, EquipCategory[] allowCategories, float affixValue,
@@ -46,7 +46,7 @@ public class EquipTriggerBuffAffix extends BaseEquipAffix {
             return;
         }
         // 根据伤害计算实际应用层数
-        int resolvedStacks = resolveApplyStacks(context);
+        int resolvedStacks = resolveApplyStacks(owner, context);
         if (resolvedStacks <= 0) {
             return;
         }
@@ -77,7 +77,7 @@ public class EquipTriggerBuffAffix extends BaseEquipAffix {
         );
     }
 
-    private int resolveApplyStacks(BattleContext context) {
+    protected int resolveApplyStacks(BattleEntity owner, BattleContext context) {
         // 如果配置了伤害转层数的比例，则根据当前伤害计算层数，否则使用固定层数
         if (damageToStackRatio > 0f) {
             int stacksByDamage = (int) (context.finalDamage * damageToStackRatio);

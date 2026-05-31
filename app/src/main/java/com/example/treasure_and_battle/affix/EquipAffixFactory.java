@@ -5,6 +5,7 @@ import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.affix.impl.equip.attribute.EquipAttributeAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBattleStartAoeDamageAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix;
+import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffixPercentHp;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerCritReduceApAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerOnKillRecoverAffix;
 import com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerPurifyAffix;
@@ -56,6 +57,24 @@ public class EquipAffixFactory {
                     ? Math.max(0f, param.getDamageToStackRatio()) : 0f;
 
             return new EquipTriggerBuffAffix(
+                    template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
+                    actualRarity, triggerType, categories, randomValue,
+                    buffTemplateId, applyTarget, applyStacks, damageToStackRatio);
+        }
+
+        if ("com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffixPercentHp".equals(affixClass)) {
+            Integer buffTemplateId = param != null ? param.getBuffTemplateId() : null;
+            if (buffTemplateId == null) {
+                throw new IllegalArgumentException(
+                        "EquipTriggerBuffAffixPercentHp template missing buffTemplateId: " + template.getTemplateId());
+            }
+
+            AffixBuffApplyTarget applyTarget = parseApplyTarget(template.getApplyTarget());
+            int applyStacks = (param != null && param.getApplyStacks() != null)
+                    ? Math.max(1, param.getApplyStacks()) : 1;
+            float damageToStackRatio = 0f;
+
+            return new EquipTriggerBuffAffixPercentHp(
                     template.getTemplateId(), template.getAffixName(), template.getDescriptionFormat(),
                     actualRarity, triggerType, categories, randomValue,
                     buffTemplateId, applyTarget, applyStacks, damageToStackRatio);

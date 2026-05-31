@@ -439,6 +439,27 @@
         ]
       }
     ],
+    "Arsha_Rush_Sword_Attack": [
+       {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "center",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack0.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack1.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack2.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack3.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack4.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack5.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack6.png",
+          "icons/animation/Arsha_Rush_Sword_Attack/Arsha_Rush_Sword_Attack7.png"
+        ]
+      }
+    ],
     "BombBatExplosionBegin": [
       {
         "type": "TEXTURE_SET",
