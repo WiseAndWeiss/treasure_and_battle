@@ -1032,9 +1032,11 @@ public class BattleActivity extends AppCompatActivity {
 
         int iconRes = iconForMonsterSlot(i);
         if (!m.isDead()) {
-            root.setAlpha(1f);
             root.setClickable(true);
             slotIcons[i].setVisibility(View.VISIBLE);
+            slotIcons[i].setAlpha(1f);
+            View infoLayout = root.findViewById(R.id.layout_monster_info);
+            if (infoLayout != null) infoLayout.setAlpha(1f);
             if (!sameMonster) {
                 slotIcons[i].setScaleType(ImageView.ScaleType.FIT_CENTER);
                 GameAssetIcons.bindMonster(this, slotIcons[i], entityId, iconRes);
@@ -1049,13 +1051,15 @@ public class BattleActivity extends AppCompatActivity {
             }
             bindMonsterIntentBadge(slotIntents[i], m);
         } else {
-            root.setAlpha(0.45f);
             root.setClickable(false);
             slotIcons[i].setVisibility(View.VISIBLE);
             if (!sameMonster) {
                 slotIcons[i].setScaleType(ImageView.ScaleType.FIT_CENTER);
                 GameAssetIcons.bindMonster(this, slotIcons[i], entityId, iconRes);
             }
+            slotIcons[i].setAlpha(0.45f);
+            View infoLayout = root.findViewById(R.id.layout_monster_info);
+            if (infoLayout != null) infoLayout.setAlpha(0.45f);
             slotNames[i].setText(m.isEscaped() ? "已逃跑" : "已击倒");
             int maxHpDead = Math.max(1, m.getFinalAttributes().maxHp);
             slotHps[i].setMax(maxHpDead);
@@ -3370,3 +3374,4 @@ public class BattleActivity extends AppCompatActivity {
         }
     }
 }
+ 

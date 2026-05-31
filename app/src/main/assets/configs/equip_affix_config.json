@@ -464,18 +464,18 @@
     {
       "templateId": 6002,
       "affixName": "有备而来",
-      "descriptionFormat": "战斗开始时，获得 %2$.0f 点护盾",
+      "descriptionFormat": "战斗开始时，获得 %2$.0f%%最大生命值的护盾",
       "triggerType": "ON_BATTLE_START",
       "allowCategories": ["ARMOR"],
-      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffix",
+      "affixClass": "com.example.treasure_and_battle.affix.impl.equip.trigger.EquipTriggerBuffAffixPercentHp",
       "applyTarget": "SELF",
       "affixScope": "GLOBAL",
       "rarityParams": [
-        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 10},
-        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 20},
-        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 40},
-        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 80},
-        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 150}
+        {"rarityId": 0, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 5},
+        {"rarityId": 1, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 10},
+        {"rarityId": 2, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 20},
+        {"rarityId": 3, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 40},
+        {"rarityId": 4, "minValue": 1.0, "maxValue": 1.0, "buffTemplateId": 4001, "applyStacks": 75}
       ]
     },
     {

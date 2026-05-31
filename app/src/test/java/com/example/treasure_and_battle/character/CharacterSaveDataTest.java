@@ -52,7 +52,7 @@ public class CharacterSaveDataTest {
         ch.gainExp(ch.getExpToNextLevel());
         Character.CharacterData cd = ch.toSaveData().character;
         assertEquals(3, cd.level);
-        assertTrue(cd.talentPoints >= 4);
+        assertTrue(cd.talentPoints >= 10);
         assertTrue(cd.skillPoints >= 2);
     }
 

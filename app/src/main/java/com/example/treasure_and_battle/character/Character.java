@@ -108,16 +108,24 @@ public class Character {
         this.baseMaxHp += 8;
         this.baseMaxMp += 4;
         this.expToNextLevel = expValueForLevel(this.level);
-        this.talentPoints += 2;
+        this.talentPoints += 5;
         this.skillPoints += 1;
+
+        // 平衡性调整：每一点六维属性都自动加1
+        allocatedStrength++;
+        allocatedAgility++;
+        allocatedIntelligence++;
+        allocatedSpirit++;
+        allocatedPhysique++;
+        allocatedLuck++;
 
         growHpMpAfterMaxIncrease(oldMaxHp, oldMaxMp);
     }
 
     private int expValueForLevel(int level) {
         int BASE_EXP = 100;
-        int OFFSET_EXP = 3;
-        return BASE_EXP * (level * level + OFFSET_EXP * level);
+        int OFFSET_EXP = 0;
+        return BASE_EXP * level ;
     }
 
     // ========== 天赋分配 ==========

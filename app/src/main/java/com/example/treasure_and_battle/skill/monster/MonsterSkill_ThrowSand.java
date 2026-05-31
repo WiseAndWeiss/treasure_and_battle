@@ -29,7 +29,7 @@ public class MonsterSkill_ThrowSand extends MonsterActiveSkill {
         BattleContext context = battleManager.getContext();
 
         int damagePercent = getEffectParams().x;
-        int hitReducePercent = getEffectParams().y;
+        float hitReducePercent = getEffectParams().y / 100.0f;
         int duration = getEffectParams().z;
 
         int baseDamage = (int) (caster.getFinalAttributes().physicalAtk * damagePercent / 100.0f);
@@ -42,7 +42,7 @@ public class MonsterSkill_ThrowSand extends MonsterActiveSkill {
         battleManager.applyBuff(target, hitReduceBuff);
 
         context.addLog(LogType.ACTION,
-                "【撒沙】[%s] 向 [%s] 撒沙，造成 %d 点伤害，命中率降低 %d%% 持续 %d 回合",
-                caster.getName(), target.getName(), damageDealt, hitReducePercent, duration);
+                "【撒沙】[%s] 向 [%s] 撒沙，造成 %d 点伤害，命中率降低 %.2f%% 持续 %d 回合",
+                caster.getName(), target.getName(), damageDealt, hitReducePercent * 100, duration);
     }
 }

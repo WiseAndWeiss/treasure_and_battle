@@ -34,7 +34,7 @@ public class PassiveSkill_ManaFill extends PassiveSkill {
         // 检查MP是否已满
         if (currentMp >= maxMp) {
             // MP已满，添加魔法攻击提升buff
-            int magicalAtkBoost = magicalAtkBoostPercent;
+            float magicalAtkBoost = magicalAtkBoostPercent / 100.0f;
 
             // 检查是否已有该buff
             AttributeBuff existingBuff = null;
@@ -65,7 +65,7 @@ public class PassiveSkill_ManaFill extends PassiveSkill {
                 owner.markAttributeCacheDirty();
 
                 context.addLog(LogType.BUFF,
-                        "【魔力充盈】[%s] MP已满，魔法攻击提升%d%%，持续1回合！",
+                        "【魔力充盈】[%s] MP已满，魔法攻击提升%.2f%%，持续1回合！",
                         owner.getName(), magicalAtkBoost);
             }
         } else {
