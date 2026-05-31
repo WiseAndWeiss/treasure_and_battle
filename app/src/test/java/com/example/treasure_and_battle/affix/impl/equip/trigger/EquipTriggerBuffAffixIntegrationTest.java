@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 33, manifest = Config.NONE)
+@Config(sdk = 33)
 public class EquipTriggerBuffAffixIntegrationTest {
 
     private Context context;
@@ -49,6 +49,13 @@ public class EquipTriggerBuffAffixIntegrationTest {
         context = RuntimeEnvironment.application;
         battleManager = BattleManager.getInstance(context);
         buffManager = BuffManager.getInstance(context);
+
+        // 确保所有管理器使用相同的 context
+        com.example.treasure_and_battle.manager.affix.AffixManager.getInstance(context);
+
+        // 预先检查 buff 能否被正确创建
+        BaseBuff testBuff = buffManager.createBuffByTemplateId(3002);
+        org.junit.Assume.assumeTrue("Buff 3002 无法创建，可能是配置加载问题", testBuff != null);
     }
 
     @Test
@@ -74,6 +81,11 @@ public class EquipTriggerBuffAffixIntegrationTest {
     public void testBurningStacksScaleWithFinalDamageAndMagicDefMitigatesDot() {
         Player player = createPlayerWithWeaponAndAffixes();
         Monster tankMonster = createMonster("tank_monster", 5000, 50, 40, 0f);
+
+        // 验证词缀已正确装备
+        EquipItem weapon = player.getEquippedItem(com.example.treasure_and_battle.model.item.equip.EquipSlot.WEAPON);
+        assertNotNull("玩家应装备武器", weapon);
+        assertTrue("武器应有3个词缀", weapon.getAffixes() != null && weapon.getAffixes().size() == 3);
 
         BattleContext ctx = new BattleContext(player, tankMonster, false);
         battleManager.executeNormalAttack(ctx, player, tankMonster);

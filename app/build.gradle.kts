@@ -1,7 +1,10 @@
 import java.util.Properties
+import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 
 plugins {
     alias(libs.plugins.android.application)
+    jacoco
 }
 
 val localProperties = Properties()
@@ -39,11 +42,15 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            enableUnitTestCoverage = true
+        }
     }
 
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            isReturnDefaultValues = true
         }
     }
 
@@ -67,4 +74,63 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.10.3")
     // Mockito 用于模拟对象
     testImplementation("org.mockito:mockito-core:5.3.1")
+}
+
+// ====================== JaCoCo 测试覆盖率配置 ======================
+
+// 配置所有测试类型启用 JaCoCo
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.register("jacocoTestReport", JacocoReport::class) {
+    group = "verification"
+    description = "生成单元测试覆盖率报告"
+
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/coverage/html"))
+        xml.outputLocation.set(file("${layout.buildDirectory.get()}/reports/coverage/xml/report.xml"))
+    }
+
+    // 排除不需要覆盖的类
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "**/*Test.*",
+        "android/**/*.*",
+        "**/android/**",
+        "**/databinding/**",
+        "**/generated/**",
+        "**/.*\\\$\\\$robo\\\$\\\$.*",
+        "**/.*Robolectric.*",
+        "**/.*\\\$Shadow.*"
+    )
+
+    // Java 编译的 class
+    val javaTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes").get()) {
+        exclude(fileFilter)
+    }
+
+    // Kotlin 编译的 class（如果有）
+    val kotlinTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug").get()) {
+        exclude(fileFilter)
+    }
+
+    classDirectories.setFrom(files(javaTree, kotlinTree))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+
+    executionData.setFrom(fileTree(layout.buildDirectory.dir("outputs/unit_test_code_coverage/debugUnitTest").get()) {
+        include("*.exec")
+    })
 }

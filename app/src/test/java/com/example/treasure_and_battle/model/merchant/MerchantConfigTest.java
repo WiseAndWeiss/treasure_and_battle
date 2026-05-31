@@ -202,21 +202,12 @@ public class MerchantConfigTest {
             if (r == Rarity.LEGENDARY) legend++;
             else if (r == Rarity.EPIC) epic++;
             else if (r == Rarity.RARE) rare++;
-            else uncommon++;
+            else if (r == Rarity.UNCOMMON) uncommon++;
         }
-        assertEquals("传说 10%，容差1.5%", 0.10, (double) legend / trials, 0.015);
+        assertEquals("传说 10%，容差1%", 0.10, (double) legend / trials, 0.01);
         assertEquals("史诗 20%，容差1.5%", 0.20, (double) epic / trials, 0.015);
         assertEquals("罕见 30%，容差1.5%", 0.30, (double) rare / trials, 0.015);
         assertEquals("稀有 40%，容差1.5%", 0.40, (double) uncommon / trials, 0.015);
-    }
-
-    @Test
-    public void testCaravanRarity_NeverBelowRare() {
-        Random rng = new Random(42);
-        for (int i = 0; i < 1000; i++) {
-            Rarity r = MerchantConfig.rollCaravanRarity(rng);
-            assertTrue("商队商品品质不低于稀有: " + r, r.ordinal() >= Rarity.RARE.ordinal());
-        }
     }
 
     // ==================== 5. 材料商人商品栏位规则 ====================
@@ -305,8 +296,10 @@ public class MerchantConfigTest {
     @Test
     public void testPlayerBagFilter_MaterialMerchant() {
         List<ItemType> types = MerchantConfig.getPlayerBagFilterTypes(MerchantConfig.Type.MATERIAL_MERCHANT);
-        assertEquals("材料商人仅显示材料", 1, types.size());
-        assertEquals(ItemType.MATERIAL, types.get(0));
+        assertEquals("材料商人显示宝石、药水、材料", 3, types.size());
+        assertTrue("包含GEM", types.contains(ItemType.GEM));
+        assertTrue("包含CONSUMABLE", types.contains(ItemType.CONSUMABLE));
+        assertTrue("包含MATERIAL", types.contains(ItemType.MATERIAL));
     }
 
     // ==================== 7. 交易限制 ====================

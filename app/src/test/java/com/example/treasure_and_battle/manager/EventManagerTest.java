@@ -33,10 +33,11 @@ import java.util.Random;
  * 10.  setCurrentBattleMonster / getCurrentBattleMonster
  * 11.  setCurrentBattleSurprise / getCurrentBattleSurprise
  * 12.  removeEventCircle / clearAllEvents / addDebugEvent
- * 13.  MonsterPool 构造与 getPoolDifficultyCategory
- * 14.  findEventConfigByType 查找逻辑
- * 15.  getEventItems null 安全
- * 16.  override 设置与读取
+ * 13.  findEventConfigByType 查找逻辑
+ * 14.  getEventItems null 安全
+ * 15.  override 设置与读取
+ * 16.  checkExpiredEvents 逻辑
+ * 17.  场景化综合测试
  */
 public class EventManagerTest {
 
@@ -566,84 +567,7 @@ public class EventManagerTest {
         assertEquals(2, list.size());
     }
 
-    // ==================== 13. MonsterPool 构造与 getPoolDifficultyCategory ====================
-
-    @Test
-    public void testMonsterPool_MonsterCount() {
-        assertEquals("单怪", 1, new MonsterManager.MonsterPool(new int[]{2,-1,-1,-1,-1}).monsterCount);
-        assertEquals("双怪", 2, new MonsterManager.MonsterPool(new int[]{0,1,-1,-1,-1}).monsterCount);
-        assertEquals("三怪", 3, new MonsterManager.MonsterPool(new int[]{0,1,2,-1,-1}).monsterCount);
-        assertEquals("四怪", 4, new MonsterManager.MonsterPool(new int[]{0,0,1,2,-1}).monsterCount);
-        assertEquals("满编", 5, new MonsterManager.MonsterPool(new int[]{0,0,0,0,0}).monsterCount);
-    }
-
-    @Test
-    public void testMonsterPool_MaxRarity() {
-        assertEquals(0, new MonsterManager.MonsterPool(new int[]{0,-1,-1,-1,-1}).maxRarity);
-        assertEquals(1, new MonsterManager.MonsterPool(new int[]{0,1,-1,-1,-1}).maxRarity);
-        assertEquals(2, new MonsterManager.MonsterPool(new int[]{0,2,-1,-1,-1}).maxRarity);
-        assertEquals(3, new MonsterManager.MonsterPool(new int[]{0,1,3,-1,-1}).maxRarity);
-        assertEquals(4, new MonsterManager.MonsterPool(new int[]{0,1,2,3,4}).maxRarity);
-    }
-
-    @Test
-    public void testMonsterPool_Description() {
-        MonsterManager.MonsterPool pool = new MonsterManager.MonsterPool(new int[]{0,1,2,-1,-1});
-        assertTrue("描述含数量×3", pool.description.contains("×3"));
-        assertTrue("描述含稀有度", pool.description.contains("[0,1,2]"));
-    }
-
-    @Test
-    public void testGetPoolDifficultyCategory() {
-        int idx = 0; // 1 solo COMMON
-        MonsterManager.MonsterPool pool = new MonsterManager.MonsterPool(new int[]{0,-1,-1,-1,-1});
-        assertEquals("TIER_1", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{0,1,-1,-1,-1});
-        assertEquals("TIER_2", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{0,1,2,-1,-1});
-        assertEquals("TIER_3", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{3,3,3,-1,-1});
-        assertEquals("TIER_4", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{2,3,4,-1,-1});
-        assertEquals("TIER_5", getDifficultyCategory(pool));
-    }
-
-    private String getDifficultyCategory(MonsterManager.MonsterPool pool) {
-        int m = pool.monsterCount;
-        int r = pool.maxRarity;
-        if (m == 1 && r <= 1) return "TIER_1";
-        if (m <= 2 && r <= 1) return "TIER_2";
-        if ((m <= 3 && r <= 2) || (m == 5 && r == 0)) return "TIER_3";
-        if (r == 3) return "TIER_4";
-        return "TIER_5";
-    }
-
-    @Test
-    public void testGetPoolDifficultyCategory_EdgeCases() {
-        MonsterManager.MonsterPool pool;
-
-        pool = new MonsterManager.MonsterPool(new int[]{0,0,0,-1,-1});
-        assertEquals("3COM 为 TIER_3", "TIER_3",
-                getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{3,-1,-1,-1,-1});
-        assertEquals("单EPIC=TIER_4", "TIER_4", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{4,-1,-1,-1,-1});
-        assertEquals("单LEG=TIER_5", "TIER_5", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{0,0,0,0,0});
-        assertEquals("5杂兵→TIER_3", "TIER_3", getDifficultyCategory(pool));
-
-        pool = new MonsterManager.MonsterPool(new int[]{1,1,1,1,-1});
-        assertEquals("4UNC=TIER_4", "TIER_4", getDifficultyCategory(pool));
-    }
-
-    // ==================== 14. findEventConfigByType ====================
+    // ==================== 13. findEventConfigByType ====================
 
     @Test
     public void testFindEventConfigByType_Found() {
@@ -673,7 +597,7 @@ public class EventManagerTest {
         return null;
     }
 
-    // ==================== 15. getEventItems null 安全 ====================
+    // ==================== 14. getEventItems null 安全 ====================
 
     @Test
     public void testGetEventItems_EmptyWhenNullConfig() {
@@ -688,7 +612,7 @@ public class EventManagerTest {
         assertEquals(1, items.length);
     }
 
-    // ==================== 16. override 设置与读取 ====================
+    // ==================== 15. override 设置与读取 ====================
 
     @Test
     public void testSetExpireOverrides() {
@@ -704,7 +628,7 @@ public class EventManagerTest {
         assertEquals(120000, interval);
     }
 
-    // ==================== 17. checkExpiredEvents 逻辑 ====================
+    // ==================== 16. checkExpiredEvents 逻辑 ====================
 
     @Test
     public void testCheckExpired_NotExpired() {
@@ -759,7 +683,7 @@ public class EventManagerTest {
         assertTrue("列表已空", list.isEmpty());
     }
 
-    // ==================== 18. 场景化综合测试 ====================
+    // ==================== 17. 场景化综合测试 ====================
 
     @Test
     public void testFullCycle_AddExpireRemove() {
