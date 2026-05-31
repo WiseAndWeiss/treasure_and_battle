@@ -566,19 +566,19 @@
             {
               "buffTemplateId": 2001,
               "stacks": 100,
-              "duration": 1,
+              "duration": 999,
               "valueType": "PERCENTAGE"
             },
             {
               "buffTemplateId": 2003,
               "stacks": 100,
-              "duration": 1,
+              "duration": 999,
               "valueType": "PERCENTAGE"
             }
           ]
         }
       ],
-      "description": "HP降低为1，本回合攻击力提升200%"
+      "description": "HP降低为1，本场战斗中攻击力提升100%"
     }
   ]
 }

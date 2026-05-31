@@ -70,15 +70,14 @@ public class PassiveSkill_HuntCircuit extends PassiveSkill {
      * 根据实体类型获取敌方单位列表
      */
     private List<BattleEntity> getEnemies(BattleEntity entity, BattleContext context) {
-        // 如果entity在玩家方，敌人是怪物；反之亦然
         boolean isPlayerParty = context.playerParty.contains(entity);
         if (isPlayerParty) {
             return context.monsters.stream()
-                    .filter(m -> !m.isDead())
+                    .filter(m -> m != null && !m.isDead())
                     .collect(Collectors.toList());
         } else {
             return context.playerParty.stream()
-                    .filter(p -> !p.isDead())
+                    .filter(p -> p != null && !p.isDead())
                     .collect(Collectors.toList());
         }
     }

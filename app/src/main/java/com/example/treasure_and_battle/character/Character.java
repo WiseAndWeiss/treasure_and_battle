@@ -309,6 +309,7 @@ public class Character {
 
         for (Skill skill : profession.getLearnedActiveSkill()) {
             if (skill instanceof ActiveSkill) {
+                ((ActiveSkill) skill).clearCooldown();
                 player.addActiveSkill((ActiveSkill) skill);
             }
         }
