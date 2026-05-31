@@ -162,7 +162,8 @@ public class InventoryManagerTest {
         InventoryManager.autoStackInPlace(bag);
         assertEquals(2, InventoryManager.countOccupied(bag));
         assertEquals(99, bag.get(0).getCount());
-        assertEquals(31, bag.get(1).getCount());
+        // autoStackInPlace 不移动位置，只合并数量
+        assertEquals(31, bag.get(3).getCount());
     }
 
     @Test

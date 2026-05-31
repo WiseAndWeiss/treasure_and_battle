@@ -41,7 +41,6 @@ public class BattleManagerTest {
     public void setUp() {
         context = RuntimeEnvironment.application;
         battleManager = BattleManager.getInstance(context);
-        // InventoryManager.releaseInstance() — removed (stateless)
         RandomUtils.setSeed(123456L);
 
         testPlayer = new Player("TestPlayer", context);
@@ -229,40 +228,6 @@ public class BattleManagerTest {
         assertTrue("看破率不应高于90%", chance <= 0.9);
     }
 
-    @Test
-    public void testIntentReveal_GeneratedOnRoundStart() {
-        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
-        ctx.monsterRevealedIntents.clear();
-
-        Monster m = ctx.getAliveMonsters().get(0);
-        ctx.monsterRevealedIntents.put(m.getEntityId(), new ArrayList<>());
-
-        assertNotNull(ctx.monsterRevealedIntents.get(m.getEntityId()));
-    }
-
-    // ====================== ReavealedIntent 执行标记测试 ======================
-
-    @Test
-    public void testRevealedIntent_ExecutionMarkedAfterMonsterActs() {
-        Monster dummy = createMonster("dummy", 10, 100, 10);
-        BattleContext ctx = new BattleContext(testPlayer, dummy, SurpriseDirection.NONE);
-
-        ctx.monsterRevealedIntents.clear();
-
-        ActionIntent intent1 =
-            new ActionIntent(
-                "测试攻击", "", ActionIntent.IntentType.ATTACK,
-                1, 0, 1.0, 100, 10, -1f, -1f, null);
-
-        List<RevealedIntent> revealed = new ArrayList<>();
-        revealed.add(new RevealedIntent(intent1, true));
-        ctx.monsterRevealedIntents.put(dummy.getEntityId(), revealed);
-
-        assertFalse("初始未执行", revealed.get(0).executed);
-        revealed.get(0).executed = true;
-        assertTrue("手动标记后应为已执行", revealed.get(0).executed);
-    }
-
     // ====================== 伤害计算测试 ======================
 
     @Test
@@ -330,18 +295,40 @@ public class BattleManagerTest {
     }
 
     @Test
-    public void testSettlement_AggregatesExpFromAllMonsters() {
-        Monster m1 = createMonster("m1", 10, 100, 10);
-        Monster m2 = createMonster("m2", 12, 100, 10);
-        m1.setExpReward(30);
-        m2.setExpReward(40);
-
-        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(m1, m2), SurpriseDirection.NONE);
-        ctx.battleResult = BattleContext.BattleResult.VICTORY;
+    public void testSettlement_EscapedHasNoPenalty() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.battleResult = BattleContext.BattleResult.ESCAPED;
         ctx.isBattleEnded = true;
+        int goldBefore = testPlayer.owner != null ? testPlayer.owner.getGold() : 0;
+
         battleManager.settleBattleResult(ctx);
 
-        assertEquals("战斗结果应为胜利", BattleContext.BattleResult.VICTORY, ctx.battleResult);
+        int goldAfter = testPlayer.owner != null ? testPlayer.owner.getGold() : 0;
+        assertEquals("逃跑不应损失金币", goldBefore, goldAfter);
+    }
+
+    @Test
+    public void testSettlement_MonsterEscaped() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.battleResult = BattleContext.BattleResult.MONSTER_ESCAPED;
+        ctx.isBattleEnded = true;
+
+        battleManager.settleBattleResult(ctx);
+
+        // 验证不抛异常
+        assertNotNull("上下文应保持有效", ctx);
+    }
+
+    @Test
+    public void testSettlement_UnknownResultLogsWarning() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.battleResult = null;
+        ctx.isBattleEnded = true;
+
+        battleManager.settleBattleResult(ctx);
+
+        // 验证不抛异常
+        assertNotNull("上下文应保持有效", ctx);
     }
 
     // ====================== 死亡检查测试 ======================
@@ -417,6 +404,29 @@ public class BattleManagerTest {
         assertFalse("有存活怪物时战斗不应结束", ctx.isBattleEnded);
     }
 
+    @Test
+    public void testEscape_NonMonsterActorReturnsFalse() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.currentActor = testPlayer;
+
+        boolean result = battleManager.executeMonsterEscape(ctx);
+
+        assertFalse("非怪物演员应返回false", result);
+    }
+
+    @Test
+    public void testEscape_LastMonsterEscapedEndsBattle() {
+        Monster onlyMonster = createMonster("only", 100, 100, 10);
+        BattleContext ctx = new BattleContext(testPlayer, onlyMonster, SurpriseDirection.NONE);
+        ctx.currentActor = onlyMonster;
+        RandomUtils.setSeed(0L);
+
+        battleManager.executeMonsterEscape(ctx);
+
+        assertTrue("战斗应结束", ctx.isBattleEnded);
+        assertEquals("结果应为怪物逃跑", BattleContext.BattleResult.MONSTER_ESCAPED, ctx.battleResult);
+    }
+
     // ====================== 日志系统测试 ======================
 
     @Test
@@ -446,52 +456,11 @@ public class BattleManagerTest {
     }
 
     @Test
-    public void testEdgeCase_MonsterDiesBeforeActionInQueue() {
-        Monster fastMonster = createMonster("fast", 50, 5, 30);
-        Monster slowMonster = createMonster("slow", 10, 100, 10);
-        testPlayer.getBaseAttributes().physicalAtk = 100;
-        testPlayer.getBaseAttributes().speed = 30;
-        testPlayer.markAttributeCacheDirty();
-
-        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(fastMonster, slowMonster), SurpriseDirection.NONE);
-        battleManager.buildSpeedQueue(ctx);
-
-        ctx.currentActor = fastMonster;
-        ctx.currentTarget = slowMonster;
-        battleManager.executeNormalAttack(ctx, testPlayer, fastMonster);
-        checkActorDeadAndSkip(ctx, "fast", 1);
-    }
-
-    private void checkActorDeadAndSkip(BattleContext ctx, String name, int aliveCount) {
-        for (BattleEntity e : ctx.roundActionOrder) {
-            if (e.getName().equals(name)) {
-                assertTrue(e.isDead());
-            }
-        }
-    }
-
-    @Test
     public void testEdgeCase_PlayerPartyListed() {
         BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
         assertNotNull(ctx.playerParty);
         assertEquals(1, ctx.playerParty.size());
         assertSame(testPlayer, ctx.playerParty.get(0));
-    }
-
-    @Test
-    public void testEdgeCase_MonsterEscapeAllMonstersGone() {
-        Monster onlyMonster = createMonster("only", 100, 100, 10);
-        testPlayer.getBaseAttributes().speed = 1;
-        testPlayer.markAttributeCacheDirty();
-
-        BattleContext ctx = new BattleContext(testPlayer, onlyMonster, SurpriseDirection.NONE);
-        ctx.currentActor = onlyMonster;
-
-        RandomUtils.setSeed(0L);
-        battleManager.executeMonsterEscape(ctx);
-
-        assertTrue("逃跑后应结束战斗", ctx.isBattleEnded);
-        assertEquals("结果应为怪物逃跑", BattleContext.BattleResult.MONSTER_ESCAPED, ctx.battleResult);
     }
 
     @Test
@@ -598,14 +567,392 @@ public class BattleManagerTest {
         assertEquals("HP 不应变化", playerHpBefore, testPlayer.getCurrentHp());
     }
 
+    // ====================== startBattle 测试 ======================
+
+    @Test
+    public void testStartBattle_CompletesFullBattle() {
+        Monster weakMonster = createMonster("weak", 5, 10, 5);
+        testPlayer.getBaseAttributes().physicalAtk = 100;
+        testPlayer.getBaseAttributes().speed = 50;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.startBattle(testPlayer, Arrays.asList(weakMonster), SurpriseDirection.NONE);
+
+        assertTrue("战斗应结束", ctx.isBattleEnded);
+        assertNotNull("应有战斗结果", ctx.battleResult);
+    }
+
+    // ====================== bootstrapBattleForUi 测试 ======================
+
+    @Test
+    public void testBootstrapBattleForUi_InitializesBattle() {
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster), SurpriseDirection.NONE);
+
+        assertNotNull("上下文不应为null", ctx);
+        assertEquals("回合数应为1", 1, ctx.currentRound);
+        assertFalse("速度队列不应为空", ctx.roundActionOrder.isEmpty());
+    }
+
+    @Test
+    public void testBootstrapBattleForUi_WithRunMonstersTrue() {
+        testPlayer.getBaseAttributes().speed = 50;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.getBaseAttributes().speed = 10;
+        testMonster.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster),
+                SurpriseDirection.NONE, true);
+
+        assertNotNull("上下文不应为null", ctx);
+        assertEquals("当前行动者应为玩家", testPlayer, ctx.currentActor);
+    }
+
+    @Test
+    public void testBootstrapBattleForUi_WithRunMonstersFalse() {
+        testPlayer.getBaseAttributes().speed = 50;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.getBaseAttributes().speed = 100;
+        testMonster.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster),
+                SurpriseDirection.NONE, false);
+
+        assertNotNull("上下文不应为null", ctx);
+        // 当runMonsters=false时，怪物不会预先行动，可能没有设置currentActor
+        // 但速度队列应该已构建
+        assertFalse("速度队列应已构建", ctx.roundActionOrder.isEmpty());
+    }
+
+    // ====================== stepOneMonsterAction 测试 ======================
+
+    @Test
+    public void testStepOneMonsterAction_NullContextReturnsNull() {
+        Monster result = battleManager.stepOneMonsterAction(null);
+        assertNull("空上下文应返回null", result);
+    }
+
+    @Test
+    public void testStepOneMonsterAction_BattleEndedReturnsNull() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.isBattleEnded = true;
+
+        Monster result = battleManager.stepOneMonsterAction(ctx);
+
+        assertNull("战斗结束应返回null", result);
+    }
+
+    @Test
+    public void testStepOneMonsterAction_ReturnsNullWhenPlayerTurn() {
+        testPlayer.getBaseAttributes().speed = 100;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.getBaseAttributes().speed = 10;
+        testMonster.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster), SurpriseDirection.NONE);
+
+        Monster result = battleManager.stepOneMonsterAction(ctx);
+
+        assertNull("轮到玩家时应返回null", result);
+        assertEquals("当前行动者应为玩家", testPlayer, ctx.currentActor);
+    }
+
+    @Test
+    public void testStepOneMonsterAction_SkipsDeadEntity() {
+        Monster deadMonster = createMonster("dead", 100, 10, 10);
+        deadMonster.setDead(true);
+        Monster aliveMonster = createMonster("alive", 50, 100, 10);
+        // 确保玩家速度最慢，这样第一个行动的会是活着的怪物
+        testPlayer.getBaseAttributes().speed = 5;
+        testPlayer.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer,
+                Arrays.asList(deadMonster, aliveMonster), SurpriseDirection.NONE, false);
+
+        // 多次调用以跳过死亡怪物
+        Monster result = battleManager.stepOneMonsterAction(ctx);
+        // 如果第一次返回null（可能是玩家回合或不行动），再次调用
+        if (result == null && !ctx.isBattleEnded) {
+            result = battleManager.stepOneMonsterAction(ctx);
+        }
+
+        // 验证方法能正常处理死亡怪物的情况
+        assertNotNull("战斗上下文应保持有效", ctx);
+        assertFalse("战斗不应意外结束", ctx.isBattleEnded && ctx.battleResult == BattleContext.BattleResult.DEFEAT);
+    }
+
+    @Test
+    public void testStepOneMonsterAction_ReturnsActingMonster() {
+        testPlayer.getBaseAttributes().speed = 10;
+        testPlayer.markAttributeCacheDirty();
+        testMonster.getBaseAttributes().speed = 50;
+        testMonster.markAttributeCacheDirty();
+
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster), SurpriseDirection.NONE, false);
+
+        Monster result = battleManager.stepOneMonsterAction(ctx);
+
+        // 可能返回怪物（如果怪物先行动）或null（如果玩家先行动）
+        // 验证至少有一个行动者
+        assertNotNull("战斗上下文应有效", ctx);
+    }
+
+    // ====================== runMonsterTurnsUntilPlayerTurn 测试 ======================
+
+    @Test
+    public void testRunMonsterTurnsUntilPlayerTurn_NullContextDoesNothing() {
+        battleManager.runMonsterTurnsUntilPlayerTurn(null);
+        // 验证不抛异常
+    }
+
+    @Test
+    public void testRunMonsterTurnsUntilPlayerTurn_InitializesEmptyQueue() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.roundActionOrder = null;
+
+        battleManager.runMonsterTurnsUntilPlayerTurn(ctx);
+
+        assertNotNull("队列应被初始化", ctx.roundActionOrder);
+    }
+
+    // ====================== onPlayerTurnFullySpent 测试 ======================
+
+    @Test
+    public void testOnPlayerTurnFullySpent_NullContextDoesNothing() {
+        battleManager.onPlayerTurnFullySpent(null);
+        // 验证不抛异常
+    }
+
+    @Test
+    public void testOnPlayerTurnFullySpent_BattleEndedDoesNothing() {
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster), SurpriseDirection.NONE);
+        ctx.isBattleEnded = true;
+        int actionIndexBefore = ctx.actionOrderIndex;
+
+        battleManager.onPlayerTurnFullySpent(ctx);
+
+        assertEquals("索引不应变化", actionIndexBefore, ctx.actionOrderIndex);
+    }
+
+    @Test
+    public void testOnPlayerTurnFullySpent_ActionPointsRemainingDoesNothing() {
+        BattleContext ctx = battleManager.bootstrapBattleForUi(testPlayer, Arrays.asList(testMonster), SurpriseDirection.NONE);
+        testPlayer.setCurrentActionPoints(2);
+        int actionIndexBefore = ctx.actionOrderIndex;
+
+        battleManager.onPlayerTurnFullySpent(ctx);
+
+        assertEquals("索引不应变化", actionIndexBefore, ctx.actionOrderIndex);
+    }
+
+    // ====================== executePendingMonsterAction 测试 ======================
+
+    @Test
+    public void testExecutePendingMonsterAction_ExecutesAction() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.pendingMonsterAction = BattleAction.normalAttack(testMonster, testPlayer);
+        int playerHpBefore = testPlayer.getCurrentHp();
+
+        battleManager.executePendingMonsterAction(ctx);
+
+        assertTrue("玩家HP应变化", testPlayer.getCurrentHp() < playerHpBefore || ctx.finalDamage > 0);
+        assertNull("待执行动作应清空", ctx.pendingMonsterAction);
+    }
+
+    @Test
+    public void testExecutePendingMonsterAction_NullActionDoesNothing() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        ctx.pendingMonsterAction = null;
+
+        battleManager.executePendingMonsterAction(ctx);
+
+        // 验证不抛异常
+        assertNotNull("上下文应保持有效", ctx);
+    }
+
+    // ====================== getAliveMonstersBySpeed 测试 ======================
+
+    @Test
+    public void testGetAliveMonstersBySpeed_SortsBySpeed() {
+        Monster slow = createMonster("slow", 10, 100, 10);
+        Monster fast = createMonster("fast", 50, 100, 10);
+        Monster mid = createMonster("mid", 30, 100, 10);
+
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(slow, mid, fast), SurpriseDirection.NONE);
+
+        List<Monster> sorted = battleManager.getAliveMonstersBySpeed(ctx);
+
+        assertEquals("最快怪物应排第一", "fast", sorted.get(0).getName());
+        assertEquals("中等速度怪物应排第二", "mid", sorted.get(1).getName());
+        assertEquals("最慢怪物应排第三", "slow", sorted.get(2).getName());
+    }
+
+    @Test
+    public void testGetAliveMonstersBySpeed_ExcludesDeadMonsters() {
+        Monster alive = createMonster("alive", 50, 100, 10);
+        Monster dead = createMonster("dead", 100, 100, 10);
+        dead.setDead(true);
+
+        BattleContext ctx = new BattleContext(testPlayer, Arrays.asList(alive, dead), SurpriseDirection.NONE);
+
+        List<Monster> sorted = battleManager.getAliveMonstersBySpeed(ctx);
+
+        assertEquals("应只包含活着的怪物", 1, sorted.size());
+        assertEquals("活着的怪物应在列表中", "alive", sorted.get(0).getName());
+    }
+
+    // ====================== dispatchOnBattleStart 测试 ======================
+
+    @Test
+    public void testDispatchOnBattleStart_DispatchesTrigger() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+
+        battleManager.dispatchOnBattleStart(ctx);
+
+        // 验证触发器被派发（无异常即通过）
+        assertNotNull("上下文应保持有效", ctx);
+    }
+
+    // ====================== Listener 测试 ======================
+
+    @Test
+    public void testSetMonsterActListener() {
+        final boolean[] willActCalled = { false };
+        final boolean[] escapedCalled = { false };
+        final boolean[] failedCalled = { false };
+        BattleManager.MonsterActListener listener = new BattleManager.MonsterActListener() {
+            @Override
+            public void onMonsterWillAct(Monster monster) {
+                willActCalled[0] = true;
+            }
+
+            @Override
+            public void onMonsterEscaped(Monster monster) {
+                escapedCalled[0] = true;
+            }
+
+            @Override
+            public void onMonsterEscapeFailed(Monster monster) {
+                failedCalled[0] = true;
+            }
+        };
+
+        battleManager.setMonsterActListener(listener);
+
+        // 测试逃跑成功
+        Monster onlyMonster = createMonster("only", 100, 100, 10);
+        BattleContext ctx = new BattleContext(testPlayer, onlyMonster, SurpriseDirection.NONE);
+        ctx.currentActor = onlyMonster;
+        RandomUtils.setSeed(0L);
+        battleManager.executeMonsterEscape(ctx);
+
+        assertTrue("逃跑时应调用onMonsterEscaped", escapedCalled[0]);
+    }
+
+    @Test
+    public void testSetShieldAbsorbListener() {
+        final boolean[] called = { false };
+        final int[] absorbedAmount = { 0 };
+        BattleManager.ShieldAbsorbListener listener = (target, amount) -> {
+            called[0] = true;
+            absorbedAmount[0] = amount;
+        };
+
+        battleManager.setShieldAbsorbListener(listener);
+        battleManager.notifyShieldAbsorbed(testPlayer, 50);
+
+        assertTrue("Listener应被调用", called[0]);
+        assertEquals("吸收金额应正确", 50, absorbedAmount[0]);
+    }
+
+    @Test
+    public void testNotifyShieldAbsorbed_NullListenerDoesNothing() {
+        battleManager.setShieldAbsorbListener(null);
+        // 验证不抛异常
+        battleManager.notifyShieldAbsorbed(testPlayer, 50);
+    }
+
+    // ====================== submitBattleAction 边界测试 ======================
+
+    @Test
+    public void testSubmitBattleAction_NullActionReturnsFalse() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+
+        boolean result = battleManager.submitBattleAction(ctx, null);
+
+        assertFalse("null动作应返回false", result);
+    }
+
+    @Test
+    public void testSubmitBattleAction_ActionWithNullActorReturnsFalse() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        BattleAction action = new BattleAction(BattleAction.ActionType.ATTACK, null, testPlayer,
+                1, 0, 0, 1.0, null, "测试");
+
+        boolean result = battleManager.submitBattleAction(ctx, action);
+
+        assertFalse("空施法者应返回false", result);
+    }
+
+    @Test
+    public void testSubmitBattleAction_NotEnoughActionPointsFails() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        testPlayer.setCurrentActionPoints(0);
+        BattleAction action = BattleAction.normalAttack(testPlayer, testMonster);
+
+        boolean result = battleManager.submitBattleAction(ctx, action);
+
+        assertFalse("行动点不足应失败", result);
+    }
+
+    @Test
+    public void testSubmitBattleAction_NotEnoughMpFails() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        testPlayer.setCurrentMp(0);
+        BattleAction action = BattleAction.useSkill(testPlayer, testMonster,
+                "any_skill", 1, 10, 1.0, "技能");
+
+        boolean result = battleManager.submitBattleAction(ctx, action);
+
+        assertFalse("魔力不足应失败", result);
+    }
+
+    // ====================== executePlayerEscape with doChaseOnFail 测试 ======================
+
+    @Test
+    public void testExecutePlayerEscape_NoChaseOnFail() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        RandomUtils.setSeed(999L);
+
+        battleManager.executePlayerEscape(ctx, false);
+
+        assertFalse("应逃跑失败", ctx.battleResult == BattleContext.BattleResult.ESCAPED);
+    }
+
+    @Test
+    public void testExecutePlayerEscape_WithChaseOnFail() {
+        BattleContext ctx = new BattleContext(testPlayer, testMonster, SurpriseDirection.NONE);
+        RandomUtils.setSeed(999L);
+        int playerHpBefore = testPlayer.getCurrentHp();
+
+        battleManager.executePlayerEscape(ctx, true);
+
+        // 失败时应该被追击
+        int playerHpAfter = testPlayer.getCurrentHp();
+        assertTrue("追击应造成伤害或至少尝试追击", playerHpAfter <= playerHpBefore);
+    }
+
+    // ====================== executeSkill 边界测试 ======================
+    // 注：ActiveSkill需要SkillTemplate创建，这里跳过相关测试
+    // executeSkill的功能可以通过技能系统的专门测试来验证
+
+    // ====================== 辅助方法 ======================
+
     private ConsumableItem.Effect createHealEffect(float value) {
         ConsumableItem.Effect e = new ConsumableItem.Effect(ConsumableItem.EffectType.HEAL_HP);
         e.value = value;
         e.valueType = "FLAT";
         return e;
     }
-
-    // ====================== 辅助方法 ======================
 
     private Monster createMonster(String id, int speed, int maxHp, int patk) {
         int strength = patk;

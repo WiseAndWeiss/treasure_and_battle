@@ -35,8 +35,8 @@ public class ConsumableItemTest {
     }
 
     @Test
-    public void testEffectTypeEnumAllSeven() {
-        assertEquals(7, ConsumableItem.EffectType.values().length);
+    public void testEffectTypeEnumAllEight() {
+        assertEquals(8, ConsumableItem.EffectType.values().length);
         assertNotNull(ConsumableItem.EffectType.valueOf("HEAL_HP"));
         assertNotNull(ConsumableItem.EffectType.valueOf("HEAL_MP"));
         assertNotNull(ConsumableItem.EffectType.valueOf("DAMAGE"));
@@ -44,6 +44,7 @@ public class ConsumableItemTest {
         assertNotNull(ConsumableItem.EffectType.valueOf("CLEANSE"));
         assertNotNull(ConsumableItem.EffectType.valueOf("ESCAPE"));
         assertNotNull(ConsumableItem.EffectType.valueOf("UTILITY_PASSIVE"));
+        assertNotNull(ConsumableItem.EffectType.valueOf("UTILITY_ACTIVE"));
     }
 
     @Test
