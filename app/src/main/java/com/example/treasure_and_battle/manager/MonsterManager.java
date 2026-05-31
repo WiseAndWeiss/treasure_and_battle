@@ -97,6 +97,32 @@ public class MonsterManager {
         return createMonsterByTemplateId(randomId);
     }
 
+    public Monster createRandomMonsterWithConstraints(int[] allowedRarityIds, String[] excludedRaceIds) {
+        if (templateMap.isEmpty()) return null;
+        List<Integer> candidateIds = new ArrayList<>();
+        for (MonsterTemplate t : templateMap.values()) {
+            boolean rarityOk = false;
+            for (int rid : allowedRarityIds) {
+                if (t.getRarityId() == rid) { rarityOk = true; break; }
+            }
+            if (!rarityOk) continue;
+            boolean excluded = false;
+            if (excludedRaceIds != null) {
+                String race = t.getRaceId();
+                if (race != null) {
+                    for (String ex : excludedRaceIds) {
+                        if (race.equalsIgnoreCase(ex)) { excluded = true; break; }
+                    }
+                }
+            }
+            if (excluded) continue;
+            candidateIds.add(t.getTemplateId());
+        }
+        if (candidateIds.isEmpty()) return null;
+        int randomId = candidateIds.get(new Random().nextInt(candidateIds.size()));
+        return createMonsterByTemplateId(randomId);
+    }
+
     // ====================== 种族与模板查询 ======================
 
     public List<String> getAvailableRaces() {
@@ -172,6 +198,9 @@ public class MonsterManager {
         if (total > 0) for (int i = 0; i < cappedDist.length; i++) cappedDist[i] /= total;
 
         int[] raritySeq = generateRaritySequence(count, cappedDist, rng);
+        if (count > 0) {
+            raritySeq[0] = effectiveMax;
+        }
         List<Integer> templateIds = new ArrayList<>();
         for (int rarityId : raritySeq) {
             List<MonsterTemplate> candidates = getTemplatesOfRarity(raceTemplates, rarityId);

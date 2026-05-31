@@ -246,7 +246,7 @@ public final class MerchantConfig {
             case EQUIPMENT_MERCHANT: return "equipment_merchant";
             case CARAVAN: return "caravan";
             case MATERIAL_MERCHANT: return "material_merchant";
-            default: return "merchant";
+            default: return null;
         }
     }
 

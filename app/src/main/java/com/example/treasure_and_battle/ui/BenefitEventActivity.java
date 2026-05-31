@@ -76,7 +76,7 @@ public class BenefitEventActivity extends AppCompatActivity {
         View cardChest = findViewById(R.id.card_chest);
 
         if ("chest".equals(eventKey)) {
-            tvToolbarTitle.setText("营地宝箱");
+            tvToolbarTitle.setText("宝藏");
             cardRest.setVisibility(View.GONE);
             rollChestType();
             TextView tvChestTitle = findViewById(R.id.tv_chest_title);
@@ -85,7 +85,7 @@ public class BenefitEventActivity extends AppCompatActivity {
             tvChestDesc.setText("营地角落里有一只" + chestName + "！需要" + getKeyName(keyId) + "才能开启。");
             cardChest.setOnClickListener(v -> doChest());
         } else {
-            tvToolbarTitle.setText("安全营地");
+            tvToolbarTitle.setText("营地");
             cardChest.setVisibility(View.GONE);
             cardRest.setOnClickListener(v -> doRest());
         }

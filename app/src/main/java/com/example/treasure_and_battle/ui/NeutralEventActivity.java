@@ -77,6 +77,11 @@ public class NeutralEventActivity extends AppCompatActivity {
     private String lastWishResult;
     private static final int[] WISHING_AMOUNTS = {1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233};
 
+    private String chestName;
+    private String keyId;
+    private Rarity chestRarity;
+    private int goldMin, goldMax;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,10 +113,19 @@ public class NeutralEventActivity extends AppCompatActivity {
 
     private static final java.util.Set<String> MERCHANT_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("wandering_vendor", "equipment_merchant", "caravan", "material_merchant"));
+    private static final java.util.Set<String> BENEFIT_KEYS = new java.util.HashSet<>(
+            java.util.Arrays.asList("rest", "chest"));
 
     private void loadEventBorder() {
         if (eventKey == null) return;
-        String mappedKey = MERCHANT_KEYS.contains(eventKey) ? "merchant" : eventKey;
+        String mappedKey;
+        if (MERCHANT_KEYS.contains(eventKey)) {
+            mappedKey = "merchant";
+        } else if (BENEFIT_KEYS.contains(eventKey)) {
+            mappedKey = "scholar";
+        } else {
+            mappedKey = eventKey;
+        }
         String fileName = mappedKey.replace("equipment_reforge", "equipment_reforce") + ".png";
         ImageView ivBorder = findViewById(R.id.iv_event_border);
         try (InputStream is = getAssets().open("border/" + fileName)) {
@@ -191,19 +205,6 @@ public class NeutralEventActivity extends AppCompatActivity {
                 });
                 break;
 
-            case "merchant":
-                btnAction1 = addActionButton("进入商店交易", 0xFF2196F3, v -> {
-                    Intent result = new Intent();
-                    result.putExtra("open_trade", true);
-                    setResult(RESULT_OK, result);
-                    finish();
-                });
-                btnAction2 = addActionButton("拒绝交易", 0xFF888888, v -> {
-                    showResult("你拒绝了商人的交易邀请。");
-                    switchToForwardButton();
-                });
-                break;
-
             case "traveler":
                 buildTravelerActions();
                 break;
@@ -265,6 +266,30 @@ public class NeutralEventActivity extends AppCompatActivity {
 
             case "cave_treasure":
                 buildCaveTreasureActions();
+                break;
+
+            case "rest":
+                btnAction1 = addActionButton("在篝火旁休息", 0xFF4CAF50, v -> {
+                    Character ch = PlayerCharacterHolder.getOrCreate(NeutralEventActivity.this);
+                    int heal = (int) (ch.getBaseMaxHp() * 0.3);
+                    int newHp = Math.min(ch.getCurrentHp() + heal, ch.getBaseMaxHp());
+                    ch.setCurrentHp(newHp);
+                    showResult("你靠在篝火旁休息，伤势恢复了。\n\n生命值 +" + heal + "（当前：" + ch.getCurrentHp() + "/" + ch.getBaseMaxHp() + "）");
+                    switchToForwardButton();
+                });
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你离开了营地，继续前行。");
+                    switchToForwardButton();
+                });
+                break;
+
+            case "chest":
+                rollChestType();
+                btnAction1 = addActionButton("打开宝箱", 0xFFFF9800, v -> doChest());
+                btnAction2 = addActionButton("离开", 0xFF888888, v -> {
+                    showResult("你放弃了" + chestName + "，继续前行。");
+                    switchToForwardButton();
+                });
                 break;
 
             case "equipment_reforge":
@@ -575,6 +600,15 @@ public class NeutralEventActivity extends AppCompatActivity {
                 btn1Text = "洞穴里有一只猛兽，你被迫与它战斗！";
                 btn1Color = 0xFFE53935;
                 btn1Listener = v -> {
+                    MonsterManager mm = MonsterManager.getInstance(NeutralEventActivity.this);
+                    Monster caveMonster = mm.createRandomMonsterWithConstraints(
+                            new int[]{Rarity.RARE.getId(), Rarity.EPIC.getId()},
+                            new String[]{"BANDIT", "CULTIST"});
+                    if (caveMonster != null) {
+                        List<Monster> batch = new java.util.ArrayList<>();
+                        batch.add(caveMonster);
+                        EventManager.getInstance(getApplicationContext()).setCurrentBattleMonsters(batch);
+                    }
                     Intent result = new Intent();
                     result.putExtra("open_battle", true);
                     setResult(RESULT_OK, result);
@@ -1761,5 +1795,105 @@ public class NeutralEventActivity extends AppCompatActivity {
                 ((FrameLayout) v).addView(selBadge);
             }
         }
+    }
+
+    private void rollChestType() {
+        double roll = Math.random();
+        if (roll < 0.10) {
+            chestName = "金宝箱";
+            keyId = "key_gold";
+            chestRarity = Rarity.EPIC;
+            goldMin = 1000;
+            goldMax = 2000;
+        } else if (roll < 0.30) {
+            chestName = "银宝箱";
+            keyId = "key_silver";
+            chestRarity = Rarity.RARE;
+            goldMin = 500;
+            goldMax = 1000;
+        } else {
+            chestName = "铜宝箱";
+            keyId = "key_copper";
+            chestRarity = Rarity.UNCOMMON;
+            goldMin = 200;
+            goldMax = 500;
+        }
+    }
+
+    private void doChest() {
+        Character ch = PlayerCharacterHolder.getOrCreate(this);
+        List<Item> bag = ch.getBagItems();
+
+        ConsumableItem keyItem = findConsumableById(bag, keyId);
+        if (keyItem == null) {
+            showResult("营地中有一只" + chestName + "！\n\n你没有" + getKeyName(keyId) + "，无法打开宝箱。");
+            switchToForwardButton();
+            return;
+        }
+
+        keyItem.setCount(keyItem.getCount() - 1);
+        if (keyItem.getCount() <= 0) {
+            InventoryManager.removeItem(bag, keyItem);
+        }
+
+        EquipmentManager em = EquipmentManager.getInstance(this);
+        ItemManager im = ItemManager.getInstance(this);
+        int level = 5 + chestRarity.getId() * 5 + (int) (Math.random() * 11);
+        int gold = goldMin + (int) (Math.random() * (goldMax - goldMin + 1));
+        ch.addGold(gold);
+
+        boolean bagFull = false;
+        StringBuilder sb = new StringBuilder();
+        sb.append("营地中有一只").append(chestName).append("！\n");
+        sb.append("你使用").append(getKeyName(keyId)).append("打开了宝箱！\n\n");
+
+        EquipItem equip = em.generateRandomEquip(level, chestRarity);
+        if (equip != null) {
+            if (InventoryManager.addItem(bag, equip)) {
+                sb.append("✅ 获得：").append(equip.getName())
+                        .append("（").append(equip.getRarity().getDisplayName()).append("）\n");
+            } else {
+                bagFull = true;
+                sb.append("⚠ 获得：").append(equip.getName())
+                        .append("（").append(equip.getRarity().getDisplayName()).append("）但背包已满！\n");
+            }
+        } else {
+            sb.append("✅ 获得：一件装备\n");
+        }
+        sb.append("✅ 金币 +").append(gold).append("\n");
+
+        GemItem gem = im.getRandomGemByRarity(chestRarity == Rarity.EPIC ? Rarity.RARE : Rarity.UNCOMMON);
+        if (gem != null) {
+            if (InventoryManager.addItem(bag, gem)) {
+                sb.append("✅ 获得：").append(gem.getName())
+                        .append("（").append(gem.getRarity().getDisplayName()).append("）");
+            } else {
+                bagFull = true;
+                sb.append("⚠ 获得：").append(gem.getName())
+                        .append("（").append(gem.getRarity().getDisplayName()).append("）但背包已满！");
+            }
+        }
+
+        if (bagFull) {
+            sb.append("\n\n⚠ 背包已满，部分物品无法放入！");
+        }
+
+        showResult(sb.toString());
+        switchToForwardButton();
+    }
+
+    private ConsumableItem findConsumableById(List<Item> bag, String id) {
+        for (Item item : bag) {
+            if (item instanceof ConsumableItem && id.equals(item.getId())) {
+                return (ConsumableItem) item;
+            }
+        }
+        return null;
+    }
+
+    private String getKeyName(String keyId) {
+        if ("key_gold".equals(keyId)) return "金钥匙";
+        if ("key_silver".equals(keyId)) return "银钥匙";
+        return "铜钥匙";
     }
 }

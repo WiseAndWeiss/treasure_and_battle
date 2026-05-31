@@ -28,6 +28,8 @@ import androidx.annotation.Nullable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
@@ -53,6 +55,7 @@ import com.example.treasure_and_battle.utils.GeoUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.io.InputStream;
 
 public class MapFragment extends Fragment {
 
@@ -80,6 +83,7 @@ public class MapFragment extends Fragment {
 
     private View mEventPopup;
     private View mDebugPopup;
+    private View mBattleEventPopup;
     private TextView tvEventName, tvEventDesc, tvEventReward, tvEventRisk;
     private TextView btnClosePopup;
     private boolean isPopupShowing = false;
@@ -188,7 +192,7 @@ public class MapFragment extends Fragment {
         addDebugSectionLabel(popupContent, "随机大类（3秒后生成）");
         String[] labels = {"战斗事件大类", "中性事件大类", "增益事件大类"};
         String[] types = {"BATTLE", "NEUTRAL", "BENEFIT"};
-        int[] colors = {0xFFE53935, 0xFFFFC107, 0xFF4CAF50};
+        int[] colors = {0xFFE53935, 0xFFFF9800, 0xFF4CAF50};
 
         for (int i = 0; i < labels.length; i++) {
             final String eventType = types[i];
@@ -256,7 +260,7 @@ public class MapFragment extends Fragment {
             switch (type) {
                 case "BATTLE":  typeColor = 0xFFFF5252; break;
                 case "BENEFIT": typeColor = 0xFF4CAF50; break;
-                case "NEUTRAL": typeColor = 0xFFFFC107; break;
+                case "NEUTRAL": typeColor = 0xFFFF9800; break;
                 default:        typeColor = 0xFF888888; break;
             }
             for (EventConfig.EventSubItem sub : subs) {
@@ -609,6 +613,10 @@ public class MapFragment extends Fragment {
     }
 
     private void handleBenefitAction(EventConfig.EventSubItem sub) {
+        if (sub != null && ("rest".equals(sub.getKey()) || "chest".equals(sub.getKey()))) {
+            openNeutralEventPage(sub);
+            return;
+        }
         Intent intent = new Intent(getActivity(), BenefitEventActivity.class);
         if (sub != null) {
             intent.putExtra("event_key", sub.getKey());
@@ -654,15 +662,25 @@ public class MapFragment extends Fragment {
                 drawPerceptionCircle(latLng);
 
                 if (mBattleCountdownRunnable != null && mBattleTriggerPosition != null) {
-                    double distFromTrigger = GeoUtils.calculateDistance(latLng, mBattleTriggerPosition);
-                    if (distFromTrigger > 20) {
-                        mMainHandler.removeCallbacks(mBattleCountdownRunnable);
-                        mBattleCountdownRunnable = null;
-                        mBattleTriggerPosition = null;
-                        if (mCountdownOverlay != null) {
-                            mCountdownOverlay.setVisibility(View.GONE);
+                    mMainHandler.removeCallbacks(mBattleCountdownRunnable);
+                    mBattleCountdownRunnable = null;
+                    mBattleTriggerPosition = null;
+                    if (mCountdownOverlay != null) {
+                        mCountdownOverlay.setVisibility(View.GONE);
+                    }
+                }
+
+                if (mBattleEventPopup == null && !isPopupShowing && !isDebugPopupShowing
+                        && mBattleCountdownRunnable == null && !mIsProcessingNeutral
+                        && !mIsPlayingCircleAnim) {
+                    for (EventManager.EventCircle ec : mEventManager.getEventCircleList()) {
+                        if (ec.isTriggered) continue;
+                        if (!"BATTLE".equals(ec.config.getType())) continue;
+                        double distToEvent = GeoUtils.calculateDistance(latLng, ec.position);
+                        if (distToEvent <= ec.config.getTriggerDistance()) {
+                            processClickedEvent(ec);
+                            break;
                         }
-                        showFloatMsg("已离开战斗范围");
                     }
                 }
 
@@ -734,26 +752,31 @@ public class MapFragment extends Fragment {
         }
 
         if ("BATTLE".equals(type) || (sub != null && sub.getKey().startsWith("battle_"))) {
-            Monster battleMonster;
-            if (ec.monster != null) {
-                battleMonster = ec.monster;
-            } else if (ec.previewTemplateIds != null && ec.previewTemplateIds.length > 0) {
+            if (ec.previewTemplateIds == null) {
+                generateBattlePreview(ec);
+            }
+            if (ec.previewTemplateIds != null && ec.previewTemplateIds.length > 0) {
                 List<Integer> ids = new ArrayList<>();
                 for (int tid : ec.previewTemplateIds) ids.add(tid);
                 List<Monster> batch = mm.createMonstersFromTemplateIds(ids, playerLevel);
-                battleMonster = batch.isEmpty() ? null : batch.get(0);
-                if (batch.size() > 1) {
+                if (!batch.isEmpty()) {
                     mEventManager.setCurrentBattleMonsters(batch);
                 }
+            } else if (ec.monster != null) {
+                List<Monster> single = new ArrayList<>();
+                single.add(ec.monster);
+                mEventManager.setCurrentBattleMonsters(single);
             } else {
-                battleMonster = mm.createRandomMonster();
+                Monster randomMonster = mm.createRandomMonster();
+                if (randomMonster != null) {
+                    List<Monster> single = new ArrayList<>();
+                    single.add(randomMonster);
+                    mEventManager.setCurrentBattleMonsters(single);
+                }
             }
-            mEventManager.setCurrentBattleMonster(battleMonster);
             mEventManager.removeEventCircle(ec);
             refreshEventIcons();
-            mBattleTriggerPosition = mEventManager.getCurrentLatLng();
-            showFloatMsg("即将进入战斗...");
-            startBattleCountdown();
+            showBattleEventPopup(ec);
         } else if ("BENEFIT".equals(type)) {
             handleBenefitAction(sub);
             mEventManager.removeEventCircle(ec);
@@ -1041,7 +1064,7 @@ public class MapFragment extends Fragment {
         String key = sub.getKey();
         if (key.startsWith("battle_")) return "BATTLE";
         if ("recovery".equals(key) || "training".equals(key) || "treasure".equals(key) || "benefit_hub".equals(key) || "rest".equals(key) || "chest".equals(key)) return "BENEFIT";
-        if ("merchant".equals(key) || "traveler".equals(key)
+        if ("traveler".equals(key)
                 || "scholar".equals(key) || "statue_blessing".equals(key)
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
                 || "equipment_reforge".equals(key) || "casino_wagon".equals(key)
@@ -1055,6 +1078,139 @@ public class MapFragment extends Fragment {
         if (isPopupShowing) {
             mEventPopup.setVisibility(View.GONE);
             isPopupShowing = false;
+        }
+    }
+
+    private void showBattleEventPopup(EventManager.EventCircle ec) {
+        int screenW = getResources().getDisplayMetrics().widthPixels;
+        float density = getResources().getDisplayMetrics().density;
+        int dp12 = (int) (12 * density);
+        int dp14 = (int) (14 * density);
+        int dp4 = (int) (4 * density);
+        int dp20 = (int) (20 * density);
+        int dp24 = (int) (24 * density);
+        int dp8 = (int) (8 * density);
+        int dp48 = (int) (48 * density);
+        int dp6 = (int) (6 * density);
+
+        LinearLayout content = new LinearLayout(requireContext());
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setGravity(Gravity.CENTER);
+        content.setPadding(dp20, dp20, dp20, dp20);
+
+        ImageView ivBorder = new ImageView(requireContext());
+        try (InputStream is = requireContext().getAssets().open("border/monster_camp.png")) {
+            Bitmap raw = BitmapFactory.decodeStream(is);
+            int targetW = screenW - dp24 * 2;
+            float ratio = (float) targetW / raw.getWidth();
+            int targetH = (int) (raw.getHeight() * ratio);
+            Bitmap scaled = Bitmap.createScaledBitmap(raw, targetW, targetH, false);
+            raw.recycle();
+            ivBorder.setImageBitmap(scaled);
+        } catch (Exception e) {
+            ivBorder.setVisibility(View.GONE);
+        }
+        ivBorder.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        OutlineTextView tvTitle = new OutlineTextView(requireContext());
+        tvTitle.setText("战斗");
+        tvTitle.setTextSize(34);
+        tvTitle.setTextColor(getResources().getColor(R.color.tb_gold));
+        tvTitle.setGravity(Gravity.CENTER);
+        tvTitle.setTypeface(tvTitle.getTypeface(), android.graphics.Typeface.BOLD);
+
+        LinearLayout panel = new LinearLayout(requireContext());
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setBackgroundResource(R.drawable.bg_panel_treasure_fill_only);
+        panel.setForeground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_panel_treasure_stroke_only));
+        panel.setPadding(dp12, dp12, dp12, dp12);
+        LinearLayout.LayoutParams panelParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        panelParams.setMargins(dp8, (int) (48 * density), dp8, dp14);
+
+        StringBuilder sb = new StringBuilder();
+        if (ec.previewMonsterNames != null && ec.previewMonsterNames.length > 0) {
+            sb.append("共").append(ec.previewMonsterNames.length).append("只怪物：\n");
+            for (int i = 0; i < ec.previewMonsterNames.length; i++) {
+                sb.append("\n  · ").append(ec.previewMonsterNames[i])
+                        .append("（").append(ec.previewMonsterRarities != null && i < ec.previewMonsterRarities.length
+                                ? ec.previewMonsterRarities[i] : "未知").append("）");
+            }
+        } else if (ec.monster != null) {
+            sb.append("1只怪物：\n\n  · ").append(ec.monster.getName())
+                    .append("（").append(ec.monster.getRarity().getDisplayName()).append("）");
+        } else {
+            sb.append("前方有怪物出没，准备战斗！");
+        }
+
+        TextView tvInfo = new TextView(requireContext());
+        tvInfo.setText(sb.toString());
+        tvInfo.setTextSize(16);
+        tvInfo.setGravity(Gravity.CENTER);
+        tvInfo.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_text_main));
+        tvInfo.setLineSpacing(dp6, 1f);
+        panel.addView(tvInfo);
+        panel.setLayoutParams(panelParams);
+
+        TextView btnEnter = new TextView(requireContext());
+        btnEnter.setText("进入战斗");
+        btnEnter.setTextSize(15);
+        btnEnter.setTypeface(btnEnter.getTypeface(), android.graphics.Typeface.BOLD);
+        btnEnter.setTextColor(ContextCompat.getColor(requireContext(), R.color.tb_bg_dark));
+        btnEnter.setBackgroundResource(R.drawable.bg_tab_active);
+        btnEnter.setGravity(Gravity.CENTER);
+        btnEnter.setClickable(true);
+        btnEnter.setFocusable(true);
+        btnEnter.setAllCaps(false);
+        btnEnter.setMinHeight(dp48);
+        btnEnter.setPadding(dp12, dp14, dp12, dp14);
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        btnParams.setMargins(dp8, dp4, dp8, dp4);
+        btnEnter.setLayoutParams(btnParams);
+        btnEnter.setOnClickListener(v -> {
+            hideBattleEventPopup();
+            openBattlePage();
+        });
+
+        content.addView(tvTitle);
+        content.addView(panel);
+        content.addView(btnEnter);
+
+        FrameLayout contentWrapper = new FrameLayout(requireContext());
+        FrameLayout.LayoutParams borderParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        contentWrapper.addView(ivBorder, borderParams);
+        contentWrapper.addView(content, borderParams);
+
+        ScrollView scrollView = new ScrollView(requireContext());
+        scrollView.addView(contentWrapper);
+
+        FrameLayout overlay = new FrameLayout(requireContext());
+        overlay.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        overlay.setBackgroundColor(0x80000000);
+        overlay.setClickable(true);
+        overlay.setFocusable(true);
+
+        FrameLayout.LayoutParams scrollParams = new FrameLayout.LayoutParams(
+                (int) (screenW * 0.88),
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        scrollParams.gravity = Gravity.CENTER;
+        overlay.addView(scrollView, scrollParams);
+
+        mBattleEventPopup = overlay;
+        mMapView.addView(mBattleEventPopup);
+    }
+
+    private void hideBattleEventPopup() {
+        if (mBattleEventPopup != null) {
+            mMapView.removeView(mBattleEventPopup);
+            mBattleEventPopup = null;
         }
     }
 
@@ -1076,11 +1232,18 @@ public class MapFragment extends Fragment {
         mMainHandler.removeCallbacks(mGenerateEventRunnable);
         mMainHandler.removeCallbacks(mCheckExpireRunnable);
         mMainHandler.removeCallbacks(mEventCountdownRunnable);
-        mMainHandler.post(mGenerateEventRunnable);
-        mMainHandler.post(mCheckExpireRunnable);
-        if (mNextGenerateTime == 0 || mNextGenerateTime < System.currentTimeMillis()) {
-            mNextGenerateTime = System.currentTimeMillis() + mEventManager.getEffectiveGenerateInterval();
+
+        long now = System.currentTimeMillis();
+        long interval = mEventManager.getEffectiveGenerateInterval();
+        if (mNextGenerateTime == 0 || mNextGenerateTime <= now) {
+            mNextGenerateTime = now + interval;
+            mMainHandler.post(mGenerateEventRunnable);
+        } else {
+            long remaining = mNextGenerateTime - now;
+            mMainHandler.postDelayed(mGenerateEventRunnable, remaining);
         }
+
+        mMainHandler.post(mCheckExpireRunnable);
         mMainHandler.post(mEventCountdownRunnable);
     }
 
