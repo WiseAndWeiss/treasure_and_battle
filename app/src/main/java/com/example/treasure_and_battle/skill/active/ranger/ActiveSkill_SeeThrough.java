@@ -59,7 +59,7 @@ public class ActiveSkill_SeeThrough extends ActiveSkill {
                 "物理防御降低%d%%",
                 BuffType.DEBUFF,
                 true,  // 可驱散
-                1,     // 持续1回合
+                -1,     // 持续1回合
                 1,     // 最大层数
                 false, // 不刷新
                 -physicalDefReductionPercent / 100.0f,  // 将百分比转换为小数（8% -> -0.08）
@@ -74,7 +74,7 @@ public class ActiveSkill_SeeThrough extends ActiveSkill {
                 "法术防御降低%d%%",
                 BuffType.DEBUFF,
                 true,  // 可驱散
-                1,     // 持续1回合
+                -1,     // 持续1回合
                 1,     // 最大层数
                 false, // 不刷新
                 -magicalDefReductionPercent / 100.0f,  // 将百分比转换为小数（8% -> -0.08）
