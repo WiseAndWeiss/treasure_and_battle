@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -68,6 +69,8 @@ public class SkillFragment extends Fragment {
 
     private Character character;
     private int currentTabIndex;
+
+    private final android.os.Handler longPressHandler = new android.os.Handler();
 
     private final List<SkillListRow> currentSkillList = new ArrayList<>();
 

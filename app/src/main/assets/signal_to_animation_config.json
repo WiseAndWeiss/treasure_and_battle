@@ -4,8 +4,8 @@
     "skill_whirlwind_slash": "Arsha_Rush_Sword_Attack",
     "skill_blood_fury_slash": "DemonBladeSwing",
     "skill_battle_stance": "self_enhance_red",
-    "skill_counter_stance": "self_enhance",
-    "skill_firm_as_rock": "self_enhance",
+    "skill_counter_stance": "counter_stance",
+    "skill_firm_as_rock": "firm_as_rock",
     "skill_shield_strike": "HitFX",
     "skill_go_all_out": "self_enhance_red",
     "skill_impenetrable": "self_enhance",
@@ -20,9 +20,9 @@
     "skill_poison_infest": "ArchbishopFrontEyeTriBegin",
     "skill_scrape_poison": "ArchbishopFrontEyeTriBegin",
     "skill_bitter_medicine": "self_enhance_green",
-    "skill_concentrate_spirit": "self_enhance_red",
+    "skill_concentrate_spirit": "concentrate_spirit",
     "skill_regulate_breath": "self_green_enhance",
-    "skill_shot": "ArchbishopFrontEyeNiddle",
+    "skill_shot": "shot",
     "skill_wind_arrow": "Arsha_Rush_Arrow_Bullet_Phase2_SubFX",
     "skill_three_phase_arrow": "Arsha_Rush_Arrow_Bullet_Phase2_SubFX",
     "skill_thousand_arrows_chase": "ArchbishopFrontEyeNiddle",
@@ -32,6 +32,6 @@
     "skill_see_through": "self_enhance_red",
     "skill_shield_breaking_heavy_arrow": "ArchbishopMarkKill",
     "skill_full_concentration": "self_enhance_red",
-    "skill_wind_protect": "self_enhance"
+    "skill_wind_protect": "wind_protect"
   }
 }

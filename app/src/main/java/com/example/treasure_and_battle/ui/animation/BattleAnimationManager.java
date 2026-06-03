@@ -52,6 +52,7 @@ public class BattleAnimationManager {
     public BattleAnimationManager(Context context) {
         this.context = context.getApplicationContext();
         this.signalPipeline = AnimationSignalPipeline.getInstance();
+        AnimationConfigLoader.clearCache();
         this.animationConfigs = AnimationConfigLoader.loadConfigs(context);
         this.entityViewMapper = new EntityViewMapper();
         this.frameUpdateTask = this::frameUpdate;

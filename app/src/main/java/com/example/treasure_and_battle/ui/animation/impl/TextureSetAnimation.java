@@ -60,9 +60,12 @@ public class TextureSetAnimation extends Animation {
         int textureIndex = (progressFrame * textureTemplate.num) / textureTemplate.duration;
         textureIndex = Math.min(textureIndex, textureTemplate.num - 1);
 
-        // 更新贴图
         if (textures[textureIndex] != null) {
             imageView.setImageBitmap(textures[textureIndex]);
+            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+            if (drawable != null) {
+                drawable.setFilterBitmap(false);
+            }
         }
 
         currentFrame++;
@@ -83,11 +86,13 @@ public class TextureSetAnimation extends Animation {
     }
 
     private Bitmap[] loadTextures() {
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inScaled = false;
         Bitmap[] bitmaps = new Bitmap[textureTemplate.num];
         for (int i = 0; i < textureTemplate.num; i++) {
             String path = textureTemplate.textureSet[i];
             try (InputStream is = context.getAssets().open(path)) {
-                bitmaps[i] = BitmapFactory.decodeStream(is);
+                bitmaps[i] = BitmapFactory.decodeStream(is, null, opts);
             } catch (IOException e) {
                 android.util.Log.w("TextureSetAnimation", "Failed to load texture: " + path);
                 bitmaps[i] = null;
@@ -98,9 +103,7 @@ public class TextureSetAnimation extends Animation {
 
     private ImageView createImageView() {
         ImageView iv = new ImageView(context);
-        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        // 计算尺寸和位置
         ViewGroup.LayoutParams params = calculateLayoutParams();
         iv.setLayoutParams(params);
 

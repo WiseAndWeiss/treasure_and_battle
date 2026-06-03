@@ -205,6 +205,128 @@
         ]
       }
     ],
+    "firm_as_rock": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "OWN_ENTITY",
+        "begin_at": 0,
+        "duration": 54,
+        "position": "medium",
+        "scale": 2,
+        "num": 18,
+        "texture_set": [
+          "icons/animation/firm_as_rock/frame_1.png",
+          "icons/animation/firm_as_rock/frame_2.png",
+          "icons/animation/firm_as_rock/frame_3.png",
+          "icons/animation/firm_as_rock/frame_4.png",
+          "icons/animation/firm_as_rock/frame_5.png",
+          "icons/animation/firm_as_rock/frame_6.png",
+          "icons/animation/firm_as_rock/frame_7.png",
+          "icons/animation/firm_as_rock/frame_8.png",
+          "icons/animation/firm_as_rock/frame_9.png",
+          "icons/animation/firm_as_rock/frame_10.png",
+          "icons/animation/firm_as_rock/frame_11.png",
+          "icons/animation/firm_as_rock/frame_12.png",
+          "icons/animation/firm_as_rock/frame_13.png",
+          "icons/animation/firm_as_rock/frame_14.png",
+          "icons/animation/firm_as_rock/frame_15.png",
+          "icons/animation/firm_as_rock/frame_16.png",
+          "icons/animation/firm_as_rock/frame_17.png",
+          "icons/animation/firm_as_rock/frame_18.png"
+        ]
+      }
+    ],
+    "wind_protect": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "OWN_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "medium",
+        "scale": 1,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/wind_protect/frame_1.png",
+          "icons/animation/wind_protect/frame_2.png",
+          "icons/animation/wind_protect/frame_3.png",
+          "icons/animation/wind_protect/frame_4.png",
+          "icons/animation/wind_protect/frame_5.png",
+          "icons/animation/wind_protect/frame_6.png",
+          "icons/animation/wind_protect/frame_7.png",
+          "icons/animation/wind_protect/frame_8.png"
+        ]
+      }
+    ],
+    "shot": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "TARGET_ENTITY",
+        "begin_at": 0,
+        "duration": 33,
+        "position": "center",
+        "scale": 1.2,
+        "num": 11,
+        "texture_set": [
+          "icons/animation/shot/frame_1.png",
+          "icons/animation/shot/frame_2.png",
+          "icons/animation/shot/frame_3.png",
+          "icons/animation/shot/frame_4.png",
+          "icons/animation/shot/frame_5.png",
+          "icons/animation/shot/frame_6.png",
+          "icons/animation/shot/frame_7.png",
+          "icons/animation/shot/frame_8.png",
+          "icons/animation/shot/frame_9.png",
+          "icons/animation/shot/frame_10.png",
+          "icons/animation/shot/frame_11.png"
+        ]
+      }
+    ],
+    "concentrate_spirit": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "OWN_ENTITY",
+        "begin_at": 0,
+        "duration": 36,
+        "position": "top",
+        "scale": 1,
+        "num": 12,
+        "texture_set": [
+          "icons/animation/concentrate_spirit/frame_1.png",
+          "icons/animation/concentrate_spirit/frame_2.png",
+          "icons/animation/concentrate_spirit/frame_3.png",
+          "icons/animation/concentrate_spirit/frame_4.png",
+          "icons/animation/concentrate_spirit/frame_5.png",
+          "icons/animation/concentrate_spirit/frame_6.png",
+          "icons/animation/concentrate_spirit/frame_7.png",
+          "icons/animation/concentrate_spirit/frame_8.png",
+          "icons/animation/concentrate_spirit/frame_9.png",
+          "icons/animation/concentrate_spirit/frame_10.png",
+          "icons/animation/concentrate_spirit/frame_11.png",
+          "icons/animation/concentrate_spirit/frame_12.png"
+        ]
+      }
+    ],
+    "counter_stance": [
+      {
+        "type": "TEXTURE_SET",
+        "target": "OWN_ENTITY",
+        "begin_at": 0,
+        "duration": 24,
+        "position": "top",
+        "scale": 0.8,
+        "num": 8,
+        "texture_set": [
+          "icons/animation/counter_stance/frame_1.png",
+          "icons/animation/counter_stance/frame_2.png",
+          "icons/animation/counter_stance/frame_3.png",
+          "icons/animation/counter_stance/frame_4.png",
+          "icons/animation/counter_stance/frame_5.png",
+          "icons/animation/counter_stance/frame_6.png",
+          "icons/animation/counter_stance/frame_7.png",
+          "icons/animation/counter_stance/frame_8.png"
+        ]
+      }
+    ],
     "self_enhance": [
       {
         "type": "TEXTURE_SET",
@@ -246,16 +368,19 @@
         "type": "TEXTURE_SET",
         "target": "OWN_ENTITY",
         "begin_at": 0,
-        "duration": 15,
+        "duration": 24,
         "position": "top",
         "scale": 2,
-        "num": 5,
+        "num": 8,
         "texture_set": [
           "icons/animation/self_enhance_red/frame_1.png",
           "icons/animation/self_enhance_red/frame_2.png",
           "icons/animation/self_enhance_red/frame_3.png",
           "icons/animation/self_enhance_red/frame_4.png",
-          "icons/animation/self_enhance_red/frame_5.png"
+          "icons/animation/self_enhance_red/frame_5.png",
+          "icons/animation/self_enhance_red/frame_6.png",
+          "icons/animation/self_enhance_red/frame_7.png",
+          "icons/animation/self_enhance_red/frame_8.png"
         ]
       }
     ],
@@ -546,17 +671,23 @@
         "type": "TEXTURE_SET",
         "target": "TARGET_ENTITY",
         "begin_at": 0,
-        "duration": 24,
+        "duration": 36,
         "position": "center",
-        "scale": 1,
-        "num": 6,
+        "scale": 1.2,
+        "num": 12,
         "texture_set": [
-          "icons/animation/FireBall/FireBall0.png",
-          "icons/animation/FireBall/FireBall1.png",
-          "icons/animation/FireBall/FireBall2.png",
-          "icons/animation/FireBall/FireBall3.png",
-          "icons/animation/FireBall/FireBall4.png",
-          "icons/animation/FireBall/FireBall5.png"
+          "icons/animation/FireBall/frame_1.png",
+          "icons/animation/FireBall/frame_2.png",
+          "icons/animation/FireBall/frame_3.png",
+          "icons/animation/FireBall/frame_4.png",
+          "icons/animation/FireBall/frame_5.png",
+          "icons/animation/FireBall/frame_6.png",
+          "icons/animation/FireBall/frame_7.png",
+          "icons/animation/FireBall/frame_8.png",
+          "icons/animation/FireBall/frame_9.png",
+          "icons/animation/FireBall/frame_10.png",
+          "icons/animation/FireBall/frame_11.png",
+          "icons/animation/FireBall/frame_12.png"
         ]
       }
     ],

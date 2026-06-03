@@ -395,10 +395,6 @@ public class BattleActivity extends AppCompatActivity {
         animationManager = new BattleAnimationManager(this);
         setupEntityViewMappings();
 
-        // 初始化动画管理器
-        animationManager = new BattleAnimationManager(this);
-        setupEntityViewMappings();
-
         setupResourceChangeListeners();
         setupTriggerListeners();
 
