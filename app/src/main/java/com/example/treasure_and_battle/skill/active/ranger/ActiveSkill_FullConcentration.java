@@ -48,7 +48,7 @@ public class ActiveSkill_FullConcentration extends ActiveSkill {
                 "暴击率提升%d%%",
                 BuffType.BUFF,
                 false, // 不可驱散
-                1,     // 持续1回合
+                -1,     // 持续1回合
                 1,     // 最大层数
                 false, // 不刷新
                 critRateBoost / 100.0f,  // 将百分比转换为小数（2% -> 0.02）
@@ -64,7 +64,7 @@ public class ActiveSkill_FullConcentration extends ActiveSkill {
                 "暴击伤害提升%d%%",
                 BuffType.BUFF,
                 false, // 不可驱散
-                1,     // 持续1回合
+                -1,     // 持续1回合
                 1,     // 最大层数
                 false, // 不刷新
                 critDamageBoost / 100.0f,  // 将百分比转换为小数（4% -> 0.04）

@@ -15,11 +15,11 @@
         {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 100, "y": 0},
-        {"x": 105, "y": 3},
-        {"x": 110, "y": 7},
-        {"x": 115, "y": 11},
-        {"x": 120, "y": 15}
+        {"x": 110, "y": 0},
+        {"x": 115, "y": 3},
+        {"x": 120, "y": 7},
+        {"x": 125, "y": 11},
+        {"x": 130, "y": 15}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_Slash"
     },
@@ -61,11 +61,11 @@
         {"actionPoint": 2}
       ],
       "effectParamsList": [
-        {"x": 5},
-        {"x": 10},
-        {"x": 15},
-        {"x": 20},
-        {"x": 25}
+        {"x": 8},
+        {"x": 16},
+        {"x": 24},
+        {"x": 30},
+        {"x": 36}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_CounterStance"
     },
@@ -84,11 +84,11 @@
         {"actionPointCost": 1, "mpCost": 0, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 55},
-        {"x": 60},
-        {"x": 75},
         {"x": 80},
-        {"x": 85}
+        {"x": 90},
+        {"x": 100},
+        {"x": 110},
+        {"x": 120}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WhirlwindSlash"
     },
@@ -111,11 +111,11 @@
         {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 5, "y": 6},
-        {"x": 8, "y": 8},
-        {"x": 12, "y": 10},
-        {"x": 16, "y": 12},
-        {"x": 20, "y": 15}
+        {"x": 10, "y": 10},
+        {"x": 12, "y": 12},
+        {"x": 15, "y": 15},
+        {"x": 18, "y": 18},
+        {"x": 24, "y": 24}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_FirmAsRock"
     },
@@ -165,11 +165,11 @@
         {"actionPointCost": 1, "mpCost": 20, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 90, "y": 25, "z": 5},
-        {"x": 95, "y": 30, "z": 10},
-        {"x": 100, "y": 35, "z": 16},
-        {"x": 105, "y": 40, "z": 22},
-        {"x": 110, "y": 50, "z": 28}
+        {"x": 100, "y": 25, "z": 5},
+        {"x": 120, "y": 30, "z": 10},
+        {"x": 130, "y": 35, "z": 16},
+        {"x": 140, "y": 40, "z": 22},
+        {"x": 150, "y": 50, "z": 28}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_ShieldStrike"
     },
@@ -219,11 +219,11 @@
         {"actionPointCost": 1, "mpCost": 0, "hpCost": 12}
       ],
       "effectParamsList": [
-        {"x": 120, "y": 2, "z": 2},
-        {"x": 125, "y": 2, "z": 2},
-        {"x": 130, "y": 3, "z": 3},
-        {"x": 140, "y": 3, "z": 3},
-        {"x": 150, "y": 4, "z": 3}
+        {"x": 140, "y": 2, "z": 2},
+        {"x": 160, "y": 2, "z": 2},
+        {"x": 180, "y": 3, "z": 3},
+        {"x": 200, "y": 3, "z": 3},
+        {"x": 220, "y": 4, "z": 3}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_BloodFurySlash"
     },
@@ -246,11 +246,11 @@
         {"actionPointCost": 2, "mpCost": 25, "hpCost": 22}
       ],
       "effectParamsList": [
-        {"x": 75, "y": 2, "z": 5, "w": 2},
-        {"x": 80, "y": 2, "z": 6, "w": 2},
-        {"x": 95, "y": 3, "z": 7, "w": 3},
-        {"x": 90, "y": 3, "z": 8, "w": 3},
-        {"x": 100, "y": 4, "z": 10, "w": 3}
+        {"x": 120, "y": 2, "z": 5, "w": 2},
+        {"x": 135, "y": 2, "z": 6, "w": 2},
+        {"x": 150, "y": 3, "z": 7, "w": 3},
+        {"x": 165, "y": 3, "z": 8, "w": 3},
+        {"x": 180, "y": 4, "z": 10, "w": 3}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_MadSlaughterSlash"
     },
@@ -273,11 +273,11 @@
         {"actionPointCost": 1, "mpCost": 14, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 20, "y": 3},
-        {"x": 30, "y": 4},
-        {"x": 40, "y": 5},
-        {"x": 50, "y": 6},
-        {"x": 50, "y": 7}
+        {"x": 40, "y": 3},
+        {"x": 50, "y": 4},
+        {"x": 60, "y": 5},
+        {"x": 70, "y": 6},
+        {"x": 80, "y": 7}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.warrior.ActiveSkill_WoundBloodSuck"
     },
@@ -300,11 +300,11 @@
         {"actionPointCost": 1, "mpCost":  14, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 95, "y": 0},
-        {"x": 100, "y": 3},
-        {"x": 105, "y": 7},
-        {"x": 110, "y": 11},
-        {"x": 115, "y": 15}
+        {"x": 110, "y": 0},
+        {"x": 120, "y": 3},
+        {"x": 130, "y": 7},
+        {"x": 140, "y": 11},
+        {"x": 150, "y": 15}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Spell"
     },
@@ -354,11 +354,11 @@
         {"actionPointCost": 1, "mpCost": 27, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 100, "y": 2},
-        {"x": 110, "y": 2},
-        {"x": 120, "y": 4},
-        {"x": 140, "y": 4},
-        {"x": 160, "y": 8}
+        {"x": 120, "y": 2},
+        {"x": 140, "y": 2},
+        {"x": 160, "y": 4},
+        {"x": 180, "y": 4},
+        {"x": 200, "y": 8}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_Fireball"
     },
@@ -408,11 +408,11 @@
         {"actionPointCost": 2, "mpCost": 80, "hpCost": 90}
       ],
       "effectParamsList": [
-        {"x": 100, "y": 2},
-        {"x": 110, "y": 2},
-        {"x": 125, "y": 3},
-        {"x": 140, "y": 4},
-        {"x": 155, "y": 4}
+        {"x": 120, "y": 2},
+        {"x": 145, "y": 2},
+        {"x": 150, "y": 3},
+        {"x": 165, "y": 4},
+        {"x": 180, "y": 4}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_BoneBurningSky"
     },
@@ -435,11 +435,11 @@
         {"actionPointCost": 1, "mpCost": 45, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 80, "y": 10, "z": 10},
-        {"x": 90, "y": 15, "z": 10},
-        {"x": 100, "y": 15, "z": 15},
-        {"x": 110, "y": 20, "z": 20},
-        {"x": 120, "y": 25, "z": 25}
+        {"x": 110, "y": 10, "z": 10},
+        {"x": 120, "y": 15, "z": 10},
+        {"x": 135, "y": 15, "z": 15},
+        {"x": 150, "y": 20, "z": 20},
+        {"x": 160, "y": 25, "z": 25}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_WindHowl"
     },
@@ -462,11 +462,11 @@
         {"actionPointCost": 2, "mpCost": 55, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 90, "y": 20},
-        {"x": 100, "y": 30},
-        {"x": 110, "y": 40},
-        {"x": 120, "y": 50},
-        {"x": 130, "y": 60}
+        {"x": 120, "y": 20},
+        {"x": 140, "y": 30},
+        {"x": 160, "y": 40},
+        {"x": 180, "y": 50},
+        {"x": 200, "y": 60}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_BlizzardStorm"
     },
@@ -489,11 +489,11 @@
         {"actionPointCost": 1, "mpCost": 18, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 30, "y": 2},
-        {"x": 45, "y": 3},
-        {"x": 60, "y": 4},
-        {"x": 75, "y": 5},
-        {"x": 90, "y": 6}
+        {"x": 30, "y": 5},
+        {"x": 45, "y": 8},
+        {"x": 60, "y": 12},
+        {"x": 75, "y": 15},
+        {"x": 90, "y": 18}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_ConcentrateSpirit"
     },
@@ -544,10 +544,10 @@
       ],
       "effectParamsList": [
         {"x": 25, "y": 2},
-        {"x": 35, "y": 3},
-        {"x": 45, "y": 4},
-        {"x": 55, "y": 5},
-        {"x": 65, "y": 6}
+        {"x": 50, "y": 3},
+        {"x": 75, "y": 4},
+        {"x": 100, "y": 5},
+        {"x": 150, "y": 6}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_PoisonInfest"
     },
@@ -570,11 +570,11 @@
         {"actionPointCost": 1, "mpCost": 18, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 40, "y": 15},
+        {"x": 25, "y": 15},
         {"x": 50, "y": 18},
-        {"x": 60, "y": 22},
-        {"x": 70, "y": 28},
-        {"x": 80, "y": 35}
+        {"x": 75, "y": 22},
+        {"x": 100, "y": 28},
+        {"x": 150, "y": 35}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.mage.ActiveSkill_ScrapePoison"
     },
@@ -593,11 +593,11 @@
         {"actionPointCost": 1, "mpCost":  0, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 100, "y": 0},
-        {"x": 105, "y": 5},
-        {"x": 110, "y": 10},
-        {"x": 115, "y": 15},
-        {"x": 120, "y": 20}
+        {"x": 110, "y": 0},
+        {"x": 120, "y": 5},
+        {"x": 130, "y": 10},
+        {"x": 140, "y": 15},
+        {"x": 150, "y": 20}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_Shot"
     },
@@ -647,11 +647,11 @@
         {"actionPointCost": 1, "mpCost": 12, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 45, "y": 25, "z": 2},
-        {"x": 55, "y": 30, "z": 2},
-        {"x": 70, "y": 35, "z": 3},
-        {"x": 85, "y": 40, "z": 3},
-        {"x": 95, "y": 50, "z": 4}
+        {"x": 70, "y": 40, "z": 2},
+        {"x": 80, "y": 45, "z": 2},
+        {"x": 90, "y": 50, "z": 3},
+        {"x": 100, "y": 55, "z": 3},
+        {"x": 110, "y": 60, "z": 4}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ThreePhaseArrow"
     },
@@ -674,11 +674,11 @@
         {"actionPointCost": 2, "mpCost": 20, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 65, "y": 3, "z": 3},
-        {"x": 70, "y": 6, "z": 6},
-        {"x": 75, "y": 9, "z": 9},
-        {"x": 80, "y": 12, "z": 12},
-        {"x": 85, "y": 15, "z": 15}
+        {"x": 110, "y": 3, "z": 3},
+        {"x": 125, "y": 6, "z": 6},
+        {"x": 140, "y": 9, "z": 9},
+        {"x": 155, "y": 12, "z": 12},
+        {"x": 170, "y": 15, "z": 15}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_DustArrowRain"
     },
@@ -701,11 +701,11 @@
         {"actionPointCost": 1, "mpCost": 14, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 85, "y": 6},
-        {"x": 90, "y": 9},
-        {"x": 95, "y": 12},
-        {"x": 100, "y": 15},
-        {"x": 105, "y": 18}
+        {"x": 100, "y": 6},
+        {"x": 115, "y": 9},
+        {"x": 130, "y": 12},
+        {"x": 150, "y": 15},
+        {"x": 170, "y": 18}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_WindArrow"
     },
@@ -728,11 +728,11 @@
         {"actionPointCost": 1, "mpCost": 7, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 2, "y": 4},
-        {"x": 4, "y": 7},
-        {"x": 4, "y": 10},
-        {"x": 6, "y": 12},
-        {"x": 8, "y": 14}
+        {"x": 4, "y": 5},
+        {"x": 8, "y": 10},
+        {"x": 12, "y": 15},
+        {"x": 16, "y": 20},
+        {"x": 20, "y": 25}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_FullConcentration"
     },
@@ -756,10 +756,10 @@
       ],
       "effectParamsList": [
         {"x": 95, "y": 5},
-        {"x": 100, "y": 8},
-        {"x": 105, "y": 12},
-        {"x": 110, "y": 16},
-        {"x": 115, "y": 20}
+        {"x": 110, "y": 8},
+        {"x": 125, "y": 12},
+        {"x": 140, "y": 16},
+        {"x": 155, "y": 20}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_PierceWeak"
     },
@@ -782,11 +782,11 @@
         {"actionPointCost": 2, "mpCost": 22, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 75},
-        {"x": 80},
-        {"x": 85},
         {"x": 90},
-        {"x": 95}
+        {"x": 105},
+        {"x": 125},
+        {"x": 145},
+        {"x": 170}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_LethalContinuousShot"
     },
@@ -809,11 +809,11 @@
         {"actionPointCost": 2, "mpCost": 25, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 90, "y": 30, "z": 2},
-        {"x": 95, "y": 35, "z": 2},
-        {"x": 100, "y": 40, "z": 3},
-        {"x": 105, "y": 45, "z": 3},
-        {"x": 110, "y": 50, "z": 4}
+        {"x": 120, "y": 30, "z": 2},
+        {"x": 140, "y": 35, "z": 2},
+        {"x": 160, "y": 40, "z": 3},
+        {"x": 180, "y": 45, "z": 3},
+        {"x": 200, "y": 50, "z": 4}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ShieldBreakingHeavyArrow"
     },
@@ -863,11 +863,11 @@
         {"actionPointCost": 2, "mpCost": 30, "hpCost": 0}
       ],
       "effectParamsList": [
-        {"x": 35},
-        {"x": 40},
-        {"x": 45},
-        {"x": 50},
-        {"x": 55}
+        {"x": 70},
+        {"x": 90},
+        {"x": 110},
+        {"x": 130},
+        {"x": 150}
       ],
       "skillClassName": "com.example.treasure_and_battle.skill.active.ranger.ActiveSkill_ThousandArrowsChase"
     },

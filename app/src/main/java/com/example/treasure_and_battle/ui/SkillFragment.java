@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -156,13 +157,10 @@ public class SkillFragment extends Fragment {
                 case MotionEvent.ACTION_DOWN:
                     if (pm.allocateTalentPoint(character, attrName)) {
                         refreshCharacterPanels();
-                        longPressHandler.postDelayed(
-                                new TalentLongPressRunnable(pm, attrName), 300);
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    longPressHandler.removeCallbacksAndMessages(null);
                     return true;
             }
             return false;
@@ -182,11 +180,9 @@ public class SkillFragment extends Fragment {
         public void run() {
             if (character == null) return;
             if (!pm.allocateTalentPoint(character, attrName)) {
-                longPressHandler.removeCallbacksAndMessages(null);
                 return;
             }
             refreshCharacterPanels();
-            longPressHandler.postDelayed(this, 80);
         }
     }
 

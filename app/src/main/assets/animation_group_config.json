@@ -7,7 +7,7 @@
         "begin_at": 0,
         "duration": 15,
         "position": "center",
-        "scale": 1.5,
+        "scale": 0.8,
         "num": 5,
         "texture_set": [
           "icons/animation/normal_slash/frame_1.png",
@@ -304,7 +304,7 @@
         "begin_at": 0,
         "duration": 16,
         "position": "center",
-        "scale": 1,
+        "scale": 0.5,
         "num": 4,
         "texture_set": [
           "icons/animation/SlashFX/SlashFX0.png",
