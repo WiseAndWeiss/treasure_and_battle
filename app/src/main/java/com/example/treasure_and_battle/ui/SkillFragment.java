@@ -1,12 +1,9 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.PlayerManager;
+import com.example.treasure_and_battle.manager.CharacterManager;
 import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.skill.SkillEffectParams;
@@ -110,7 +107,7 @@ public class SkillFragment extends Fragment {
         tabPassive.setOnClickListener(v -> selectTab(0));
         tabActive.setOnClickListener(v -> selectTab(1));
 
-        PlayerManager pm = PlayerManager.getInstance(requireContext());
+        CharacterManager pm = CharacterManager.getInstance(requireContext());
         setupTalentButton(view.findViewById(R.id.btn_add_str), pm, "STRENGTH");
         setupTalentButton(view.findViewById(R.id.btn_add_agi), pm, "AGILITY");
         setupTalentButton(view.findViewById(R.id.btn_add_int), pm, "INTELLIGENCE");
@@ -152,7 +149,7 @@ public class SkillFragment extends Fragment {
         reloadSkillsForCurrentTab();
     }
 
-    private void setupTalentButton(View btn, PlayerManager pm, String attrName) {
+    private void setupTalentButton(View btn, CharacterManager pm, String attrName) {
         btn.setOnTouchListener((v, event) -> {
             if (character == null) return true;
             switch (event.getAction()) {
@@ -170,10 +167,10 @@ public class SkillFragment extends Fragment {
     }
 
     private class TalentLongPressRunnable implements Runnable {
-        final PlayerManager pm;
+        final CharacterManager pm;
         final String attrName;
 
-        TalentLongPressRunnable(PlayerManager pm, String attrName) {
+        TalentLongPressRunnable(CharacterManager pm, String attrName) {
             this.pm = pm;
             this.attrName = attrName;
         }
@@ -188,7 +185,7 @@ public class SkillFragment extends Fragment {
         }
     }
 
-    private void tryAllocateTalent(PlayerManager pm, String attributeName) {
+    private void tryAllocateTalent(CharacterManager pm, String attributeName) {
         if (character == null) {
             return;
         }

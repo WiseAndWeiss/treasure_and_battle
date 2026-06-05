@@ -8,7 +8,7 @@
     "skill_firm_as_rock": "firm_as_rock",
     "skill_shield_strike": "HitFX",
     "skill_go_all_out": "self_enhance_red",
-    "skill_impenetrable": "self_enhance",
+    "skill_impenetrable": "counter_stance",
     "skill_mad_slaughter_slash": "DemonBladeSwing",
     "skill_wound_blood_suck": "ArchbishopFrontEyeTriBegin",
     "skill_spell": "ArchbishopFrontEyeLaser",
@@ -29,7 +29,7 @@
     "skill_lethal_continuous_shot": "ArchbishopFrontEyeNiddle",
     "skill_dust_arrow_rain": "Arsha_Rush_Spear_FX",
     "skill_pierce_weak": "Arsha_Rush_Spear_FX",
-    "skill_see_through": "self_enhance_red",
+    "skill_see_through": "wind_protect",
     "skill_shield_breaking_heavy_arrow": "ArchbishopMarkKill",
     "skill_full_concentration": "self_enhance_red",
     "skill_wind_protect": "wind_protect"

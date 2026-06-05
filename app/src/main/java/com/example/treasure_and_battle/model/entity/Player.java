@@ -60,7 +60,7 @@ public class Player extends BattleEntity {
         base.magicalAtk = 2;
         base.magicalDef = 1;
         base.speed = 10;
-        base.maxActionPoints = 2;
+        base.maxActionPoints = 3;
         base.hitRate = 0.9f;
         base.goldBonus = 1.0f;
         base.expBonus = 1.0f;
@@ -72,7 +72,7 @@ public class Player extends BattleEntity {
         base.magicalAtk = 2 + base.intelligence;
         base.magicalDef = 1 + base.spirit / 2;
         base.speed = 10 + base.agility;
-        base.maxActionPoints = 2;
+        base.maxActionPoints = 3;
         base.hitRate = 0.9f + base.agility * 0.003f;
         base.physicalCritRate = base.luck * 0.002f;
         base.physicalCritDmg = 2.0f + base.strength * 0.005f;

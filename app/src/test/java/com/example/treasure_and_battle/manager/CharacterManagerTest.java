@@ -21,22 +21,22 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /**
- * PlayerManager 测试
+ * CharacterManager 测试
  * <p>
  * 测试玩家管理器的天赋点分配和属性查询功能
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 33, manifest = Config.NONE)
-public class PlayerManagerTest {
+public class CharacterManagerTest {
 
     private Context context;
-    private PlayerManager playerManager;
+    private CharacterManager characterManager;
     private Character testCharacter;
 
     @Before
     public void setUp() {
         context = RuntimeEnvironment.application;
-        playerManager = PlayerManager.getInstance(context);
+        characterManager = CharacterManager.getInstance(context);
 
         // 创建测试角色
         testCharacter = new Character(1, "测试战士", ProfessionType.WARRIOR, context);
@@ -46,15 +46,15 @@ public class PlayerManagerTest {
 
     @Test
     public void testSingleton() {
-        PlayerManager instance1 = PlayerManager.getInstance(context);
-        PlayerManager instance2 = PlayerManager.getInstance(context);
+        CharacterManager instance1 = CharacterManager.getInstance(context);
+        CharacterManager instance2 = CharacterManager.getInstance(context);
         assertSame("应返回同一实例", instance1, instance2);
     }
 
     @Test
     public void testReleaseInstance() {
-        PlayerManager.releaseInstance();
-        PlayerManager newInstance = PlayerManager.getInstance(context);
+        CharacterManager.releaseInstance();
+        CharacterManager newInstance = CharacterManager.getInstance(context);
         assertNotNull("释放后应能创建新实例", newInstance);
     }
 
@@ -62,21 +62,21 @@ public class PlayerManagerTest {
 
     @Test
     public void testAllocateTalentPoint_WithString_NullCharacter() {
-        boolean result = playerManager.allocateTalentPoint(null, "STRENGTH");
+        boolean result = characterManager.allocateTalentPoint(null, "STRENGTH");
         assertFalse("null 角色应返回 false", result);
     }
 
     @Test
     public void testAllocateTalentPoint_WithString_NullAttributeName() {
         // 明确指定为 String 类型以避免歧义
-        boolean result = playerManager.allocateTalentPoint(testCharacter, (String) null);
+        boolean result = characterManager.allocateTalentPoint(testCharacter, (String) null);
         assertFalse("null 属性名应返回 false", result);
     }
 
     @Test
     public void testAllocateTalentPoint_WithString_Valid() {
         int before = testCharacter.getAllocatedStrength();
-        boolean result = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+        boolean result = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
 
         // 结果取决于角色是否有天赋点
         if (result) {
@@ -88,14 +88,14 @@ public class PlayerManagerTest {
 
     @Test
     public void testAllocateTalentPoint_WithAttributeType_NullCharacter() {
-        boolean result = playerManager.allocateTalentPoint(null, AttributeType.STRENGTH);
+        boolean result = characterManager.allocateTalentPoint(null, AttributeType.STRENGTH);
         assertFalse("null 角色应返回 false", result);
     }
 
     @Test
     public void testAllocateTalentPoint_WithAttributeType_Valid() {
         int before = testCharacter.getAllocatedAgility();
-        boolean result = playerManager.allocateTalentPoint(testCharacter, AttributeType.AGILITY);
+        boolean result = characterManager.allocateTalentPoint(testCharacter, AttributeType.AGILITY);
 
         // 结果取决于角色是否有天赋点
         if (result) {
@@ -108,7 +108,7 @@ public class PlayerManagerTest {
     @Test
     public void testResetAllTalentPoints_NullCharacter() {
         // 应不崩溃
-        playerManager.resetAllTalentPoints(null);
+        characterManager.resetAllTalentPoints(null);
         assertTrue("处理 null 角色", true);
     }
 
@@ -118,15 +118,15 @@ public class PlayerManagerTest {
         testCharacter.gainExp(1000); // 足够升级到更高等级
 
         // 分配一些点
-        playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
-        playerManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
+        characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
+        characterManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
 
         int pointsBefore = testCharacter.getTalentPoints();
         int strengthBefore = testCharacter.getAllocatedStrength();
         int intelligenceBefore = testCharacter.getAllocatedIntelligence();
 
         // 重置
-        playerManager.resetAllTalentPoints(testCharacter);
+        characterManager.resetAllTalentPoints(testCharacter);
 
         assertEquals("力量应重置", 0, testCharacter.getAllocatedStrength());
         assertEquals("智力应重置", 0, testCharacter.getAllocatedIntelligence());
@@ -138,15 +138,15 @@ public class PlayerManagerTest {
 
     @Test
     public void testGetAllocatedStat_NullCharacter() {
-        int result = playerManager.getAllocatedStat(null, "STRENGTH");
+        int result = characterManager.getAllocatedStat(null, "STRENGTH");
         assertEquals("null 角色应返回0", 0, result);
     }
 
     @Test
     public void testGetAllocatedStat_NullAttributeName() {
-        // PlayerManager.getAllocatedStat 内部会对 null 属性名进行处理
+        // CharacterManager.getAllocatedStat 内部会对 null 属性名进行处理
         // 使用空字符串代替 null 来测试无效属性名
-        int result = playerManager.getAllocatedStat(testCharacter, "");
+        int result = characterManager.getAllocatedStat(testCharacter, "");
         assertEquals("空属性名应返回0", 0, result);
     }
 
@@ -156,12 +156,12 @@ public class PlayerManagerTest {
         testCharacter.gainExp(1000);
         int totalPoints = testCharacter.getTalentPoints();
 
-        playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+        characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
         if (testCharacter.getTalentPoints() < totalPoints) {
-            playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "STRENGTH");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "STRENGTH");
         assertTrue("力量应已分配", allocated >= 1);
     }
 
@@ -169,10 +169,10 @@ public class PlayerManagerTest {
     public void testGetAllocatedStat_AGILITY() {
         testCharacter.gainExp(500);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "AGILITY");
+            characterManager.allocateTalentPoint(testCharacter, "AGILITY");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "AGILITY");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "AGILITY");
         assertTrue("敏捷应已分配或为0", allocated >= 0);
     }
 
@@ -180,10 +180,10 @@ public class PlayerManagerTest {
     public void testGetAllocatedStat_INTELLIGENCE() {
         testCharacter.gainExp(500);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
+            characterManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "INTELLIGENCE");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "INTELLIGENCE");
         assertTrue("智力应已分配或为0", allocated >= 0);
     }
 
@@ -191,10 +191,10 @@ public class PlayerManagerTest {
     public void testGetAllocatedStat_SPIRIT() {
         testCharacter.gainExp(500);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "SPIRIT");
+            characterManager.allocateTalentPoint(testCharacter, "SPIRIT");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "SPIRIT");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "SPIRIT");
         assertTrue("精神应已分配或为0", allocated >= 0);
     }
 
@@ -202,10 +202,10 @@ public class PlayerManagerTest {
     public void testGetAllocatedStat_PHYSIQUE() {
         testCharacter.gainExp(500);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "PHYSIQUE");
+            characterManager.allocateTalentPoint(testCharacter, "PHYSIQUE");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "PHYSIQUE");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "PHYSIQUE");
         assertTrue("体质应已分配或为0", allocated >= 0);
     }
 
@@ -213,16 +213,16 @@ public class PlayerManagerTest {
     public void testGetAllocatedStat_LUCK() {
         testCharacter.gainExp(500);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "LUCK");
+            characterManager.allocateTalentPoint(testCharacter, "LUCK");
         }
 
-        int allocated = playerManager.getAllocatedStat(testCharacter, "LUCK");
+        int allocated = characterManager.getAllocatedStat(testCharacter, "LUCK");
         assertTrue("幸运应已分配或为0", allocated >= 0);
     }
 
     @Test
     public void testGetAllocatedStat_InvalidAttribute() {
-        int result = playerManager.getAllocatedStat(testCharacter, "INVALID");
+        int result = characterManager.getAllocatedStat(testCharacter, "INVALID");
         assertEquals("无效属性应返回0", 0, result);
     }
 
@@ -231,27 +231,27 @@ public class PlayerManagerTest {
         // 通过升级获得天赋点
         testCharacter.gainExp(1000);
         if (testCharacter.getTalentPoints() > 0) {
-            playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
         }
 
         // 小写
-        int allocated1 = playerManager.getAllocatedStat(testCharacter, "strength");
+        int allocated1 = characterManager.getAllocatedStat(testCharacter, "strength");
         assertEquals("小写应正确识别", testCharacter.getAllocatedStrength(), allocated1);
 
         // 大小写混合
-        int allocated2 = playerManager.getAllocatedStat(testCharacter, "StReNgTh");
+        int allocated2 = characterManager.getAllocatedStat(testCharacter, "StReNgTh");
         assertEquals("大小写混合应正确识别", testCharacter.getAllocatedStrength(), allocated2);
     }
 
     @Test
     public void testGetAllocatedStat_AllAttributesUnallocated() {
         // 新角色没有天赋点，所有分配属性应为0
-        assertEquals("力量应为0", 0, playerManager.getAllocatedStat(testCharacter, "STRENGTH"));
-        assertEquals("敏捷应为0", 0, playerManager.getAllocatedStat(testCharacter, "AGILITY"));
-        assertEquals("智力应为0", 0, playerManager.getAllocatedStat(testCharacter, "INTELLIGENCE"));
-        assertEquals("精神应为0", 0, playerManager.getAllocatedStat(testCharacter, "SPIRIT"));
-        assertEquals("体质应为0", 0, playerManager.getAllocatedStat(testCharacter, "PHYSIQUE"));
-        assertEquals("幸运应为0", 0, playerManager.getAllocatedStat(testCharacter, "LUCK"));
+        assertEquals("力量应为0", 0, characterManager.getAllocatedStat(testCharacter, "STRENGTH"));
+        assertEquals("敏捷应为0", 0, characterManager.getAllocatedStat(testCharacter, "AGILITY"));
+        assertEquals("智力应为0", 0, characterManager.getAllocatedStat(testCharacter, "INTELLIGENCE"));
+        assertEquals("精神应为0", 0, characterManager.getAllocatedStat(testCharacter, "SPIRIT"));
+        assertEquals("体质应为0", 0, characterManager.getAllocatedStat(testCharacter, "PHYSIQUE"));
+        assertEquals("幸运应为0", 0, characterManager.getAllocatedStat(testCharacter, "LUCK"));
     }
 
     // ==================== 边界条件测试 ====================
@@ -259,7 +259,7 @@ public class PlayerManagerTest {
     @Test
     public void testAllocateTalentPoint_NoTalentPoints() {
         // 新角色初始没有天赋点
-        boolean result = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+        boolean result = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
         assertFalse("无天赋点时应返回 false", result);
     }
 
@@ -271,12 +271,12 @@ public class PlayerManagerTest {
 
         if (points >= 3) {
             // 分配所有点
-            boolean r1 = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
-            boolean r2 = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
-            boolean r3 = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            boolean r1 = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            boolean r2 = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            boolean r3 = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
 
             // 尝试分配第4个点
-            boolean r4 = playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            boolean r4 = characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
 
             assertTrue("第1个点应成功", r1);
             assertTrue("第2个点应成功", r2);
@@ -297,12 +297,12 @@ public class PlayerManagerTest {
 
         int points = testCharacter.getTalentPoints();
         if (points >= 6) {
-            playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
-            playerManager.allocateTalentPoint(testCharacter, "STRENGTH");
-            playerManager.allocateTalentPoint(testCharacter, "AGILITY");
-            playerManager.allocateTalentPoint(testCharacter, "AGILITY");
-            playerManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
-            playerManager.allocateTalentPoint(testCharacter, "LUCK");
+            characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            characterManager.allocateTalentPoint(testCharacter, "STRENGTH");
+            characterManager.allocateTalentPoint(testCharacter, "AGILITY");
+            characterManager.allocateTalentPoint(testCharacter, "AGILITY");
+            characterManager.allocateTalentPoint(testCharacter, "INTELLIGENCE");
+            characterManager.allocateTalentPoint(testCharacter, "LUCK");
 
             assertEquals("力量应为2", 2, testCharacter.getAllocatedStrength());
             assertEquals("敏捷应为2", 2, testCharacter.getAllocatedAgility());

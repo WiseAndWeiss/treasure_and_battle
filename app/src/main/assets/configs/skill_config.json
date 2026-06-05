@@ -320,11 +320,11 @@
       "maxLevel": 5,
       "cooldown": 2,
       "costParamsList": [
-        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
-        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
-        {"actionPointCost": 3, "mpCost": 0, "hpCost": 0},
-        {"actionPointCost": 4, "mpCost": 0, "hpCost": 0},
-        {"actionPointCost": 5, "mpCost": 0, "hpCost": 0}
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0},
+        {"actionPointCost": 2, "mpCost": 0, "hpCost": 0}
       ],
       "effectParamsList": [
         {"x": 20, "y": 20, "z": 0},
