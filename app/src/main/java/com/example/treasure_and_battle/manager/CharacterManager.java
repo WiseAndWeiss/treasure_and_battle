@@ -4,17 +4,17 @@ import android.content.Context;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
 
-public class PlayerManager {
-    private static PlayerManager instance;
+public class CharacterManager {
+    private static CharacterManager instance;
     private Context context;
 
-    private PlayerManager(Context context) {
+    private CharacterManager(Context context) {
         this.context = context.getApplicationContext();
     }
 
-    public static synchronized PlayerManager getInstance(Context context) {
+    public static synchronized CharacterManager getInstance(Context context) {
         if (instance == null) {
-            instance = new PlayerManager(context);
+            instance = new CharacterManager(context);
         }
         return instance;
     }

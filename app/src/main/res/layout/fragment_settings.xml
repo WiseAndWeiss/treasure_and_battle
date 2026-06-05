@@ -325,10 +325,9 @@
             android:focusable="true"
             android:gravity="center"
             android:padding="12dp"
-            android:text="🧪 设置测试角色"
+            android:text="设置测试角色"
             android:textColor="@color/tb_battle"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textSize="14sp"/>
 
         <TextView
             android:layout_width="match_parent"

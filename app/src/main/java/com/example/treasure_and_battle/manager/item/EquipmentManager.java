@@ -164,12 +164,12 @@ public class EquipmentManager {
                 break;
             case BOW:
                 attrs.physicalAtk = (int) Math.round(finalPower * 0.5);
-                attrs.physicalCritRate = 0.05f;
+                attrs.physicalCritRate = (float)(finalPower / (finalPower + 1000));
                 attrs.agility = (int) Math.round(finalPower * 0.1);
                 break;
             case STAFF:
                 attrs.magicalAtk = (int) Math.round(finalPower * 0.7);
-                attrs.magicalCritRate = 0.05f;
+                attrs.magicalCritRate = (float)(finalPower / (finalPower + 1000));
                 attrs.intelligence = (int) Math.round(finalPower * 0.1);
                 break;
         }
@@ -201,22 +201,25 @@ public class EquipmentManager {
             case CHEST:
                 attrs.maxHp = (int) Math.round(p * 0.6);
                 attrs.physicalDef = (int) Math.round(p * 0.15);
-                attrs.damageReductionRate = 0.02f;
+                attrs.damageReductionRate = (float)(p / (4*p) + 1000);
                 attrs.physique = (int) Math.round(p * 0.08);
                 break;
             case HELMET:
                 attrs.maxHp = (int) Math.round(p * 0.4);
                 attrs.physicalDef = (int) Math.round(p * 0.10);
+                attrs.damageReductionRate = (float)(p / (4*p) + 1500);
                 attrs.physique = (int) Math.round(p * 0.05);
                 break;
             case LEGGINGS:
                 attrs.maxHp = (int) Math.round(p * 0.45);
                 attrs.physicalDef = (int) Math.round(p * 0.12);
+                attrs.damageReductionRate = (float)(p / (4*p) + 1000);
                 attrs.physique = (int) Math.round(p * 0.06);
                 break;
             case BOOTS:
                 attrs.maxHp = (int) Math.round(p * 0.3);
                 attrs.physicalDef = (int) Math.round(p * 0.08);
+                attrs.damageReductionRate = (float)(p / (4*p) + 1500);
                 attrs.physique = (int) Math.round(p * 0.04);
                 break;
             default: break;
@@ -229,27 +232,29 @@ public class EquipmentManager {
                 attrs.maxHp = (int) Math.round(p * 0.4);
                 attrs.physicalDef = (int) Math.round(p * 0.08);
                 attrs.magicalDef = (int) Math.round(p * 0.08);
-                attrs.dodgeRate = 0.02f;
-                attrs.luck = (int) Math.round(p * 0.05);
+                attrs.dodgeRate = (float)(p / (4*p) + 1000);
+                attrs.luck = (int) Math.round(p * 0.08);
                 break;
             case HELMET:
                 attrs.maxHp = (int) Math.round(p * 0.3);
                 attrs.physicalDef = (int) Math.round(p * 0.06);
                 attrs.magicalDef = (int) Math.round(p * 0.06);
-                attrs.luck = (int) Math.round(p * 0.04);
+                attrs.dodgeRate = (float)(p / (4*p) + 1500);
+                attrs.luck = (int) Math.round(p * 0.05);
                 break;
             case LEGGINGS:
                 attrs.maxHp = (int) Math.round(p * 0.35);
                 attrs.physicalDef = (int) Math.round(p * 0.07);
                 attrs.magicalDef = (int) Math.round(p * 0.07);
-                attrs.luck = (int) Math.round(p * 0.04);
+                attrs.dodgeRate = (float)(p / (4*p) + 1000);
+                attrs.luck = (int) Math.round(p * 0.06);
                 break;
             case BOOTS:
                 attrs.maxHp = (int) Math.round(p * 0.25);
                 attrs.physicalDef = (int) Math.round(p * 0.05);
                 attrs.magicalDef = (int) Math.round(p * 0.05);
-                attrs.dodgeRate = 0.03f;
-                attrs.luck = (int) Math.round(p * 0.03);
+                attrs.dodgeRate = (float)(p / (4*p) + 1000);
+                attrs.luck = (int) Math.round(p * 0.04);
                 break;
             default: break;
         }
@@ -261,26 +266,28 @@ public class EquipmentManager {
                 attrs.maxHp = (int) Math.round(p * 0.25);
                 attrs.maxMp = (int) Math.round(p * 0.4);
                 attrs.magicalDef = (int) Math.round(p * 0.15);
-                attrs.debuffResist = 0.03f;
+                attrs.debuffResist = (float)(p / (4*p) + 1000);
                 attrs.spirit = (int) Math.round(p * 0.08);
                 break;
             case HELMET:
                 attrs.maxHp = (int) Math.round(p * 0.2);
                 attrs.maxMp = (int) Math.round(p * 0.3);
                 attrs.magicalDef = (int) Math.round(p * 0.10);
-                attrs.spirit = (int) Math.round(p * 0.06);
+                attrs.debuffResist = (float)(p / (4*p) + 1500);
+                attrs.spirit = (int) Math.round(p * 0.05);
                 break;
             case LEGGINGS:
                 attrs.maxHp = (int) Math.round(p * 0.22);
                 attrs.maxMp = (int) Math.round(p * 0.3);
                 attrs.magicalDef = (int) Math.round(p * 0.12);
+                attrs.debuffResist = (float)(p / (4*p) + 1000);
                 attrs.spirit = (int) Math.round(p * 0.06);
                 break;
             case BOOTS:
                 attrs.maxHp = (int) Math.round(p * 0.18);
                 attrs.maxMp = (int) Math.round(p * 0.25);
                 attrs.magicalDef = (int) Math.round(p * 0.08);
-                attrs.debuffResist = 0.02f;
+                attrs.debuffResist = (float)(p / (4*p) + 1000);
                 attrs.spirit = (int) Math.round(p * 0.04);
                 break;
             default: break;

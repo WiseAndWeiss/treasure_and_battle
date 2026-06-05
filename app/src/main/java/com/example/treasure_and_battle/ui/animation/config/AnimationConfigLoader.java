@@ -25,8 +25,8 @@ import java.util.Map;
  * 动画配置加载器 - 支持动画组复用的新配置结构
  */
 public class AnimationConfigLoader {
-    private static final String SIGNAL_CONFIG_FILE = "signal_to_animation_config.json";
-    private static final String GROUP_CONFIG_FILE = "animation_group_config.json";
+    private static final String SIGNAL_CONFIG_FILE = "configs/signal_to_animation_config.json";
+    private static final String GROUP_CONFIG_FILE = "configs/animation_group_config.json";
     private static final String TAG = "AnimationConfigLoader";
 
     private static volatile Map<String, List<AnimationTemplate>> signalCache;
