@@ -88,6 +88,12 @@ public class EquipmentManager {
         }
     }
 
+    public int getRandomTemplateId() {
+        if (templateMap.isEmpty()) return -1;
+        List<EquipTemplate> templates = new ArrayList<>(templateMap.values());
+        return templates.get(random.nextInt(templates.size())).getTemplateId();
+    }
+
     public EquipItem generateEquip(int templateId, int level, Rarity rarity) {
         EquipTemplate template = templateMap.get(templateId);
         if (template == null) return null;

@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
+import com.example.treasure_and_battle.utils.RandomUtils;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;
@@ -225,10 +226,11 @@ public class TradeFragment extends Fragment {
         for (MerchantConfig.MerchantSlot slot : slots) {
             Rarity rarity = slot.rarity;
             ItemType type = slot.itemType;
-            int level = 5 + merchantRng.nextInt(21);
+            int equipLevel = tradeCharacter().getLevel() + RandomUtils.getRandomInt(-3, 3);
+            equipLevel = Math.max(1, equipLevel);
 
             if (type == ItemType.EQUIPMENT) {
-                EquipItem eq = em.generateRandomEquip(level, rarity);
+                EquipItem eq = em.generateRandomEquip(equipLevel, rarity);
                 if (eq != null) {
                     int price = unitBuyPriceForListing(eq);
                     listings.add(MerchantListing.finiteStock(eq, price,
@@ -259,11 +261,12 @@ public class TradeFragment extends Fragment {
     private void buildDefaultMerchantListings() {
         EquipmentManager em = EquipmentManager.getInstance(requireContext());
         ItemManager im = ItemManager.getInstance(requireContext());
+        int equipLevel = tradeCharacter().getLevel() + RandomUtils.getRandomInt(-3, 3);
+        equipLevel = Math.max(1, equipLevel);
 
-        // 装备（equip_config.json）
-        addEquipListing(em, 1001, 2, Rarity.COMMON, 1);
-        addEquipListing(em, 4001, 2, Rarity.COMMON, 1);
-        addEquipListing(em, 3001, 2, Rarity.COMMON, 1);
+        addEquipListing(em, 1001, equipLevel, Rarity.COMMON, 1);
+        addEquipListing(em, 4001, equipLevel, Rarity.COMMON, 1);
+        addEquipListing(em, 3001, equipLevel, Rarity.COMMON, 1);
 
         // 消耗品（consumable_config.json）
         addConsumableListing(im, "potion_hp_small", 30);

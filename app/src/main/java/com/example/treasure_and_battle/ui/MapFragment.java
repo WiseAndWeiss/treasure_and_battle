@@ -613,17 +613,7 @@ public class MapFragment extends Fragment {
     }
 
     private void handleBenefitAction(EventConfig.EventSubItem sub) {
-        if (sub != null && ("rest".equals(sub.getKey()) || "chest".equals(sub.getKey()))) {
-            openNeutralEventPage(sub);
-            return;
-        }
-        Intent intent = new Intent(getActivity(), BenefitEventActivity.class);
-        if (sub != null) {
-            intent.putExtra("event_key", sub.getKey());
-            intent.putExtra("event_name", sub.getName());
-            intent.putExtra("event_desc", sub.getDesc());
-        }
-        startActivity(intent);
+        openNeutralEventPage(sub);
     }
 
     private void openNeutralEventPage(EventConfig.EventSubItem sub) {
@@ -1069,7 +1059,7 @@ public class MapFragment extends Fragment {
                 || "monster_camp".equals(key) || "cave_treasure".equals(key)
                 || "equipment_reforge".equals(key) || "casino_wagon".equals(key)
                 || "divination_hut".equals(key) || "mystery_box".equals(key)
-                || "mysterious_altar".equals(key) || "phantom_maze".equals(key)
+                || "mysterious_altar".equals(key)
                 || "wishing_well".equals(key) || "cursed_chest".equals(key)) return "NEUTRAL";
         return "BATTLE";
     }
