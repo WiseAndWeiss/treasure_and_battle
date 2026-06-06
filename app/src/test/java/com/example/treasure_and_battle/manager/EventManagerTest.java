@@ -13,12 +13,11 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.model.entity.Monster;
+import com.example.treasure_and_battle.manager.event.EventManager;
 import com.example.treasure_and_battle.model.event.EventConfig;
 
 import org.junit.Before;

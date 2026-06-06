@@ -5,6 +5,8 @@ import static org.junit.Assert.assertSame;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.manager.game.ConfigManager;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

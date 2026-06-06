@@ -40,16 +40,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
-import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.utils.GameAssetIcons;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
-import com.example.treasure_and_battle.model.common.Rarity;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.menu.ItemAction;
 import com.example.treasure_and_battle.ui.menu.ItemMenuProviderFactory;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -403,17 +399,6 @@ public class BagFragment extends Fragment {
         allItems = InventoryGridSync.getSharedBagGrid(requireContext());
     }
 
-    private int findItemIndex(Item item) {
-        if (item == null) return -1;
-        for (int i = 0; i < allItems.size(); i++) {
-            Item existing = allItems.get(i);
-            if (existing != null && existing.getId().equals(item.getId())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     private void initMenuProviderFactory() {
         menuProviderFactory = new ItemMenuProviderFactory(
                 requireContext(),
@@ -433,10 +418,8 @@ public class BagFragment extends Fragment {
                             .create();
                     bagNeg.setOnClickListener(v -> d.dismiss());
                     bagPos.setOnClickListener(v -> {
-                        int index = findItemIndex(item);
-                        if (index >= 0) {
-                            allItems.set(index, null);
-                        }
+                        int index = InventoryManager.findItemIndex(allItems, item.getId());
+                        InventoryManager.discardAt(allItems, index);
                         adapter.notifyDataSetChanged();
                         persistSharedBagGridToInventory();
                         showFloatMsg("已丢弃: " + item.getName());
@@ -449,12 +432,15 @@ public class BagFragment extends Fragment {
                 }
         , false);
         menuProviderFactory.registerEquipment(equipItem -> {
-            int bagIndex = findItemIndex(equipItem);
+            int bagIndex = InventoryManager.findItemIndex(allItems, equipItem.getId());
             if (bagIndex >= 0) {
-                boolean equipped = autoEquipFromBag(bagIndex, equipItem);
+                Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                boolean equipped = InventoryManager.autoEquipToCharacter(ch, allItems, bagIndex, equipItem);
                 if (equipped) {
+                    loadEquippedFromCharacter();
                     adapter.notifyDataSetChanged();
                     persistSharedBagGridToInventory();
+                    showFloatMsg("已装备: " + equipItem.getName());
                 }
             }
         }, equipItem -> {
@@ -462,7 +448,8 @@ public class BagFragment extends Fragment {
                 showFloatMsg("该装备没有宝石");
                 return;
             }
-            if (!hasDiamondDrill()) {
+            Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+            if (!InventoryManager.hasDiamondDrill(ch)) {
                 showFloatMsg("缺少金刚钻，无法拆卸宝石");
                 return;
             }
@@ -470,23 +457,14 @@ public class BagFragment extends Fragment {
         });
         menuProviderFactory.registerConsumable(consumableItem -> {
             Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-            boolean success = ConsumableManager.executeOutBattle(ch, consumableItem, getContext());
-            if (success) {
-                if (consumableItem.getCount() > 1) {
-                    consumableItem.setCount(consumableItem.getCount() - 1);
-                } else {
-                    int index = findItemIndex(consumableItem);
-                    if (index >= 0) {
-                        allItems.set(index, null);
-                    }
-                }
+            if (InventoryManager.useConsumable(ch, allItems, consumableItem, getContext())) {
                 adapter.notifyDataSetChanged();
                 persistSharedBagGridToInventory();
                 showFloatMsg("已使用: " + consumableItem.getName());
             }
         });
         menuProviderFactory.registerGem(gemItem -> {
-            int bagIndex = findItemIndex(gemItem);
+            int bagIndex = InventoryManager.findItemIndex(allItems, gemItem.getId());
             if (bagIndex < 0) return;
             pendingGemItem = gemItem;
             pendingGemBagIndex = bagIndex;
@@ -707,7 +685,14 @@ public class BagFragment extends Fragment {
 
                         allItems.set(realIndex, equipItem);
                         equippedItems.remove(slotId);
-                        syncCharacterUnequip(slotId);
+                        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                        EquipSlot slot = viewIdToEquipSlot(slotId);
+                        if (slot == EquipSlot.RING) {
+                            if (slotId == R.id.slot_ring_left) ch.unequipRing(true);
+                            else ch.unequipRing(false);
+                        } else if (slot != null) {
+                            ch.unequip(slot);
+                        }
                         updateEquipSlotView(slotId, null);
                         adapter.notifyDataSetChanged();
                         persistSharedBagGridToInventory();
@@ -940,7 +925,7 @@ public class BagFragment extends Fragment {
     private void applyFilter(@Nullable EquipSlot slot) {
         currentFilterSlot = slot;
         if (slot != null) {
-            compactItemsByFilter(slot);
+            InventoryManager.compactByEquipSlot(allItems, slot);
             currentPage = 1;
         }
         updateFilterButtonText();
@@ -952,29 +937,6 @@ public class BagFragment extends Fragment {
             showFloatMsg("已取消筛选");
         } else {
             showFloatMsg("已筛选: " + getSlotLabel(slot));
-        }
-    }
-
-    private void compactItemsByFilter(@NonNull EquipSlot slot) {
-        int bagCapacity = InventoryGridSync.BAG_SLOT_COUNT;
-        List<Item> matches = new ArrayList<>();
-        List<Item> others = new ArrayList<>();
-
-        for (int i = 0; i < bagCapacity; i++) {
-            Item item = allItems.get(i);
-            if (item instanceof EquipItem && ((EquipItem) item).getSlot() == slot) {
-                matches.add(item);
-            } else {
-                others.add(item);
-            }
-        }
-
-        int writeIndex = 0;
-        for (Item item : matches) {
-            allItems.set(writeIndex++, item);
-        }
-        for (Item item : others) {
-            allItems.set(writeIndex++, item);
         }
     }
 
@@ -1275,7 +1237,21 @@ public class BagFragment extends Fragment {
                 cancelGemPending();
                 return true;
             }
-            return executeGemSocket(pendingGemItem, targetEquip, sourceIndex);
+            Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+            String slotKey = equipSlotKeyFromViewId(targetSlotViewId);
+            boolean ok = InventoryManager.socketGemToEquip(ch, allItems, sourceIndex,
+                    pendingGemItem, targetEquip, slotKey);
+            if (!ok) {
+                showFloatMsg("宝石槽已满");
+                cancelGemPending();
+                return true;
+            }
+            updateEquipSlotView(targetSlotViewId, targetEquip);
+            showFloatMsg("镶嵌成功: " + pendingGemItem.getName());
+            cancelGemPending();
+            adapter.notifyDataSetChanged();
+            persistSharedBagGridToInventory();
+            return true;
         }
 
         if (!(sourceItem instanceof EquipItem)) {
@@ -1284,17 +1260,16 @@ public class BagFragment extends Fragment {
         }
 
         EquipItem draggedEquip = (EquipItem) sourceItem;
-        if (!canEquipToSlotView(targetSlotViewId, draggedEquip.getSlot())) {
+        EquipSlot targetSlot = viewIdToEquipSlot(targetSlotViewId);
+        if (!InventoryManager.canEquipToSlot(draggedEquip.getSlot(), targetSlot)) {
             showFloatMsg("该槽位与装备类型不匹配");
             return true;
         }
 
-        EquipItem previousEquip = equippedItems.get(targetSlotViewId);
-        equippedItems.put(targetSlotViewId, draggedEquip);
-        syncCharacterEquip(targetSlotViewId, draggedEquip);
-        allItems.set(sourceIndex, previousEquip);
-        updateEquipSlotView(targetSlotViewId, draggedEquip);
-
+        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+        boolean isLeftRing = targetSlotViewId == R.id.slot_ring_left;
+        InventoryManager.equipToCharacter(ch, allItems, sourceIndex, targetSlot, isLeftRing);
+        loadEquippedFromCharacter();
         showFloatMsg("已装备: " + draggedEquip.getName());
         return true;
     }
@@ -1325,7 +1300,24 @@ public class BagFragment extends Fragment {
 
         Item targetItem = allItems.get(targetIndex);
         if (targetItem instanceof EquipItem) {
-            return executeGemSocket(pendingGemItem, (EquipItem) targetItem, sourceIndex);
+            Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+            int equipSlotViewId = findEquipSlotByEquipItem((EquipItem) targetItem);
+            String slotKey = equipSlotViewId != -1 ? equipSlotKeyFromViewId(equipSlotViewId) : null;
+            boolean ok = InventoryManager.socketGemToEquip(ch, allItems, sourceIndex,
+                    pendingGemItem, (EquipItem) targetItem, slotKey);
+            if (!ok) {
+                showFloatMsg("宝石槽已满");
+                cancelGemPending();
+                return true;
+            }
+            if (equipSlotViewId != -1) {
+                updateEquipSlotView(equipSlotViewId, (EquipItem) targetItem);
+            }
+            showFloatMsg("镶嵌成功: " + pendingGemItem.getName());
+            cancelGemPending();
+            adapter.notifyDataSetChanged();
+            persistSharedBagGridToInventory();
+            return true;
         }
 
         showFloatMsg("该物品不能镶嵌");
@@ -1380,20 +1372,6 @@ public class BagFragment extends Fragment {
             }
         }
         return -1;
-    }
-
-    private boolean canEquipToSlotView(int slotViewId, EquipSlot equipSlot) {
-        if (slotViewId == R.id.slot_weapon) return equipSlot == EquipSlot.WEAPON;
-        if (slotViewId == R.id.slot_helmet) return equipSlot == EquipSlot.HELMET;
-        if (slotViewId == R.id.slot_chest) return equipSlot == EquipSlot.CHEST;
-        if (slotViewId == R.id.slot_leggings) return equipSlot == EquipSlot.LEGGINGS;
-        if (slotViewId == R.id.slot_boots) return equipSlot == EquipSlot.BOOTS;
-        if (slotViewId == R.id.slot_necklace) return equipSlot == EquipSlot.NECKLACE;
-        if (slotViewId == R.id.slot_bracelet) return equipSlot == EquipSlot.BRACELET;
-        if (slotViewId == R.id.slot_ring_left || slotViewId == R.id.slot_ring_right) {
-            return equipSlot == EquipSlot.RING;
-        }
-        return false;
     }
 
     private void updateEquipSlotView(int slotViewId, @Nullable EquipItem equipItem) {
@@ -1465,32 +1443,6 @@ public class BagFragment extends Fragment {
         slotLayout.addView(inner);
     }
 
-    private boolean executeGemSocket(com.example.treasure_and_battle.model.item.gem.GemItem gem,
-                                      EquipItem equip, int bagIndex) {
-        if (!equip.socketGem(gem)) {
-            showFloatMsg("宝石槽已满");
-            cancelGemPending();
-            return true;
-        }
-
-        Item bagItem = allItems.get(bagIndex);
-        if (bagItem.getCount() > 1) {
-            bagItem.setCount(bagItem.getCount() - 1);
-        } else {
-            allItems.set(bagIndex, null);
-        }
-        int slotViewId = findEquipSlotByEquipItem(equip);
-        if (slotViewId != -1) {
-            updateEquipSlotView(slotViewId, equip);
-            syncCharacterEquip(slotViewId, equip);
-        }
-        showFloatMsg("镶嵌成功: " + gem.getName());
-        cancelGemPending();
-        adapter.notifyDataSetChanged();
-        persistSharedBagGridToInventory();
-        return true;
-    }
-
     private void cancelGemPending() {
         if (pendingGemItem != null && pendingGemBagIndex >= 0) {
             adapter.notifyItemChanged(pendingGemBagIndex % itemsPerPage, "GEM_CANCEL");
@@ -1544,14 +1496,14 @@ public class BagFragment extends Fragment {
                             .create();
                     neg.setOnClickListener(v3 -> confirmD.dismiss());
                     pos.setOnClickListener(v3 -> {
-                        com.example.treasure_and_battle.model.item.gem.GemItem removed = equip.unsocketGem(position);
+                        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                        int slotViewId = findEquipSlotByEquipItem(equip);
+                        String slotKey = slotViewId != -1 ? equipSlotKeyFromViewId(slotViewId) : null;
+                        com.example.treasure_and_battle.model.item.gem.GemItem removed =
+                                InventoryManager.unsocketGemFromEquip(ch, allItems, equip, position, slotKey);
                         if (removed != null) {
-                            consumeDiamondDrill();
-                            putGemIntoBag(removed);
-                            int slotViewId = findEquipSlotByEquipItem(equip);
                             if (slotViewId != -1) {
                                 updateEquipSlotView(slotViewId, equip);
-                                syncCharacterEquip(slotViewId, equip);
                             }
                             adapter.notifyDataSetChanged();
                             persistSharedBagGridToInventory();
@@ -1575,49 +1527,11 @@ public class BagFragment extends Fragment {
         }
     }
 
-    private void putGemIntoBag(com.example.treasure_and_battle.model.item.gem.GemItem gem) {
-        for (int i = 0; i < allItems.size(); i++) {
-            if (allItems.get(i) == null) {
-                allItems.set(i, gem);
-                return;
-            }
-        }
-    }
-
     private int findEquipSlotByEquipItem(EquipItem eq) {
         for (java.util.Map.Entry<Integer, EquipItem> entry : equippedItems.entrySet()) {
             if (entry.getValue() == eq) return entry.getKey();
         }
         return -1;
-    }
-
-    private boolean hasDiamondDrill() {
-        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-        if (ch == null) return false;
-        for (Item it : ch.getBagItems()) {
-            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
-                    && "diamond_drill".equals(it.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void consumeDiamondDrill() {
-        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-        if (ch == null) return;
-        java.util.List<Item> bag = ch.getBagItems();
-        for (Item it : bag) {
-            if (it instanceof com.example.treasure_and_battle.model.item.consumable.ConsumableItem
-                    && "diamond_drill".equals(it.getId())) {
-                if (it.getCount() > 1) {
-                    it.setCount(it.getCount() - 1);
-                } else {
-                    bag.remove(it);
-                }
-                return;
-            }
-        }
     }
 
     private void showEquippedItemMenu(View anchor, int slotViewId, EquipItem item) {
@@ -1635,9 +1549,11 @@ public class BagFragment extends Fragment {
                 return true;
             }
             if (menuItem.getItemId() == 2) {
-                if (tryPutIntoBag(item)) {
+                Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                EquipSlot slot = viewIdToEquipSlot(slotViewId);
+                boolean isLeftRing = slotViewId == R.id.slot_ring_left;
+                if (InventoryManager.unequipFromCharacter(ch, allItems, slot, isLeftRing)) {
                     equippedItems.remove(slotViewId);
-                    syncCharacterUnequip(slotViewId);
                     updateEquipSlotView(slotViewId, null);
                     adapter.notifyDataSetChanged();
                     persistSharedBagGridToInventory();
@@ -1652,7 +1568,8 @@ public class BagFragment extends Fragment {
                     showFloatMsg("该装备没有宝石");
                     return true;
                 }
-                if (!hasDiamondDrill()) {
+                Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                if (!InventoryManager.hasDiamondDrill(ch)) {
                     showFloatMsg("缺少金刚钻，无法拆卸宝石");
                     return true;
                 }
@@ -1675,8 +1592,15 @@ public class BagFragment extends Fragment {
                         .create();
                 eqNeg.setOnClickListener(v -> d.dismiss());
                 eqPos.setOnClickListener(v -> {
+                    Character ch = PlayerCharacterHolder.getOrCreate(getContext());
+                    EquipSlot slot = viewIdToEquipSlot(slotViewId);
+                    if (slot == EquipSlot.RING) {
+                        if (slotViewId == R.id.slot_ring_left) ch.unequipRing(true);
+                        else ch.unequipRing(false);
+                    } else if (slot != null) {
+                        ch.unequip(slot);
+                    }
                     equippedItems.remove(slotViewId);
-                    syncCharacterUnequip(slotViewId);
                     updateEquipSlotView(slotViewId, null);
                     showFloatMsg("已丢弃: " + item.getName());
                     d.dismiss();
@@ -1690,22 +1614,6 @@ public class BagFragment extends Fragment {
             return false;
         });
         popupMenu.show();
-    }
-
-    private boolean tryPutIntoBag(Item item) {
-        int idx = findEmptyBagSlot();
-        if (idx >= 0) {
-            allItems.set(idx, item);
-            return true;
-        }
-        return false;
-    }
-
-    private int findEmptyBagSlot() {
-        for (int i = 0; i < allItems.size(); i++) {
-            if (allItems.get(i) == null) return i;
-        }
-        return -1;
     }
 
     private void bindBagGridCellFrame(@NonNull View cellFrameRoot, @Nullable Item item) {
@@ -1740,29 +1648,6 @@ public class BagFragment extends Fragment {
         GameAssetIcons.bindItem(requireContext(), imageView, item);
     }
 
-    private void syncCharacterEquip(int slotViewId, EquipItem item) {
-        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-        if (ch == null || item == null) return;
-        if (item.getSlot() == EquipSlot.RING) {
-            ch.equipRing(item, slotViewId == R.id.slot_ring_left);
-        } else {
-            ch.equip(item);
-        }
-    }
-
-    private void syncCharacterUnequip(int slotViewId) {
-        Character ch = PlayerCharacterHolder.getOrCreate(getContext());
-        if (ch == null) return;
-        if (slotViewId == R.id.slot_ring_left) {
-            ch.unequipRing(true);
-        } else if (slotViewId == R.id.slot_ring_right) {
-            ch.unequipRing(false);
-        } else {
-            EquipSlot slot = viewIdToEquipSlot(slotViewId);
-            if (slot != null) ch.unequip(slot);
-        }
-    }
-
     private static EquipSlot viewIdToEquipSlot(int slotViewId) {
         if (slotViewId == R.id.slot_weapon)  return EquipSlot.WEAPON;
         if (slotViewId == R.id.slot_helmet)  return EquipSlot.HELMET;
@@ -1775,38 +1660,13 @@ public class BagFragment extends Fragment {
         return null;
     }
 
-    private boolean autoEquipFromBag(int bagIndex, EquipItem equipItem) {
-        int targetSlotId = resolveAutoEquipSlotId(equipItem);
-        if (targetSlotId == -1) {
-            showFloatMsg("没有可用的装备槽位");
-            return false;
-        }
-
-        EquipItem previousEquip = equippedItems.get(targetSlotId);
-        equippedItems.put(targetSlotId, equipItem);
-        syncCharacterEquip(targetSlotId, equipItem);
-        updateEquipSlotView(targetSlotId, equipItem);
-        allItems.set(bagIndex, previousEquip);
-        showFloatMsg("已装备: " + equipItem.getName());
-        return true;
-    }
-
-    private int resolveAutoEquipSlotId(EquipItem equipItem) {
-        EquipSlot slot = equipItem.getSlot();
-        if (slot == null) return -1;
-        if (slot == EquipSlot.WEAPON) return R.id.slot_weapon;
-        if (slot == EquipSlot.HELMET) return R.id.slot_helmet;
-        if (slot == EquipSlot.CHEST) return R.id.slot_chest;
-        if (slot == EquipSlot.LEGGINGS) return R.id.slot_leggings;
-        if (slot == EquipSlot.BOOTS) return R.id.slot_boots;
-        if (slot == EquipSlot.NECKLACE) return R.id.slot_necklace;
-        if (slot == EquipSlot.BRACELET) return R.id.slot_bracelet;
+    /** 将装备槽 View ID 转换为 InventoryManager 使用的槽位键 */
+    private static String equipSlotKeyFromViewId(int slotViewId) {
+        EquipSlot slot = viewIdToEquipSlot(slotViewId);
         if (slot == EquipSlot.RING) {
-            if (!equippedItems.containsKey(R.id.slot_ring_left)) return R.id.slot_ring_left;
-            if (!equippedItems.containsKey(R.id.slot_ring_right)) return R.id.slot_ring_right;
-            return R.id.slot_ring_left;
+            return slotViewId == R.id.slot_ring_left ? "RING_LEFT" : "RING_RIGHT";
         }
-        return -1;
+        return slot != null ? slot.name() : null;
     }
 
     private class BagAdapter extends RecyclerView.Adapter<BagAdapter.ViewHolder> {

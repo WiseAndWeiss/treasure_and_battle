@@ -7,9 +7,9 @@ import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.item.Item;
-import com.example.treasure_and_battle.profession.Profession;
-import com.example.treasure_and_battle.profession.ProfessionManager;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.Profession;
+import com.example.treasure_and_battle.manager.character.ProfessionManager;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
@@ -17,7 +17,6 @@ import com.example.treasure_and_battle.skill.passive.PassiveSkill;
 import com.example.treasure_and_battle.utils.AttributeUtils;
 
 import com.example.treasure_and_battle.manager.skill.SkillManager;
-import com.example.treasure_and_battle.skill.Skill;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -2,19 +2,18 @@ package com.example.treasure_and_battle.battle;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.battle.BattleContext.RevealedIntent;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
-import com.example.treasure_and_battle.battle.action.ActionIntent;
 import com.example.treasure_and_battle.battle.action.BattleAction;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.utils.RandomUtils;
 
 import java.util.Arrays;
@@ -68,7 +67,7 @@ public class BattleManagerTest {
         testPlayer.setCurrentHp(playerAttr.maxHp);
         testPlayer.setCurrentMp(playerAttr.maxMp);
 
-        testMonster = com.example.treasure_and_battle.manager.MonsterManager.getInstance(context)
+        testMonster = MonsterManager.getInstance(context)
                 .createMonsterByTemplateId(1001, false);
         AttributeSet monsterAttr = testMonster.getBaseAttributes();
         monsterAttr.spirit = 10;

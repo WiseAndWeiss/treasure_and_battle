@@ -11,8 +11,8 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.GameManager;
-import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.game.GameManager;
+import com.example.treasure_and_battle.manager.game.SaveManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

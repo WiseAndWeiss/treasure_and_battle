@@ -1,6 +1,5 @@
-package com.example.treasure_and_battle.profession;
+package com.example.treasure_and_battle.model.profession;
 
-import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
 

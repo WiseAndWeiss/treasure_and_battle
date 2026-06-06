@@ -25,14 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.CharacterManager;
+import com.example.treasure_and_battle.manager.character.CharacterManager;
 import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.skill.SkillEffectParams;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
 import com.example.treasure_and_battle.model.skill.SkillTemplate;
 import com.example.treasure_and_battle.model.skill.SkillType;
-import com.example.treasure_and_battle.profession.Profession;
+import com.example.treasure_and_battle.model.profession.Profession;
 import com.example.treasure_and_battle.skill.Skill;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.example.treasure_and_battle.utils.AttributeUtils;

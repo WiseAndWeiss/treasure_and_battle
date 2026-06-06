@@ -1,8 +1,9 @@
 package com.example.treasure_and_battle.event.handler;
 
 import com.example.treasure_and_battle.battle.BattleContext;
-import com.example.treasure_and_battle.manager.EventManager;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.event.EventUICallback;
+import com.example.treasure_and_battle.manager.event.EventManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 
 /**
  * 休息的怪物 — 偷袭怪物，必定先手攻击。

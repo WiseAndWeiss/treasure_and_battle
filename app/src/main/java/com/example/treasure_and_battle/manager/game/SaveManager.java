@@ -1,10 +1,12 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.game;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.affix.AffixTypeAdapterFactory;
+import com.example.treasure_and_battle.manager.item.ItemTypeAdapterFactory;
 import com.example.treasure_and_battle.ui.FloatMsgOverlay;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,7 +14,6 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

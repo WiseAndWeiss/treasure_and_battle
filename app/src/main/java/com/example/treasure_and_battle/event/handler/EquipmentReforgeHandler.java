@@ -25,6 +25,7 @@ import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
+import com.example.treasure_and_battle.event.EventUICallback;
 import com.example.treasure_and_battle.manager.affix.EquipAffixManager;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;

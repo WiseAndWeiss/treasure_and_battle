@@ -4,7 +4,7 @@ import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.BaseBuff;
 import com.example.treasure_and_battle.buff.impl.attribute.WeaknessDebuff;
 import com.example.treasure_and_battle.buff.impl.periodic.BleedingDebuff;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.entity.BattleEntity;

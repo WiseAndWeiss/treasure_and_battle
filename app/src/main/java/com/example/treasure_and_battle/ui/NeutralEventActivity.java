@@ -30,7 +30,7 @@ import com.example.treasure_and_battle.event.handler.ChestHandler;
 import com.example.treasure_and_battle.event.handler.CursedChestHandler;
 import com.example.treasure_and_battle.event.handler.DivinationHandler;
 import com.example.treasure_and_battle.event.handler.EquipmentReforgeHandler;
-import com.example.treasure_and_battle.event.handler.EventUICallback;
+import com.example.treasure_and_battle.event.EventUICallback;
 import com.example.treasure_and_battle.event.handler.MonsterCampHandler;
 import com.example.treasure_and_battle.event.handler.MysteriousAltarHandler;
 import com.example.treasure_and_battle.event.handler.MysteryBoxHandler;

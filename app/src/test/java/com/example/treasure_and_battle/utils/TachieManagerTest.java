@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.utils;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;

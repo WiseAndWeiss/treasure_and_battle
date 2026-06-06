@@ -1,9 +1,8 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.battle;
 
 import android.content.Context;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.manager.affix.AffixManager;
-import com.example.treasure_and_battle.manager.battle.BuffManager;
 import com.example.treasure_and_battle.manager.skill.PassiveSkillManager;
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.model.entity.BattleEntity;

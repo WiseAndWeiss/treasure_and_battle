@@ -1,7 +1,7 @@
 package com.example.treasure_and_battle.skill.passive.ranger;
 
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.skill.passive.PassiveSkill;

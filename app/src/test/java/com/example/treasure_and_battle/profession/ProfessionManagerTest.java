@@ -1,7 +1,10 @@
 package com.example.treasure_and_battle.profession;
 
+import com.example.treasure_and_battle.manager.character.ProfessionManager;
+import com.example.treasure_and_battle.model.profession.Profession;
+import com.example.treasure_and_battle.model.profession.ProfessionTemplate;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.skill.Skill;
-import com.example.treasure_and_battle.skill.SkillTree;
 
 import org.junit.Before;
 import org.junit.Test;

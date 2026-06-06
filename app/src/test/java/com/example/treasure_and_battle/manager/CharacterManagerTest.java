@@ -10,8 +10,9 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.manager.character.CharacterManager;
 import com.example.treasure_and_battle.model.attribute.AttributeType;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -8,7 +8,7 @@ import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.manager.battle.BattleManager;
 import com.example.treasure_and_battle.manager.battle.BuffManager;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.manager.skill.PassiveSkillManager;
 import com.example.treasure_and_battle.manager.skill.SkillManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;

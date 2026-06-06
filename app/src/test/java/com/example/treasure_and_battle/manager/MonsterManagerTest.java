@@ -2,6 +2,7 @@ package com.example.treasure_and_battle.manager;
 
 import android.content.Context;
 
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.MonsterTemplate;
 
