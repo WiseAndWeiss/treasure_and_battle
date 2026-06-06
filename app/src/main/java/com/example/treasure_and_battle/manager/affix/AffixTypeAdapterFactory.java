@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.affix;
 
 import com.example.treasure_and_battle.affix.BaseAffix;
 import com.example.treasure_and_battle.affix.BaseEquipAffix;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-class AffixTypeAdapterFactory implements TypeAdapterFactory {
+public class AffixTypeAdapterFactory implements TypeAdapterFactory {
     private static final Map<String, Class<? extends BaseAffix>> CLASS_MAP = new HashMap<>();
 
     static {

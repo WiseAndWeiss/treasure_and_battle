@@ -2,9 +2,7 @@ package com.example.treasure_and_battle.character;
 
 import android.content.Context;
 
-import com.example.treasure_and_battle.profession.ProfessionType;
-import com.example.treasure_and_battle.skill.Skill;
-import com.example.treasure_and_battle.skill.SkillTree;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -13,7 +13,6 @@ import com.example.treasure_and_battle.battle.damage.DamageConfig;
 import com.example.treasure_and_battle.battle.EscapeCalculator;
 import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.TriggerDispatcher;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.entity.Monster;
@@ -25,7 +24,6 @@ import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 import com.example.treasure_and_battle.manager.item.ConsumableManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
-import com.example.treasure_and_battle.manager.item.ItemManager;
 
 import com.example.treasure_and_battle.model.common.TriggerType;
 import com.example.treasure_and_battle.utils.RandomUtils;

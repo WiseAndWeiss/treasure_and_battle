@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.game.SaveManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;

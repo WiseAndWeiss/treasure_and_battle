@@ -6,7 +6,7 @@ import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.model.attribute.AttributeSet;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;

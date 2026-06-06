@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.event;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,8 +7,8 @@ import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.example.treasure_and_battle.battle.BattleContext;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.model.entity.Monster;
-import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.model.event.EventConfig;
 import com.example.treasure_and_battle.utils.GeoUtils;
 import com.google.gson.Gson;

@@ -1,9 +1,12 @@
-package com.example.treasure_and_battle.profession;
+package com.example.treasure_and_battle.manager.character;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.example.treasure_and_battle.manager.skill.SkillManager;
+import com.example.treasure_and_battle.model.profession.Profession;
+import com.example.treasure_and_battle.model.profession.ProfessionTemplate;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.skill.SkillTree;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

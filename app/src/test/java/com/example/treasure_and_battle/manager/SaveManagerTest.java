@@ -3,7 +3,8 @@ package com.example.treasure_and_battle.manager;
 import android.content.Context;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.manager.game.SaveManager;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.After;
 import org.junit.Before;

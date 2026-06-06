@@ -10,7 +10,7 @@ import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
 import com.example.treasure_and_battle.model.item.gem.GemItem;
 import com.example.treasure_and_battle.model.item.material.MaterialItem;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.ui.PlayerCharacterHolder;
 
 import org.junit.After;

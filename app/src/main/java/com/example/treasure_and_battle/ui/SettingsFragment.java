@@ -14,13 +14,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.GameManager;
-import com.example.treasure_and_battle.manager.MonsterManager;
-import com.example.treasure_and_battle.manager.SaveManager;
+import com.example.treasure_and_battle.manager.game.GameManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.model.common.Rarity;
 

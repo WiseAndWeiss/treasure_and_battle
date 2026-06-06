@@ -1,6 +1,7 @@
 package com.example.treasure_and_battle.event.handler;
 
 import com.example.treasure_and_battle.character.Character;
+import com.example.treasure_and_battle.event.EventUICallback;
 import com.example.treasure_and_battle.event.NeutralEventResolver;
 
 /**

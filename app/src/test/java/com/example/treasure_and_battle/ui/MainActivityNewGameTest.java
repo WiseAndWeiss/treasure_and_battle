@@ -1,12 +1,11 @@
 package com.example.treasure_and_battle.ui;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.GameManager;
-import com.example.treasure_and_battle.manager.SaveManager;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.manager.game.GameManager;
+import com.example.treasure_and_battle.manager.game.SaveManager;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,8 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
-import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
 import java.io.File;

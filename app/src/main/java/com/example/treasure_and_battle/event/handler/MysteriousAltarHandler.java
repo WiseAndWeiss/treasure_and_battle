@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.treasure_and_battle.R;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.drawable.TreasureStyleDrawable;
+import com.example.treasure_and_battle.event.EventUICallback;
 import com.example.treasure_and_battle.event.NeutralEventResolver;
 import com.example.treasure_and_battle.model.common.Rarity;
 import com.example.treasure_and_battle.model.item.Item;

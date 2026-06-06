@@ -2,14 +2,10 @@ package com.example.treasure_and_battle.skill.active.ranger;
 
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.impl.special.WindProtectBuff;
-import com.example.treasure_and_battle.manager.MonsterManager;
-import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;
 import com.example.treasure_and_battle.skill.active.ActiveSkillTestBase;
 
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 

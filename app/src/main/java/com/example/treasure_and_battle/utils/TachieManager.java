@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import java.io.IOException;
 import java.io.InputStream;

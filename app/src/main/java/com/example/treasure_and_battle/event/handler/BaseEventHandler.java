@@ -1,5 +1,7 @@
 package com.example.treasure_and_battle.event.handler;
 
+import com.example.treasure_and_battle.event.EventUICallback;
+
 /**
  * 所有事件 Handler 的抽象基类。
  *

@@ -3,8 +3,8 @@ package com.example.treasure_and_battle.event;
 import android.content.Context;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.EventManager;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.event.EventManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.manager.item.EquipmentManager;
 import com.example.treasure_and_battle.manager.item.InventoryManager;
 import com.example.treasure_and_battle.manager.item.ItemManager;

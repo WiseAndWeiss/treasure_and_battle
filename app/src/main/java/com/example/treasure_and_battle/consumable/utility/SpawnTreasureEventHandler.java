@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.consumable.utility;
 import android.content.Context;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.manager.EventManager;
+import com.example.treasure_and_battle.manager.event.EventManager;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
 
 public class SpawnTreasureEventHandler implements IUtilityHandler {

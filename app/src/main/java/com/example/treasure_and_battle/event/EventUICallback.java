@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.event.handler;
+package com.example.treasure_and_battle.event;
 
 import android.content.Context;
 import android.view.View;

@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.skill.active.ranger;
 import com.example.treasure_and_battle.battle.log.LogType;
 import com.example.treasure_and_battle.buff.impl.control.BlindnessDebuff;
 import com.example.treasure_and_battle.buff.impl.control.SlowDebuff;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.skill.active.ActiveSkill;

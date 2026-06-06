@@ -5,8 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.model.attribute.AttributeSet;
-import com.example.treasure_and_battle.profession.Profession;
+import com.example.treasure_and_battle.model.profession.Profession;
 
 /**
  * 设置页等处的角色调试加资源（经验 / 天赋点 / 技能点）。

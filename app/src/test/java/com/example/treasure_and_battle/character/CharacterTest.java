@@ -12,7 +12,7 @@ import com.example.treasure_and_battle.model.common.ValueType;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.equip.EquipItem;
 import com.example.treasure_and_battle.model.item.equip.EquipSlot;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 import com.example.treasure_and_battle.affix.BaseAffix;
 
 import org.junit.Before;

@@ -3,7 +3,7 @@ package com.example.treasure_and_battle.skill.monster;
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.SkillTargetResolver;
 import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.manager.MonsterManager;
+import com.example.treasure_and_battle.manager.battle.MonsterManager;
 import com.example.treasure_and_battle.model.entity.BattleEntity;
 import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.skill.SkillRangeType;
@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;

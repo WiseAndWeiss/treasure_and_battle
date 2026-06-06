@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.example.treasure_and_battle.character.Character;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 public final class PlayerCharacterHolder {
 

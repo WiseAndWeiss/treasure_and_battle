@@ -11,7 +11,7 @@ import com.example.treasure_and_battle.model.entity.Monster;
 import com.example.treasure_and_battle.model.entity.Player;
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.material.MaterialItem;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;

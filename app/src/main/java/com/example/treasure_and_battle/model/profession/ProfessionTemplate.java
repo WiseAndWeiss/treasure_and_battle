@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.profession;
+package com.example.treasure_and_battle.model.profession;
 
 /**
  * 职业模板类

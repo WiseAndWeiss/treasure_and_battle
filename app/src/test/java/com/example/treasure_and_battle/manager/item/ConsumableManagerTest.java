@@ -4,10 +4,6 @@ import android.content.Context;
 
 import com.example.treasure_and_battle.battle.BattleContext;
 import com.example.treasure_and_battle.battle.BattleContext.SurpriseDirection;
-import com.example.treasure_and_battle.battle.damage.DamageConfig;
-import com.example.treasure_and_battle.battle.log.LogType;
-import com.example.treasure_and_battle.buff.BaseBuff;
-import com.example.treasure_and_battle.buff.impl.attribute.AttributeBuff;
 import com.example.treasure_and_battle.buff.impl.control.FrozenDebuff;
 import com.example.treasure_and_battle.buff.impl.defensive.ShieldBuff;
 import com.example.treasure_and_battle.character.Character;
@@ -24,7 +20,7 @@ import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Debu
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Effect;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.EffectType;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem.Target;
-import com.example.treasure_and_battle.profession.ProfessionType;
+import com.example.treasure_and_battle.model.profession.ProfessionType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,14 +40,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * ConsumableManager 单元测试

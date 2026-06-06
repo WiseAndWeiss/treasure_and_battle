@@ -1,4 +1,4 @@
-package com.example.treasure_and_battle.manager;
+package com.example.treasure_and_battle.manager.item;
 
 import com.example.treasure_and_battle.model.item.Item;
 import com.example.treasure_and_battle.model.item.consumable.ConsumableItem;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-class ItemTypeAdapterFactory implements TypeAdapterFactory {
+public class ItemTypeAdapterFactory implements TypeAdapterFactory {
     private static final Map<String, Class<? extends Item>> CLASS_MAP = new HashMap<>();
 
     static {
