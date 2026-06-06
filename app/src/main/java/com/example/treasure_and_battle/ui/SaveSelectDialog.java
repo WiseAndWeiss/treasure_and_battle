@@ -121,7 +121,6 @@ public final class SaveSelectDialog {
                     Character ch = PlayerCharacterHolder.getOrCreate(context);
                     boolean ok = sm.saveGame(ch, meta.slotId);
                     if (ok) {
-                        FloatMsgOverlay.showFloatMsg(context, "存档成功");
                         if (listener != null) listener.onSaveComplete();
                     } else {
                         FloatMsgOverlay.showFloatMsg(context, "存档失败");

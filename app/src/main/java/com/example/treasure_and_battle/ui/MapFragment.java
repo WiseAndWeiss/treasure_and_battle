@@ -43,6 +43,7 @@ import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.TreasureApp;
 import com.example.treasure_and_battle.manager.event.EventManager;
 import com.example.treasure_and_battle.manager.game.GameManager;
 import com.example.treasure_and_battle.manager.battle.MonsterManager;
@@ -109,6 +110,9 @@ public class MapFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // 在 AMap SDK 初始化之前注入用户自定义 Key
+        TreasureApp.applyApiKey(requireContext());
+
         MapsInitializer.updatePrivacyShow(requireContext(), true, true);
         MapsInitializer.updatePrivacyAgree(requireContext(), true);
         AMapLocationClient.updatePrivacyShow(requireContext(), true, true);
