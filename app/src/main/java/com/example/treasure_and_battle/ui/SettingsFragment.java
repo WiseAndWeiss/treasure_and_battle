@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.TreasureApp;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.game.GameManager;
 import com.example.treasure_and_battle.manager.battle.MonsterManager;
@@ -118,6 +121,7 @@ public class SettingsFragment extends Fragment {
                             @Override
                             public void onLoadSave(Character character) {
                                 PlayerCharacterHolder.restoreFrom(character);
+                                GameManager.getInstance(requireContext()).startGame(character);
                                 FloatMsgOverlay.showFloatMsg(requireContext(), "读档成功");
                             }
 
@@ -156,6 +160,8 @@ public class SettingsFragment extends Fragment {
                 FloatMsgOverlay.showFloatMsg(requireContext(), "已填充测试物品");
             });
         }
+
+        view.findViewById(R.id.btn_set_amap_key).setOnClickListener(v -> showApiKeyDialog());
 
         return view;
     }
@@ -239,5 +245,38 @@ public class SettingsFragment extends Fragment {
         intent.putExtra("debugMaxRarity", maxRarity);
         intent.putExtra("debugCount", count);
         startActivity(intent);
+    }
+
+    private void showApiKeyDialog() {
+        String currentKey = TreasureApp.getSavedApiKey(requireContext());
+        String hintText = currentKey.isEmpty() ? "请输入API Key" : maskKey(currentKey);
+
+        EditText input = new EditText(requireContext());
+        input.setHint(hintText);
+        input.setTextColor(getResources().getColor(R.color.tb_text_main));
+        input.setHintTextColor(getResources().getColor(R.color.tb_text_sub));
+        input.setSingleLine();
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, (int)(16 * getResources().getDisplayMetrics().density), 0, 0);
+        input.setLayoutParams(lp);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("设置高德API Key")
+                .setMessage("可在高德开放平台 console.amap.com 获取Key")
+                .setView(input)
+                .setPositiveButton("确认", (d, which) -> {
+                    String newKey = input.getText().toString().trim();
+                    TreasureApp.saveApiKey(requireContext(), newKey);
+                    FloatMsgOverlay.showFloatMsg(requireContext(), "API Key 已保存，请重启应用生效");
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private static String maskKey(String key) {
+        if (key.length() <= 8) return "****";
+        return key.substring(0, 4) + "****" + key.substring(key.length() - 4);
     }
 }

@@ -3,6 +3,7 @@ package com.example.treasure_and_battle.ui;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.treasure_and_battle.R;
+import com.example.treasure_and_battle.TreasureApp;
 import com.example.treasure_and_battle.character.Character;
 import com.example.treasure_and_battle.manager.game.GameManager;
 import com.example.treasure_and_battle.manager.game.SaveManager;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private SettingsFragment settingsFragment;
     private Fragment activeFragment;
     private boolean isFirstResume = true;
+    private boolean hasShownKeyWarning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        checkApiKey();
     }
 
     private void switchFragment(Fragment targetFragment) {
@@ -97,10 +102,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        if (GameManager.getInstance(this).getCurrentCharacter() == null) {
-            GameManager.getInstance(this).startGame(PlayerCharacterHolder.getOrCreate(this));
+        Character holderChar = PlayerCharacterHolder.getOrCreate(this);
+        if (GameManager.getInstance(this).getCurrentCharacter() != holderChar) {
+            GameManager.getInstance(this).startGame(holderChar);
+        } else {
+            GameManager.getInstance(this).onGameResume();
         }
-        GameManager.getInstance(this).onGameResume();
     }
 
     @Override
@@ -109,5 +116,22 @@ public class MainActivity extends AppCompatActivity {
         if (GameManager.getInstance(this).getCurrentCharacter() != null) {
             GameManager.getInstance(this).onGamePause();
         }
+    }
+
+    private void checkApiKey() {
+        if (hasShownKeyWarning) return;
+        if (TreasureApp.isKeyConfigured(this)) return;
+
+        hasShownKeyWarning = true;
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("您尚未配置高德地图API Key，地图功能可能无法正常使用。是否前往设置页面配置？")
+                .setPositiveButton("前往设置", (d, which) -> {
+                    BottomNavigationView bn = findViewById(R.id.bottom_nav);
+                    bn.setSelectedItemId(R.id.nav_settings);
+                    switchFragment(settingsFragment);
+                })
+                .setNegativeButton("稍后再说", null)
+                .show();
     }
 }

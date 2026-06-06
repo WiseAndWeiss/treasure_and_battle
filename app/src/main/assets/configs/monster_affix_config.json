@@ -254,7 +254,7 @@
     {
       "templateId": 5007,
       "affixName": "狩魂",
-      "descriptionFormat": "物理暴击率 +%.2f",
+      "descriptionFormat": "物理暴击率 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_RATE",
@@ -270,7 +270,7 @@
     {
       "templateId": 5008,
       "affixName": "咒痕",
-      "descriptionFormat": "法术暴击率 +%.2f",
+      "descriptionFormat": "法术暴击率 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "MAGICAL_CRIT_RATE",
@@ -286,7 +286,7 @@
     {
       "templateId": 5009,
       "affixName": "碎甲",
-      "descriptionFormat": "物理暴击伤害 +%.2f",
+      "descriptionFormat": "物理暴击伤害 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "PHYSICAL_CRIT_DMG",
@@ -302,7 +302,7 @@
     {
       "templateId": 5010,
       "affixName": "裂咒",
-      "descriptionFormat": "魔法暴击伤害 +%.2f",
+      "descriptionFormat": "魔法暴击伤害 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "MAGICAL_CRIT_DMG",
@@ -318,7 +318,7 @@
     {
       "templateId": 5011,
       "affixName": "鹰眼",
-      "descriptionFormat": "命中率 +%.2f",
+      "descriptionFormat": "命中率 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "HIT_RATE",
@@ -334,7 +334,7 @@
     {
       "templateId": 5012,
       "affixName": "幻步",
-      "descriptionFormat": "闪避率 +%.2f",
+      "descriptionFormat": "闪避率 +%.0f%%",
       "triggerType": "PERMANENT",
       "affixClass": "com.example.treasure_and_battle.affix.impl.monster.attribute.MonsterAttributeAffix",
       "attributeType": "DODGE_RATE",
